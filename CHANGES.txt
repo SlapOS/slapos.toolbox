@@ -1,3 +1,10 @@
+0.51 (2016-02-23)
+=================
+
+* The egg provides `is-process-older-than-dependency-set` script to check if
+  process needs to be restarted because is runnnig on an old version of its
+  loaded module.
+
 0.50 (2015-07-20)
 =================
 
