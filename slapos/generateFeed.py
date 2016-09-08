@@ -85,13 +85,13 @@ def generateFeed(option):
     items = getRSSItemListFromItemDict(sorted_item_dict)
   )
 
-  return feed
+  return feed.to_xml()
 
 
 def main():
   option = parseArguments()
   feed = generateFeed(option)
-  feed.write_xml(open(option.output, 'w'))
+  open(option.output, 'w').write(feed)
 
 
 if __name__ == "__main__":
