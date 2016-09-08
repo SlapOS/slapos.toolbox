@@ -5,7 +5,7 @@ import unittest
 
 import PyRSS2Gen as RSS2
 
-from slapos.resilient.checkFeedAsPromise import checkFeedAsPromise
+from slapos.checkFeedAsPromise import checkFeedAsPromise
 
 class Option(dict):
     def __init__(self, **kw): 
