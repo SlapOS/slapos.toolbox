@@ -178,6 +178,6 @@ def getUpdatedParameter(self, var):
   else:
     raise KeyError
 
-flask.config.Config.__getitem__ = getUpdatedParameter
-
-run()
+if __name__ == 'slapos.runner.run':
+  flask.config.Config.__getitem__ = getUpdatedParameter
+  run()

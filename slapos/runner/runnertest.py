@@ -11,6 +11,7 @@
 #############################################
 
 import argparse
+import base64
 import ConfigParser
 import datetime
 import hashlib
@@ -19,8 +20,10 @@ import os
 import shutil
 import sup_process
 import StringIO
+import ssl
 import time
 import unittest
+import urllib2
 
 from slapos.runner.utils import (getProfilePath,
                                  getSession, isInstanceRunning,
@@ -31,6 +34,7 @@ from slapos.runner.utils import (getProfilePath,
 from slapos.runner import views
 import slapos.slap
 from slapos.htpasswd import  HtpasswdFile
+from .run import Config
 
 import erp5.util.taskdistribution as taskdistribution
 
@@ -44,6 +48,29 @@ def parseArguments():
   Parse arguments for erp5testnode-backed test.
   """
   parser = argparse.ArgumentParser()
+
+  # runnertest mandatory arguments
+  parser.add_argument('--key_file',
+                      metavar='KEY_FILE',
+                      help='Path to the key file used to communicate with slapOS-master')
+
+  parser.add_argument('--cert_file',
+                      metavar='CERT_FILE',
+                      help='Path to the cert file used to communicate with slapOS-master')
+
+  parser.add_argument('--server_url',
+                      metavar='SERVER_URL',
+                      help='URL of the local slapproxy')
+
+  parser.add_argument('--computer_id',
+                      metavar='COMPUTER_ID',
+                      help='ID of the COMP where the slaprunner is running')
+
+  parser.add_argument('--partition_id',
+                      metavar='PARTITION_ID',
+                      help='ID of the partition where the slaprunner is depoyed')
+
+  # Test Node arguments
   parser.add_argument('--test_result_path',
                       metavar='ERP5_TEST_RESULT_PATH',
                       help='ERP5 relative path of the test result')
@@ -65,6 +92,10 @@ def parseArguments():
                       help='Title of the testnode which is running this'
                             'launcher')
 
+  parser.add_argument('--project_title',
+                      metavar='PROJECT_TITLE',
+                      help='The project title')
+
   parser.add_argument('--node_quantity', help='Number of parallel tests to run',
                       default=1, type=int)
 
@@ -72,81 +103,57 @@ def parseArguments():
                       metavar='TEST_SUITE_MASTER_URL',
                       help='Url to connect to the ERP5 Master testsuite taskditributor')
 
-  parser.add_argument('additional_arguments', nargs=argparse.REMAINDER)
-
   return parser.parse_args()
-
-
-class Config:
-  def __init__(self):
-    self.runner_workdir = None
-    self.software_root = None
-    self.instance_root = None
-    self.configuration_file_path = None
-
-  def setConfig(self):
-    """
-    Set options given by parameters.
-    """
-    self.configuration_file_path = os.path.abspath(os.environ.get('RUNNER_CONFIG'))
-
-    # Load configuration file
-    configuration_parser = ConfigParser.SafeConfigParser()
-    configuration_parser.read(self.configuration_file_path)
-    # Merges the arguments and configuration
-
-    for section in ("slaprunner", "slapos", "slapproxy", "slapformat",
-                    "sshkeys_authority", "gitclient"):
-      configuration_dict = dict(configuration_parser.items(section))
-      for key in configuration_dict:
-        if not getattr(self, key, None):
-          setattr(self, key, configuration_dict[key])
 
 
 class SlaprunnerTestCase(unittest.TestCase):
 
+  @classmethod
+  def setUpClass(cls, **kw):
+    if len(kw) == 0:
+      return
+    cls.server_url = kw['server_url']
+    cls.key_file = kw['key_file']
+    cls.cert_file = kw['cert_file']
+    cls.computer_id = kw['computer_id']
+    cls.partition_id = kw['partition_id']
+    # Get parameters returned by slapos master
+    slap = slapos.slap.slap()
+    slap.initializeConnection(cls.server_url, cls.key_file, cls.cert_file)
+    cls.partition = slap.registerComputerPartition(
+      computer_guid=cls.computer_id,
+      partition_id=cls.partition_id
+    )
+    cls.parameter_dict = cls.partition.getConnectionParameterDict()
+    for attribute, value in cls.parameter_dict.iteritems():
+      setattr(cls, attribute.replace('-', '_'), value)
+
+    #create slaprunner configuration
+    views.app.config['TESTING'] = True
+    config = Config()
+    config.setConfig()
+    views.app.config.update(**config.__dict__)
+    cls.app = views.app.test_client()
+    cls.app.config = views.app.config
+
   def setUp(self):
     """Initialize slapos webrunner here"""
-    views.app.config['TESTING'] = True
-    self.users = ["slapuser", "slappwd", "slaprunner@nexedi.com", "SlapOS web runner"]
+    self.users = [self.init_user, self.init_password, "slaprunner@nexedi.com", "SlapOS web runner"]
     self.updateUser = ["newslapuser", "newslappwd", "slaprunner@nexedi.com", "SlapOS web runner"]
     self.repo = 'https://lab.nexedi.com/nexedi/slapos.git'
     self.software = "workspace/slapos/software/"  # relative directory fo SR
     self.project = 'slapos'  # Default project name
     self.template = 'template.cfg'
     self.partitionPrefix = 'slappart'
-    #create slaprunner configuration
-    config = Config()
-    config.setConfig()
-    # We do not run tests if a user is already set (runner being used)
-    if os.path.exists(os.path.join(config.etc_dir, '.users')):
-      self.fail(msg="A user is already set, can not start tests")
-    workdir = os.path.join(config.runner_workdir, 'project')
-    software_link = os.path.join(config.runner_workdir, 'softwareLink')
-    views.app.config.update(**config.__dict__)
-    #update or create all runner base directory to test_dir
 
+    self.workdir = workdir = os.path.join(self.app.config['runner_workdir'], 'project')
+    software_link = os.path.join(self.app.config['runner_workdir'], 'softwareLink')
+    #update or create all runner base directory to test_dir
     if not os.path.exists(workdir):
       os.mkdir(workdir)
     if not os.path.exists(software_link):
       os.mkdir(software_link)
-    views.app.config.update(
-      software_log=config.software_root.rstrip('/') + '.log',
-      instance_log=config.instance_root.rstrip('/') + '.log',
-      workspace=workdir,
-      software_link=software_link,
-      instance_profile='instance.cfg',
-      software_profile='software.cfg',
-      SECRET_KEY="123456",
-      PERMANENT_SESSION_LIFETIME=datetime.timedelta(days=31),
-      instance_monitoring_url = 'https://[' + config.ipv6_address + ']:9684',
-    )
-    self.app = views.app.test_client()
-    self.app.config = views.app.config
-    #Create password recover code
-    parser = ConfigParser.ConfigParser()
-    parser.read(self.app.config['knowledge0_cfg'])
-    self.rcode = parser.get('public', 'recovery-code')
+
     #Create config.json
     json_file = os.path.join(views.app.config['etc_dir'], 'config.json')
     if not os.path.exists(json_file):
@@ -161,14 +168,11 @@ class SlaprunnerTestCase(unittest.TestCase):
   def tearDown(self):
     """Remove all test data"""
     project = os.path.join(self.app.config['etc_dir'], '.project')
-    users = os.path.join(self.app.config['etc_dir'], '.users')
 
     #reset tested parameters
     self.updateConfigParameter('autorun', False)
     self.updateConfigParameter('auto_deploy', True)
 
-    if os.path.exists(users):
-      os.unlink(users)
     if os.path.exists(project):
       os.unlink(project)
     if os.path.exists(self.app.config['workspace']):
@@ -179,10 +183,6 @@ class SlaprunnerTestCase(unittest.TestCase):
       shutil.rmtree(self.app.config['instance_root'])
     if os.path.exists(self.app.config['software_link']):
       shutil.rmtree(self.app.config['software_link'])
-    #Stop process
-    sup_process.killRunningProcess(self.app.config, 'slapproxy')
-    sup_process.killRunningProcess(self.app.config, 'slapgrid-cp')
-    sup_process.killRunningProcess(self.app.config, 'slapgrid-sr')
 
   def updateConfigParameter(self, parameter, value):
     config_parser = ConfigParser.SafeConfigParser()
@@ -193,25 +193,8 @@ class SlaprunnerTestCase(unittest.TestCase):
     with open(os.getenv('RUNNER_CONFIG'), 'wb') as configfile:
       config_parser.write(configfile)
 
-  def configAccount(self, username, password, email, name, rcode):
-    """Helper for configAccount"""
-    return self.app.post('/configAccount',
-                         data=dict(
-                           username=username,
-                           password=password,
-                           email=email,
-                           name=name,
-                           rcode=rcode
-                         ),
-                         follow_redirects=True)
 
-  def setAccount(self):
-    """Initialize user account and log user in"""
-    response = loadJson(self.configAccount(self.users[0], self.users[1],
-                  self.users[2], self.users[3], self.rcode))
-    self.assertEqual(response['result'], "")
-
-  def updateAccount(self, newaccount, rcode):
+  def updateAccount(self, newaccount):
     """Helper for update user account data"""
     return self.app.post('/updateAccount',
                          data=dict(
@@ -219,18 +202,12 @@ class SlaprunnerTestCase(unittest.TestCase):
                            password=newaccount[1],
                            email=newaccount[2],
                            name=newaccount[3],
-                           rcode=rcode
                          ),
                          follow_redirects=True)
 
   def getCurrentSR(self):
    return getProfilePath(self.app.config['etc_dir'],
                               self.app.config['software_profile'])
-
-  def proxyStatus(self, status=True):
-    """Helper for testslapproxy status"""
-    proxy = sup_process.isRunning(self.app.config, 'slapproxy')
-    self.assertEqual(proxy, status)
 
   def setupProjectFolder(self):
     """Helper to create a project folder as for slapos.git"""
@@ -271,38 +248,27 @@ class SlaprunnerTestCase(unittest.TestCase):
     os.mkdir(base)
     open(template, "w").write(content)
 
-  def stopSlapproxy(self):
-    """Kill slapproxy process"""
-    pass
-
-  def test_configAccount(self):
-    """For the first lauch of slaprunner user need do create first account"""
-    result = self.configAccount(self.users[0], self.users[1], self.users[2],
-                  self.users[3], self.rcode)
-    response = loadJson(result)
-    self.assertEqual(response['code'], 1)
-    account = getSession(self.app.config)
-    self.assertEqual(account, self.users)
+  def assertCanLoginWith(self, username, password):
+    request = urllib2.Request(self.backend_url)
+    base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
+    request.add_header("Authorization", "Basic %s" % base64string)
+    ssl_context = ssl._create_unverified_context()
+    result = urllib2.urlopen(request, context=ssl_context)
+    self.assertEqual(result.getcode(), 200)
 
   def test_updateAccount(self):
     """test Update accound, this needs the user to log in"""
-    self.setAccount()
-    htpasswd = os.path.join(self.app.config['etc_dir'], '.htpasswd')
-    assert self.users[0] in open(htpasswd).read()
-    response = loadJson(self.updateAccount(self.updateUser, self.rcode))
+    # Check that given user can log in
+    self.assertCanLoginWith(self.users[0], self.users[1])
+    # Adds a user
+    new_user = {'username': 'vice-president', 'password': '123456'}
+    response = loadJson(self.app.post('/addUser', data=new_user))
     self.assertEqual(response['code'], 1)
-    encode = HtpasswdFile(htpasswd, False)
-    encode.update(self.updateUser[0], self.updateUser[1])
-    assert self.updateUser[0] in open(htpasswd).read()
+    self.assertCanLoginWith(new_user['username'], new_user['password'])
 
-  def test_startStopProxy(self):
-    """Test slapproxy"""
-    startProxy(self.app.config)
-    self.proxyStatus(True)
 
   def test_cloneProject(self):
     """Start scenario 1 for deploying SR: Clone a project from git repository"""
-    self.setAccount()
     folder = 'workspace/' + self.project
     if os.path.exists(self.app.config['workspace'] + '/' + self.project):
       shutil.rmtree(self.app.config['workspace'] + '/' + self.project)
@@ -337,7 +303,6 @@ class SlaprunnerTestCase(unittest.TestCase):
 
   def test_createSR(self):
     """Scenario 2: Create a new software release"""
-    self.setAccount()
     #setup project directory
     self.setupProjectFolder()
     newSoftware = os.path.join(self.software, 'slaprunner-test')
@@ -361,10 +326,6 @@ class SlaprunnerTestCase(unittest.TestCase):
     self.assertFalse(isInstanceRunning(self.app.config))
     self.assertFalse(isSoftwareRunning(self.app.config))
 
-    # Slapproxy process is supposed to be started
-    # newSoftware = os.path.join(self.software, 'slaprunner-test')
-    self.proxyStatus(True)
-    self.stopSlapproxy()
 
   def test_runSoftware(self):
     """Scenario 4: CReate empty SR and save software.cfg file
@@ -399,20 +360,17 @@ class SlaprunnerTestCase(unittest.TestCase):
     createdFile = os.path.join(self.app.config['software_root'], sr_dir[0],
                               'parts', 'test-application', 'slapos.git')
     self.assertTrue(os.path.exists(createdFile))
-    self.proxyStatus(True)
-    self.stopSlapproxy()
+
 
   def test_updateInstanceParameter(self):
-    """Scenarion 5: Update parameters of current sofware profile"""
-    self.setAccount()
+    """Scenario 5: Update parameters of current sofware profile"""
     self.setupTestSoftware()
     #Set current projet and run Slapgrid-cp
-    software = os.path.join(self.software, 'slaprunner-test')
+    software = self.software + 'slaprunner-test/'
     response = loadJson(self.app.post('/setCurrentProject',
                                       data=dict(path=software),
                                       follow_redirects=True))
     self.assertEqual(response['result'], "")
-    self.proxyStatus(True)
     #Send paramters for the instance
     parameterDict = dict(appname='slaprunnerTest', cacountry='France')
     parameterXml = '<?xml version="1.0" encoding="utf-8"?>\n<instance>'
@@ -442,7 +400,7 @@ class SlaprunnerTestCase(unittest.TestCase):
     self.assertEqual(parameterXml, response['result'])
     response = loadJson(self.app.get('/getParameterXml/dict'))
     self.assertEqual(parameterDict, response['result']['instance'])
-    self.stopSlapproxy()
+
 
   def test_requestInstance(self):
     """Scenarion 6: request software instance"""
@@ -474,8 +432,7 @@ class SlaprunnerTestCase(unittest.TestCase):
     createdFile = os.path.join(instancePath, 'etc', 'testfile')
     self.assertTrue(os.path.exists(createdFile))
     assert 'simple file' in open(createdFile).read()
-    self.proxyStatus(True)
-    self.stopSlapproxy()
+
 
   def test_safeAutoDeploy(self):
     """Scenario 7: isSRReady won't overwrite the existing
@@ -485,7 +442,7 @@ class SlaprunnerTestCase(unittest.TestCase):
     self.updateConfigParameter('autorun', False)
     project = open(os.path.join(self.app.config['etc_dir'],
                   '.project'), "w")
-    project.write(self.software + 'slaprunner-test')
+    project.write(self.software + 'slaprunner-test/')
     project.close()
     response = isSoftwareReleaseReady(self.app.config)
     self.assertEqual(response, "0")
@@ -586,7 +543,7 @@ class SlaprunnerTestCase(unittest.TestCase):
     # Checkout to master branch
     response = loadJson(self.app.post('/newBranch',
                                       data=dict(
-                                        project=self.software,
+                                        project=self.workdir+'/slapos',
                                         create='0',
                                         name='master'
                                       ),
@@ -613,8 +570,6 @@ class SlaprunnerTestCase(unittest.TestCase):
     # result is True if returncode is 0 (i.e "deployed and promise passed")
     self.assertTrue(result)
 
-    self.proxyStatus(True)
-    self.stopSlapproxy()
 
   def test_dynamicParametersReading(self):
     """Test if the value of a parameter can change in the flask application
@@ -642,15 +597,20 @@ def main():
   test_suite_title = args.test_suite_title or args.test_suite
   revision = args.revision
 
+  SlaprunnerTestCase.setUpClass(
+    key_file=args.key_file,
+    cert_file=args.cert_file,
+    server_url=args.server_url,
+    computer_id=args.computer_id,
+    partition_id=args.partition_id)
+
   test_result = master.createTestResult(revision, [test_suite_title],
-    args.test_node_title, True, test_suite_title, 'foo')
-    #args.project_title)
+    args.test_node_title, True, test_suite_title, args.project_title)
   test_line = test_result.start()
 
   start_time = time.time()
 
   stderr = StringIO.StringIO()
-
   suite = unittest.TestLoader().loadTestsFromTestCase(SlaprunnerTestCase)
   test_result = unittest.TextTestRunner(verbosity=2, stream=stderr).run(suite)
 
