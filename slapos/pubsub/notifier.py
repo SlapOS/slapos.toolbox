@@ -7,6 +7,7 @@ import datetime
 import json
 import httplib
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -109,17 +110,36 @@ def main():
 
   print content
 
+  # Write feed safely
+  error_message = ""
+  temp_file = args.logfile[0] + '.tmp'
+  try:
+    shutil.copy2(args.logfile[0], temp_file)
+  except IOError:
+    error_message = "ERROR ON WRITING FEED"
+  try:
+    with open(temp_file, 'a') as file_:
+      csvfile = csv.writer(file_)
+      csvfile.writerow([
+        int(time.time()),
+        args.title[0],
+        content,
+        'slapos:%s' % uuid.uuid4(),
+      ])
+    os.rename(temp_file, args.logfile[0])
+  except:
+    error_message = "ERROR ON WRITING FEED"
+  finally:
+    try:
+      os.remove(temp_file)
+    except OSError:
+      pass
 
-  with open(args.logfile[0], 'a') as file_:
-    cvsfile = csv.writer(file_)
-    cvsfile.writerow([
-      int(time.time()),
-      args.title[0],
-      content,
-      'slapos:%s' % uuid.uuid4(),
-    ])
+  if error_message:
+    saveStatus(error_message)
+    exit_code = 1
 
-  if  exit_code != 0:
+  if exit_code != 0:
     sys.exit(exit_code)
 
   print 'Fetching %s feed...' % args.feed_url[0]
@@ -143,7 +163,6 @@ def main():
     notification_path += str(transaction_id)
 
     headers = {'Content-Type': feed.info().getheader('Content-Type')}
-    error_message = ""
     try:
       notification = httplib.HTTPConnection(notification_url.hostname,
                                             notification_port)
@@ -160,7 +179,7 @@ def main():
     finally:
       if error_message:
         sys.stderr.write(error_message)
-        saveStatus(saveStatus('ERROR ON NOTIFYING : %s') % error_message)
+        saveStatus('ERROR ON NOTIFYING : %s') % error_message
 
   if some_notification_failed:
     sys.exit(1)
