@@ -39,7 +39,7 @@ def updateGitConfig(repository, user, email):
   repo = Repo(repository)
   config_writer = repo.config_writer()
   if user != "":
-    config_writer.set_value("user", "name", user.encode("utf-8"))
+    config_writer.set_value("user", "name", user)
   if email != "":
     config_writer.set_value("user", "email", email)
   config_writer.release()

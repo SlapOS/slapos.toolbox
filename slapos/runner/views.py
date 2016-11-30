@@ -118,7 +118,7 @@ def manageRepository():
   git_user_path = os.path.join(app.config['etc_dir'], '.git_user')
   name = email = ""
   if os.path.exists(git_user_path):
-    with open(git_user_path, 'r') as gfile:
+    with codecs.open(git_user_path, 'r', encoding='utf-8') as gfile:
       name, email = gfile.read().split(';')
   return render_template('manageRepository.html', workDir='workspace',
             project=listFolder(app.config, 'workspace'),
@@ -633,8 +633,9 @@ def updateAccount():
     updateGitConfig(app.config['default_repository_path'], name, email)
   except GitCommandError, e:
     return jsonify(code=0, result=str(e))
-  with open(os.path.join(app.config['etc_dir'], '.git_user'), 'w') as gfile:
-    gfile.write('%s;%s' % (name, email))
+  git_user_file = os.path.join(app.config['etc_dir'], '.git_user')
+  with codecs.open(git_user_file, 'w', encoding='utf-8') as gfile:
+    gfile.write(u'{};{}'.format(name, email))
   return jsonify(code=1, result="")
 
 
