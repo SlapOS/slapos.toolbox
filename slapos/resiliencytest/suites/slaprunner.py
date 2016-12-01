@@ -274,7 +274,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
       self.logger.info('Data are different: failure.')
       return False
 
-    return self._checkServicesAreRunning():
+    return self._checkServicesAreRunning()
 
 
 def runTestSuite(*args, **kwargs):
