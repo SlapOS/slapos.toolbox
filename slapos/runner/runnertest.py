@@ -136,6 +136,9 @@ class SlaprunnerTestCase(unittest.TestCase):
     cls.app = views.app.test_client()
     cls.app.config = views.app.config
 
+    # Set up path (needed to find git binary)
+    os.environ['PATH'] = config.path
+
   def setUp(self):
     """Initialize slapos webrunner here"""
     self.users = [self.init_user, self.init_password, "slaprunner@nexedi.com", "SlapOS web runner"]
