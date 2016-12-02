@@ -21,6 +21,7 @@ class MonitorConfigDocument(unittest.TestCase):
     self.httpd_passwd_script = """#!/bin/sh
 echo "htpasswd $@" > %s/monitor-htpasswd
 """ % self.base_dir
+    self.monitor_https_cors = os.path.join(self.base_dir, 'httpd-cors-template.cfg.in')
     self.parameter_dict = {
       "cors-domain": 
         {
@@ -74,6 +75,9 @@ echo "htpasswd $@" > %s/monitor-htpasswd
     self.writeContent("%s/content" % self.base_dir, self.file_content)
     self.writeContent("%s/.httpd_pwd_real" % self.base_dir, self.httpd_passwd)
     self.writeContent(self.httpd_passwd_bin, self.httpd_passwd_script)
+    self.writeContent(self.monitor_https_cors, '{% set allow_domain = "|".join(domain.replace(".", "\.").split()) -%}\n'
+                                               'SetEnvIf Origin "^http(s)?://(.+\.)?({{ allow_domain }})$" ORIGIN_DOMAIN=$0\n'
+                                               'Header always set Access-Control-Allow-Origin "%{ORIGIN_DOMAIN}e" env=ORIGIN_DOMAIN')
     os.chmod(self.httpd_passwd_bin, 0755)
 
   def tearDown(self):
@@ -91,8 +95,8 @@ echo "htpasswd $@" > %s/monitor-htpasswd
         cors_string += '|'
       cors_string += re.escape(domain)
 
-    cors_string = 'SetEnvIf Origin "^http(s)?://(.+\.)?(%s)$" origin_is=$0\n' % cors_string
-    cors_string += 'Header always set Access-Control-Allow-Origin %{origin_is}e env=origin_is'
+    cors_string = 'SetEnvIf Origin "^http(s)?://(.+\.)?(%s)$" ORIGIN_DOMAIN=$0\n' % cors_string
+    cors_string += 'Header always set Access-Control-Allow-Origin "%{ORIGIN_DOMAIN}e" env=ORIGIN_DOMAIN'
     return cors_string
 
   def check_config(self):
@@ -140,7 +144,8 @@ echo "htpasswd $@" > %s/monitor-htpasswd
     instance = MonitorConfigWrite(
       self.config_path,
       self.httpd_passwd_bin,
-      cfg_output)
+      cfg_output,
+      self.monitor_https_cors)
 
     result = instance.applyConfigChanges()
     self.assertTrue(os.path.exists(cfg_output))
@@ -179,7 +184,8 @@ echo "htpasswd $@" > %s/monitor-htpasswd
     instance = MonitorConfigWrite(
       self.config_path,
       self.httpd_passwd_bin,
-      cfg_output)
+      cfg_output,
+      self.monitor_https_cors)
 
     result = instance.applyConfigChanges()
     self.assertTrue(os.path.exists(cfg_output))

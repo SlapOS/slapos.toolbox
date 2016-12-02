@@ -3,6 +3,7 @@
 import sys
 import os
 import re
+import jinja2
 import json
 import argparse
 import subprocess
@@ -21,15 +22,18 @@ def parseArguments():
                       help='Path apache htpasswd binary. Needed to write htpasswd file.')
   parser.add_argument('--output_cfg_file',
                       help='Ouput parameters in cfg file.')
+  parser.add_argument('--monitor_https_cors',
+                      help='Path to the CORS httpd template.')
 
   return parser.parse_args()
 
 class MonitorConfigWrite(object):
 
-  def __init__(self, config_json_file, htpasswd_bin, output_cfg_file=""):
+  def __init__(self, config_json_file, htpasswd_bin, output_cfg_file="", monitor_https_cors=""):
     self.config_json_file = config_json_file
     self.output_cfg_file = output_cfg_file
     self.htpasswd_bin = htpasswd_bin
+    self.monitor_https_cors = monitor_https_cors
 
   def _fileWrite(self, file_path, content):
     if os.path.exists(file_path):
@@ -76,14 +80,12 @@ class MonitorConfigWrite(object):
               return True
       except OSError, e:
         print "Failed to open file at %s. \n%s" % (old_httpd_cors_file, str(e))
-    for domain in cors_domain_list:
-      if cors_string:
-        cors_string += '|'
-      cors_string += re.escape(domain)
     try:
+      with open(self.monitor_https_cors, 'r') as cors_template:
+        template = jinja2.Template(cors_template.read())
+        rendered_string = template.render(domain=cors_domain)
       with open(httpd_cors_file, 'w') as file:
-        file.write('SetEnvIf Origin "^http(s)?://(.+\.)?(%s)$" origin_is=$0\n' % cors_string)
-        file.write('Header always set Access-Control-Allow-Origin %{origin_is}e env=origin_is')
+        file.write(rendered_string)
     except OSError, e:
       print "ERROR while writing CORS changes to %s.\n %s" % (httpd_cors_file, str(e))
       return False
@@ -176,7 +178,8 @@ def main():
   instance = MonitorConfigWrite(
     parameter_tmp_file,
     parser.htpasswd_bin,
-    parser.output_cfg_file)
+    parser.output_cfg_file,
+    parser.monitor_https_cors)
 
   while True:
     result_dict = instance.applyConfigChanges()
