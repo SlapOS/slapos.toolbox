@@ -233,20 +233,6 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
 
     self.data = self._retrieveInstanceLogFile()
 
-  def _checkServicesAreRunning(self):
-    self.logger.info('Checking that processes are correctly started')
-    import lxml.html
-    service_status = json.loads(self._connectToSlaprunner('supervisordStatus'))
-    status_table = service_status['result']
-    table = lxml.html.fromstring(status_table)
-    status_list = table.xpath('//a[@class=\'supervisor-process-status\']')
-    for element in status_list:
-      if element.text == 'STOPPED':
-        self.logger.info("Some processes are 'STOPPED' : failure.")
-        return False
-    return True
-
-
   def checkDataOnCloneInstance(self):
     """
     Check that:
@@ -254,7 +240,6 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
       * Software Release profile is the same,
       * Software Release is built and is the same, (?)
       * Instance is deployed and is the same.
-      * Services are started
     """
     # XXX: does the promise wait for the software to be built and the instance to be ready?
     old_slaprunner_backend_url = self.slaprunner_backend_url
@@ -270,11 +255,9 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
 
     if new_data == self.data:
       self.logger.info('Data are the same: success.')
+      return True
     else:
       self.logger.info('Data are different: failure.')
-      return False
-
-    return self._checkServicesAreRunning()
 
 
 def runTestSuite(*args, **kwargs):

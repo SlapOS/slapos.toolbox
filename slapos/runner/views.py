@@ -208,7 +208,7 @@ def supervisordStatus():
   for item in result:
     html += "<tr>"
     html += "<td  class='first'><b><a href='" + url_for('tailProcess', process=item[0]) + "'>" + item[0] + "</a></b></td>"
-    html += "<td align='center'><a class='supervisor-process-status' href='" + url_for('startStopProccess', process=item[0], action=item[1]) + "'>" + item[1] + "</a></td>"
+    html += "<td align='center'><a href='" + url_for('startStopProccess', process=item[0], action=item[1]) + "'>" + item[1] + "</a></td>"
     html += "<td align='center'>" + item[3] + "</td><td>" + item[5] + "</td>"
     html += "<td align='center'><a href='" + url_for('startStopProccess', process=item[0], action='RESTART') + "'>Restart</a></td>"
     html += "</tr>"
