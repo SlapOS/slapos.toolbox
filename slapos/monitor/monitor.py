@@ -386,7 +386,7 @@ class Monitoring(object):
     # cleanup removed report json result
     if report_name_list != []:
       for report_name in report_name_list:
-        result_path = os.path.join(self.public_folder, '%s.report.json' % report_name)
+        result_path = os.path.join(self.report_folder, '%s.report.json' % report_name)
         if os.path.exists(result_path):
           try:
             os.unlink(result_path)
@@ -418,13 +418,15 @@ class Monitoring(object):
       '--hosting_name "%s"' % self.root_title]
 
     registered_promise_list = os.listdir(self.promise_folder)
+    registered_promise_list.extend(os.listdir(self.monitor_promise_folder))
+    delete_promise_list = []
     for service_name in service_name_list:
-      if service_name in registered_promise_list:
-        service_name_list.pop(service_name_list.index(service_name))
+      if not service_name in registered_promise_list:
+        delete_promise_list.append(service_name)
 
-    if service_name_list != []:
+    if delete_promise_list != []:
       # XXX Some service was removed, delete his status file so monitor will not consider the status anymore
-      for service_name in service_name_list:
+      for service_name in delete_promise_list:
         status_path = os.path.join(self.public_folder, '%s.status.json' % service_name)
         if os.path.exists(status_path):
           try:
