@@ -1,3 +1,11 @@
+0.62 (2016-10-26)
+=================
+
+* monitor_config_write: CORS apache conf should be rendered from a slapos template
+* runner: user's git information can now contain utf-8 characters
+* monitor: fix cleanup of monitor promises result folder
+
+
 0.61 (2016-10-26)
 =================
 
