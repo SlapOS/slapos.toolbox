@@ -1,4 +1,9 @@
-0.62 (2016-10-26)
+0.63 (2017-12-09)
+=================
+
+* monitor: Allow to change promise timeout from UI
+
+0.62 (2016-12-31)
 =================
 
 * monitor_config_write: CORS apache conf should be rendered from a slapos template
