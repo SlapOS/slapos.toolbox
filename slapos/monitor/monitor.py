@@ -94,12 +94,15 @@ class Monitoring(object):
     self.pid_file = config.get("monitor", "pid-file")
     self.monitor_promise_folder = softConfigGet(config, "monitor",
                                                 "monitor-promise-folder")
+    self.promise_timeout_file = softConfigGet(config, "monitor",
+                                                "promises-timeout-file")
 
     self.config_folder = os.path.join(self.private_folder, 'config')
     self.report_folder = self.private_folder
 
     self.promise_output_file = config.get("monitor", "promise-output-file")
     self.bootstrap_is_ok = True
+
 
   def loadConfig(self, pathes, config=None):
     if config is None:
@@ -411,6 +414,7 @@ class Monitoring(object):
         "monitor-promises.pid"),
       '--output "%s"' % self.public_folder,
       '--promise_folder "%s"' % self.promise_folder,
+      '--timeout_file "%s"' % self.promise_timeout_file,
       '--monitor_promise_folder "%s"' % self.monitor_promise_folder,
       '--monitor_url "%s/jio_private/"' % self.webdav_url, # XXX hardcoded,
       '--history_folder "%s"' % self.public_folder,

@@ -12,8 +12,8 @@ import glob
 import argparse
 import traceback
 
-# Promise timeout after 12 seconds
-promise_timeout = 12
+# Promise timeout after 20 seconds by default
+promise_timeout = 20
 
 def parseArguments():
   """
@@ -32,6 +32,9 @@ def parseArguments():
                       help='Folder where to find Custom monitor promises to execute.')
   parser.add_argument('--promise_name',
                       help='Title to give to this promise.')
+  parser.add_argument('--timeout_file',
+                      default='',
+                      help='File containing Max timeout for each promise run.')
   parser.add_argument('--promise_type',
                       default='status',
                       help='Type of promise to execute. [status, report].')
@@ -52,6 +55,15 @@ class RunPromise(object):
 
   def __init__(self, config_parser):
     self.config = config_parser
+    self.promise_timeout = promise_timeout
+    if self.config.timeout_file and \
+            os.path.exists(self.config.timeout_file):
+      with open(self.config.timeout_file) as tf:
+        timeout = tf.read()
+        if timeout.isdigit():
+          self.promise_timeout = int(timeout)
+        else:
+          print "%s it not a valid promise-timeout value" % timeout
 
   def runpromise(self):
 
@@ -298,7 +310,7 @@ class RunPromise(object):
       process_handler.stdin = None
 
       sleep_time = 0.1
-      increment_limit = int(promise_timeout / sleep_time)
+      increment_limit = int(self.promise_timeout / sleep_time)
       for current_increment in range(0, increment_limit):
         if process_handler.poll() is None:
           time.sleep(sleep_time)
@@ -318,7 +330,7 @@ class RunPromise(object):
         message = process_handler.stderr.read()
         if message is None:
           message = process_handler.stdout.read() or ""
-        message += '\nPROMISE TIME OUT AFTER %s SECONDS' % promise_timeout
+        message += '\nPROMISE TIME OUT AFTER %s SECONDS' % self.promise_timeout
         result_dict["message"] = message
 
       promise_result_list.append(result_dict)
