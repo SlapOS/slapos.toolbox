@@ -64,7 +64,12 @@ def generateFeed(option):
   for filename in os.listdir(option.status_item_path):
     file_path = os.path.join(option.status_item_path, filename)
     with open(file_path, 'r') as fd:
-      item_dict[file_path] = json.load(fd)
+      try:
+        item_dict[file_path] = json.load(fd)
+      except ValueError:
+        # JSON couldn't be decoded, let's trash it as
+        # no useful information can be extracted
+        os.unlink(file_path)
 
   sorted_item_dict = collections.OrderedDict(
       sorted(item_dict.items(), key=lambda x: x[1]['pubDate']))
