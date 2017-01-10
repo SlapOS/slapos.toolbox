@@ -170,16 +170,16 @@ def main():
       response = notification.getresponse()
       if not (200 <= response.status < 300):
         error_message = ("The remote server at %s didn't send a successful reponse.\n"
-                         "Its response was %r\n") % (notif_url, response.reason)
+                         "Its response was %r\n" % (notif_url, response.reason))
         some_notification_failed = True
     except socket.error as exc:
       error_message = "Connection with remote server at %s failed:\n" % notif_url
-      error_message.append(traceback.format_exc(exc))
+      error_message += traceback.format_exc(exc)
       some_notification_failed = True
     finally:
       if error_message:
         sys.stderr.write(error_message)
-        saveStatus('ERROR ON NOTIFYING : %s') % error_message
+        saveStatus('ERROR ON NOTIFYING : %s' % error_message)
 
   if some_notification_failed:
     sys.exit(1)
