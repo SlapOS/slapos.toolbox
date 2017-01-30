@@ -7,6 +7,54 @@ import json
 import ConfigParser
 import time
 from datetime import datetime
+import base64
+import hashlib
+import PyRSS2Gen
+
+def getKey(item):
+  return item.pubDate
+
+class monitorFeed(object):
+
+  def __init__(self, instance_name, hosting_name,
+      public_url, private_url, feed_url):
+    self.rss_item_list = []
+    self.report_date = datetime.utcnow()
+    self.instance_name = instance_name
+    self.hosting_name = hosting_name
+    self.public_url = public_url
+    self.private_url = private_url
+    self.feed_url = feed_url
+
+  def appendItem(self, item_dict):
+    event_time = datetime.fromtimestamp(item_dict['change-time'])
+    description = item_dict.get('message', '')
+    rss_item = PyRSS2Gen.RSSItem(
+      categories = [item_dict['status']],
+      source = PyRSS2Gen.Source(item_dict['title'], self.public_url),
+      title = '[%s] %s' % (item_dict['status'], item_dict['title']),
+      comments = description,
+      description = "%s: %s\n%s" % (event_time, item_dict['status'], description),
+      link = self.private_url,
+      pubDate = event_time,
+      guid = PyRSS2Gen.Guid(base64.b64encode("%s, %s" % (self.hosting_name,
+                                                         item_dict['title'])))
+    )
+    self.rss_item_list.append(rss_item)
+
+  def genrss(self, output_file):
+    ### Build the rss feed
+    sorted(self.rss_item_list, key=getKey)
+    rss_feed = PyRSS2Gen.RSS2 (
+      title = self.instance_name,
+      link = self.feed_url,
+      description = self.hosting_name,
+      lastBuildDate = self.report_date,
+      items = self.rss_item_list
+    )
+  
+    with open(output_file, 'w') as frss:
+      frss.write(rss_feed.to_xml())
 
 def softConfigGet(config, *args, **kwargs):
   try:
@@ -15,8 +63,8 @@ def softConfigGet(config, *args, **kwargs):
     return ""
 
 def generateStatisticsData(stat_file_path, content):
-  # csv document for statictics
-  if not os.path.exists(stat_file_path):
+  # csv document for success/error statictics
+  if not os.path.exists(stat_file_path) or os.stat(stat_file_path).st_size == 0:
     with open(stat_file_path, 'w') as fstat:
       data_dict = {
         "date": time.time(),
@@ -52,8 +100,16 @@ def run(args_list):
   related_monitor_list = monitor_config.get("monitor", "monitor-url-list").split()
   statistic_folder = os.path.join(base_folder, 'data', '.jio_documents')
   parameter_file = os.path.join(base_folder, 'config', '.jio_documents', 'config.json')
+  feed_output = os.path.join(status_folder, 'feed')
+  public_url = "%s/share/jio_public/" % base_url
+  private_url = "%s/share/jio_private/" % base_url
+  feed_url = "%s/public/feed" % base_url
 
-  report_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+  error = warning = success = 0
+  status = 'OK'
+  promise_list = []
+  global_state_file = os.path.join(base_folder, 'monitor.global.json')
+  public_state_file = os.path.join(status_folder, 'monitor.global.json')
 
   if not os.path.exists(statistic_folder):
     try:
@@ -67,11 +123,19 @@ def run(args_list):
   file_list = filter(os.path.isfile,
       glob.glob("%s/*.status.json" % status_folder)
     )
-  error = warning = success = 0
-  status = 'OK'
-  promise_list = []
-  global_state_file = os.path.join(base_folder, 'monitor.global.json')
-  public_state_file = os.path.join(status_folder, 'monitor.global.json')
+  if os.path.exists(instance_file):
+    config = ConfigParser.ConfigParser()
+    config.read(instance_file)
+  else:
+    raise Exception("Cannot read instance configuration at %s" % instance_file)
+
+  report_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+  monitor_feed = monitorFeed(
+    config.get('instance', 'name'),
+    config.get('instance', 'root-name'),
+    public_url,
+    private_url,
+    feed_url)
   for file in file_list:
     try:
       with open(file, 'r') as temp_file:
@@ -87,53 +151,52 @@ def run(args_list):
       warning += 1
     tmp_json['time'] = tmp_json['start-date'].split(' ')[1]
     promise_list.append(tmp_json)
+    monitor_feed.appendItem(tmp_json)
 
   if error:
     status = 'ERROR'
   elif warning:
     status = 'WARNING'
 
+  monitor_feed.genrss(feed_output)
   global_state_dict = dict(
-      status=status,
-      state={
-        'error': error,
-        'success': success,
-        'warning': warning,
-      },
-      type='global',
-      date=report_date,
-      _links={"rss_url": {"href": "%s/public/feed" % base_url},
-              "public_url": {"href": "%s/share/jio_public/" % base_url},
-              "private_url": {"href": "%s/share/jio_private/" % base_url}
-            },
-      data={'state': 'monitor_state.data',
-            'process_state': 'monitor_process_resource.status',
-            'process_resource': 'monitor_resource_process.data',
-            'memory_resource': 'monitor_resource_memory.data',
-            'io_resource': 'monitor_resource_io.data',
-            'monitor_process_state': 'monitor_resource.status'}
-    )
+    
+    status=status,
+    state={
+      'error': error,
+      'success': success,
+      'warning': warning,
+    },
+    type='global',
+    date=report_date,
+    _links={"rss_url": {"href": "%s/public/feed" % base_url},
+            "public_url": {"href": public_url},
+            "private_url": {"href": private_url}
+          },
+    data={'state': 'monitor_state.data',
+          'process_state': 'monitor_process_resource.status',
+          'process_resource': 'monitor_resource_process.data',
+          'memory_resource': 'monitor_resource_memory.data',
+          'io_resource': 'monitor_resource_io.data',
+          'monitor_process_state': 'monitor_resource.status'},
+    _embedded={'promises': promise_list},
+    
+  )
 
-  global_state_dict['_embedded'] = {'promises': promise_list}
+  instance_dict = {}
+  global_state_dict['title'] = config.get('instance', 'name')
+  global_state_dict['hosting-title'] = config.get('instance', 'root-name')
+  if not global_state_dict['title']:
+    global_state_dict['title'] = 'Instance Monitoring'
 
-  if os.path.exists(instance_file):
-    config = ConfigParser.ConfigParser()
-    config.read(instance_file)
-    if 'instance' in config.sections():
-      instance_dict = {}
-      global_state_dict['title'] = config.get('instance', 'name')
-      global_state_dict['hosting-title'] = config.get('instance', 'root-name')
-      if not global_state_dict['title']:
-        global_state_dict['title'] = 'Instance Monitoring'
-      
-      instance_dict['computer'] = config.get('instance', 'computer')
-      instance_dict['ipv4'] = config.get('instance', 'ipv4')
-      instance_dict['ipv6'] = config.get('instance', 'ipv6')
-      instance_dict['software-release'] = config.get('instance', 'software-release')
-      instance_dict['software-type'] = config.get('instance', 'software-type')
-      instance_dict['partition'] = config.get('instance', 'partition')
+  instance_dict['computer'] = config.get('instance', 'computer')
+  instance_dict['ipv4'] = config.get('instance', 'ipv4')
+  instance_dict['ipv6'] = config.get('instance', 'ipv6')
+  instance_dict['software-release'] = config.get('instance', 'software-release')
+  instance_dict['software-type'] = config.get('instance', 'software-type')
+  instance_dict['partition'] = config.get('instance', 'partition')
 
-      global_state_dict['_embedded'].update({'instance' : instance_dict})
+  global_state_dict['_embedded'].update({'instance' : instance_dict})
 
   if related_monitor_list:
     global_state_dict['_links']['related_monitor'] = [{'href': "%s/share/jio_public" % url}

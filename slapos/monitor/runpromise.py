@@ -59,7 +59,7 @@ class RunPromise(object):
     if self.config.timeout_file and \
             os.path.exists(self.config.timeout_file):
       with open(self.config.timeout_file) as tf:
-        timeout = tf.read()
+        timeout = tf.read().strip()
         if timeout.isdigit():
           self.promise_timeout = int(timeout)
         else:

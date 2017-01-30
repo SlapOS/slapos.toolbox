@@ -321,13 +321,13 @@ def main():
                   'memory_percent', 'memory_rss', 'io_rw_counter', 'io_cycles_counter',
                   'disk_used']
   resource_status_dict = {}
-  if not os.path.exists(process_file):
+  if not os.path.exists(process_file) or os.stat(process_file).st_size == 0:
     initProcessDataFile(process_file)
 
-  if not os.path.exists(mem_file):
+  if not os.path.exists(mem_file) or os.stat(mem_file).st_size == 0:
     initMemoryDataFile(mem_file)
 
-  if not os.path.exists(io_file):
+  if not os.path.exists(io_file) or os.stat(io_file).st_size == 0:
     initIODataFile(io_file)
 
   if process_result and process_result['total_process'] != 0.0:
