@@ -1,4 +1,10 @@
-0.63 (2017-12-09)
+0.64 (2017-01-31)
+=================
+
+* monitor: merge status2rss with monitor state generation script in order to have consistent result
+* generatefeed: remove useless items instead of crashing
+
+0.63 (2017-01-09)
 =================
 
 * monitor: Allow to change promise timeout from UI
