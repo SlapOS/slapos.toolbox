@@ -29,9 +29,7 @@ from passlib.apache import HtpasswdFile
 import slapos.slap
 from slapos.grid.utils import md5digest
 
-# Setup default flask (werkzeug) parser
-
-logger = logging.getLogger('werkzeug')
+logger = logging.getLogger('slaprunner')
 
 TRUE_VALUES = (1, '1', True, 'true', 'True')
 

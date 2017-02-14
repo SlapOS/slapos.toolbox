@@ -45,10 +45,8 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
 file_request = FileBrowser(app.config)
 
-# Setup default flask (werkzeug) parser
 import logging
-logger = logging.getLogger('werkzeug')
-
+logger = logging.getLogger('slaprunner')
 
 def login_redirect(*args, **kwargs):
   return redirect(url_for('login'))
