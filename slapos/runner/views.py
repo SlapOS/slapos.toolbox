@@ -18,6 +18,7 @@ import slapos
 from slapos.runner.utils import (checkSoftwareFolder, configNewSR, checkUserCredential,
                                  createNewUser, getBuildAndRunParams,
                                  getProfilePath, getSlapgridResult,
+                                 html_escape,
                                  listFolder, getBuildAndRunParams,
                                  getProjectTitle, getRcode, updateUserCredential,
                                  getSlapStatus, getSvcStatus,
@@ -244,14 +245,13 @@ def getFileLog():
     if not os.path.exists(file_path):
       raise IOError
     if not isText(file_path):
-      return jsonify(code=0,
-            result="Can not open binary file, please select a text file!")
+      content = "Can not open binary file, please select a text file!"
     if 'truncate' in request.form:
       content = tail(open(file_path), int(request.form['truncate']))
-      return jsonify(code=1, result=content)
     else:
       with open(file_path) as f:
-        return jsonify(code=1, result=f.read())
+        content = f.read()
+    return jsonify(code=1, result=html_escape(content))
   except:
     return jsonify(code=0, result="Warning: Log file doesn't exist yet or empty log!!")
 
