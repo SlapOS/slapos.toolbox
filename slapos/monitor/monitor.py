@@ -96,6 +96,8 @@ class Monitoring(object):
                                                 "monitor-promise-folder")
     self.promise_timeout_file = softConfigGet(config, "monitor",
                                                 "promises-timeout-file")
+    self.nice_command = softConfigGet(config, "monitor",
+                                                "nice-cmd")
 
     self.config_folder = os.path.join(self.private_folder, 'config')
     self.report_folder = self.private_folder
@@ -103,6 +105,9 @@ class Monitoring(object):
     self.promise_output_file = config.get("monitor", "promise-output-file")
     self.bootstrap_is_ok = True
 
+    if self.nice_command:
+      # run monitor promises script with low priority
+      self.promise_runner = '%s %s' % (self.nice_command, self.promise_runner)
 
   def loadConfig(self, pathes, config=None):
     if config is None:
@@ -408,7 +413,7 @@ class Monitoring(object):
 
     promise_cmd_line = [
       "* * * * *",
-      "sleep $((1 + RANDOM % 30)) &&", # Sleep between 1 to 30 seconds
+      "sleep $((1 + RANDOM % 20)) &&", # Sleep between 1 to 20 seconds
       self.promise_runner,
       '--pid_path "%s"' % os.path.join(self.service_pid_folder,
         "monitor-promises.pid"),
@@ -497,7 +502,10 @@ class Monitoring(object):
 
     # Add cron entry for SlapOS Collect
     command = "sleep $((1 + RANDOM % 60)) && " # Random sleep between 1 to 60 seconds
-    command += "%s %s --output_folder %s --collector_db %s" % (self.python,
+    if self.nice_command:
+      # run monitor collect with low priority
+      command += '%s ' % self.nice_command
+    command += "%s --output_folder %s --collector_db %s" % (
       self.collect_script, self.data_folder, self.collector_db)
     self.addCronEntry('monitor_collect', '* * * * *', command)
 
