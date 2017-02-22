@@ -194,7 +194,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
         self.logger.info('git-cloning ongoing, sleeping...')
 
   def _openSoftwareRelease(self, software_release='slaprunner/test/dummy'):
-    self.logger.debug('Opening dummy software release...')
+    self.logger.debug('Opening %s software release...' % software_release)
     self._connectToSlaprunner(
         resource='setCurrentProject',
         data='path=workspace/slapos/software/%s/' % software_release

@@ -48,6 +48,7 @@ setup(name=name,
         'erp5.util',
         'PyRSS2Gen',
         'dnspython',
+        'requests',
       ] + additional_install_requires,
       extras_require = {
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
