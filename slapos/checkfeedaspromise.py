@@ -72,7 +72,8 @@ def checkFeedAsPromise(feed, option):
       return ''
 
   if ko_pattern_found:
-    return 'KO pattern found'
+    return ("At least one of the failure patterns (%s) "
+            "has been found in the last status (%s)" % (option.ko_pattern_list, candidate_string))
 
   if not ok_pattern_found:
     if publication_age < time_buffer:
@@ -80,10 +81,10 @@ def checkFeedAsPromise(feed, option):
       return ''
     else:
       # If time-buffer is out, we are in stalled state
-      return 'Stalled situation : Nothing happened since %s' % publication_date
+      return 'Stalled situation : Last update (%s) happened on %s' % (candidate_string, publication_date)
 
   # If not ok, and not stalled, what can have possibly happen ?
-  return 'Something went wrong'
+  return 'Something went wrong, check promise code'
 
 
 def main():
