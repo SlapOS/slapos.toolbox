@@ -61,7 +61,8 @@ def retryOnNetworkFailure(func):
 
       print 'Retry method %s in %i seconds' % (func, retry_time)
       time.sleep(retry_time)
-      retry_time += retry_time >> 1
+      retry_time = min(retry_time*1.5, 640)
+
 
   wrapper.__name__ = func.__name__
   wrapper.__doc__ = func.__doc__
