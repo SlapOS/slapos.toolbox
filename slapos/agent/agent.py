@@ -225,7 +225,8 @@ def main():
  
       agent_parameter_dict = dict(configuration.items('agent'))
 
-      task_distributor = TaskDistributor(agent_parameter_dict['report_url'])
+      task_distributor = TaskDistributor(agent_parameter_dict['report_url'],
+                                         logger=logger)
 
       task_distributor.subscribeNode(
           node_title=agent_parameter_dict['node_title'], 
