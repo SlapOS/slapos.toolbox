@@ -120,9 +120,10 @@ promise-runner = %(promise_run_script)s
       promise_command_list = cronf.read()
 
     if not sequential:
-      promise_entry = '* * * * * sleep $((1 + RANDOM %% 30)) && %(promise_run_script)s --pid_path "%(promise_runner_pid)s" --output "%(public_folder)s" --promise_folder "%(promise_folder)s" --monitor_promise_folder "%(monitor_promise_folder)s" --monitor_url "%(base_url)s/share/jio_private/" --history_folder "%(base_dir)s/public" --instance_name "%(title)s" --hosting_name "%(root_title)s"'
+      promise_entry = '* * * * * sleep $((1 + RANDOM %% 20)) && %(promise_run_script)s --pid_path "%(promise_runner_pid)s" --output "%(public_folder)s" --promise_folder "%(promise_folder)s" --timeout_file "None" --monitor_promise_folder "%(monitor_promise_folder)s" --monitor_url "%(base_url)s/share/jio_private/" --history_folder "%(base_dir)s/public" --instance_name "%(title)s" --hosting_name "%(root_title)s"'
       entry_line = promise_entry % self.monitor_config_dict
-      self.assertTrue(entry_line in promise_command_list)
+      self.assertTrue(entry_line in promise_command_list,
+            "%s not in %s" %(entry_line, promise_command_list))
     else:
       promise_entry = '* * * * * sleep $((1 + RANDOM %% 30)) &&%(promise_run_script)s --pid_path "%(promise_pid)s" --output "%(promise_output)s" --promise_script "%(promise_executable)s" --promise_name "%(promise_name)s" --monitor_url "%(base_url)s/share/jio_private/" --history_folder "%(base_dir)s/public" --instance_name "%(title)s" --hosting_name "%(root_title)s"'
     
