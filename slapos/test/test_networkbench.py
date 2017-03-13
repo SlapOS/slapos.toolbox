@@ -44,14 +44,16 @@ class TestDNSBench(unittest.TestCase):
     """
     info = dnsbench.resolve(
        "www.erp5.com", DNS_EXPECTED_LIST)
-   
+  
     self.assertEquals(info[0], 'DNS')
     self.assertEquals(info[1], 'www.erp5.com')
     self.assertEquals(info[2], 200)
 
     self.assertTrue(info[3] < 1)
-    self.assertEquals(info[4], 'OK')
-    self.assertEquals(set(info[5]), set([u'85.118.38.162', u'176.31.129.213']))
+    self.assertEquals(info[4], 'OK', 
+          "%s != OK, full info: %s" % (info[4], info) )
+    self.assertEquals(set(info[5]), set([u'85.118.38.162', u'176.31.129.213']),
+          "%s != set([u'85.118.38.162', u'176.31.129.213']), full info: %s" % (set(info[5]), info))
     
   def test_dnsbench_fail(self):
     """ Test dns failure resolution
