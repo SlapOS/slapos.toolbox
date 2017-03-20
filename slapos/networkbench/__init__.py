@@ -37,15 +37,6 @@ class HelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
 
 botname = socket.gethostname()
 
-# rtt min/avg/max/mdev = 1.102/1.493/2.203/0.438 ms
-ping_re = re.compile(
-    ".*"
-    "(?P<min>[\d\.]+)/"
-    "(?P<avg>[\d\.]+)/"
-    "(?P<max>[\d\.]+)/"
-    "(?P<mdev>[\d\.]+) ms"
-    )
-
 date_reg_exp = re.compile('\d{4}[-/]\d{2}[-/]\d{2}')
 
 def _get_network_gateway(self):
