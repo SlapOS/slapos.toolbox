@@ -8,3 +8,5 @@
 /eggs/
 /parts/
 /slapos.toolbox.egg-info/
+.eggs/
+config.json
