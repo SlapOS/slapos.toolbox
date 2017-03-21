@@ -10,3 +10,4 @@
 /slapos.toolbox.egg-info/
 .eggs/
 config.json
+slapos/test/promise/data/SOFTINST-0_*
