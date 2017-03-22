@@ -13,15 +13,15 @@ ping_re = re.compile(
 date_reg_exp = re.compile('\d{4}[-/]\d{2}[-/]\d{2}')
 
 
-def ping(host, timeout=10, protocol="4"):
+def ping(host, timeout=10, protocol="4", count=10):
   if protocol == '4':
     ping_bin = 'ping'
     test_title = 'PING'
   elif protocol == '6':
     ping_bin = 'ping6'
     test_title = 'PING6'
-  
-  proc = subprocess.Popen((ping_bin, '-c', '10', '-w', str(timeout), host), 
+
+  proc = subprocess.Popen((ping_bin, '-c', str(count), '-w', str(timeout), host),
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
   out, err = proc.communicate()
@@ -34,7 +34,7 @@ def ping(host, timeout=10, protocol="4"):
   m = ping_re.match(summary_line)
   match = re.search('(\d*)% packet loss', packet_loss_line)
   packet_lost_ratio = match.group(1)
-  
+
   info_list = (test_title, host, 600, 'failed', packet_lost_ratio, "Cannot ping host")
   if packet_lost_ratio != 0:
     if m:
@@ -46,6 +46,6 @@ def ping(host, timeout=10, protocol="4"):
 
   return info_list
 
-def ping6(host, timeout=10):
-  return ping(host, timeout=10, protocol='6')
+def ping6(host, timeout=10, count=10):
+  return ping(host, timeout=10, protocol='6', count=count)
 

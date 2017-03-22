@@ -54,7 +54,7 @@ setup(name=name,
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
         'zodbpack': ['ZODB3'], # needed to play with ZODB
         'flask_auth' : ["Flask-Auth"],
-        'networkbench' : ['pycurl'], 
+        'networkbench' : ['pycurl'],
         'check_web_page_http_cache_hit' : ['pycurl'], # needed for check_web_page_http_cache_hit module
       },
       tests_require = [
@@ -81,6 +81,7 @@ setup(name=name,
           'htpasswd = slapos.htpasswd:main',
           'is-local-tcp-port-opened = slapos.promise.is_local_tcp_port_opened:main',
           'is-process-older-than-dependency-set = slapos.promise.is_process_older_than_dependency_set:main',
+          'is-icmp-packet-lost = slapos.promise.is_icmp_packet_lost:main',
           'killpidfromfile = slapos.systool:killpidfromfile', # BBB
           'monitor.bootstrap = slapos.monitor.monitor:main',
           'monitor.collect = slapos.monitor.collect:main',
