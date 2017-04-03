@@ -36,7 +36,7 @@ from slapos.test.promise import data
 class TestCheckErrorOnApacheLog(unittest.TestCase):
 
   def get_time(self, sec):
-    return time.strftime("%a %b %d %H:%M:%S %Y", time.gmtime(time.time()-sec))
+    return time.strftime("%a %b %d %H:%M:%S %Y", time.localtime(time.time()-sec))
 
   def _update_logs(self):
     log_file_list = [
