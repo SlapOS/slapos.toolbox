@@ -20,11 +20,25 @@ def test(ipv6, ipv4, count):
     # IPv6 is unreacheable
     return "FAILED"
 
-  if float(result_ipv4[3]) < float(result_ipv6[3]):
+  latency4 = float(result_ipv4[3])
+  latency6 = float(result_ipv6[3])
+  # We can consider that at worst 1ms is added to
+  # ipv4 response, due the usage of openvpn.
+  acceptable_delay = 1
+
+  # We can consider that we accept a certain increase
+  # on latency, if we are on a bit congested link.
+  # So 10% is reseonable enough.
+  acceptable_lost = 0.10
+
+  # Increase latency with the value.
+  latency4 += acceptable_delay + latency4*acceptable_lost
+  if latency4 < latency6:
+    print "Fail %s (latency4) > %s (latence6)" % (latency4, latency6)
     return "FAIL"
 
   # Compare if both has Same working rate
-  return "OK"  
+  return "OK"
 
 def main():
   parser = argparse.ArgumentParser()
