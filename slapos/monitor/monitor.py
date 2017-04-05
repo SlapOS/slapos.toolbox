@@ -248,7 +248,7 @@ class Monitoring(object):
       return (report_name, "* * * * *")
 
     if run_time[1] == 'hour':
-      return (report_name, "* */%s * * *" % value)
+      return (report_name, "11 */%s * * *" % value)
     if run_time[1] == 'minute':
       return (report_name, "*/%s * * * *" % value)
 
