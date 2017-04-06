@@ -80,6 +80,7 @@ class Monitoring(object):
     self.private_folder = config.get("monitor", "private-folder")
     self.collector_db  = config.get("monitor", "collector-db")
     self.collect_script = config.get("monitor", "collect-script")
+    self.statistic_script = config.get("monitor", "statistic-script")
     self.webdav_folder = config.get("monitor", "webdav-folder")
     self.report_script_folder = config.get("monitor", "report-folder")
     self.webdav_url = '%s/share' % config.get("monitor", "base-url")
@@ -495,7 +496,9 @@ class Monitoring(object):
     # Rotate public history status file, delete data of previous days
     option_list = [
       'daily', 'nocreate', 'rotate 0',
-      'nocompress', 'notifempty'
+      'nocompress', 'notifempty', 'prerotate',
+      '   %s --history_folder %s' % (self.statistic_script, self.public_folder), 
+      'endscript'
     ]
     file_list = ["%s/*.history.json" % self.public_folder]
     self.generateLogrotateEntry('monitor.service.status', file_list, option_list)

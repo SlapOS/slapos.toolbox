@@ -86,6 +86,7 @@ setup(name=name,
           'killpidfromfile = slapos.systool:killpidfromfile', # BBB
           'monitor.bootstrap = slapos.monitor.monitor:main',
           'monitor.collect = slapos.monitor.collect:main',
+          'monitor.statistic = slapos.monitor.build_statistic:main',
           'monitor.runpromise = slapos.monitor.runpromise:main',
           'monitor.genstatus = slapos.monitor.globalstate:main',
           'monitor.configwrite = slapos.monitor.monitor_config_write:main',
