@@ -484,7 +484,7 @@ class Monitoring(object):
     # Rotate monitor data files
     option_list = [
       'daily', 'nocreate', 'olddir %s' % self.data_folder, 'rotate 5',
-      'nocompress', 'extension .json', 'dateext',
+      'nocompress', 'missingok', 'extension .json', 'dateext',
       'dateformat -%Y-%m-%d', 'notifempty'
     ]
     file_list = [
