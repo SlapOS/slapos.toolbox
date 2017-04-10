@@ -41,6 +41,7 @@ class MonitorBootstrapTest(unittest.TestCase):
       private_path_list="",
       promise_run_script="/bin/echo",
       collect_run_script="/bin/echo",
+      statistic_script="/bin/echo"
     )
     self.monitor_conf = """[monitor]
 parameter-file-path = %(base_dir)s/knowledge0.cfg
@@ -64,6 +65,7 @@ parameter-list =
 
 webdav-folder = %(base_dir)s/webdav
 collect-script = %(collect_run_script)s
+statistic-script = %(statistic_script)s
 python = python
 monitor-url-list = %(url_list)s
 collector-db = 
