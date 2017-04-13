@@ -249,10 +249,10 @@ def runUnitTest():
 
     if test_result is None:
       # No test to run.
+      logger.info("There is no test to run. Exiting...")
       return
 
     test_line = test_result.start()
-
     start_time = time.time()
 
     args.additional_arguments.append('type=UnitTest')
