@@ -268,7 +268,20 @@ def runUnitTest():
       error_count = 1
 
     test_duration = time.time() - start_time
-    test_line.stop(stdout=open(fname).read(),
+    max_size = 4096
+    fsize = os.stat(fname).st_size
+    with open(fname) as f:
+      if fsize <= max_size:
+        stdout = f.read()
+      else:
+        # Read only 2048 bytes from the file. The whole
+        # file will be available on the server.
+        stdout = f.read(2048)
+        stdout += "\n[...] File truncated\n"
+        f.seek(-2048, os.SEEK_END)
+        stdout += f.read()
+
+    test_line.stop(stdout=stdout,
                     test_count=1,
                     error_count=error_count,
                     duration=test_duration)
