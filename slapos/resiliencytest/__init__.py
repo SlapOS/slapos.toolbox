@@ -246,7 +246,11 @@ def runUnitTest():
 
     test_result = master.createTestResult(revision, [test_suite_title],
       args.node_title, True, test_suite_title, 'foo')
-      #args.project_title)
+
+    if test_result is None:
+      # No test to run.
+      return
+
     test_line = test_result.start()
 
     start_time = time.time()
