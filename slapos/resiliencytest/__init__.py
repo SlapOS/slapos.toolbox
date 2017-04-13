@@ -276,18 +276,3 @@ def runUnitTest():
     raise
   finally:
     os.remove(fname)
-
-def runStandaloneResiliencyTest():
-  """
-  Used to bypass the Test Node infrastructure and manually run a test.
-  Useful for running the test without any infrastructure.
-  """
-  parser = argparse.ArgumentParser()
-  parser.add_argument('--test-suite-title')
-  parser.add_argument('additional_arguments', nargs=argparse.REMAINDER)
-  arguments = parser.parse_args()
-  runTestSuite(
-      arguments.test_suite_title,
-      arguments.additional_arguments,
-      setupLogging()[0].info
-  )
