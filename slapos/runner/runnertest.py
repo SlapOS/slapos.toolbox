@@ -609,6 +609,11 @@ def main():
 
   test_result = master.createTestResult(revision, [test_suite_title],
     args.test_node_title, True, test_suite_title, args.project_title)
+
+  if test_result is None:
+    # Thereis nothing to run here, all tests are been running by
+    # some other node.
+    return
   test_line = test_result.start()
 
   start_time = time.time()
