@@ -19,7 +19,7 @@ import json
 import os
 import shutil
 import sup_process
-import StringIO
+from StringIO import StringIO
 import ssl
 import time
 import unittest
@@ -143,7 +143,7 @@ class SlaprunnerTestCase(unittest.TestCase):
     """Initialize slapos webrunner here"""
     self.users = [self.init_user, self.init_password, "slaprunner@nexedi.com", "SlapOS web runner"]
     self.updateUser = ["newslapuser", "newslappwd", "slaprunner@nexedi.com", "SlapOS web runner"]
-    self.repo = 'https://lab.nexedi.com/nexedi/slapos.git'
+    self.repo = 'https://lab.nexedi.com/rafael/slapos-workarround.git'
     self.software = "workspace/slapos/software/"  # relative directory fo SR
     self.project = 'slapos'  # Default project name
     self.template = 'template.cfg'
@@ -231,6 +231,10 @@ class SlaprunnerTestCase(unittest.TestCase):
     sr += "[networkcache]\ndownload-cache-url = http://www.shacache.org/shacache"
     sr += "\ndownload-dir-url = http://www.shacache.org/shadir\n\n"
     sr += "[command]\nrecipe = zc.recipe.egg\neggs = plone.recipe.command\n  zc.buildout\n\n"
+    sr += """
+[versions]
+setuptools = 33.1.1
+"""
     os.mkdir(testSoftware)
     open(os.path.join(testSoftware, self.app.config['software_profile']),
          'w').write(sr)
@@ -341,9 +345,10 @@ class SlaprunnerTestCase(unittest.TestCase):
     softwareRelease = "[buildout]\n\nparts =\n  test-application\n"
     softwareRelease += "#Test download git web repos éè@: utf-8 caracters\n"
     softwareRelease += "[test-application]\nrecipe = hexagonit.recipe.download\n"
-    softwareRelease += "url = https://lab.nexedi.com/nexedi/slapos.git\n"
+    softwareRelease += "url = https://lab.nexedi.com/rafael/slapos-workarround.git\n" 
     softwareRelease += "filename = slapos.git\n"
     softwareRelease += "download-only = true\n"
+    softwareRelease += "[versions]\nsetuptools = 33.1.1"
     response = loadJson(self.app.post('/saveFileContent',
                                       data=dict(file=newSoftware,
                                                 content=softwareRelease),
@@ -406,7 +411,7 @@ class SlaprunnerTestCase(unittest.TestCase):
 
 
   def test_requestInstance(self):
-    """Scenarion 6: request software instance"""
+    """Scenario 6: request software instance"""
     self.test_updateInstanceParameter()
     #run Software profile
     response = loadJson(self.app.post('/runSoftwareProfile',
@@ -479,9 +484,16 @@ class SlaprunnerTestCase(unittest.TestCase):
     self.test_createSR()
     newSoftware = self.getCurrentSR()
     softwareRelease = "[buildout]\n\nparts =\n  test-application\n"
+    softwareRelease += "find-links += http://www.nexedi.org/static/packages/source/slapos.buildout/\n\n"
+    softwareRelease += "[networkcache]\ndownload-cache-url = http://www.shacache.org/shacache"
+    softwareRelease += "\ndownload-dir-url = http://www.shacache.org/shadir\n\n"
     softwareRelease += "#Test download git web repos éè@: utf-8 caracters\n"
     softwareRelease += "[test-application]\nrecipe = slapos.cookbook:mkdirectory\n"
     softwareRelease += "test = /root/test\n"
+    softwareRelease += """
+[versions]
+setuptools = 33.1.1
+"""
     response = loadJson(self.app.post('/saveFileContent',
                                       data=dict(file=newSoftware,
                                                 content=softwareRelease),
@@ -591,7 +603,7 @@ class SlaprunnerTestCase(unittest.TestCase):
     os.environ['RUNNER_CONFIG'] = runner_config_old
 
 
-class PrintStringIO(StringIO.StringIO):
+class PrintStringIO(StringIO):
   def write(self, data):
     StringIO.write(self, data)
     print data
