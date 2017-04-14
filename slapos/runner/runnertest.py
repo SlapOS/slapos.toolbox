@@ -591,6 +591,11 @@ class SlaprunnerTestCase(unittest.TestCase):
     os.environ['RUNNER_CONFIG'] = runner_config_old
 
 
+class PrintStringIO(StringIO.StringIO):
+  def write(self, data):
+    StringIO.write(self, data)
+    print data
+
 def main():
   """
   Function meant to be run by erp5testnode.
@@ -618,7 +623,7 @@ def main():
 
   start_time = time.time()
 
-  stderr = StringIO.StringIO()
+  stderr = PrintStringIO()
   suite = unittest.TestLoader().loadTestsFromTestCase(SlaprunnerTestCase)
   test_result = unittest.TextTestRunner(verbosity=2, stream=stderr).run(suite)
 
