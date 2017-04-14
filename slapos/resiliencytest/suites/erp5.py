@@ -189,7 +189,6 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     Wait for instance to be started.
     Store the main IP of the slaprunner for future use.
     """
-
     self.logger.debug('Getting the backend URL...')
     parameter_dict = self._getPartitionParameterDict()
     self.slaprunner_backend_url = parameter_dict['backend-url']
@@ -203,9 +202,6 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     self._gitClone()
     self._openSoftwareRelease('erp5')
     self._setERP5InstanceParameter()
-
-    # Debug, remove me.
-    time.sleep(600)
 
     self._buildSoftwareRelease()
     self._deployInstance()

@@ -128,6 +128,19 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
           )
     return data
 
+  def _retrieveSoftwareLogFileTail(self, truncate=100):
+    """
+      Retrieve the tail of the software.log file.
+    """
+    data = self._connectToSlaprunner(
+             resource='getFileLog',
+             data="filename=software.log&truncate=%s" % truncate)
+    try:
+      data = json.loads(data)['result']
+      self.logger.info('Tail of software.log:\n%s' % data)
+    except (ValueError, KeyError):
+      self.logger.info("Fail to get software.log")
+
 
   def _waitForSoftwareBuild(self, limit=5000):
     """
@@ -152,7 +165,10 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
         self.logger.info('Software release is Failing to Build. Sleeping...')
       else:
         self.logger.info('Software release is still building. Sleeping...')
-      time.sleep(60)
+      time.sleep(20)
+      for sleep_wait in range(3):
+        self._retrieveSoftwareLogFileTail(truncate=100)
+        time.sleep(10)
 
 
   def _buildSoftwareRelease(self):
