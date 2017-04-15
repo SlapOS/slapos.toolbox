@@ -17,7 +17,8 @@ import psutil
 
 ignored_extension_set = set([".pyc"])
 
-def moduleIsModifiedSince(top, since, followlinks=False):
+def moduleIsModifiedSince(top, since, followlinks=False, file_limit=100):
+  file_count = 0
   for root, dir_list, file_list in os.walk(top, followlinks=followlinks):
     if root == top:
       continue
@@ -25,6 +26,9 @@ def moduleIsModifiedSince(top, since, followlinks=False):
       del dir_list[:]
       continue
     for name in file_list:
+      file_count += 1
+      if file_count >= file_limit:
+        raise ValueError("%s exceeded the file limit of %s file" % (top, file_limit))
       _, ext = os.path.splitext(name)
       if ext in ignored_extension_set:
         continue
@@ -36,10 +40,10 @@ def moduleIsModifiedSince(top, since, followlinks=False):
         return True
   return False
 
-def isProcessOlderThanDependencySet(pid, python_path_list, kill=False):
+def isProcessOlderThanDependencySet(pid, python_path_list, kill=False, limit=100):
   process = psutil.Process(pid)
   start_time = process.create_time()
-  if any(moduleIsModifiedSince(product_path, start_time) for product_path in python_path_list):
+  if any(moduleIsModifiedSince(product_path, start_time, file_limit=limit) for product_path in python_path_list):
     if kill:
       print "Terminating process %s with pid %s" % (process.name(), pid)
       process.terminate()
@@ -54,12 +58,13 @@ def isProcessFromPidFileOlderThanDependencySet(pid_file_path, python_path_list, 
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("-k", "--kill", action="store_true")
+  parser.add_argument("-l", "--limit", default=100)
   parser.add_argument("pid_file_path", metavar="PID_FILE")
   parser.add_argument("python_path_list", nargs="*", metavar="ADDITIONAL_PYTHON_PATH", default=[])
   args = parser.parse_args()
 
   try:
-    if isProcessFromPidFileOlderThanDependencySet(args.pid_file_path, sys.path + args.python_path_list, kill=args.kill):
+    if isProcessFromPidFileOlderThanDependencySet(args.pid_file_path, sys.path + args.python_path_list, kill=args.kill, limit=args.limit):
       return 1
     return 0
   except (OSError, IOError) as err:
