@@ -1,246 +1,244 @@
+0.67 (2017-04-18)
+=================
+
+ * promise.is_process_older_than_dependency_set: Verbose a bit of information when fail.
+ * monitor: Bug fix _every_xx_hour 
+ * monitor: Add missingok for log rotate, if he has no file to rotate.
+ * monitor: Automatic build statistics on promise hisotry for archive.
+ * monitor: Logrotate can call this script multiple times
+
 0.66 (2017-04-02)
 =================
 
-* promise: Include promises for test networks and apache log checks.
+ * promise: Include promises for test networks and apache log checks.
 
 0.65 (2017-01-23)
 =================
 
-* checkfeedaspromise: returns more information on failure
-* monitor: run command with low priority using nice
+ * checkfeedaspromise: returns more information on failure
+ * monitor: run command with low priority using nice
 
 0.64 (2017-01-31)
 =================
 
-* monitor: merge status2rss with monitor state generation script in order to have consistent result
-* generatefeed: remove useless items instead of crashing
+ * monitor: merge status2rss with monitor state generation script in order to have consistent result
+ * generatefeed: remove useless items instead of crashing
 
 0.63 (2017-01-09)
 =================
 
-* monitor: Allow to change promise timeout from UI
+ * monitor: Allow to change promise timeout from UI
 
 0.62 (2016-12-31)
 =================
 
-* monitor_config_write: CORS apache conf should be rendered from a slapos template
-* runner: user's git information can now contain utf-8 characters
-* monitor: fix cleanup of monitor promises result folder
+ * monitor_config_write: CORS apache conf should be rendered from a slapos template
+ * runner: user's git information can now contain utf-8 characters
+ * monitor: fix cleanup of monitor promises result folder
 
 
 0.61 (2016-10-26)
 =================
 
-* monitor: allow to specify a second promise folder 
-* pubhubsub: new argument allowing to run the executable several times in case of failure 
+ * monitor: allow to specify a second promise folder 
+ * pubhubsub: new argument allowing to run the executable several times in case of failure 
 
 0.60 (2016-10-05)
 =================
 
-* monitor: write pid to file while processing 
-* monitor: run all promises in a single crontask with timeout of 12 seconds per promises.
+ * monitor: write pid to file while processing 
+ * monitor: run all promises in a single crontask with timeout of 12 seconds per promises.
 
 0.59 (2016-09-16)
 =================
 
-* runner: add tests
-* Add scripts to generate RSS feeds and to create promises on RSS feeds
-* notifier: new arguments to generate verobose logging
+ * runner: add tests
+ * Add scripts to generate RSS feeds and to create promises on RSS feeds
+ * notifier: new arguments to generate verobose logging
 
 0.58 (2016-09-07)
 =================
 
-* monitor: multiple fixes and improvements
-* resilient: fix tests
-* agent: fix console script
+ * monitor: multiple fixes and improvements
+ * resilient: fix tests
+ * agent: fix console script
 
 0.57 (2016-08-09)
 =================
 
-* monitor: Included monitor code with unit tests.
+ * monitor: Included monitor code with unit tests.
 
 0.56 (2016-07-25)
 =================
 
-* slaprunner: remove create user at first launch, clone repository can be done by slaprunner at startup.
-* Remove slapos.builder and slapos.monitor as it only contains unused and dead code.
+ * slaprunner: remove create user at first launch, clone repository can be done by slaprunner at startup.
+ * Remove slapos.builder and slapos.monitor as it only contains unused and dead code.
 
 0.55 (2016-03-01)
 =================
 
-* Switch to mysqlclient, that is a maintained fork of MySQL-python.
-* Add an option in is-process-older-than-dependency-set to kill the
-  process if older than dependency set.
+ * Switch to mysqlclient, that is a maintained fork of MySQL-python.
+ * Add an option in is-process-older-than-dependency-set to kill the process if older than dependency set.
 
 0.54 (2016-02-25)
 =================
 
-* Added is-process-older-than-dependency-set script.
+ * Added is-process-older-than-dependency-set script.
 
 0.53 (2015-11-26)
 =================
 
-* networkbench: Minor fixes 
+ * networkbench: Minor fixes 
 
 0.52 (2015-09-02)
 =================
 
-* testagent:  Fully reimplementation
-* networkbench: Accept external configurations and split file logs
+ * testagent:  Fully reimplementation
+ * networkbench: Accept external configurations and split file logs
 
 0.51 (2015-08-17)
 =================
 
-* networkbench:  Include ping6 and TTFB support
+ * networkbench:  Include ping6 and TTFB support
 
 0.50 (2015-07-20)
 =================
 
-* slaprunner: Allow to configure the window title through 'instance-name' parameter.
+ * slaprunner: Allow to configure the window title through 'instance-name' parameter.
 
 0.49 (2015-07-17)
 =================
 
-* slaprunner: filter out useless file extensions in treeview
+ * slaprunner: filter out useless file extensions in treeview
 
 0.48 (2015-04-09)
 =================
 
-* slaprunner: Support command exiting with non 0 status in minishell
+ * slaprunner: Support command exiting with non 0 status in minishell
 
 
 0.47.3 (2015-02-17)
 ===================
 
-* resiliency tests: hide output of slapos node instance.
-* equeue: move takeover detection in thread lock.
-* add erp5 resiliency test suite.
-* harcode slaprunner request to use dev branch for erp5.
-* slaprunner resiliency test suite: compatibility with python 2.7.9.
-* resiliency test suite: do takeover from web interface.
+ * resiliency tests: hide output of slapos node instance.
+ * equeue: move takeover detection in thread lock.
+ * add erp5 resiliency test suite.
+ * harcode slaprunner request to use dev branch for erp5.
+ * slaprunner resiliency test suite: compatibility with python 2.7.9.
+ * resiliency test suite: do takeover from web interface.
 
 0.47.2 (2015-02-14)
 ===================
 
-* equeue: prevent to run import script if takeover-triggered file exists.
-* Advertise development of new version.
+ * equeue: prevent to run import script if takeover-triggered file exists.
+ * Advertise development of new version.
 
 0.47.1 (2015-02-05)
 ===================
 
-* equeue: unlock lockfile at boot.
+ * equeue: unlock lockfile at boot.
 
 0.47 (2015-02-05)
 =================
 
-* runner: fix syntax when stopping all processes.
-* equeue: realtime logging.
+ * runner: fix syntax when stopping all processes.
+ * equeue: realtime logging.
 
 0.46.1 (2015-01-30)
 ===================
 
-* runner: enhance software/instance explanation to user.
-* runner: do not remove whole instance root directory, but only instance home directories.
-* slaprunner resilient test: update API about slapgridResult.
+ * runner: enhance software/instance explanation to user.
+ * runner: do not remove whole instance root directory, but only instance home directories.
+ * slaprunner resilient test: update API about slapgridResult.
 
 0.46.0 (2015-01-16)
 ===================
 
-* slaprunner: don't shutdown supervisord.
-* slaprunner: Simplify process management and make sure 'process killer' handler works.
-* webrunner: add getConnectionParameter API.
-* equeue: create a lockfile when running importer command.
-* Equeue: do not register command in database if it was not successful.
+ * slaprunner: don't shutdown supervisord.
+ * slaprunner: Simplify process management and make sure 'process killer' handler works.
+ * webrunner: add getConnectionParameter API.
+ * equeue: create a lockfile when running importer command.
+ * Equeue: do not register command in database if it was not successful.
 
 0.45.3 (2015-01-12)
 ===================
-* slaprunner: Quick and dirty support for ace editor autocompletion
+ * slaprunner: Quick and dirty support for ace editor autocompletion
 
 0.45.2 (2014-12-02)
 ===================
 
-* resiliencytest framework: adapt abstract test suite to work with a single clone.
-* resiliency test suites: send log to erp5 master.
-* KVM resiliency test suite: use test framework
+ * resiliencytest framework: adapt abstract test suite to work with a single clone.
+ * resiliency test suites: send log to erp5 master.
+ * KVM resiliency test suite: use test framework
 
 0.45.1 (2014-11-24)
 ===================
 
-* Fix logrotate and introduce a delay for `networkbench`.
+ * Fix logrotate and introduce a delay for `networkbench`.
 
 0.45.0 (2014-11-24)
 ===================
 
-* Resiliency tests: allow to use from inside of a classical erp5testnode.
+ * Resiliency tests: allow to use from inside of a classical erp5testnode.
 
 0.44.0 (2014-11-22)
 ===================
 
-* Add new `networkbench` command.
+ * Add new `networkbench` command.
 
 0.43.0 (2014-11-13)
 ===================
 
-* Add new `slapos-kill` command, deprecating `killpidfromfile`
-* Make `pycurl` egg an optional dependency
+ * Add new `slapos-kill` command, deprecating `killpidfromfile`
+ * Make `pycurl` egg an optional dependency
 
 0.42.0 (2014-10-28)
 ===================
 
-* The egg provides `check-web-page-http-cache-hit` script to check if a web page
-  is well cached by Squid or TrafficServer.
+ * The egg provides `check-web-page-http-cache-hit` script to check if a web page is well cached by Squid or TrafficServer.
 
 0.41.0 (2014-10-20)
 ===================
 
-* The egg provides `is-local-tcp-port-opened` script to check if an ip address
-  + port are currently opened on the local machine by reading in /proc/net/tcp
-  and /proc/net/tcp6.
+ * The egg provides `is-local-tcp-port-opened` script to check if an ip address + port are currently opened on the local machine by reading in /proc/net/tcp
+   and /proc/net/tcp6.
 
 0.40.4 (2014-10-14)
--------------------
+===================
 
  * The equeue server now supports additional parameters to the callbacks, separated by \0 in the JSON protocol.
-   The pubsubnotifier accepts a --transaction-id parameter. If missing, the current timestamp is used.
-   The pubsubnotifier then provides the transaction-id value in the POST call to /notify.
-
-   Together, these three changes allow us to put in the crontab:
-
-   0 0 * * * /srv/slapgrid/slappartXX/bin/exporter --transaction-id `date +%s`
-
-   and the same timestamp value is reported as transaction id in the equeue logs for BOTH the pull
-   and push operations.
-
+ * The pubsubnotifier accepts a ==transaction-id parameter. If missing, the current timestamp is used.
+ * The pubsubnotifier then provides the transaction-id value in the POST call to /notify.
 
 0.40.3 (2014-10-13)
--------------------
+===================
 
-  * Slaprunner: stop proxy when removing instances content. This fixes the "partition11 table does not exist" error.
+ * Slaprunner: stop proxy when removing instances content. This fixes the "partition11 table does not exist" error.
 
 0.40.2 (2014-09-25)
--------------------
+===================
 
-  * Slaprunner: Various bug fix
-  * Slaprunner: Update supervisorctl interaction to work with latest slapos.core revision
+ * Slaprunner: Various bug fix
+ * Slaprunner: Update supervisorctl interaction to work with latest slapos.core revision
 
 0.40.1 (2014-09-02)
--------------------
+===================
 
-  * Slaprunner: Fix a bad behaviour within slapos
+ * Slaprunner: Fix a bad behaviour within slapos
 
 0.40 (2014-09-01)
------------------
+=================
 
  * Slaprunner: Supervisord runs slapos commands
  * Slaprunner: fixes for git repositories management
 
 0.39.5 (Unreleased)
--------------------
+===================
 
  * Slaprunner: Add slave support test.
 
 0.39.4 (2014-08-11)
--------------------
+===================
 
  * Slaprunner: Add a minishell feature, using far less bandwith than shellinabox
  * Slaprunner: Slapgrid state is correctly rendered while compiling
@@ -250,7 +248,7 @@
  * Slaprunner: various fixes and improvements
 
 0.39.3 (2014-07-11)
--------------------
+===================
 
  * Slaprunner: Add folder to favorites [Alain T.]
  * Slaprunner: Fix https git clone not possible if no login [Alain T.]
@@ -260,7 +258,7 @@
  * Slaprunner: Various fixes
 
 0.39.2 (2014-05-16)
--------------------
+===================
 
  * Slaprunner: Add tab support [Alain T.]
  * Slaprunner: Add upload file [Alain T.]
@@ -268,12 +266,12 @@
  * Slaprunner: Various fixes
 
 0.39.1 (2014-04-30)
--------------------
+===================
 
  * Slaprunner: Various fixes
 
 0.39 (2014-02-20)
------------------
+=================
 
  * Slaprunner: new web interface design
  * Slaprunner: one function handle both "run software" and "run instance" [9c660c0]
@@ -283,12 +281,12 @@
  * Slaprunner: direct access to monitoring of running instance, if it exists [f8e7bf3]
 
 0.38.1 (2013-12-06)
--------------------
+===================
 
  * Slaprunner: do not delete proxy.db on each run software [71777fc0]
 
 0.38 (2013-12-03)
------------------
+=================
 
  * Slaprunner: adds an integrated shell [ca6a670a]
  * Slaprunner: uses basic authentification [05913751]
@@ -299,27 +297,27 @@
  * Runner resiliencytestsuite: tests can be done on only one Slapos node [07198d87]
 
 0.37.4 (2013-10-15)
--------------------
+===================
 
  * Improve QEMU QMP wrapper by adding drive-backup method and other helpers. [0afb7d6, 95d0c8b]
 
 0.37.3 (2013-10-10)
--------------------
+===================
 
-* pubsub: don't swallow output of subprocess to allow debug. [c503484]
+ * pubsub: don't swallow output of subprocess to allow debug. [c503484]
 
 0.37.2 (2013-10-10)
--------------------
+===================
 
  * Add QEMU QMP wrapper. [9e819a8]
  * KVM resiliency test: update docstring about how to setup disk image. [dbe347f]
  * KVM resiliency test: change key for each clone. [7ef1db3]
 
 0.37.1 (2013-10-03)
--------------------
+===================
 
-  * pubsub notifier: handle timeout and other connection errors. [ac4c75c]
-  * equeue: cast str(timestamp) to please gdbm. [8b067d6]
+ * pubsub notifier: handle timeout and other connection errors. [ac4c75c]
+ * equeue: cast str(timestamp) to please gdbm. [8b067d6]
 
 0.37 (2013-09-30)
 =================
@@ -369,19 +367,16 @@
 =================
 
  * agent: run tests in order. [Marco Mariani]
- * slaprunner: Add process killer killing all processes when instance is
-   stopped. [Cedric Le Ninivin]
+ * slaprunner: Add process killer killing all processes when instance is stopped. [Cedric Le Ninivin]
  * slaprunner: slapgrid-cp will be run at startup. [Cedric Le Ninivin]
  * slaprunner: Improved design. [Alain Takoudjou]
- * slaprunner: Don't set arbitrary limitations on the complexity of password.
-   [Cedric de Saint Martin]
+ * slaprunner: Don't set arbitrary limitations on the complexity of password. [Cedric de Saint Martin]
 
 0.32 (2012-12-13)
 =================
  * pubsub: support multiple notifications and callbacks. [Marco Mariani]
  * pubsub: print/return errors from subprocess or notifications. [Marco Mariani]
- * agent: ignore SR status, retrieve instance status with .getStatus(). [Marco
-   Mariani]
+ * agent: ignore SR status, retrieve instance status with .getStatus(). [Marco Mariani]
  * slapmonitor: added slapmonitor-xml function + entry point. [Marco Mariani]
 
 0.31.1 (2012-10-02)
@@ -437,10 +432,8 @@
 0.26 (2012-07-06)
 =================
 
- * slaprunner now supports authentication and instance parameters.
-   [Alain Takoudjou]
- * Redisign of Test Agent so that it supports proper instantiation test and
-   report. [Vincent Pelletier]
+ * slaprunner now supports authentication and instance parameters. [Alain Takoudjou]
+ * Redisign of Test Agent so that it supports proper instantiation test and report. [Vincent Pelletier]
 
 0.25 (2012-06-19)
 =================
@@ -488,8 +481,7 @@
 =================
 
  * slapbuilder: Update slapbuilder to new OpenSuse 12.1. [Cedric Le Ninivin]
- * slapbuilder: Added automatic IPv6 support thanks to ViFiB OpenVPN.
-   [Cedric Le Ninivin]
+ * slapbuilder: Added automatic IPv6 support thanks to ViFiB OpenVPN. [Cedric Le Ninivin]
  * slapbuilder: Added virtual machine support. [Cedric Le Ninivin]
  * slapbuilder: Added "One Disk" feature. [Cedric Le Ninivin]
 
@@ -534,8 +526,7 @@
 ================
 
  * Add LAMP tool to manage lamp instances. [Alain Takoudjou]
- * Add onetimedownload : a simple script which download any http resource
-   and save it into a specified file_path. [Nicolas Delaby]
+ * Add onetimedownload : a simple script which download any http resource and save it into a specified file_path. [Nicolas Delaby]
 
 0.8 (2011-10-24)
 ================
