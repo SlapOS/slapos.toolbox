@@ -153,18 +153,18 @@ class ERP5TestSuite(SlaprunnerTestSuite):
 
     result = self._connectToSlaprunner(
         resource='/getFileContent',
-        data='file=runner_workdir%2Finstance%2Fslappart5%2Fetc%2Fhaproxy-erp5.cfg'
+        data='file=runner_workdir%2Finstance%2Fslappart7%2Fetc%2Fhaproxy.cfg'
     )
     file_content = json.loads(result)['result']
-    file_content = file_content.replace('var/run/haproxy-erp5.sock', 'ha-erp5.sock')
+    file_content = file_content.replace('var/run/haproxy.sock', 'ha.sock')
     self._connectToSlaprunner(
         resource='/saveFileContent',
-        data='file=runner_workdir%%2Finstance%%2Fslappart5%%2Fetc%%2Fhaproxy-erp5.cfg&content=%s' % urllib.quote(file_content)
+        data='file=runner_workdir%%2Finstance%%2Fslappart7%%2Fetc%%2Fhaproxy.cfg&content=%s' % urllib.quote(file_content)
     )
 
     # Restart HAProxy
     self._connectToSlaprunner(
-        resource='/startStopProccess/name/slappart5:haproxy-erp5/cmd/STOPPED'
+        resource='/startStopProccess/name/slappart7:haproxy/cmd/STOPPED'
     )
 
     time.sleep(15)
