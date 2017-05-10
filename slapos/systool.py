@@ -52,9 +52,11 @@ def kill():
 
   import psutil
   r = 1
+  me = os.getpid()
   for p in psutil.process_iter():
     try:
-      if (pid and p.pid not in pid or
+      if (me == p.pid or
+          pid and p.pid not in pid or
           args.name and p.name() not in args.name or
           exe and p.exe() not in exe):
         continue
