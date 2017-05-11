@@ -11,6 +11,7 @@ def test(log_file, maximum_delay):
   no_route_error = 0
   network_is_unreacheable = 0
   timeout = 0
+  parsing_failure = 0
   with open(log_file) as f:
 
     f.seek(0, 2)
@@ -24,10 +25,20 @@ def test(log_file, maximum_delay):
         continue
       dt, level, msg = m.groups()
       try:
-        t = time.strptime(dt[1:-1], "%a %b %d %H:%M:%S %Y")
+        try:
+          t = time.strptime(dt[1:-1], "%a %b %d %H:%M:%S %Y")
+        except ValueError:
+          # Fail to parser for the first time, try a different output.
+          t = time.strptime(dt[1:-1], "%a %b %d %H:%M:%S.%f %Y")
       except ValueError:
-        # Fail to parser for the first time, try a different output.
-        t = time.strptime(dt[1:-1], "%a %b %d %H:%M:%S.%f %Y")
+          # Probably it fail to parse
+          if parsing_failure < 3:
+            # Accept failure 2 times, as the line can be actually
+            # cut on the middle.
+            parsing_failure += 1
+            continue
+          raise
+
       if maximum_delay and (time.time()-time.mktime(t)) > maximum_delay:
         # no result in the latest hour
         break
@@ -42,14 +53,13 @@ def test(log_file, maximum_delay):
         network_is_unreacheable += 1
       elif "(110)Connection timed out" in msg:
         timeout += 1
-      
+
       error_amount += 1
 
   if error_amount:
     return "ERROR=%s (NOTROUTE=%s, UNREACHEABLENET=%s, TIMEOUT=%s)" % (error_amount, no_route_error, network_is_unreacheable, timeout)
-  
-  return "OK"
 
+  return "OK"
 
 def main():
   parser = argparse.ArgumentParser()
