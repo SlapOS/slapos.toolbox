@@ -3,6 +3,7 @@ import time
 import sys
 import gzip
 import argparse
+import os
 
 r = re.compile("^(\[[^\]]+\]) (\[[^\]]+\]) (.*)$")
 
