@@ -12,6 +12,10 @@ def test(log_file, maximum_delay):
   network_is_unreacheable = 0
   timeout = 0
   parsing_failure = 0
+  if not os.path.exists(log_file):
+    # file don't exist, nothing to check
+    return "OK"
+
   with open(log_file) as f:
 
     f.seek(0, 2)
