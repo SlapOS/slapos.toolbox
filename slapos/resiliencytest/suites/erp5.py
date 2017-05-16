@@ -49,7 +49,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     """
     Set inside of slaprunner the instance parameter to use to deploy erp5 instance.
     """
-    p = '<?xml version="1.0" encoding="utf-8"?> <instance> <parameter id="_">{"zodb-zeo": {"backup-periodicity": "*/3 * * * * *"}, "mariadb": {"backup-periodicity": "*/3 * * * *"}}</parameter> </instance>'
+    p = '<?xml version="1.0" encoding="utf-8"?> <instance> <parameter id="_">{"zodb-zeo": {"backup-periodicity": "*:1/4"}, "mariadb": {"backup-periodicity": "*:1/4"}}</parameter> </instance>'
     parameter = urllib2.quote(p)
     self._connectToSlaprunner(
         resource='saveParameterXml',
