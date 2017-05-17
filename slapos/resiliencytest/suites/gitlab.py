@@ -56,7 +56,7 @@ class GitlabTestSuite(SlaprunnerTestSuite):
         data='software_type=gitlab-test&parameter=%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0A%3Cinstance%3E%0A%3C%2Finstance%3E'
     )
 
-  def _connectToGitlab(self, path='', post_data=None, url='', params={}):
+  def _connectToGitlab(self, path='', post_data=None, url='', parameter_dict={}):
     request_url = self.backend_url
     if url:
       request_url = url
@@ -79,8 +79,8 @@ class GitlabTestSuite(SlaprunnerTestSuite):
 
   def _createNewProject(self, name, namespace='open'):
     uri = 'api/v3/projects'
-    params = {'name': name, 'namespace': namespace}
-    return self._connectToGitlab(uri, post_data={}, param=params)
+    paramameter_dict = {'name': name, 'namespace': namespace}
+    return self._connectToGitlab(uri, post_data={}, parameter_dict=params)
 
   def _listProjects(self):
     path = 'api/v3/projects'
