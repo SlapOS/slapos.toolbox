@@ -38,7 +38,7 @@ class TestCheckRe6stOptimalStatus(unittest.TestCase):
     self.assertEquals(result, 'OK')
 
   def test_ipv4_is_faster(self):
-    result = test('ipv6.google.com', '127.0.0.1', 5)
+    result = test('2001:67c:1254::1', '127.0.0.1', 5)
     self.assertEquals(result, 'FAIL')
 
   def test_ipv4_unreacheable_and_ipv6_ok(self):
