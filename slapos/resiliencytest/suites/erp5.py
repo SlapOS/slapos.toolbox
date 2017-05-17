@@ -101,15 +101,15 @@ class ERP5TestSuite(SlaprunnerTestSuite):
         resource='/startStopProccess/name/slappart7:haproxy/cmd/RESTART'
     )
 
-    for i in range(1):
-      time.sleep(15)
-
-      # In case erp5 bootstrap (in erp5-cluster) couldn't connect to zope through HAProxy
-      self._connectToSlaprunner('/startAllPartition')
 
   def _getCreatedERP5Document(self):
     """ Fetch and return content of ERP5 document created above."""
     url = "%s/erp5/getTitle" % self._getERP5Url()
+    return self._connectToERP5(url)
+
+  def _getCreatedERP5SiteId(self):
+    """ Fetch and return id of ERP5 document created above."""
+    url = "%s/erp5/getId" % self._getERP5Url()
     return self._connectToERP5(url)
 
 
@@ -186,8 +186,24 @@ class ERP5TestSuite(SlaprunnerTestSuite):
 
     self._editHAProxyconfiguration()
 
-    self.logger.info('Waiting 5 minutes so that erp5 can be bootstrapped...')
-    time.sleep(300)
+    time.sleep(30)
+    self.logger.info('Starting all partitions ...')
+    self._connectToSlaprunner('/startAllPartition')
+
+    self.logger.info('Waiting 30 seconds so that erp5 can be bootstrapped...')
+    for i in range(10):
+      time.sleep(30)
+
+      # In case erp5 bootstrap (in erp5-cluster) couldn't connect to zope through HAProxy
+      self._connectToSlaprunner(
+        resource='/startStopProccess/name/slappart0:erp5-bootstrap/cmd/RESTART'
+      )
+      try:
+        if "erp5" == self._getCreatedERP5SiteId():
+          break
+      except:
+        self.logger.info("Fail to connect to erp5.... wait a bit longer")
+        pass
 
     self.data = self._createRandomERP5Document()
 
