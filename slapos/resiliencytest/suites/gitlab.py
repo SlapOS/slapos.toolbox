@@ -30,11 +30,8 @@ from .slaprunner import SlaprunnerTestSuite
 
 import json
 import random
-import ssl
 import string
 import time
-import urllib
-import urllib2
 import requests
 
 class NotHttpOkException(Exception):
@@ -64,14 +61,14 @@ class GitlabTestSuite(SlaprunnerTestSuite):
       request_url += '/' + path
     headers = {"PRIVATE-TOKEN" : self.private_token}
     if post_data is None:
-      response = requests.get(request_url, params=params,
+      response = requests.get(request_url, params=parameter_dict,
                               headers=headers, verify=False)
     elif post_data == {}:
-      response = requests.post(request_url, params=params,
-                                headers=header, verify=False)
+      response = requests.post(request_url, params=parameter_dict,
+                                headers=headers, verify=False)
     else:
-      response = requests.post(request_url, params=params,
-                                headers=header, data=post_data, verify=False)
+      response = requests.post(request_url, params=parameter_dict,
+                                headers=headers, data=post_data, verify=False)
     if not response.ok:
       raise Exception("ERROR connecting to Gitlab: %s: %s \n%s" % (
         response.status_code, response.reason, response.text))
@@ -79,8 +76,8 @@ class GitlabTestSuite(SlaprunnerTestSuite):
 
   def _createNewProject(self, name, namespace='open'):
     uri = 'api/v3/projects'
-    paramameter_dict = {'name': name, 'namespace': namespace}
-    return self._connectToGitlab(uri, post_data={}, parameter_dict=params)
+    parameter_dict = {'name': name, 'namespace': namespace}
+    return self._connectToGitlab(uri, post_data={}, parameter_dict=parameter_dict)
 
   def _listProjects(self):
     path = 'api/v3/projects'
