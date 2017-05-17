@@ -98,10 +98,14 @@ class ERP5TestSuite(SlaprunnerTestSuite):
 
     # Restart HAProxy
     self._connectToSlaprunner(
-        resource='/startStopProccess/name/slappart7:haproxy/cmd/STOPPED'
+        resource='/startStopProccess/name/slappart7:haproxy/cmd/RESTART'
     )
 
-    time.sleep(15)
+    for i in range(1):
+      time.sleep(15)
+
+      # In case erp5 bootstrap (in erp5-cluster) couldn't connect to zope through HAProxy
+      self._connectToSlaprunner('/startAllPartition')
 
   def _getCreatedERP5Document(self):
     """ Fetch and return content of ERP5 document created above."""
