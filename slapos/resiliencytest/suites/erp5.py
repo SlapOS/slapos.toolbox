@@ -143,36 +143,6 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     self._connectToERP5(url, form)
     return erp5_site_title
 
-  def _editHAProxyconfiguration(self):
-    """
-    XXX pure hack.
-    haproxy processes don't support long path for sockets.
-    Edit haproxy configuration file of erp5 to make it compatible with long paths
-    Then restart haproxy.
-    """
-    self.logger.info('Editing HAProxy configuration...')
-
-    result = self._connectToSlaprunner(
-        resource='/getFileContent',
-        data='file=runner_workdir%2Finstance%2Fslappart7%2Fetc%2Fhaproxy.cfg'
-    )
-    file_content = json.loads(result)['result']
-    file_content = file_content.replace('var/run/haproxy.sock', 'ha.sock')
-    self._connectToSlaprunner(
-        resource='/saveFileContent',
-        data='file=runner_workdir%%2Finstance%%2Fslappart7%%2Fetc%%2Fhaproxy.cfg&content=%s' % urllib.quote(file_content)
-    )
-
-    # Restart HAProxy
-    self._connectToSlaprunner(
-        resource='/startStopProccess/name/slappart7:haproxy/cmd/STOPPED'
-    )
-
-    time.sleep(15)
-
-    # In case erp5 bootstrap (in erp5-cluster) couldn't connect to zope through HAProxy
-    self._connectToSlaprunner('/startAllPartition')
-
   def generateData(self):
     self.slaprunner_password = ''.join(
         random.SystemRandom().sample(string.ascii_lowercase, 8)
