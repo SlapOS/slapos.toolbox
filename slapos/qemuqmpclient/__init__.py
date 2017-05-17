@@ -92,7 +92,11 @@ class QemuQMPWrapper(object):
     try:
       return json.loads(data)
     except ValueError:
-      print 'Wrong data: %s' % data
+      # if error the raise
+      if "error" in data:
+        raise Exception('ERROR: %s' % data)
+      else:
+        print 'Wrong data: %s' % data
 
   def _getVMStatus(self):
     response = self._send({'execute': 'query-status'})
@@ -134,6 +138,11 @@ class QemuQMPWrapper(object):
 
   def _getRunningJobList(self, device):
     result = self._queryBlockJobs(device)
+
+    while result is None:
+      # If result is None retry to command until if return something.
+      time.sleep(3)
+      result = self._queryBlockJobs(device)
     if result.get('return'):
       return result['return']
     else:
