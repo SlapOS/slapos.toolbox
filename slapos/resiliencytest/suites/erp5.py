@@ -228,7 +228,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     """
     old_slaprunner_backend_url = self.slaprunner_backend_url
     self.slaprunner_backend_url = self._returnNewInstanceParameter(
-        parameter_key='backend_url',
+        parameter_key='backend-url',
         old_parameter_value=old_slaprunner_backend_url,
         force_new=True,
     )
