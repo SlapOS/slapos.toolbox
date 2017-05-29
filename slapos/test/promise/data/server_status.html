@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html><head>
+<title>Apache Status</title>
+</head><body>
+<h1>Apache Server Status </h1>
+
+<dl><dt>Server Version: Apache/2.4.25 (Unix) OpenSSL/1.0.2k mod_antiloris/0.5.1</dt>
+<dt>Server MPM: event</dt>
+<dt>Server Built: Apr 19 2017 12:41:47
+</dt></dl><hr /><dl>
+<dt>Current Time: Wednesday, 31-May-2017 14:57:52 CEST</dt>
+<dt>Restart Time: Friday, 26-May-2017 00:24:30 CEST</dt>
+<dt>Parent Server Config. Generation: 498</dt>
+<dt>Parent Server MPM Generation: 497</dt>
+<dt>Server uptime:  5 days 14 hours 33 minutes 22 seconds</dt>
+<dt>Server load: 2.32 1.98 1.94</dt>
+<dt>Total accesses: 26754245 - Total Traffic: 249.0 GB</dt>
+<dt>CPU Usage: u7129.39 s1016.88 cu0 cs0 - 1.68% CPU load</dt>
+<dt>55.2 requests/sec - 0.5 MB/second - 9.8 kB/request</dt>
+<dt>8 requests currently being processed, 117 idle workers</dt>
+</dl>
+
+<table rules="all" cellpadding="1%">
+<tr><th rowspan="2">Slot</th><th rowspan="2">PID</th><th rowspan="2">Stopping</th><th colspan="2">Connections</th>
+<th colspan="2">Threads</th><th colspan="3">Async connections</th></tr>
+<tr><th>total</th><th>accepting</th><th>busy</th><th>idle</th><th>writing</th><th>keep-alive</th><th>closing</th></tr>
+<tr><td>0</td><td>12345</td><td>yes (old gen)</td><td>3</td><td>no</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>1</td><td>12346</td><td>yes (old gen)</td><td>3</td><td>no</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>2</td><td>24443</td><td>no</td><td>8</td><td>yes</td><td>1</td><td>24</td><td>0</td><td>1</td><td>7</td></tr>
+<tr><td>5</td><td>23019</td><td>no</td><td>11</td><td>yes</td><td>1</td><td>24</td><td>0</td><td>3</td><td>7</td></tr>
+<tr><td>8</td><td>12348</td><td>yes (old gen)</td><td>1</td><td>no</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>9</td><td>23032</td><td>no</td><td>18</td><td>yes</td><td>2</td><td>23</td><td>0</td><td>2</td><td>14</td></tr>
+<tr><td>10</td><td>23053</td><td>no</td><td>17</td><td>yes</td><td>2</td><td>23</td><td>0</td><td>2</td><td>14</td></tr>
+<tr><td>11</td><td>23118</td><td>no</td><td>13</td><td>yes</td><td>2</td><td>23</td><td>0</td><td>7</td><td>3</td></tr>
+<tr><td>Sum</td><td>8</td><td>3</td><td>74</td><td>&nbsp;</td><td>8</td><td>117</td><td>0</td><td>15</td><td>45</td></tr>
+</table>
+<pre>..............G..G.G.............G.......G.......G___R__________
+___________.................................................._R_
+______________________..........................................
+...........G.....................______________R_____R__________
+______________WC___________R________R_______....................
+................................................................
+................</pre>
+<p>Scoreboard Key:<br />
+"<b><code>_</code></b>" Waiting for Connection, 
+"<b><code>S</code></b>" Starting up, 
+"<b><code>R</code></b>" Reading Request,<br />
+"<b><code>W</code></b>" Sending Reply, 
+"<b><code>K</code></b>" Keepalive (read), 
+"<b><code>D</code></b>" DNS Lookup,<br />
+"<b><code>C</code></b>" Closing connection, 
+"<b><code>L</code></b>" Logging, 
+"<b><code>G</code></b>" Gracefully finishing,<br /> 
+"<b><code>I</code></b>" Idle cleanup of worker, 
+"<b><code>.</code></b>" Open slot with no current process<br />
+</p>
+
+
+<table border="0"><tr><th>Srv</th><th>PID</th><th>Acc</th><th>M</th><th>CPU
+</th><th>SS</th><th>Req</th><th>Conn</th><th>Child</th><th>Slot</th><th>Client</th><th>Protocol</th><th>VHost</th><th>Request</th></tr>
+
+<tr><td><b>0-495</b></td><td>-</td><td>0/0/168016</td><td>.
+</td><td>2094.10</td><td>8672</td><td>8</td><td>0.0</td><td>0.00</td><td>1344.54
+</td><td>163.172.65.117</td><td>http/1.1</td><td nowrap></td><td nowrap></td></tr>
+
+</table>
+ <hr /> <table>
+ <tr><th>Srv</th><td>Child Server number - generation</td></tr>
+ <tr><th>PID</th><td>OS process ID</td></tr>
+ <tr><th>Acc</th><td>Number of accesses this connection / this child / this slot</td></tr>
+ <tr><th>M</th><td>Mode of operation</td></tr>
+<tr><th>CPU</th><td>CPU usage, number of seconds</td></tr>
+<tr><th>SS</th><td>Seconds since beginning of most recent request</td></tr>
+ <tr><th>Req</th><td>Milliseconds required to process most recent request</td></tr>
+ <tr><th>Conn</th><td>Kilobytes transferred this connection</td></tr>
+ <tr><th>Child</th><td>Megabytes transferred this child</td></tr>
+ <tr><th>Slot</th><td>Total megabytes transferred this slot</td></tr>
+ </table>
+<hr>
+<table cellspacing=0 cellpadding=0>
+<tr><td bgcolor="#000000">
+<b><font color="#ffffff" face="Arial,Helvetica">SSL/TLS Session Cache Status:</font></b></td></tr>
+<tr><td bgcolor="#ffffff">
+cache type: <b>SHMCB</b>, shared memory: <b>512000</b> bytes, current entries: <b>642</b><br>subcaches: <b>32</b>, indexes per subcache: <b>88</b><br>time left on oldest entries' objects: avg: <b>15</b> seconds, (range: 0...45)<br>index usage: <b>22%</b>, cache usage: <b>28%</b><br>total entries stored since starting: <b>16275</b><br>total entries replaced since starting: <b>0</b><br>total entries expired since starting: <b>15633</b><br>total (pre-expiry) entries scrolled out of the cache: <b>0</b><br>total retrieves since starting: <b>3285</b> hit, <b>607</b> miss<br>total removes since starting: <b>0</b> hit, <b>0</b> miss<br></td></tr>
+</table>
+</body></html>

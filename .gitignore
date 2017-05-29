@@ -11,3 +11,4 @@
 .eggs/
 config.json
 slapos/test/promise/data/SOFTINST-0_*
+slapos/test/promise/data/write_db.json
