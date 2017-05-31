@@ -57,7 +57,11 @@ def watchServerStatus(pid_dict, server_status, timeout):
       _pid_dict.setdefault(i, time.time() + timeout)
       if _pid_dict[i] < time.time():
         print "Sending signal -%s to %s" % (signal.SIGKILL, i)
-        os.kill(int(i), signal.SIGKILL)
+        try:
+          process.kill()
+        except psutil.NoSuchProcess:
+          print "Process is not there anymore"
+          continue
 
   return _pid_dict
 
