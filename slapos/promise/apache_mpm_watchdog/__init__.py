@@ -5,6 +5,7 @@ import os
 import psutil
 import json
 import time
+import argparse
 
 search_pid_regex = r"</td><td.*?>(.+?)</td><td>yes \(old gen\)</td>"
 
@@ -43,7 +44,7 @@ def getServerStatus(url, user, password):
   except requests.exceptions.ConnectionError:
     return 
 
-def watchServerStatus(pid_dict, server_status):
+def watchServerStatus(pid_dict, server_status, timeout):
   _pid_dict = pid_dict.copy()
   for i in re.findall(search_pid_regex, server_status):
     try:
@@ -53,8 +54,8 @@ def watchServerStatus(pid_dict, server_status):
 
     # Ensure the process is actually an apache
     if process.cmdline()[0].endswith("/httpd"):
-      pid_dict.setdefault(i, time.time() + timeout)
-      if pid_dict[i] < time.time():
+      _pid_dict.setdefault(i, time.time() + timeout)
+      if _pid_dict[i] < time.time():
         print "Sending signal -%s to %s" % (signal.SIGKILL, i)
         os.kill(int(i), signal.SIGKILL)
 
@@ -63,7 +64,7 @@ def watchServerStatus(pid_dict, server_status):
 def main():
   parser = argparse.ArgumentParser()
   # Address to ping to
-  parser.add_argument("-u", "--url", required=True)
+  parser.add_argument("--url", required=True)
   # Force use ipv4 protocol
   parser.add_argument("-u", "--user")
   parser.add_argument("-p", "--password")
@@ -79,7 +80,7 @@ def main():
   if server_status is None:
     raise ValueError("Couldn't connect to server status page")
 
-  pid_dict = watchServerStatus(pid_dict, server_status)
+  pid_dict = watchServerStatus(pid_dict, server_status, args.timeout)
 
   writeJSONFile(pid_dict, args.db)
 
