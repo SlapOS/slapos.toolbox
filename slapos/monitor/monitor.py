@@ -136,29 +136,35 @@ class Monitoring(object):
             title=config_list[1],
             value=' '.join(config_list[2:])
           ))
-        elif (config_list[0] == 'file' or config_list[0] == 'htpasswd')  and \
-            os.path.exists(config_list[2]) and os.path.isfile(config_list[2]):
-          try:
-            with open(config_list[2]) as cfile:
-              parameter = dict(
-                key=config_list[1],
-                title=config_list[1],
-                value=cfile.read(),
-                description={
-                  "type": config_list[0],
-                  "file": config_list[2]
-                }
-              )
-              if config_list[0] == 'htpasswd':
-                if len(config_list) != 5 or not os.path.exists(config_list[4]):
-                  print 'htpasswd file is not specified: %s' % str(config_list)
-                  continue
-                parameter['description']['user'] = config_list[3]
-                parameter['description']['htpasswd'] = config_list[4]
-              configuration_list.append(parameter)
-          except OSError, e:
-            print 'Cannot read file %s, Error is: %s' % (config_list[2], str(e))
-            pass
+        elif (config_list[0] == 'file' or config_list[0] == 'htpasswd'):
+          directory = os.path.dirname(config_list[2])
+          if not os.path.exists(directory) or not os.access(directory, os.W_OK):
+            raise OSError("Directory does not exists or does not have write acess")
+          if os.path.exists(config_list[2]) and os.path.isfile(config_list[2]):
+            try:
+              with open(config_list[2]) as cfile:
+                param_value = cfile.read()
+            except OSError, e:
+              print 'Cannot read file %s, Error is: %s' % (config_list[2], str(e))
+              pass
+          else:
+            param_value = ""
+          parameter = dict(
+            key=config_list[1],
+            title=config_list[1],
+            value=param_value,
+            description={
+              "type": config_list[0],
+              "file": config_list[2]
+            }
+          )
+          if config_list[0] == 'htpasswd':
+            if len(config_list) != 5 or not os.path.exists(config_list[4]):
+              print 'htpasswd file is not specified: %s' % str(config_list)
+              continue
+            parameter['description']['user'] = config_list[3]
+            parameter['description']['htpasswd'] = config_list[4]
+          configuration_list.append(parameter)
         elif config_list[0] == 'httpdcors' and os.path.exists(config_list[2]) and \
             os.path.exists(config_list[3]):
           old_cors_file = os.path.join(
