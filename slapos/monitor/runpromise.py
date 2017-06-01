@@ -248,12 +248,14 @@ class RunPromise(object):
     status_json = {}
     if process.returncode != 0:
       status_json["status"] = "ERROR"
+      if not stdout:
+        status_json["message"] = stderr
+      else:
+        status_json["message"] = stdout
     else:
-      status_json["status"] = "OK"
-    if stderr:
-      status_json["message"] = stderr
-    elif stdout:
+      status_json["status"] = "OK" 
       status_json["message"] = stdout
+
     if start_date:
       status_json["start-date"] = start_date
     if title:
