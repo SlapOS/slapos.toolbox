@@ -36,18 +36,16 @@ class MonitorConfigWrite(object):
     self.monitor_https_cors = monitor_https_cors
 
   def _fileWrite(self, file_path, content):
-    if os.path.exists(file_path):
-      try:
-        with open(file_path, 'w') as wf:
-          wf.write(content)
-          return True
-      except OSError, e:
-        print "ERROR while writing changes to %s.\n %s" % (file_path, str(e))
-    return False
+    try:
+      with open(file_path, 'w') as wf:
+        print file_path, content
+        wf.write(content.strip())
+        return True
+    except OSError, e:
+      print "ERROR while writing changes to %s.\n %s" % (file_path, str(e))
+      return False
 
   def _htpasswdWrite(self, htpasswd_bin,  parameter_dict, value):
-    if not os.path.exists(parameter_dict['file']):
-      return False
     command = [htpasswd_bin, '-cb', parameter_dict['htpasswd'], parameter_dict['user'], value]
     process = subprocess.Popen(
       command,
