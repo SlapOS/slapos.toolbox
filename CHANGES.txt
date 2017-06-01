@@ -1,3 +1,9 @@
+0.69 (2017-06-01)
+=================
+
+ * promise.check_error_on_apache_log: Fix partial line parsers.
+ * promise.apache_mpm_watchdog: Implement watchdog for apache
+
 0.68 (2017-05-11)
 =================
 
