@@ -77,6 +77,8 @@ class TestMap(object):
       group = test_dict[key].get("group", "default")
       if group not in self.test_map_dict:
         self.test_map_dict[group] = [key]
+      else:
+        self.test_map_dict[group].append(key)
 
   def addRanTest(self, test):
     self.ran_test_set.add(test)
