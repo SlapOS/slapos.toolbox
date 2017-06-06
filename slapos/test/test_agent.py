@@ -117,7 +117,7 @@ class TestTestMap(unittest.TestCase):
            'test-webrunner-software-release',
            'test-erp5testnode-software-release',
            'test-apache-frontend-software-release',
-           'test-nayuos-software-release'])
+           'test-nayuos-software-release']))
 
     self.test_map.addRanTest('test-agent-software-release')
     self.assertEquals(
