@@ -105,15 +105,30 @@ class TestTestMap(unittest.TestCase):
   def test_getexcludelist(self):
     """ Check available group of tests """
     self.assertEquals(self.test_map.getExcludeList("COMP-1"),
-      set(['test-agent-software-release']))
+      set(['test-agent-software-release',
+           'test-wendelin-software-release',
+           'test-monitor-software-release',
+           'test-re6stnetmaster-software-release',
+           'test-powerdns-software-release']))
     self.assertEquals(
       self.test_map.getExcludeList("COMP-2"),
-      set(['test-apache-frontend-software-release']))
+      set(['test-apache-frontend-software-release',
+           'test-slapos-master-software-release',
+           'test-webrunner-software-release',
+           'test-erp5testnode-software-release',
+           'test-apache-frontend-software-release',
+           'test-nayuos-software-release'])
 
-    self.test_map.addRanTest('test-apache-frontend-software-release')
+    self.test_map.addRanTest('test-agent-software-release')
     self.assertEquals(
       self.test_map.getExcludeList("COMP-2"),
-      set(['test-apache-frontend-software-release']))
+      set(['test-apache-frontend-software-release',
+           'test-slapos-master-software-release',
+           'test-webrunner-software-release',
+           'test-erp5testnode-software-release',
+           'test-apache-frontend-software-release',
+           'test-nayuos-software-release',
+           'test-agent-software-release']))
 
   def test_dropgroup(self):
     """ Check available group of tests """
@@ -149,8 +164,5 @@ class TestAutoSTemp(unittest.TestCase):
     del f
     self.assertFalse(os.path.isfile(fname))
 
-
-
-    
 if __name__ == '__main__':
   unittest.main()
