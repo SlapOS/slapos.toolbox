@@ -157,10 +157,15 @@ class SlapOSMasterCommunicator(object):
 
   @retryOnNetworkFailure
   def getSoftwareInstallationNews(self):
+    getter_link = None
     for si in self.getSoftwareInstallationList():
       if si["title"] == self.url:
         getter_link = si["href"]
         break
+
+    # We could not find the document, so it is probably too soon.
+    if getter_link is None:
+      return ""
     
     result = self.hateoas_navigator.GET(getter_link)
     action_object_slap_list = json.loads(result)['_links']['action_object_slap']
