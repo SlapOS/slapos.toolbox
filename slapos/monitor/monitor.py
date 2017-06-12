@@ -11,6 +11,7 @@ import argparse
 import urllib2
 import ssl
 import glob
+import socket
 from datetime import datetime
 
 OPML_START = """<?xml version="1.0" encoding="UTF-8"?>
@@ -216,26 +217,32 @@ class Monitoring(object):
     if not monitor_url.endswith('/'):
       monitor_url = monitor_url + '/'
 
-    url  = monitor_url + '/.jio_documents/monitor.global.json' # XXX Hard Coded path
+    url  = monitor_url + '/monitor.global.json'
+    success = False
+    monitor_title = 'Unknown Instance'
     try:
+      # Timeout after 20 seconds to not stall on download
+      timeout = 20
       # XXX - working here with public url
       if hasattr(ssl, '_create_unverified_context'):
         context = ssl._create_unverified_context()
-        response = urllib2.urlopen(url, context=context)
+        response = urllib2.urlopen(url, context=context, timeout=timeout)
       else:
-        response = urllib2.urlopen(url)
+        response = urllib2.urlopen(url, timeout=timeout)
     except urllib2.HTTPError:
-      self.bootstrap_is_ok = False
-      print "Error: Failed to get Monitor configuration at %s " % monitor_url
-      return 'Unknown Instance'
+      print "ERROR: Failed to get Monitor configuration file at %s " % url
+    except socket.timeout, e:
+      print "ERROR: Timeout while downloading monitor config at %s " % url
     else:
       try:
         monitor_dict = json.loads(response.read())
-        return monitor_dict.get('title', 'Unknown Instance')
+        monitor_title = monitor_dict.get('title', 'Unknown Instance')
+        success = True
       except ValueError, e:
-        print "Bad Json file at %s" % url
-        self.bootstrap_is_ok = False
-    return 'Unknown Instance'
+        print "ERROR: Json file at %s is not valid" % url
+
+    self.bootstrap_is_ok = success
+    return monitor_title
 
   def getReportInfoFromFilename(self, filename):
     splited_filename = filename.split('_every_')
@@ -324,7 +331,7 @@ class Monitoring(object):
     except OSError, e:
       print "Error failed to create file %s" % self.parameter_cfg_file
       pass
-      
+
 
   def generateOpmlFile(self, feed_url_list, output_file):
 
@@ -344,7 +351,8 @@ class Monitoring(object):
         'xml_url': self.public_url + '/feed',
         'global_url': "%s/jio_private/" % self.webdav_url}
     for feed_url in feed_url_list:
-      opml_content += OPML_OUTLINE_FEED % {'title': self.getMonitorTitleFromUrl(feed_url + "/share/jio_public/"),
+      opml_content += OPML_OUTLINE_FEED % {
+        'title': self.getMonitorTitleFromUrl(feed_url + "/share/public/"),
         'html_url': feed_url + '/public/feed',
         'xml_url': feed_url + '/public/feed',
         'global_url': "%s/share/jio_private/" % feed_url}
@@ -522,6 +530,7 @@ class Monitoring(object):
     if self.bootstrap_is_ok:
       with open(self.promise_output_file, 'w') as promise_file:
         promise_file.write("")
+      print "SUCCESS: bootstrap is OK"
 
     return 0
 
