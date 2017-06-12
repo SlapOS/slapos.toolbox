@@ -45,6 +45,8 @@ def parseArguments():
   parser = argparse.ArgumentParser()
   parser.add_argument('--output_folder',
                       help='Path of the folder where output files should be written.')
+  parser.add_argument('--pid_file',
+                      help='Path where should be written the pid of process.')
   parser.add_argument('--partition_id',
                       help='ID of the computer partition to collect data from.')
   parser.add_argument('--collector_db',
@@ -291,6 +293,20 @@ def main():
   if not os.path.exists(parser.output_folder) and os.path.isdir(parser.output_folder):
     raise Exception("Invalid ouput folder: %s" % parser.output_folder)
 
+  if parser.pid_file:
+    # Check that this process is not running
+    if os.path.exists(parser.pid_file):
+      with open(parser.pid_file, "r") as pidfile:
+        try:
+          pid = int(pidfile.read(6))
+        except ValueError:
+          pid = None
+        if pid and os.path.exists("/proc/" + str(pid)):
+          print("A process is already running with pid " + str(pid))
+          exit(1)
+    with open(parser.pid_file, "w") as pidfile:
+      pidfile.write('%s' % os.getpid())
+
   # Consumption global status
   process_file = os.path.join(parser.output_folder, 'monitor_resource_process.data.json')
   mem_file = os.path.join(parser.output_folder, 'monitor_resource_memory.data.json')
@@ -354,3 +370,6 @@ def main():
   if resource_process_status_list:
     with open(resource_file, 'w') as rf:
       rf.write(json.dumps(resource_process_status_list))
+
+  if os.path.exists(parser.pid_file):
+    os.unlink(parser.pid_file)

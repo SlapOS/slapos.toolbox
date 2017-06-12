@@ -522,8 +522,11 @@ class Monitoring(object):
     if self.nice_command:
       # run monitor collect with low priority
       command += '%s ' % self.nice_command
-    command += "%s --output_folder %s --collector_db %s" % (
-      self.collect_script, self.data_folder, self.collector_db)
+    command += "%s --output_folder %s --collector_db %s --pid_file %s" % (
+        self.collect_script,
+        self.data_folder,
+        self.collector_db,
+        os.path.join(self.service_pid_folder, "monitor-collect.pid"))
     self.addCronEntry('monitor_collect', '* * * * *', command)
 
     # Write an empty file when monitor bootstrap went until the end
