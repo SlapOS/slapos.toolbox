@@ -138,12 +138,14 @@ class QemuQMPWrapper(object):
 
   def _getRunningJobList(self, device):
     result = self._queryBlockJobs(device)
+    max_loop = 20
 
-    while result is None:
+    while max_loop and result is None:
       # If result is None retry to command until if return something.
+      max_loop -= 1
       time.sleep(3)
       result = self._queryBlockJobs(device)
-    if result.get('return'):
+    if result and result.get('return'):
       return result['return']
     else:
       return
