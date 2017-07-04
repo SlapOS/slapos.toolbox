@@ -97,7 +97,7 @@ class RunPromise(object):
 
     # Save the lastest status change date (needed for rss)
     status_json['change-time'] = ps_process.create_time()
-    if os.path.exists(self.config.output):
+    if os.path.exists(self.config.output) and os.stat(self.config.output).st_size:
       with open(self.config.output) as f:
         try:
           last_result = json.loads(f.read())
@@ -202,7 +202,8 @@ class RunPromise(object):
       history_file = os.path.join(history_path, filename)
       # Remove links from history (not needed)
       status_dict.pop('_links', None)
-      if not os.path.exists(history_file):
+      if not os.path.exists(history_file) or \
+        (os.path.exists(history_file) and not os.stat(history_file).st_size):
         with open(history_file, 'w') as f_history:
           data_dict = {
             "date": time.time(),
