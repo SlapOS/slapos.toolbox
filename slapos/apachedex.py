@@ -34,11 +34,9 @@ import time
 from datetime import date
 
 # run_apachedex.py <apachedex_executable> /srv/etc/output_folder script_name
-def build_command(apachedex_executable, output_file, default,
+def build_command(apachedex_executable, output_file,
                   apache_log_list,
-                  base_list = None,
-                  skip_base_list = None,
-                  erp5_base_list = None):
+                  config = None):
 
   if not len(apache_log_list):
     raise ValueError("apache_log_list is empty")
@@ -46,8 +44,6 @@ def build_command(apachedex_executable, output_file, default,
   today = date.today().strftime("%Y-%m-%d")
   apachedex = apachedex_executable
   argument_list = [apachedex, '--js-embed', '--out', output_file]
-  if default:
-    argument_list += ['--default', default]
 
   log_list = []
   for logfile in apache_log_list:
@@ -62,52 +58,27 @@ def build_command(apachedex_executable, output_file, default,
   if not log_list:
     raise ValueError("log_list: no log files to analyse were provided")
 
-  if erp5_base_list:
-    argument_list.append('--erp5-base')
-    for arg in erp5_base_list:
-      argument_list.append(arg)
-
-  if base_list:
-    argument_list.append('--base')
-    for arg in base_list:
-      argument_list.append(arg)
-
-  if skip_base_list:
-    argument_list.append('--skip-base')
-    for arg in skip_base_list:
-      argument_list.append(arg)
+  if config:
+    config = filter(None, [x.strip() for x in config.split(' ')])
+    argument_list += config
 
   argument_list.append('--error-detail')
   argument_list += log_list
 
   return argument_list
 
-def _extract_list(filename):
-  final_list = None
-  if os.path.exists(filename):
-    with open(filename, 'r') as f:
-      list = f.read().strip();
-      final_list = [base.strip().split(' ') for base in
-                   list.split(' ') if base]
-  return final_list
-
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("apachedex_executable", metavar="APACHEDEX_EXECUTABLE")
   parser.add_argument("output_folder", metavar="OUTPUT_FOLDER")
-  parser.add_argument("--default", metavar="DEFAULT_PARAMETER")
+  parser.add_argument("base_url", metavar="BASE_URL")
   parser.add_argument("--apache-log-list", dest="apache_log_list", nargs='*')
-
-  parser.add_argument("--base-list", dest="base_list")
-  parser.add_argument("--skip-base-list", dest="skip_base_list")
-  parser.add_argument("--erp5-base-list", dest="erp5_base_list")
+  parser.add_argument("--configuration", dest="configuration")
   args = parser.parse_args()
 
-  base_list = _extract_list(args.base_list)
-  skip_base_list = _extract_list(args.skip_base_list)
-  erp5_base_list = _extract_list(args.erp5_base_list)
-  default = _extract_list(args.default)
+  config = args.configuration
   output_folder = args.output_folder.strip()
+  base_url = args.base_url.strip()
 
   if not os.path.exists(output_folder) or not os.path.isdir(output_folder):
     print "ERROR: Output folder is not a directory. Exiting..."
@@ -119,15 +90,11 @@ def main():
   try:
     argument_list = build_command(args.apachedex_executable.strip(),
                             output_file,
-                            args.default.strip(),
                             args.apache_log_list,
-                            base_list,
-                            skip_base_list,                
-                            erp5_base_list)
+                            config)
   except ValueError as e:
     print e
     return 1
-
   process_handler = subprocess.Popen(argument_list,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE,
@@ -140,7 +107,7 @@ def main():
     return 1
   
   with open(output_file, 'r') as f:
-    print f.read()
+    print base_url + '/ApacheDex-%s.html' % today
   return 0
 
 if __name__ == "__main__":
