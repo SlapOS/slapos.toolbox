@@ -33,7 +33,7 @@ from datetime import date
 
 from slapos.apachedex import build_command
 
-class TestGenerateFeed(unittest.TestCase):
+class TestApachedexCommand(unittest.TestCase):
   def setUp(self):
     self.apachedex = "/bin/apachedex"
     self.today = date.today().strftime("%Y-%m-%d")
@@ -44,8 +44,8 @@ class TestGenerateFeed(unittest.TestCase):
     
     command = build_command(self.apachedex,
                             'foo.html',
-                            "foo",
-                            [self.acesslog1, self.acesslog2])
+                            [self.acesslog1, self.acesslog2],
+                            '--default foo')
     self.assertEqual(command, ['/bin/apachedex',
                                '--js-embed',
                                '--out', 'foo.html',
@@ -55,17 +55,16 @@ class TestGenerateFeed(unittest.TestCase):
   def test_complexCommand(self):
     command = build_command(self.apachedex,
                             'bar.html',
-                            'default1',
                             [self.acesslog1, self.acesslog2],
-                            ['bar', 'foo'])
+                            '--base bar foo --default foo')
 
     self.assertEqual(command, ['/bin/apachedex',
                                '--js-embed',
                                '--out', 'bar.html',
-                               '--default', 'default1',
                                '--base', 'bar', 'foo',
+                               '--default', 'foo',
                                '--error-detail', self.acesslog1, self.acesslog2 ])
   def test_raiseErro(self):
-    self.assertRaises(ValueError, build_command, self.apachedex, 'foo.html', None, [])
+    self.assertRaises(ValueError, build_command, self.apachedex, 'foo.html', [])
 if __name__ == '__main__':
   unittest.main()
