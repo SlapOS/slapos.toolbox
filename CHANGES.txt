@@ -1,3 +1,16 @@
+0.70 (2017-08-18)
+=================
+
+ * monitor: Handle empty files case before parse json.
+ * monitor: Prevent to run collect when another instance is running
+ * monitor: Set timeout when getting sub monitor title
+ * monitor: Fix the report content output
+ * monitor: Allow to view and modify empty monitor config parameter
+ * qemu backup: Check running job exit after a timeout
+ * apachedex: Initial commit of the wrapper
+ * agent: Handle not found Software Installation
+ * agent: test_mapping should containts all the tests on each groups
+
 0.69 (2017-06-01)
 =================
 
