@@ -1,0 +1,44 @@
+# 2.1s user time, 10ms system time, 41.20M rss, 93.19M vsz
+# Current date: Thu Aug 24 15:13:57 2017 
+# Hostname: maincloud-bhost-host-abc
+# Files: /var/log/mariadb_slowquery.log
+# Overall: 3.42k total, 16 unique, 0.06 QPS, 0.41x concurrency ___________
+# Time range: 2017-05-23 00:00:36 to 15:39:06
+# Attribute          total     min     max     avg     95%  stddev  median
+# ============     ======= ======= ======= ======= ======= ======= =======
+# Exec time         23286s      1s    237s      7s     23s      8s      4s
+# Lock time          938ms    19us   107ms   274us   152us     4ms    73us
+# Rows sent        191.65M       0  82.44M  57.40k   49.17   1.60M    0.99
+# Rows examine      16.03G       0  82.44M   4.80M   7.29M   2.57M   4.93M
+# Rows affecte           0       0       0       0       0       0       0
+# Query size        10.65M      45 851.11k   3.19k   1.86k  42.91k  511.45
+
+# Profile
+# Rank Query ID           Response time    Calls R/Call  V/M   Item
+# ==== ================== ================ ===== ======= ===== ===========
+#    1 0xxxxxxxxxsccca666 14644.8405 62.9%   893 16.3996  2.02 SELECT catalo1
+#    2 0xxxxxxxxxrcccb666  4216.8862 18.1%   780  5.4063  0.66 SELECT catelog2
+#    3 0xxxxxxxxxqcccc666  3054.0369 13.1%  1387  2.2019  0.25 SELECT catalog3
+#    4 0xxxxxxxxxpcccd666   828.5682  3.6%    20 41.4284 74.06 SELECT catelog5
+#    5 0xxxxxxxxxoccce666   255.1623  1.1%   195  1.3085  0.05 SELECT catalog6
+#    6 0xxxxxxxxxncccf666   108.4913  0.5%    35  3.0998  0.85 SELECT catlog7
+#    7 0xxxxxxxxxmcccg666    68.8060  0.3%    56  1.2287  0.03 SELECT catalog8
+#    9 0xxxxxxxxxlccch666    36.2955  0.2%    32  1.1342  0.01 SELECT catalog9
+# MISC 0xMISC                73.0793  0.3%    21  3.4800   0.0 <8 ITEMS>
+      
+# Query 1: 0.02 QPS, 0.26x concurrency, ID 0xxxxxxxxxxcccc666 at byte 11808921
+# Scores: V/M = 2.02
+# Time range: 2017-05-23 00:01:01 to 15:38:13 
+# Attribute    pct   total     min     max     avg     95%  stddev  median
+# ============ === ======= ======= ======= ======= ======= ======= =======
+# Count         26     893
+# Exec time     62  14645s      9s     34s     16s     27s      6s     15s
+# Lock time     11   109ms    72us   199us   121us   176us    31us   119us
+# Rows sent      0  24.58k       0      50   28.18   49.17   23.27   46.83
+# Rows examine  40   6.50G   7.43M   7.55M   7.46M   7.29M       0   7.29M
+# Rows affecte   0       0       0       0       0       0       0       0 
+# Query size    15   1.68M   1.92k   1.92k   1.92k   1.92k       0   1.92k
+# String:
+# Databases    erp
+# Hosts        10.0.222.230
+# Users        user
