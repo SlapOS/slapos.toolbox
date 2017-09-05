@@ -16,6 +16,7 @@ from flask import (Flask, request, redirect, url_for, render_template,
 
 import slapos
 from slapos.util import bytes2str
+import utils
 from slapos.runner.utils import (checkSoftwareFolder, configNewSR, checkUserCredential,
                                  createNewUser, getBuildAndRunParams,
                                  getProfilePath, getSlapgridResult,
@@ -314,11 +315,21 @@ def checkFolder():
 
 
 def setCurrentProject():
-  if configNewSR(app.config, request.form['path']):
-    session['title'] = getProjectTitle(app.config)
-    return jsonify(code=1, result="")
-  else:
-    return jsonify(code=0, result=("Can not setup this Software Release"))
+  logger.warn('setCurrentProject is deprecated')
+  return supplySoftwareRelease()
+
+
+def supplySoftwareRelease():
+  if request.form['path']:
+    sr_absolute_path = realpath(app.config, request.form['path'])
+    sr_absolute_path = sr_absolute_path and os.path.join(sr_absolute_path, 'software.cfg') # XXX: find where this one was added before
+    if os.path.exists(sr_absolute_path):
+      utils.supplySoftwareRelease(app.config, request.form['path'])
+      # request instance if no instance has been requested yet
+      if not utils.getCurrentUsedSoftwareReleaseProfile(app.config):
+        utils.requestInstance(app.config)
+      return jsonify(code=1, result="")
+  return jsonify(code=0, result=("Can not setup this Software Release"))
 
 
 def getProjectStatus():
@@ -867,6 +878,8 @@ app.add_url_rule("/getProjectStatus", 'getProjectStatus', getProjectStatus,
 app.add_url_rule('/openProject/<method>', 'openProject', openProject,
                  methods=['GET'])
 app.add_url_rule("/setCurrentProject", 'setCurrentProject', setCurrentProject,
+                 methods=['POST'])
+app.add_url_rule("/supplySoftwareRelease", 'supplySoftwareRelease', supplySoftwareRelease,
                  methods=['POST'])
 app.add_url_rule("/checkFolder", 'checkFolder', checkFolder, methods=['POST'])
 app.add_url_rule('/createSoftware', 'createSoftware', createSoftware,

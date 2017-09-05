@@ -134,6 +134,21 @@ def getCurrentSoftwareReleaseProfile(config):
   except IOError:
     return ''
 
+def getCurrentUsedSoftwareReleaseProfile(config):
+  """
+  Returns used Software Release profile as a string.
+  """
+  slap = slapos.slap.slap()
+  slap.initializeConnection(config['master_url'])
+  # Try to return the SR related to the current instance
+  try:
+    computer_partition = slap.registerComputerPartition(config['computer_id'], 'slappart0')
+    software_release = computer_partition.getSoftwareRelease()
+    return software_release.getURI()
+  # If there are no instances, return the last requested Software Release
+  except NotFoundError:
+    return ''
+
 
 def requestInstance(config, software_type=None):
   """
@@ -162,12 +177,35 @@ def requestInstance(config, software_type=None):
 
   return slap.registerOpenOrder().request(
       profile,
-      partition_reference=getSoftwareReleaseName(config),
+      partition_reference='slaprunner', # we want only one instance in webrunner
       partition_parameter_kw=partition_parameter_kw,
       software_type=software_type,
       filter_kw=None,
       state=None,
       shared=False)
+
+
+def supplySoftwareRelease(config, sr_path):
+  """
+  Act like "slapos node supply" by registering a new SR to current slapproxy
+  """
+  folder = realpath(config, sr_path)
+  if not folder:
+    return
+
+  sup_process.stopProcess(config, 'slapgrid-cp')
+  sup_process.stopProcess(config, 'slapgrid-sr')
+
+  updateProxy(config)
+  slap = slapos.slap.slap()
+  slap.initializeConnection(config['master_url'])
+  slap.registerSupply().supply(
+    os.path.join(realpath(config, sr_path), config['software_profile']),
+    computer_guid=config['computer_id'],
+  )
+  # Don't replace .project if there is a running instance
+  if not getCurrentUsedSoftwareReleaseProfile(config):
+    setCurrentSoftwareRelease(config, sr_path)
 
 
 def updateProxy(config):
@@ -179,10 +217,8 @@ def updateProxy(config):
   if not os.path.exists(config['instance_root']):
     os.mkdir(config['instance_root'])
   slap = slapos.slap.slap()
-  profile = getCurrentSoftwareReleaseProfile(config)
 
   slap.initializeConnection(config['master_url'])
-  slap.registerSupply().supply(profile, computer_guid=config['computer_id'])
   computer = slap.registerComputer(config['computer_id'])
   prefix = 'slappart'
   slap_config = {
@@ -303,7 +339,7 @@ def runSlapgridWithLock(config, step, process_name, lock=False):
     os.remove(log_file)
   if not updateProxy(config):
     return 1
-  if step == 'instance' and not requestInstance(config):
+  if step == 'instance' and not getCurrentUsedSoftwareReleaseProfile(config):
     return 1
   try:
     sup_process.runProcess(config, process_name)
@@ -567,17 +603,12 @@ def configNewSR(config, projectpath):
   Returns:
     True if all is done well, otherwise return false.
   """
-  folder = realpath(config, projectpath)
-  if folder:
-    sup_process.stopProcess(config, 'slapgrid-cp')
-    sup_process.stopProcess(config, 'slapgrid-sr')
-    logger.warning("User opened a new SR. Removing all instances...")
-    removeCurrentInstance(config)
-    with open(os.path.join(config['etc_dir'], ".project"), 'w') as f:
-      f.write(projectpath)
-    return True
-  else:
-    return False
+  supplySoftwareRelease(config, projectpath)
+
+
+def setCurrentSoftwareRelease(config, relative_project_path):
+  with open(os.path.join(config['etc_dir'], ".project"), 'w') as f:
+    f.write(relative_project_path)
 
 
 def newSoftware(folder, config, session):
