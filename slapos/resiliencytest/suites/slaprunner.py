@@ -229,10 +229,10 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
   def _openSoftwareRelease(self, software_release='erp5testnode/testsuite/dummy'):
     self.logger.debug('Opening %s software release...' % software_release)
     data = self._connectToSlaprunner(
-        resource='setCurrentProject',
+        resource='supplySoftwareRelease',
         data='path=workspace/slapos/software/%s/' % software_release
     )
-    assert json.loads(data)['code'] != 0, 'Unexpecting result in call to setCurrentProject: %s' % data
+    assert json.loads(data)['code'] != 0, 'Unexpecting result in call to supplySoftwareRelease: %s' % data
 
   def generateData(self):
     """

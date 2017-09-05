@@ -327,7 +327,7 @@ setuptools = 33.1.1
     """Scenario 3: Open software release"""
     self.test_cloneProject()
     software = os.path.join(self.software, 'helloworld')  # Drupal SR must exist in SR folder
-    response = loadJson(self.app.post('/setCurrentProject',
+    response = loadJson(self.app.post('/supplySoftwareRelease',
                                       data=dict(path=software),
                                       follow_redirects=True))
     self.assertEqual(response['result'], "")
@@ -378,7 +378,7 @@ setuptools = 33.1.1
     self.setupTestSoftware()
     #Set current projet and run Slapgrid-cp
     software = self.software + 'slaprunner-test/'
-    response = loadJson(self.app.post('/setCurrentProject',
+    response = loadJson(self.app.post('/supplySoftwareRelease',
                                       data=dict(path=software),
                                       follow_redirects=True))
     self.assertEqual(response['result'], "")
@@ -567,7 +567,7 @@ setuptools = 33.1.1
                                       ),
                                       follow_redirects=True)).get(u'code')
     self.assertEqual(response, 1)
-    response = loadJson(self.app.post('/setCurrentProject',
+    response = loadJson(self.app.post('/supplySoftwareRelease',
                                       data=dict(path=software),
                                       follow_redirects=True)).get(u'code')
     self.assertEqual(response, 1)
