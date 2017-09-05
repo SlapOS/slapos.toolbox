@@ -81,6 +81,7 @@ $(document).ready(function () {
         var xml = '<?xml version="1.0" encoding="utf-8"?>\n',
             software_type = '',
             software_type_input_value = $('input#software_type').val(),
+            software_release = $('#software_release').val(),
             size = $('#partitionParameter > tbody > tr').length,
             i;
 
@@ -102,7 +103,11 @@ $(document).ready(function () {
         $.ajax({
             type: 'POST',
             url: $SCRIPT_ROOT + '/saveParameterXml',
-            data: {software_type: software_type, parameter: xml},
+            data: {
+              software_type: software_type,
+              software_release: software_release,
+              parameter: xml
+            },
             success: function (data) {
                 if (data.code === 1) {
                     $('#error').Popup('Instance parameters has been updated, please run your instance now!', {type: 'confirm', duration: 5000});
