@@ -94,6 +94,16 @@
       {%endif%}
         </div><!-- end tab2 -->
       <div id="tab3" class="tabContents">
+      <div id="softwareRelease">
+        <h2 class='title'>Software Release of main instance</h2>
+        <select style="margin-top:5px;" name="software_release", id="software_release">
+          <option value="{{ current_software_release_uri }}">{{ current_software_release_uri }}</option>
+          {% for sr_uri in software_release_uri_list %}
+          <option value="{{ sr_uri }}">{{ sr_uri }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <br/>
       <div id="softwareType">
         <h2 class='title'>Software Type of main instance</h2>
         <input style="margin-top:5px;" type="text" name="software_type" id="software_type" size="35" value="Software Type here..." />

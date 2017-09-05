@@ -182,11 +182,19 @@ def inspectInstance():
   else:
     file_path = ''
     supervisor = []
-  return render_template('instanceInspect.html',
-                         file_path=file_path,
-                         supervisor=supervisor,
-                         slap_status=getSlapStatus(app.config),
-                         partition_amount=app.config['partition_amount'])
+  current_sr = utils.relativepath(app.config, utils.getCurrentSoftwareReleaseProfile(app.config))
+  available_sr_list = [utils.relativepath(app.config, x) for x in utils.getAvailableSoftwareReleaseURIList(app.config)]
+  if current_sr in available_sr_list:
+    available_sr_list.remove(current_sr)
+  return render_template(
+    'instanceInspect.html',
+    file_path=file_path,
+    supervisor=supervisor,
+    slap_status=getSlapStatus(app.config),
+    partition_amount=app.config['partition_amount'],
+    current_software_release_uri=current_sr,
+    software_release_uri_list=available_sr_list
+  )
 
 def getConnectionParameter(partition_reference):
   """
@@ -551,8 +559,13 @@ def saveParameterXml():
   Update instance parameter into a local xml file.
   """
   project = os.path.join(app.config['etc_dir'], ".project")
-  if not os.path.exists(project):
+  current_software_release = utils.getCurrentSoftwareReleaseProfile(config)
+  if not current_software_release:
     return jsonify(code=0, result="Please first open a Software Release")
+  software_release = request.form['software_release']
+  if current_software_release != software_release:
+    utils.setCurrentSoftwareRelease(app.config, software_release)
+
   content = request.form['parameter'].encode("utf-8")
   param_path = os.path.join(app.config['etc_dir'], ".parameter.xml")
   try:
