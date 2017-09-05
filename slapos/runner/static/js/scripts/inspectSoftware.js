@@ -27,7 +27,7 @@ $(document).ready(function () {
         }
         $.ajax({
             type: "POST",
-            url: $SCRIPT_ROOT + '/setCurrentProject',
+            url: $SCRIPT_ROOT + '/supplySoftwareRelease',
             data: "path=" + elt.attr('rel'),
             success: function (data) {
                 if (data.code === 1) {
