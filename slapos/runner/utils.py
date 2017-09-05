@@ -17,6 +17,7 @@ import time
 import urllib
 import xmlrpclib
 from xml.dom import minidom
+import zc.buildout.configparser as configparser
 
 import xml_marshaller
 from flask import jsonify
@@ -328,51 +329,35 @@ def runInstanceWithLock(config, lock=False):
 
 
 def config_SR_folder(config):
-  """Create a symbolik link for each folder in software folder. That allows
-    the user to customize software release folder"""
-  config_name = 'slaprunner.config'
-  def link_to_folder(name, folder):
-    destination = os.path.join(config['software_link'], name)
-    source = os.path.join(config['software_root'], folder)
-    cfg = os.path.join(destination, config_name)
-        #create symlink
-    if os.path.lexists(destination):
-      os.remove(destination)
-    os.symlink(source, destination)
-        #write config file
-    if os.path.exists(source):
-      with open(cfg, 'w') as cf:
-        cf.write(current_project + '#' + folder)
+  """
+  Create a symbolik link for each folder in software folder. That allows
+  the user to customize software release folder.
+  XXX: this function will create chaos if there exist 2 software releases
+  with the same name (ie : a same SR at 2 different versions)
+  """
+  for sr_hash in os.listdir(config['software_root']):
+    link_source = os.path.join(config['software_root'], sr_hash)
 
-  # First create the link for current project
-  current_project = open(os.path.join(config['etc_dir'], ".project")).read()
-  profile = getCurrentSoftwareReleaseProfile(config)
-  if current_project[-1] == '/':
-     current_project = current_project[:-1]
-  name = current_project.split('/')[-1]
-  md5sum = md5digest(profile)
-  link_to_folder(name, md5sum)
-  # check other links
-  # XXX-Marco do not shadow 'list'
-  list = []
-  for path in os.listdir(config['software_link']):
-    cfg_path = os.path.join(config['software_link'], path, config_name)
-    if os.path.exists(cfg_path):
-      cfg = open(cfg_path).read().split("#")
-      if len(cfg) != 2:
-        continue  # there is a broken config file
-      list.append(cfg[1])
-  if os.path.exists(config['software_root']):
-    folder_list = os.listdir(config['software_root'])
-  else:
-    return
-  if not folder_list:
-    return
-  for folder in folder_list:
-    if folder in list:
-      continue  # this folder is already registered
+    with open(os.path.join(link_source, 'buildout.cfg'), 'r') as buildout_cfg:
+      buildout = configparser.parse(buildout_cfg, '')
+
+    sr = buildout['buildout']['extends']
+    sr_directory = os.path.dirname(sr)
+    sr_name = os.path.split(sr_directory)[-1]
+
+    link_destination = os.path.join(config['software_link'], sr_name)
+
+    with open(os.path.join(link_source, 'slaprunner.config'), 'w') as f:
+      f.write(sr_name + '#' + sr_hash)
+
+    if os.path.islink(link_destination):
+      continue
+    if os.path.exists(link_destination):
+      # Path exists and not source
+      os.remove(link_destination)
     else:
-      link_to_folder(folder, folder)
+      os.symlink(link_source, link_destination)
+
 
 def loadSoftwareRList(config):
   """Return list (of dict) of Software Release from symbolik SR folder"""
