@@ -220,7 +220,6 @@ def updateInstanceParameter(config, software_type=None):
     config: Slaprunner configuration.
     software_type: reconfigure Software Instance with software type.
   """
-  time.sleep(1)
   if not (updateProxy(config) and requestInstance(config, software_type)):
     return False
 
