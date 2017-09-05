@@ -122,6 +122,16 @@ def createNewUser(config, name, passwd):
     return False
   return True
 
+
+def getAvailableSoftwareReleaseURIList(config):
+  slap = slapos.slap.slap()
+  slap.initializeConnection(config['master_url'])
+  return [
+    x.getURI() for x in \
+    slap.registerComputer(config['computer_id']).getSoftwareReleaseList()
+  ]
+
+
 def getCurrentSoftwareReleaseProfile(config):
   """
   Returns used Software Release profile as a string.
@@ -855,6 +865,21 @@ def realpath(config, path, check_exist=True):
   else:
     return path
 
+
+def relativepath(config, path):
+  # Sorted by less generic to more generic
+  path = os.path.realpath(path)
+  virtual_path_list = (
+    'software_root',
+    'instance_root',
+    'workspace',
+    'software_link',
+    'runner_workdir',
+  )
+  for virtual_path in virtual_path_list:
+    if path.startswith(config[virtual_path]):
+      return path.replace(os.path.realpath(config[virtual_path]), virtual_path)
+  return ''
 
 def readParameters(path):
   """Read Instance parameters stored into a local file.
