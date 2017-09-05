@@ -70,6 +70,7 @@ setup(name=name,
         'console_scripts': [
           'agent = slapos.agent.agent:main',
           'apache-mpm-watchdog = slapos.promise.apache_mpm_watchdog:main',
+          'check-computer-memory = slapos.promise.check_computer_memory:main',
           'check-web-page-http-cache-hit = slapos.promise.check_web_page_http_cache_hit:main',
           'check-feed-as-promise = slapos.checkfeedaspromise:main',
           'check-error-on-apache-log = slapos.promise.check_error_on_apache_log:main',
