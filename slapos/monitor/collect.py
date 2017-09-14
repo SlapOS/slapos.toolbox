@@ -54,30 +54,40 @@ def parseArguments():
 
   return parser.parse_args()
 
+# XXX The code on the class below should be dropped and prefer to use
+# the slapos.collect.db.Database directly:
+#  - https://lab.nexedi.com/nexedi/slapos.core/blob/master/slapos/collect/db.py
+# the code duplication here is huge so be carefull to not reimplemnt what is 
+# already implement.
 
 class ResourceCollect:
 
   def __init__(self, db_path = None):
+    # XXX this code is duplicated with slapos.collect.db.Database.__init__
     assert os.path.exists(db_path) and os.path.isfile(db_path)
     self.uri = db_path
     self.connection = None
     self.cursor = None
 
   def connect(self):
+    # XXX this code is duplicated with slapos.collect.db.Database.connect
     self.connection = sqlite3.connect(self.uri)
     self.cursor = self.connection.cursor()
 
   def close(self):
+    # XXX this code is duplicated with slapos.collect.db.Database.connect
     assert self.connection is not None
     self.cursor.close()
     self.connection.close()
 
   def _execute(self, sql):
+    # XXX this code is duplicated with slapos.collect.db.Database.connect
     assert self.connection is not None
     return self.cursor.execute(sql)
 
   def select(self, table, date=None, columns="*", where=None):
     """ Query database for a full table information """
+    # XXX this code is duplicated with slapos.collect.db.Database.select
     if date is not None:
       where_clause = " WHERE date = '%s' " % date
     else:
@@ -102,6 +112,7 @@ class ResourceCollect:
     return True
 
   def getPartitionCPULoadAverage(self, partition_id, date_scope):
+    # XXX Code seems copied from slapos.collect.report.ConsumptionReport._getPartitionCPULoadAverage
     self.connect()
     query_result_cursor = self.select("user", date_scope,
                        columns="SUM(cpu_percent)", 
@@ -122,6 +133,7 @@ class ResourceCollect:
       return round(cpu_percent_sum[0][0]/sample_amount[0][0], 2)
 
   def getPartitionUsedMemoryAverage(self, partition_id, date_scope):
+    # XXX Code seems copied from slapos.collect.report.ConsumptionReport._getPartitionUsedMemoryAverage
     self.connect()
     query_result_cursor = self.select("user", date_scope,
                        columns="SUM(memory_rss)", 
@@ -142,6 +154,7 @@ class ResourceCollect:
       return round(memory_sum[0][0]/(sample_amount[0][0]*1024*1024.0), 2)
 
   def getPartitionDiskUsedAverage(self, partition_id, date_scope):
+    # XXX Code seems copied from slapos.collect.report.ConsumptionReport._getPartitionDiskUsedAverage
     if not self.has_table('folder'):
       return
     self.db.connect()
