@@ -50,7 +50,6 @@ def main():
   args = parser.parse_args()
 
   # get last minute
-  partition = args.partition.replace('part', 'user')
   now = datetime.datetime.now()
   currentdate = now.strftime('%Y-%m-%d')
   delta = datetime.timedelta(minutes=1)
