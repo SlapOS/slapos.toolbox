@@ -37,6 +37,8 @@ import psutil
 from time import strftime
 from datetime import datetime, timedelta
 
+from slapos.collect.db import Database
+from slapos.collect.reporter import ConsumptionReportBase
 
 def parseArguments():
   """
@@ -64,45 +66,15 @@ class ResourceCollect:
 
   def __init__(self, db_path = None):
     # XXX this code is duplicated with slapos.collect.db.Database.__init__
-    assert os.path.exists(db_path) and os.path.isfile(db_path)
-    self.uri = db_path
-    self.connection = None
-    self.cursor = None
-
-  def connect(self):
-    # XXX this code is duplicated with slapos.collect.db.Database.connect
-    self.connection = sqlite3.connect(self.uri)
-    self.cursor = self.connection.cursor()
-
-  def close(self):
-    # XXX this code is duplicated with slapos.collect.db.Database.connect
-    assert self.connection is not None
-    self.cursor.close()
-    self.connection.close()
-
-  def _execute(self, sql):
-    # XXX this code is duplicated with slapos.collect.db.Database.connect
-    assert self.connection is not None
-    return self.cursor.execute(sql)
-
-  def select(self, table, date=None, columns="*", where=None):
-    """ Query database for a full table information """
-    # XXX this code is duplicated with slapos.collect.db.Database.select
-    if date is not None:
-      where_clause = " WHERE date = '%s' " % date
-    else:
-      where_clause = ""
-    
-    if where is not None:
-      if where_clause == "":
-        where_clause += " WHERE 1 = 1 "
-      where_clause += " AND %s " % where 
-    select_sql = "SELECT %s FROM %s %s " % (columns, table, where_clause)
-    return self._execute(select_sql)
+    assert os.path.exists(db_path)
+    if db_path.endswith("collector.db"):
+      db_path = db_path[:-len("collector.db")]
+    self.db = Database(db_path)
+    self.consumption_utils = ConsumptionReportBase(self.db)
 
   def has_table(self, name):
-    self.connect()
-    check_result_cursor = self.select(
+    self.db.connect()
+    check_result_cursor = self.db.select(
       table="sqlite_master",
       columns='name',
       where="type='table' AND name='%s'" % name)
@@ -112,89 +84,36 @@ class ResourceCollect:
     return True
 
   def getPartitionCPULoadAverage(self, partition_id, date_scope):
-    # XXX Code seems copied from slapos.collect.report.ConsumptionReport._getPartitionCPULoadAverage
-    self.connect()
-    query_result_cursor = self.select("user", date_scope,
-                       columns="SUM(cpu_percent)", 
-                       where="partition = '%s'" % partition_id)
-
-    cpu_percent_sum = zip(*query_result_cursor)
-    if len(cpu_percent_sum) and cpu_percent_sum[0][0] is None:
-      return
-
-    query_result_cursor = self.select("user", date_scope,
-                       columns="COUNT(DISTINCT time)", 
-                       where="partition = '%s'" % partition_id)
-
-    sample_amount = zip(*query_result_cursor)
-    self.close()
-
-    if len(sample_amount) and len(cpu_percent_sum):
-      return round(cpu_percent_sum[0][0]/sample_amount[0][0], 2)
+    return self.consumption_utils.getPartitionCPULoadAverage(partition_id, date_scope)
 
   def getPartitionUsedMemoryAverage(self, partition_id, date_scope):
-    # XXX Code seems copied from slapos.collect.report.ConsumptionReport._getPartitionUsedMemoryAverage
-    self.connect()
-    query_result_cursor = self.select("user", date_scope,
-                       columns="SUM(memory_rss)", 
-                       where="partition = '%s'" % partition_id)
-
-    memory_sum = zip(*query_result_cursor)
-    if len(memory_sum) and memory_sum[0][0] is None:
-      return
-
-    query_result_cursor = self.select("user", date_scope,
-                       columns="COUNT(DISTINCT time)", 
-                       where="partition = '%s'" % partition_id)
-
-    sample_amount = zip(*query_result_cursor)
-    self.close()
-
-    if len(sample_amount) and len(memory_sum):
-      return round(memory_sum[0][0]/(sample_amount[0][0]*1024*1024.0), 2)
+    return self.consumption_utils.getPartitionUsedMemoryAverage(partition_id, date_scope)/(1024*1024.0)
 
   def getPartitionDiskUsedAverage(self, partition_id, date_scope):
-    # XXX Code seems copied from slapos.collect.report.ConsumptionReport._getPartitionDiskUsedAverage
-    if not self.has_table('folder'):
-      return
-    self.db.connect()
-    query_result_cursor = self.select("folder", date_scope,
-                       columns="SUM(disk_used)", 
-                       where="partition = '%s'" % partition_id)
+    return self.consumption_utils.getPartitionDiskUsedAverage(partition_id, date_scope)/1024.0
 
-    disk_used_sum = zip(*query_result_cursor)
-    if len(disk_used_sum) and disk_used_sum[0][0] is None:
-      return
-    query_result_cursor = self.select("folder", date_scope,
-                       columns="COUNT(DISTINCT time)", 
-                       where="partition = '%s'" % partition_id)
-  
-    collect_amount = zip(*query_result_cursor)
-    self.db.close()
-  
-    if len(collect_amount) and len(disk_used_sum):
-      return round(disk_used_sum[0][0]/(collect_amount[0][0]*1024.0), 2)
-
-
-  def getPartitionConsumption(self, partition_id, where=""):
+  def getPartitionConsumption(self, partition_id, where="", date_scope=None, min_time=None, max_time=None):
     """
       Query collector db to get consumed resource for last minute
     """
-    self.connect()
+    self.db.connect()
     comsumption_list = []
     if where != "":
       where = "and %s" % where
-    date_scope = datetime.now().strftime('%Y-%m-%d')
-    min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
-    max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59')
+    if not date_scope:
+      date_scope = datetime.now().strftime('%Y-%m-%d')
+    if not min_time:
+      min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
+    if not max_time:
+      max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59')
 
-    sql_query = """select count(pid), SUM(cpu_percent) as cpu_result, SUM(cpu_time), 
-MAX(cpu_num_threads), SUM(memory_percent), SUM(memory_rss), pid, SUM(io_rw_counter), 
-SUM(io_cycles_counter) from user 
-where date='%s' and partition='%s' and (time between '%s' and '%s') %s 
-group by pid order by cpu_result desc""" % (
-        date_scope, partition_id, min_time, max_time, where)
-    query_result = self._execute(sql_query)
+    columns = """count(pid), SUM(cpu_percent) as cpu_result, SUM(cpu_time),
+                MAX(cpu_num_threads), SUM(memory_percent), SUM(memory_rss), pid, SUM(io_rw_counter),
+                SUM(io_cycles_counter)"""
+    query_result = self.db.select("user", date_scope, columns,
+                   where="partition = '%s'  and (time between '%s' and '%s') %s" % 
+                   (partition_id, min_time, max_time, where),
+                   group="pid", order="cpu_result desc")
     for result in query_result:
       count = int(result[0])
       if not count > 0:
@@ -219,22 +138,25 @@ group by pid order by cpu_result desc""" % (
         resource_dict['user'] = pprocess.username()
         resource_dict['date'] = datetime.fromtimestamp(pprocess.create_time()).strftime("%Y-%m-%d %H:%M:%S")
       comsumption_list.append(resource_dict)
-    self.close()
+    self.db.close()
     return comsumption_list
   
-  def getPartitionComsumptionStatus(self, partition_id, where=""):
-    self.connect()
+  def getPartitionComsumptionStatus(self, partition_id, where="", date_scope=None, min_time=None, max_time=None):
+    self.db.connect()
     if where != "":
       where = " and %s" % where
-    date_scope = datetime.now().strftime('%Y-%m-%d')
-    min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
-    max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59')
-    sql_query = """select count(pid), SUM(cpu_percent), SUM(cpu_time), 
-SUM(cpu_num_threads), SUM(memory_percent), SUM(memory_rss), SUM(io_rw_counter), 
-SUM(io_cycles_counter) from user where 
-date='%s' and partition='%s' and (time between '%s' and '%s') %s""" % (
-        date_scope, partition_id, min_time, max_time, where)
-    query_result = self._execute(sql_query)
+    if not date_scope:
+      date_scope = datetime.now().strftime('%Y-%m-%d')
+    if not min_time:
+      min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
+    if not max_time:
+      max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59') 
+
+    colums = """count(pid), SUM(cpu_percent), SUM(cpu_time), SUM(cpu_num_threads), SUM(memory_percent), 
+                SUM(memory_rss), SUM(io_rw_counter), SUM(io_cycles_counter)"""  
+    query_result = self.db.select('user', date_scope, colums, 
+                                  where="partition='%s' and (time between '%s' and '%s') %s" % 
+                                  (partition_id, min_time, max_time, where))
     result_list = zip(*query_result)
 
     process_dict = memory_dict = io_dict = {}
@@ -256,7 +178,7 @@ date='%s' and partition='%s' and (time between '%s' and '%s') %s""" % (
         'date': '%s %s' % (date_scope, min_time)
       }
       if self.has_table('folder'):
-        disk_result_cursor = self.select(
+        disk_result_cursor = self.db.select(
           "folder", date_scope,
           columns="SUM(disk_used)", 
           where="partition='%s' and (time between '%s' and '%s') %s" % (
@@ -267,7 +189,7 @@ date='%s' and partition='%s' and (time between '%s' and '%s') %s""" % (
         disk_used_sum = zip(*disk_result_cursor)
         if len(disk_used_sum) and disk_used_sum[0][0] is not None:
           io_dict['disk_used'] = round(disk_used_sum[0][0]/1024.0, 2)
-    self.close()
+    self.db.close()
     return (process_dict, memory_dict, io_dict)
 
 def appendToJsonFile(file_path, content, stepback=2):
