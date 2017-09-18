@@ -41,9 +41,9 @@ def getAgumentParser():
                       help='truncate and remove file after overwriting.')
   parser.add_argument('-z', '--zero', action='store_true',
                       help='add a final overwrite with zeros to hide shredding.')
-  parser.add_argument('-s', '--skip-non-exist', action='store_true',
+  parser.add_argument('-s', '--check-exist', action='store_true',
                       default=False,
-                      help='If a file don\'t exists, skip instead of raise.')
+                      help='Check if files exist. If a file don\t exists, skip instead of raise.')
   parser.add_argument('--file', dest='file_list',
                       required=True, nargs='+', metavar='FILE',
                       help='File(s) to overwrite and remove if -u is used.')
@@ -52,17 +52,25 @@ def getAgumentParser():
                            'This is to prevent delete files used by a process.')
   parser.add_argument('--check-pid-file', metavar="PID_FILE",
                       help='Same as "check-pid" option but read PID from PID_FILE')
+  parser.add_argument('--shred-bin', default="/usr/bin/shred",
+                      help='Path of shred binary used to wipe files. Default: %(default)s')
 
   return parser
 
-def getFileList(source_file_list, check_exists):
+def getFileList(source_file_list, check_exist):
   file_list = []
   for file_path in source_file_list:
-    for file in glob.glob(file_path):
-      if check_exists and not os.path.exists(file):
+    if file_path.find('*') != -1 or file_path.find('?') != -1:
+      sub_list = glob.glob(file_path)
+    else:
+      sub_list = [file_path]
+    for file in sub_list:
+      if check_exist and not os.path.exists(file):
         continue
-      file_list.append(os.path.realpath(file))
-  assert len(file_list) > 0, file_list
+      file_list.append(file)
+      if os.path.islink(file):
+        # remove the link target file
+        file_list.append(os.path.realpath(file))
   return file_list
 
 def shred(options):
@@ -77,24 +85,24 @@ def shred(options):
   else:
     check_pid = options.check_pid
   if check_pid and psutil.pid_exists(check_pid):
-    raise Exception("check-pid is enabled and process with pid %s is running. "\
-                    "Cannot wipe file(s) while the process is running." % check_pid)
+    return "check-pid is enabled and process with pid %s is running. Cannot " \
+      "wipe file(s) while the process is running." % check_pid
 
-  arg_list = ['/usr/bin/shred', '-n', str(options.iterations), '-v']
+  arg_list = [options.shred_bin, '-n', str(options.iterations), '-v']
   if options.remove:
     arg_list.append('-u')
   if options.zero:
     arg_list.append('-z')
-  arg_list.extend(getFileList(options.file_list, options.skip_non_exist))
+  arg_list.extend(getFileList(options.file_list, options.check_exist))
 
   pshred = subprocess.Popen(arg_list, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
-  result = pshred.communicate()[0]
+  result, stderr = pshred.communicate()
   if pshred.returncode is None:
     pshred.kill()
   if pshred.returncode != 0:
-    raise RuntimeError('Command %r failed, with output:\n%s' % (
-      ' '.join(arg_list), result))
+    raise RuntimeError('Command %r failed, with output:\n%s\n%s' % (
+      ' '.join(arg_list), result, stderr or ''))
   return result
 
 def main():
