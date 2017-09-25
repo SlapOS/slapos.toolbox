@@ -1,3 +1,8 @@
+0.72 (2017-09-25)
+=================
+
+* securedelete: add securedelete script which use shred to securely wipe files
+
 0.71 (2017-09-12)
 =================
 
