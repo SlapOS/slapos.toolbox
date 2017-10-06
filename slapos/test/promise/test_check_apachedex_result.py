@@ -29,37 +29,77 @@ import unittest
 import os
 import time
 import tempfile
+import datetime
+import shutil
 
 from slapos.test.promise import data
 from slapos.promise.check_apachedex_result import checkApachedexResult
 
 class TestCheckApacheDigestResult(unittest.TestCase):
 
+  def _create_file(self, date, with_content):
+    content = ''
+    if with_content:
+      with open(self.base_path + "/apachedex.html") as f:
+        content = f.read()
+
+    name = date.strftime('ApacheDex-%Y-%m-%d.html')
+    oldtime = time.mktime(date.timetuple()) + 2000
+    with open( self.base_dir+name, 'a') as the_file:
+      the_file.write(content)
+    os.utime(self.base_dir+name, ( oldtime , oldtime ))
+    
+  def _remove_file(self, date):
+    name = date.strftime('ApacheDex-%Y-%m-%d.html')
+    os.remove(self.base_dir+name)
+
   def setUp(self):
 
-    _, self.empty_apachedex_file = tempfile.mkstemp()
-    _, self.old_apachedex_file = tempfile.mkstemp()
+    self.base_path = "/".join(data.__file__.split("/")[:-1])
+    self.base_dir = "/tmp/ap/"
+    if not os.path.exists(self.base_dir):
+      os.makedirs(self.base_dir)
+      os.utime(self.base_dir, (time.time() - 202800, time.time() - 202800))
+
+    # create test files
+    self.today = datetime.date.today()
+    self._create_file(self.today, True)
+
+    self.yesterday = (self.today - datetime.timedelta(1))
+    self._create_file(self.yesterday, False)
     _, self.status_file = tempfile.mkstemp()
 
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
-    self.status = "ok"
+  def test_threshold_is_greater(self):
+    status, message = checkApachedexResult(self.base_dir, self.status_file, 60)
+    self.assertEquals("Thanks for keeping it all clean, result is 80", message)
+    self.assertEquals(0, status)
 
-  def test_pass(self):
-    self.assertEquals("Thanks for keeping it all clean, result is 80",
-      checkApachedexResult(self.base_path + "/apachedex.html", self.status_file, 60))
+  def test_no_today_file_and_empty_yesterday_file(self):
+    self._remove_file(self.today)
+    status, message = checkApachedexResult(self.base_dir, self.status_file, 60)
+    self.assertEquals("No result found in the apdex file or the file is corrupted", message)
+    self.assertEquals(1, status)
+    self._create_file(self.today, True)
 
-  def test_empty_file(self):
-    self.assertEquals("No result found in the apdex file or the file is corrupted",
-      checkApachedexResult(self.empty_apachedex_file, self.status_file, 60))
+  def test_threshold_is_lower(self):
+    status, message = checkApachedexResult(self.base_dir, self.status_file, 90)
+    self.assertEquals("Threshold is lower than expected:  Expected was 90 and current result is 80", message)
+    self.assertEquals(1, status)
 
-  def test_fail(self):
-    self.assertEquals("Threshold is lower than expected:  Expected was 90 and current result is 80",
-      checkApachedexResult(self.base_path + "/apachedex.html", self.status_file, 90))
+  def test_no_today_file_but_yesterday_file(self):
+    self._remove_file(self.today)
+    self._create_file(self.yesterday, True)
+    status, message = checkApachedexResult(self.base_dir, self.status_file, 60)
+    self.assertEquals("Thanks for keeping it all clean, result is 80", message)
+    self.assertEquals(0, status)
+    self._create_file(self.today, True)
+    self._remove_file(self.yesterday)
+    self._create_file(self.yesterday, False)
 
-  def test_old_file(self):
-    os.utime(self.old_apachedex_file, (time.time() - 202800, time.time() - 202800))
-    self.assertEquals("File modification date is greater than 30 hour",
-      checkApachedexResult(self.old_apachedex_file, self.status_file, 60))
+  def tearDown(self):
+    self._remove_file(self.today)
+    self._remove_file(self.yesterday)
+    shutil.rmtree('/tmp/ap')
 
 if __name__ == '__main__':
   unittest.main()
