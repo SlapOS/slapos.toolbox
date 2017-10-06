@@ -44,22 +44,34 @@ class TestCheckApacheDigestResult(unittest.TestCase):
     self.base_path = "/".join(data.__file__.split("/")[:-1])
     self.status = "ok"
 
-  def test_pass(self):
-    self.assertEquals("Thanks for keeping it all clean, result is 80",
-      checkApachedexResult(self.base_path + "/apachedex.html", self.status_file, 60))
+  def test_threshold_is_greater(self):
+    result = checkApachedexResult(self.base_path + "/apachedex.html", self.status_file, 60, False)
+    self.assertEquals("Thanks for keeping it all clean, result is 80", result['message'])
+    self.assertEquals(0, result['status'])
 
   def test_empty_file(self):
-    self.assertEquals("No result found in the apdex file or the file is corrupted",
-      checkApachedexResult(self.empty_apachedex_file, self.status_file, 60))
+    result = checkApachedexResult(self.empty_apachedex_file, self.status_file, 60, False)
+    self.assertEquals("File is empty, Apachedex is yet to run or running", result['message'])
+    self.assertEquals(0, result['status'])
 
-  def test_fail(self):
-    self.assertEquals("Threshold is lower than expected:  Expected was 90 and current result is 80",
-      checkApachedexResult(self.base_path + "/apachedex.html", self.status_file, 90))
+  def test_threshold_is_lower(self):
+    result = checkApachedexResult(self.base_path + "/apachedex.html", self.status_file, 90, False)
+    self.assertEquals("Threshold is lower than expected:  Expected was 90 and current result is 80", result['message'])
+    self.assertEquals(1, result['status'])
 
   def test_old_file(self):
     os.utime(self.old_apachedex_file, (time.time() - 202800, time.time() - 202800))
-    self.assertEquals("File modification date is greater than 30 hour",
-      checkApachedexResult(self.old_apachedex_file, self.status_file, 60))
+    f = open('/tmp/ApacheDex-2017-10-05.html', 'w')
+    #f.write('hi there\n')
+    result = checkApachedexResult(self.old_apachedex_file, self.status_file, 60, False)
+    self.assertEquals("No apachedex result since 36 hours", result['message'])
+    self.assertEquals(1, result['status'])
+    f.close()
+
+  def test_just_deployed(self):
+    result = checkApachedexResult(self.base_path + "/apachedex.html", self.status_file, 90, True)
+    self.assertEquals("Instance has been just deployed. Skipping check..", result['message'])
+    self.assertEquals(0, result['status'])
 
 if __name__ == '__main__':
   unittest.main()
