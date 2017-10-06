@@ -1,3 +1,10 @@
+0.73 (2017-10-06)
+=================
+
+* make monitor.collect use slapos.collect.db API's
+* new promise to monitor memory
+* promise: fix most issues in apachedex and slowquery
+
 0.72 (2017-09-25)
 =================
 
