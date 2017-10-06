@@ -12,54 +12,53 @@ import time
 import datetime
 import argparse
 
-def checkApachedexResult(apachedex_file, apachedex_report_status_file, desired_threshold):
-
-  if not os.path.isfile(apachedex_file):
-    open(apachedex_file, 'a').close()
-
-  with open(apachedex_file, 'r') as content_file:
-    content = content_file.read()
- 
-  if len(content) == 0:
-    # File is empty
-    # Check the creation date of the file
-    # and if the date is greater than 30 hour throw an error
-    date_created = os.path.getmtime(apachedex_file)
-    current_date = time.mktime(datetime.datetime.now().timetuple())
-    if current_date - date_created > 108000:
-      with open(apachedex_report_status_file) as f:
-        json_content = f.read()
-
-      # Print the message from the monitor report
-      if len(json_content) > 0:
-        message = json.loads(json_content)["message"]
-        return message + "\nFile modification date is greater than 30 hours"
-      return "File modification date is greater than 30 hour"
+def checkApachedexResult(apachedex_path, apachedex_report_status_file, desired_threshold):
+  message = "No apachedex result for today or yesterday"
+  today = datetime.date.today()
+  today_or_yesterday = today, today - datetime.timedelta(1)
+  try:
+    apachedex_file = max(os.listdir(apachedex_path),
+      key=lambda x: os.stat(os.path.join(apachedex_path, x)).st_mtime)
+  except ValueError:
+    if datetime.date.fromtimestamp(os.stat(apachedex_path).st_mtime) in today_or_yesterday: 
+      return 0, "Instance has been just deployed. Skipping check.."
   else:
-    #TODO: this is old regex for bash, improve it
-    regex = r"Overall<\/h2>.*\n<th>apdex<\/th><th>.*?\n<\/tr><tr>\n<td [^<]*>(.*?)%<\/td>"
-    m = re.findall(regex, content)
-    if len(m) > 0:
-      result=int(m[0])
-      if result > desired_threshold:
-        return "Thanks for keeping it all clean, result is " + str(result)
-      else:
-        return "Threshold is lower than expected:  Expected was " + \
-               str(desired_threshold) +" and current result is " + str(result)
-  return "No result found in the apdex file or the file is corrupted"
+    for date in today_or_yesterday:
+      if apachedex_file == date.strftime('ApacheDex-%Y-%m-%d.html'):
+
+        with open(os.path.join(apachedex_path, apachedex_file)) as f:
+          content = f.read()
+        if content:
+          # XXX: if not a lot of usage, skip
+          # XXX: too fragile, use lxml.html and use xpath
+          regex = r"Overall<\/h2>.*\n<th>apdex<\/th><th>.*?\n<\/tr><tr>\n<td [^<]*>(.*?)%<\/td>"
+          m = re.findall(regex, content)
+          if m:
+            apx_result=int(m[0])
+            if apx_result > desired_threshold:
+              return 0,  "Thanks for keeping it all clean, result is " + str(apx_result)
+            else:
+              return 1, "Threshold is lower than expected:  Expected was " + \
+                     str(desired_threshold) +" and current result is " + str(apx_result)
+        message = "No result found in the apdex file or the file is corrupted"
+        break
+
+  with open(apachedex_report_status_file) as f:
+    try:
+      json_content = json.load(f)
+    except ValueError, e:
+      json_content = ''
+  if json_content:
+    message += "\n" + json_content["message"]
+  return 1, message
 
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument("--apachedex_file", required=True)
+  parser.add_argument("--apachedex_path", required=True)
   parser.add_argument("--status_file", required=True)
   parser.add_argument("--threshold", required=True)
   args = parser.parse_args()
 
-  if args.apachedex_file:
-    args.apachedex_file = args.apachedex_file + "/ApacheDex-" + datetime.date.today().strftime('%Y-%m-%d') + ".html"
-
-  result = checkApachedexResult(args.apachedex_file, args.status_file, args.threshold)
-
-  print result
-  if result != "OK":
-    sys.exit(1)
+  status, message = checkApachedexResult(args.apachedex_path, args.status_file, args.threshold)
+  print(message)
+  sys.exit(status)
