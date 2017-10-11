@@ -193,13 +193,6 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     self.logger.info('Waiting 30 seconds so that erp5 can be bootstrapped...')
     for i in range(10):
       time.sleep(30)
-
-      # In case erp5 bootstrap (in erp5-cluster) couldn't connect to zope through HAProxy
-      # XXX It makes absolutely no sense, however the command above actually start the 
-      # process, if you call STOPPED. Yes I know, it makes absolutely no sense.
-      self._connectToSlaprunner(
-        resource='/startStopProccess/name/slappart0:erp5-bootstrap/cmd/STOPPED'
-      )
       try:
         if "erp5" == self._getCreatedERP5SiteId():
           break
