@@ -53,7 +53,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     parameter = urllib2.quote(p)
     self._connectToSlaprunner(
         resource='saveParameterXml',
-        data='software_type=create-erp5-site&parameter=%s' % parameter)
+        data='software_type=default&parameter=%s' % parameter)
 
   def _getERP5Url(self):
     """
