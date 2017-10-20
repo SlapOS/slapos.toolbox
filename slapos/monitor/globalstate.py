@@ -12,7 +12,7 @@ import hashlib
 import PyRSS2Gen
 
 def getKey(item):
-  return item.pubDate
+  return item.source.name
 
 class monitorFeed(object):
 
@@ -27,23 +27,24 @@ class monitorFeed(object):
     self.feed_url = feed_url
 
   def appendItem(self, item_dict):
-    event_time = datetime.fromtimestamp(item_dict['change-time'])
+    event_time = datetime.utcfromtimestamp(item_dict['change-time'])
     description = item_dict.get('message', '')
     rss_item = PyRSS2Gen.RSSItem(
       categories = [item_dict['status']],
       source = PyRSS2Gen.Source(item_dict['title'], self.public_url),
       title = '[%s] %s' % (item_dict['status'], item_dict['title']),
-      comments = description,
-      description = "%s: %s\n%s" % (event_time, item_dict['status'], description),
+      description = "%s: %s\n\n%s" % (event_time, item_dict['status'], description),
       link = self.private_url,
       pubDate = event_time,
-      guid = PyRSS2Gen.Guid(base64.b64encode("%s, %s" % (self.hosting_name,
-                                                         item_dict['title'])))
+      guid = PyRSS2Gen.Guid(base64.b64encode("%s, %s, %s" % (self.hosting_name,
+                              item_dict['title'], event_time)),
+                            isPermaLink=False)
     )
     self.rss_item_list.append(rss_item)
 
   def genrss(self, output_file):
     ### Build the rss feed
+    # try to keep the list in the same order
     sorted(self.rss_item_list, key=getKey)
     rss_feed = PyRSS2Gen.RSS2 (
       title = self.instance_name,
@@ -52,7 +53,7 @@ class monitorFeed(object):
       lastBuildDate = self.report_date,
       items = self.rss_item_list
     )
-  
+
     with open(output_file, 'w') as frss:
       frss.write(rss_feed.to_xml())
 
@@ -78,7 +79,7 @@ def generateStatisticsData(stat_file_path, content):
       content['date'],
       content['state']['success'],
       content['state']['error'],
-      content['state']['warning'])
+      '')
 
   # append to file
   if current_state:
@@ -98,26 +99,18 @@ def run(args_list):
   status_folder = monitor_config.get('monitor', 'public-folder')
   base_url = monitor_config.get('monitor', 'base-url')
   related_monitor_list = monitor_config.get("monitor", "monitor-url-list").split()
-  statistic_folder = os.path.join(base_folder, 'data', '.jio_documents')
+  statistic_folder = os.path.join(base_folder, 'documents')
+  # need webdav to update parameters
   parameter_file = os.path.join(base_folder, 'config', '.jio_documents', 'config.json')
   feed_output = os.path.join(status_folder, 'feed')
-  public_url = "%s/share/jio_public/" % base_url
-  private_url = "%s/share/jio_private/" % base_url
+  public_url = "%s/share/public/" % base_url
+  private_url = "%s/share/private/" % base_url
   feed_url = "%s/public/feed" % base_url
 
-  error = warning = success = 0
+  error = success = 0
   status = 'OK'
-  promise_list = []
   global_state_file = os.path.join(base_folder, 'monitor.global.json')
   public_state_file = os.path.join(status_folder, 'monitor.global.json')
-
-  if not os.path.exists(statistic_folder):
-    try:
-      os.makedirs(statistic_folder)
-    except OSError, e:
-      if e.errno == os.errno.EEXIST and os.path.isdir(statistic_folder):
-        pass
-      else: raise
 
   # search for all status files
   file_list = filter(os.path.isfile,
@@ -129,7 +122,7 @@ def run(args_list):
   else:
     raise Exception("Cannot read instance configuration at %s" % instance_file)
 
-  report_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+  report_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
   monitor_feed = monitorFeed(
     config.get('instance', 'name'),
     config.get('instance', 'root-name'),
@@ -147,29 +140,22 @@ def run(args_list):
       error  += 1
     elif tmp_json['status'] == 'OK':
       success += 1
-    elif tmp_json['status'] == 'WARNING':
-      warning += 1
-    tmp_json['time'] = tmp_json['start-date'].split(' ')[1]
-    promise_list.append(tmp_json)
     monitor_feed.appendItem(tmp_json)
 
   if error:
     status = 'ERROR'
-  elif warning:
-    status = 'WARNING'
 
   monitor_feed.genrss(feed_output)
   global_state_dict = dict(
-    
     status=status,
     state={
       'error': error,
-      'success': success,
-      'warning': warning,
+      'success': success
     },
-    type='global',
+    type='global', # bwd compatibility
+    portal_type='Software Instance',
     date=report_date,
-    _links={"rss_url": {"href": "%s/public/feed" % base_url},
+    _links={"rss_url": {"href": feed_url},
             "public_url": {"href": public_url},
             "private_url": {"href": private_url}
           },
@@ -179,13 +165,15 @@ def run(args_list):
           'memory_resource': 'monitor_resource_memory.data',
           'io_resource': 'monitor_resource_io.data',
           'monitor_process_state': 'monitor_resource.status'},
-    _embedded={'promises': promise_list},
-    
+    _embedded={},
   )
 
   instance_dict = {}
   global_state_dict['title'] = config.get('instance', 'name')
+  # XXX - hosting-title should be removed at some point in favour of specialise_title 
   global_state_dict['hosting-title'] = config.get('instance', 'root-name')
+  global_state_dict['specialise_title'] = config.get('instance', 'root-name')
+  global_state_dict['aggregate_reference'] = config.get('instance', 'computer')
   if not global_state_dict['title']:
     global_state_dict['title'] = 'Instance Monitoring'
 
@@ -199,7 +187,7 @@ def run(args_list):
   global_state_dict['_embedded'].update({'instance' : instance_dict})
 
   if related_monitor_list:
-    global_state_dict['_links']['related_monitor'] = [{'href': "%s/share/jio_public" % url}
+    global_state_dict['_links']['related_monitor'] = [{'href': "%s/share/public" % url}
                           for url in related_monitor_list]
 
   if os.path.exists(parameter_file):
@@ -210,10 +198,10 @@ def run(args_list):
   public_state_dict = dict(
     status=status,
     date=report_date,
-    _links={'monitor': {'href': '%s/share/jio_private/' % base_url}},
+    _links={'monitor': {'href': '%s/share/private/' % base_url}},
     title=global_state_dict.get('title', '')
   )
-  public_state_dict['hosting-title'] = global_state_dict.get('hosting-title', '')
+  public_state_dict['specialise_title'] = global_state_dict.get('specialise_title', '')
   public_state_dict['_links']['related_monitor'] = global_state_dict['_links'].get('related_monitor', [])
 
   with open(global_state_file, 'w') as fglobal:

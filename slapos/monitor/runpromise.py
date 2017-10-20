@@ -7,6 +7,7 @@ import subprocess
 import json
 import psutil
 import time
+from datetime import datetime
 from shutil import copyfile
 import glob
 import argparse
@@ -68,9 +69,10 @@ class RunPromise(object):
   def runpromise(self):
 
     if self.config.promise_folder:
-      # run all promises from the given folder
+      # run all promises from the given folder in a synchronous way
       return self.runpromise_synchronous()
 
+    # run the promises in a new process
     if os.path.exists(self.config.pid_path):
       with open(self.config.pid_path, "r") as pidfile:
         try:
@@ -84,7 +86,7 @@ class RunPromise(object):
     with open(self.config.pid_path, "w") as pidfile:
       process = self.executeCommand(self.config.promise_script)
       ps_process = psutil.Process(process.pid)
-      start_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ps_process.create_time()))
+      start_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
       pidfile.write(str(process.pid))
 
     status_json = self.generateStatusJsonFromProcess(process, start_date=start_date)
@@ -94,6 +96,8 @@ class RunPromise(object):
     status_json['instance'] = self.config.instance_name
     status_json['hosting_subscription'] = self.config.hosting_name
     status_json['type'] = self.config.promise_type
+    status_json['portal_type'] = "promise" if \
+        self.config.promise_type == "status" else self.config.promise_type
 
     # Save the lastest status change date (needed for rss)
     status_json['change-time'] = ps_process.create_time()
@@ -112,12 +116,19 @@ class RunPromise(object):
       self.config.history_folder,
       self.config.promise_type
     )
-    with open(self.config.output, "w") as outputfile:
+    # write the promise in a tmp file the move to promise output file
+    # this reduce conflict error on read/write at sametime
+    output_tmp = '%s.tmp' % self.config.output
+    with open(output_tmp, "w") as outputfile:
       json.dump(status_json, outputfile)
+    os.rename(output_tmp, self.config.output)
     os.remove(self.config.pid_path)
 
-  def runpromise_synchronous(self):
 
+  def runpromise_synchronous(self):
+    """
+      run all promises in sequential ways
+    """
     if os.path.exists(self.config.pid_path):
       # Check if another run promise is running
       with open(self.config.pid_path) as fpid:
@@ -155,14 +166,19 @@ class RunPromise(object):
     for status_dict in status_list:
       status_dict.update(base_dict)
       if previous_state_dict.has_key(status_dict['title']):
-        status, time = previous_state_dict[status_dict['title']].split('#')
+        status, change_time = previous_state_dict[status_dict['title']].split('#')
         if status_dict['status'] == status:
-          status_dict['change-time'] = float(time)
+          status_dict['change-time'] = float(change_time)
 
       promise_result_file = os.path.join(self.config.output, 
                                          "%s.status.json" % status_dict['title'])
-      with open(promise_result_file, "w") as outputfile:
+      # write the promise in a tmp file the move to promise output file
+      # this reduce conflict error on read/write at sametime
+      promise_tmp_file = '%s.tmp' % promise_result_file
+      with open(promise_tmp_file, "w") as outputfile:
         json.dump(status_dict, outputfile)
+      os.rename(promise_tmp_file, promise_result_file)
+
       new_state_dict[status_dict['title']] = '%s#%s' % (status_dict['status'],
                                                         status_dict['change-time'])
       self.updateStatusHistoryFolder(
@@ -216,6 +232,7 @@ class RunPromise(object):
         status_dict.pop('title', '')
         status_dict.pop('instance', '')
         status_dict.pop('type', '')
+        status_dict.pop('portal_type', '')
 
         with open (history_file, mode="r+") as f_history:
           f_history.seek(0,2)
@@ -298,9 +315,10 @@ class RunPromise(object):
       promise_name = os.path.basename(command[0])
       result_dict = {
         "status": "ERROR",
-        "type": "status",
+        "type": "status", # keep compatibility
+        "portal_type": "promise",
         "title": promise_name,
-        "start-date" : time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())),
+        "start-date" : datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S'),
         "change-time": time.time()
       }
 
@@ -333,7 +351,7 @@ class RunPromise(object):
         message = process_handler.stderr.read()
         if message is None:
           message = process_handler.stdout.read() or ""
-        message += '\nPROMISE TIME OUT AFTER %s SECONDS' % self.promise_timeout
+        message += '\nPROMISE TIMED OUT AFTER %s SECONDS' % self.promise_timeout
         result_dict["message"] = message
 
       promise_result_list.append(result_dict)

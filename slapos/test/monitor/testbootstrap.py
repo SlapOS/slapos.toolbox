@@ -76,7 +76,7 @@ promise-output-file = %(base_dir)s/monitor-bootstrap-status
 promise-runner = %(promise_run_script)s
 """
 
-    self.opml_outline = """<outline text="Monitoring RSS Feed list"><outline text="%(title)s" title="%(title)s" type="rss" version="RSS" htmlUrl="%(base_url)s/public/feed" xmlUrl="%(base_url)s/public/feed" url="%(base_url)s/share/jio_private/" />"""
+    self.opml_outline = """<outline text="%(title)s" title="%(title)s" type="rss" version="RSS" htmlUrl="%(base_url)s/public/feed" xmlUrl="%(base_url)s/public/feed" url="%(base_url)s/share/private/" />"""
 
   def tearDown(self):
     if os.path.exists(self.base_dir):
@@ -122,12 +122,12 @@ promise-runner = %(promise_run_script)s
       promise_command_list = cronf.read()
 
     if not sequential:
-      promise_entry = '* * * * * sleep $((1 + RANDOM %% 20)) && %(promise_run_script)s --pid_path "%(promise_runner_pid)s" --output "%(public_folder)s" --promise_folder "%(promise_folder)s" --timeout_file "None" --monitor_promise_folder "%(monitor_promise_folder)s" --monitor_url "%(base_url)s/share/jio_private/" --history_folder "%(base_dir)s/public" --instance_name "%(title)s" --hosting_name "%(root_title)s"'
+      promise_entry = '* * * * * sleep $((1 + RANDOM %% 20)) && %(promise_run_script)s --pid_path "%(promise_runner_pid)s" --output "%(public_folder)s" --promise_folder "%(promise_folder)s" --timeout_file "None" --monitor_promise_folder "%(monitor_promise_folder)s" --monitor_url "%(base_url)s/share/private/" --history_folder "%(base_dir)s/public" --instance_name "%(title)s" --hosting_name "%(root_title)s"'
       entry_line = promise_entry % self.monitor_config_dict
       self.assertTrue(entry_line in promise_command_list,
             "%s not in %s" %(entry_line, promise_command_list))
     else:
-      promise_entry = '* * * * * sleep $((1 + RANDOM %% 30)) &&%(promise_run_script)s --pid_path "%(promise_pid)s" --output "%(promise_output)s" --promise_script "%(promise_executable)s" --promise_name "%(promise_name)s" --monitor_url "%(base_url)s/share/jio_private/" --history_folder "%(base_dir)s/public" --instance_name "%(title)s" --hosting_name "%(root_title)s"'
+      promise_entry = '* * * * * sleep $((1 + RANDOM %% 30)) &&%(promise_run_script)s --pid_path "%(promise_pid)s" --output "%(promise_output)s" --promise_script "%(promise_executable)s" --promise_name "%(promise_name)s" --monitor_url "%(base_url)s/share/private/" --history_folder "%(base_dir)s/public" --instance_name "%(title)s" --hosting_name "%(root_title)s"'
     
       promise_dir = os.path.join(self.base_dir, 'promise')
       for filename in os.listdir(promise_dir):
@@ -142,9 +142,9 @@ promise-runner = %(promise_run_script)s
         self.assertTrue(entry_line in promise_command_list)
 
   def check_report(self):
-    promise_entry = '* * * * * %(promise_run_script)s --pid_path "%(promise_pid)s" --output "%(promise_output)s" --promise_script "%(promise_executable)s" --promise_name "%(promise_name)s" --monitor_url "%(base_url)s/share/jio_private/" --history_folder "%(data_dir)s" --instance_name "%(title)s" --hosting_name "%(root_title)s" --promise_type "report"'
+    promise_entry = '* * * * * %(promise_run_script)s --pid_path "%(promise_pid)s" --output "%(promise_output)s" --promise_script "%(promise_executable)s" --promise_name "%(promise_name)s" --monitor_url "%(base_url)s/share/private/" --history_folder "%(data_dir)s" --instance_name "%(title)s" --hosting_name "%(root_title)s" --promise_type "report"'
     promise_dir = os.path.join(self.base_dir, 'monitor-report')
-    data_dir = os.path.join(self.base_dir, 'private', 'data', '.jio_documents')
+    data_dir = os.path.join(self.base_dir, 'private', 'documents')
 
     promise_cron = os.path.join(self.base_dir, 'cron.d', 'monitor-reports')
     self.assertTrue(os.path.exists(promise_cron))
@@ -154,7 +154,7 @@ promise-runner = %(promise_run_script)s
     for filename in os.listdir(promise_dir):
       promise_dict = dict(
         promise_pid=os.path.join(self.base_dir, 'run', '%s.pid' % filename),
-        promise_output=os.path.join(self.base_dir, 'private', '%s.report.json' % filename),
+        promise_output=os.path.join(data_dir, '%s.report.json' % filename),
         promise_executable=os.path.join(promise_dir, filename),
         promise_name=filename,
         data_dir=data_dir
@@ -239,9 +239,6 @@ promise-runner = %(promise_run_script)s
 
     self.checkOPML([self.monitor_config_dict['base_url']])
 
-    # Check jio webdav folder
-    self.assertTrue(os.path.exists(os.path.join(self.base_dir, 'webdav/jio_public')))
-    self.assertTrue(os.path.exists(os.path.join(self.base_dir, 'webdav/jio_private')))
     # check symlink configured
     self.check_symlink(folder_one, os.path.join(self.base_dir, 'public', 'folderOne'))
     self.check_symlink(folder_two, os.path.join(self.base_dir, 'public', 'folderTwo'))
@@ -258,7 +255,8 @@ promise-runner = %(promise_run_script)s
 
     # check that configuration folder exist
     self.assertTrue(os.path.exists(os.path.join(self.base_dir, 'private/config')))
-    self.assertTrue(os.path.exists(os.path.join(self.base_dir, 'private/data')))
+    # Check jio webdav folder
+    self.assertTrue(os.path.exists(os.path.join(self.base_dir, 'private/config/.jio_documents')))
     self.assertTrue(os.path.exists(os.path.join(self.base_dir, 'private/documents')))
 
   def test_monitor_bootstrap_promises(self):

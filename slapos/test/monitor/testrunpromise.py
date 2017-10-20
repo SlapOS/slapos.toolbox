@@ -69,7 +69,7 @@ exit 2
       '%s' % pid_path, '--output', output_path,
       '--promise_script', promise_path,
       '--promise_name', name, '--promise_type', promise_type,
-      '--monitor_url', 'https://monitor.test.com/share/jio_private/',
+      '--monitor_url', 'https://monitor.test.com/share/private/',
       '--history_folder', self.public_dir,
       '--instance_name', 'Monitor', '--hosting_name', 'Monitor ROOT']
     arg_parser = parseArguments()
@@ -84,14 +84,14 @@ exit 2
       '--promise_folder', self.promise_dir,
       '--monitor_promise_folder', self.monitor_promise_dir,
       '--promise_type', 'status',
-      '--monitor_url', 'https://monitor.test.com/share/jio_private/',
+      '--monitor_url', 'https://monitor.test.com/share/private/',
       '--history_folder', self.public_dir,
       '--instance_name', 'Monitor', '--hosting_name', 'Monitor ROOT']
     arg_parser = parseArguments()
     return arg_parser.parse_args(promise_cmd)
 
   def test_promise_OK(self):
-    
+
     promise = self.writePromiseOK('promise_1')
     parser = self.getPromiseParser()
     promise_runner = RunPromise(parser)
@@ -99,22 +99,23 @@ exit 2
 
     result_file = os.path.join(self.public_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.loads(open(result_file).read())
+    result1 = json.loads(open(result_file).read().decode("utf-8"))
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
-    
+
     expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
       'title': u'promise_1', 'instance': 'Monitor',
       '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/jio_private/'}},
-        'message': 'success\n', 'type': 'status'}
+        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
+        'message': 'success\n', 'type': 'status',
+        'portal_type': 'promise'}
     self.assertEquals(expected_result, result1)
 
     # second run
     time.sleep(1)
     promise_runner.runpromise()
-    result2 = json.loads(open(result_file).read())
+    result2 = json.loads(open(result_file).read().decode("utf-8"))
     change_time2 = result2.pop('change-time', 0)
     start_date2 = result2.pop('start-date')
     change_date2 = datetime.fromtimestamp(change_time2)
@@ -139,11 +140,12 @@ exit 2
     result2.pop('title')
     result2.pop('instance')
     result2.pop('type')
+    result2.pop('portal_type')
     self.assertEquals(history['data'][0], result1)
     self.assertEquals(history['data'][1], result2)
 
   def test_promise_two_folder(self):
-    
+
     promise = self.writePromiseOK('promise_1')
     promise2 = self.writePromiseOK('promise_2', monitor_folder=True)
     parser = self.getPromiseParser()
@@ -154,30 +156,32 @@ exit 2
     result2_file = os.path.join(self.public_dir, 'promise_2.status.json')
     self.assertTrue(os.path.exists(result_file))
     self.assertTrue(os.path.exists(result2_file))
-    result1 = json.loads(open(result_file).read())
+    result1 = json.loads(open(result_file).read().decode("utf-8"))
     result1.pop('change-time')
     result1.pop('start-date')
-    
+
     expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
       'title': u'promise_1', 'instance': 'Monitor',
       '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/jio_private/'}},
-        'message': 'success\n', 'type': 'status'}
+        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
+        'message': 'success\n', 'type': 'status',
+        'portal_type': 'promise'}
     self.assertEquals(expected_result, result1)
 
     result2 = json.loads(open(result2_file).read())
     result2.pop('change-time')
     result2.pop('start-date')
-    
+
     expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
       'title': u'promise_2', 'instance': 'Monitor',
       '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/jio_private/'}},
-        'message': 'success\n', 'type': 'status'}
+        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
+        'message': 'success\n', 'type': 'status',
+        'portal_type': 'promise'}
     self.assertEquals(expected_result, result2)
 
   def test_promise_One_By_One(self):
-    
+
     promise = self.writePromiseOK('promise_1')
     parser = self.getUniquePromiseParser('promise_1', promise, 'status')
     promise_runner = RunPromise(parser)
@@ -185,21 +189,22 @@ exit 2
 
     result_file = os.path.join(self.public_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.loads(open(result_file).read())
+    result1 = json.loads(open(result_file).read().decode("utf-8"))
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
-    
+
     expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
       'title': u'promise_1', 'instance': 'Monitor',
       '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/jio_private/'}},
-        'message': 'success\n', 'type': 'status'}
+        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
+        'message': 'success\n', 'type': 'status',
+        'portal_type': 'promise'}
     self.assertEquals(expected_result, result1)
 
     # second run
     promise_runner.runpromise()
-    result2 = json.loads(open(result_file).read())
+    result2 = json.loads(open(result_file).read().decode("utf-8"))
     change_time2 = result2.pop('change-time', 0)
     result2.pop('start-date', '2016-08-05 00:00:00')
     change_date2 = datetime.fromtimestamp(change_time2)
@@ -217,9 +222,9 @@ exit 2
     result1['start-date'] = start_date
     result1.pop('_links')
     self.assertEquals(history['data'][0], result1)
-    
+
   def test_promise_NOK(self):
-    
+
     promise = self.writePromiseNOK('promise_1')
     parser = self.getPromiseParser()
     promise_runner = RunPromise(parser)
@@ -227,7 +232,7 @@ exit 2
 
     result_file = os.path.join(self.public_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.loads(open(result_file).read())
+    result1 = json.loads(open(result_file).read().decode("utf-8"))
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
@@ -235,13 +240,14 @@ exit 2
     expected_result = {'status': 'ERROR', 'hosting_subscription': 'Monitor ROOT',
       'title': u'promise_1', 'instance': 'Monitor',
       '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/jio_private/'}},
-        'message': 'failed\n', 'type': 'status'}
+        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
+        'message': 'failed\n', 'type': 'status',
+        'portal_type': 'promise'}
     self.assertEquals(expected_result, result1)
 
     # second run
     promise_runner.runpromise()
-    result2 = json.loads(open(result_file).read())
+    result2 = json.loads(open(result_file).read().decode("utf-8"))
     change_time2 = result2.pop('change-time', 0)
     result2.pop('start-date', '2016-08-05 00:00:00')
     change_date2 = datetime.fromtimestamp(change_time2)
@@ -258,7 +264,7 @@ exit 2
 
     result_file = os.path.join(self.public_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.loads(open(result_file).read())
+    result1 = json.loads(open(result_file).read().decode("utf-8"))
     change_time = result1.pop('change-time')
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
@@ -266,8 +272,9 @@ exit 2
     expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
       'title': u'promise_1', 'instance': 'Monitor',
       '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/jio_private/'}},
-        'message': 'success\n', 'type': 'status'}
+        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
+        'message': 'success\n', 'type': 'status',
+        'portal_type': 'promise'}
     self.assertEquals(expected_result, result1)
 
     # second run with failure
@@ -278,7 +285,7 @@ exit 2
     expected_result['status'] = 'ERROR'
     promise_runner.runpromise()
 
-    result2 = json.loads(open(result_file).read())
+    result2 = json.loads(open(result_file).read().decode("utf-8"))
     change_time2 = result2.pop('change-time')
     result2.pop('start-date')
     change_date2 = datetime.fromtimestamp(change_time2)
@@ -295,7 +302,7 @@ exit 2
 
     result_file = os.path.join(self.private_dir, 'sample_report.report.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.loads(open(result_file).read())
+    result1 = json.loads(open(result_file).read().decode("utf-8"))
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
@@ -303,13 +310,14 @@ exit 2
     expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
       'title': 'sample_report', 'instance': 'Monitor',
       '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/jio_private/'}},
-        'message': 'success\n', 'type': 'report'}
+        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
+        'message': 'success\n', 'type': 'report',
+        'portal_type': 'report'}
     self.assertEquals(expected_result, result1)
 
     # second run
     promise_runner.runpromise()
-    result2 = json.loads(open(result_file).read())
+    result2 = json.loads(open(result_file).read().decode("utf-8"))
     change_time2 = result2.pop('change-time', 0)
     result2.pop('start-date', '2016-08-05 00:00:00')
     change_date2 = datetime.fromtimestamp(change_time2)
@@ -336,7 +344,7 @@ exit 2
 
     result_file = os.path.join(self.private_dir, 'sample_report.report.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.loads(open(result_file).read())
+    result1 = json.loads(open(result_file).read().decode("utf-8"))
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
@@ -344,8 +352,9 @@ exit 2
     expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
       'title': 'sample_report', 'instance': 'Monitor',
       '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/jio_private/'}},
-        'message': 'success\n', 'type': 'report'}
+        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
+        'message': 'success\n', 'type': 'report',
+        'portal_type': 'report'}
     self.assertEquals(expected_result, result1)
 
     # second run with failure
@@ -356,7 +365,7 @@ exit 2
     expected_result['status'] = 'ERROR'
     promise_runner.runpromise()
 
-    result2 = json.loads(open(result_file).read())
+    result2 = json.loads(open(result_file).read().decode("utf-8"))
     change_time2 = result2.pop('change-time')
     result2.pop('start-date')
     change_date2 = datetime.fromtimestamp(change_time2)

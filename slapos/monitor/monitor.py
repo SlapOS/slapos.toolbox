@@ -103,6 +103,7 @@ class Monitoring(object):
 
     self.config_folder = os.path.join(self.private_folder, 'config')
     self.report_folder = self.private_folder
+    self.data_folder = os.path.join(self.private_folder, 'documents')
 
     self.promise_output_file = config.get("monitor", "promise-output-file")
     self.bootstrap_is_ok = True
@@ -267,35 +268,22 @@ class Monitoring(object):
       return (report_name, "*/%s * * * *" % value)
 
   def configureFolders(self):
+    # create symlinks from monitor.conf
+    self.createSymlinksFromConfig(self.public_folder, self.public_path_list)
+    self.createSymlinksFromConfig(self.private_folder, self.private_path_list)
     # configure public and private folder
     self.createSymlinksFromConfig(self.webdav_folder, [self.public_folder])
     self.createSymlinksFromConfig(self.webdav_folder, [self.private_folder])
 
-    #configure jio_documents folder
-    jio_public = os.path.join(self.webdav_folder, 'jio_public')
-    jio_private = os.path.join(self.webdav_folder, 'jio_private')
-    mkdirAll(jio_public)
-    mkdirAll(jio_private)
-
-    createSymlink(self.public_folder,
-                  os.path.join(jio_public, '.jio_documents'))
-    createSymlink(self.private_folder,
-                  os.path.join(jio_private, '.jio_documents'))
-
-    self.data_folder = os.path.join(self.private_folder, 'data', '.jio_documents')
-    self.document_folder = os.path.join(self.private_folder, 'documents')
-    config_folder = os.path.join(self.config_folder, '.jio_documents')
+    config_jio_folder = os.path.join(self.config_folder, '.jio_documents')
 
     mkdirAll(self.data_folder)
-    mkdirAll(config_folder)
+    mkdirAll(config_jio_folder)
 
-    createSymlink(os.path.join(self.private_folder, 'data'),
-                  os.path.join(jio_private, 'data'))
-    createSymlink(self.config_folder, os.path.join(jio_private, 'config'))
-    createSymlink(self.data_folder, self.document_folder)
-
-    # Cleanup private folder
-    for file in glob.glob("%s/*.history.json" % self.private_folder):
+    # Cleanup private folder, remove files that should not be synced from private root dir
+    cleanup_file_list = glob.glob("%s/*.history.json" % self.private_folder)
+    cleanup_file_list.extend(glob.glob("%s/*.report.json" % self.private_folder))
+    for file in cleanup_file_list:
       try:
         os.unlink(file)
       except OSError:
@@ -305,7 +293,6 @@ class Monitoring(object):
     config_folder = os.path.join(self.config_folder, '.jio_documents')
     parameter_config_file = os.path.join(config_folder, 'config.parameters.json')
     parameter_file = os.path.join(config_folder, 'config.json')
-    #mkdirAll(config_folder)
 
     parameter_list = self.readInstanceConfiguration()
     description_dict = {}
@@ -336,10 +323,12 @@ class Monitoring(object):
   def generateOpmlFile(self, feed_url_list, output_file):
 
     if os.path.exists(output_file):
-      creation_date = datetime.fromtimestamp(os.path.getctime(output_file)).utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")
+      creation_date = datetime.utcfromtimestamp(os.path.getctime(output_file))\
+        .strftime("%a, %d %b %Y %H:%M:%S +0000")
       modification_date = datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")
     else:
-      creation_date = modification_date = datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")
+      creation_date = modification_date = datetime.utcnow()\
+        .strftime("%a, %d %b %Y %H:%M:%S +0000")
 
     opml_content = OPML_START % {'creation_date': creation_date,
                                   'modification_date': modification_date,
@@ -349,13 +338,13 @@ class Monitoring(object):
     opml_content += OPML_OUTLINE_FEED % {'title': self.title,
         'html_url': self.public_url + '/feed',
         'xml_url': self.public_url + '/feed',
-        'global_url': "%s/jio_private/" % self.webdav_url}
+        'global_url': "%s/private/" % self.webdav_url}
     for feed_url in feed_url_list:
       opml_content += OPML_OUTLINE_FEED % {
         'title': self.getMonitorTitleFromUrl(feed_url + "/share/public/"),
         'html_url': feed_url + '/public/feed',
         'xml_url': feed_url + '/public/feed',
-        'global_url': "%s/share/jio_private/" % feed_url}
+        'global_url': "%s/share/private/" % feed_url}
 
     opml_content += OPML_END
 
@@ -384,18 +373,17 @@ class Monitoring(object):
       report_script = os.path.join(self.report_script_folder, filename)
       if os.path.isfile(report_script) and os.access(report_script, os.X_OK):
         report_name, frequency = self.getReportInfoFromFilename(filename)
-        # report_name = os.path.splitext(filename)[0]
-        report_json_path = "%s.report.json" % report_name
+        report_json_name = "%s.report.json" % report_name
 
         report_cmd_line = [
           frequency,
           self.promise_runner,
           '--pid_path "%s"' % os.path.join(self.service_pid_folder,
             "%s.pid" % filename),
-          '--output "%s"' % os.path.join(self.report_folder,report_json_path),
+          '--output "%s"' % os.path.join(self.data_folder, report_json_name),
           '--promise_script "%s"' % report_script,
           '--promise_name "%s"' % report_name,
-          '--monitor_url "%s/jio_private/"' % self.webdav_url, # XXX hardcoded,
+          '--monitor_url "%s/private/"' % self.webdav_url, # XXX hardcoded,
           '--history_folder "%s"' % self.data_folder,
           '--instance_name "%s"' % self.title,
           '--hosting_name "%s"' % self.root_title,
@@ -436,7 +424,7 @@ class Monitoring(object):
       '--promise_folder "%s"' % self.promise_folder,
       '--timeout_file "%s"' % self.promise_timeout_file,
       '--monitor_promise_folder "%s"' % self.monitor_promise_folder,
-      '--monitor_url "%s/jio_private/"' % self.webdav_url, # XXX hardcoded,
+      '--monitor_url "%s/private/"' % self.webdav_url, # XXX hardcoded,
       '--history_folder "%s"' % self.public_folder,
       '--instance_name "%s"' % self.title,
       '--hosting_name "%s"' % self.root_title]
@@ -476,10 +464,6 @@ class Monitoring(object):
     # save pid of current process into file
     with open(self.pid_file, 'w') as pid_file:
       pid_file.write(str(os.getpid()))
-
-    # create symlinks from monitor.conf
-    self.createSymlinksFromConfig(self.public_folder, self.public_path_list)
-    self.createSymlinksFromConfig(self.private_folder, self.private_path_list)
 
     self.configureFolders()
 
