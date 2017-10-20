@@ -159,10 +159,26 @@ class GitlabTestSuite(SlaprunnerTestSuite):
     self.logger.info('Gitlab root password is:\n%s' % self.password)
     self.logger.info('Gitlab private token is:\n%s' % self.private_token)
 
-    self.logger.info('Waiting 1 minute so that gitlab can be started...')
-    time.sleep(60)
+    self.logger.info('Waiting 90 seconds so that gitlab can be started...')
+    time.sleep(90)
 
-    print self._createNewProject('sample.test')
+    self.logger.info('Trying to connect to gitlab backend URL...')
+    loop = 0
+    while loop < 3:
+      try:
+        self._connectToGitlab(url=self.backend_url)
+      except Exception, e:
+        if loop == 2:
+          raise
+        self.logger.warning(str(e))
+        self.logger.info('Retry connection in 60 seconds...')
+        loop += 1
+        time.sleep(60)
+      else:
+        self.logger.info('success!')
+        break
+
+    self.logger.info(self._createNewProject('sample.test'))
     project_list = self._listProjects()
     self.default_project_list = []
     for project in project_list:
@@ -173,7 +189,7 @@ class GitlabTestSuite(SlaprunnerTestSuite):
     self.sample_file = self._connectToGitlab(url=self.file_uri)
 
     self.logger.info('Wait 10 minutes for main instance to have backup of gitlab...')
-    time.sleep(60) #0)
+    time.sleep(600)
 
     # in erp5testnode, we have only one IP, so we can't run at the same time
     # gitlab in webrunner of main instance, and other services in import script of clone instance
