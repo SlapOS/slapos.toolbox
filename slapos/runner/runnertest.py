@@ -613,7 +613,7 @@ def main():
   Function meant to be run by erp5testnode.
   """
   args = parseArguments()
-  master = taskdistribution.TaskDistributionTool(args.master_url)
+  master = taskdistribution.TaskDistributor(args.master_url)
   test_suite_title = args.test_suite_title or args.test_suite
   revision = args.revision
 

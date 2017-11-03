@@ -240,7 +240,7 @@ def runUnitTest():
   args = parseArguments()
   logger, fname = setupLogging('runScalabilityTestSuite', None)
   try:
-    master = taskdistribution.TaskDistributionTool(args.test_suite_master_url)
+    master = taskdistribution.TaskDistributor(args.test_suite_master_url)
     test_suite_title = args.test_suite_title or args.test_suite
     revision = args.revision
 
