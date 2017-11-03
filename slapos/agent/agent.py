@@ -42,7 +42,7 @@ from slapos.slap.slap import ConnectionError
 
 from slapos.grid.utils import setRunning, setFinished
 
-from erp5.util.taskdistribution import TaskDistributor, TaskDistributionTool
+from erp5.util.taskdistribution import TaskDistributor
 from erp5.util.testnode.Updater import Updater
 from erp5.util.testnode.ProcessManager import SubprocessError, ProcessManager, CancellationError
 
@@ -238,10 +238,6 @@ def main():
           node_title=agent_parameter_dict['node_title'], 
           computer_guid="None")
 
-      task_distribution_tool = TaskDistributionTool(
-                       agent_parameter_dict['report_url'],
-                       logger=logger)
-
       if type(test_suite_data) == str:
          # Backward compatiblity
          test_suite_data = json.loads(test_suite_data) 
@@ -286,7 +282,7 @@ def main():
           # Backward compatiblity
           unit_test_dict = json.loads(unit_test_dict)
     
-        test_result = task_distribution_tool.createTestResult(
+        test_result = task_distributor.createTestResult(
           revision=','.join(full_revision_list),
           test_name_list=unit_test_dict.keys(),
           node_title=agent_parameter_dict['node_title'],
