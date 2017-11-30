@@ -111,7 +111,10 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
         data="file=instance_root/slappart0/var/log/log.log"
     )
     try:
-        data = json.loads(data)['result']
+        json_data = json.loads(data)
+        if json_data['code'] is 0:
+            raise IOError(data['result'])
+        data = json_data['result']
         self.logger.info('Retrieved data are:\n%s' % data)
     except (ValueError, KeyError):
         if data.find('<') is not -1:
@@ -134,7 +137,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
     """
     data = self._connectToSlaprunner(
              resource='getFileLog',
-             data="filename=software.log&truncate=%s" % truncate)
+             data="filename=instance_root/../software.log&truncate=%s" % truncate)
     try:
       data = json.loads(data)['result']
       self.logger.info('Tail of software.log:\n%s' % data)
@@ -199,10 +202,15 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
   def _gitClone(self):
     self.logger.debug('Doing git clone of https://lab.nexedi.com/nexedi/slapos.git..')
     try:
-      self._connectToSlaprunner(
+      data = self._connectToSlaprunner(
           resource='cloneRepository',
           data='repo=https://lab.nexedi.com/nexedi/slapos.git&name=workspace/slapos&email=slapos@slapos.org&user=slapos'
       )
+      data = json.loads(data)
+      if data['code'] is 0:
+        self.logger.warning(data['result'])  
+        raise IOError(data['result'])
+
     except (NotHttpOkException, urllib2.HTTPError):
       # cloning can be very long.
       # XXX: quite dirty way to check.
@@ -211,10 +219,13 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
 
   def _openSoftwareRelease(self, software_release='erp5testnode/testsuite/dummy'):
     self.logger.debug('Opening %s software release...' % software_release)
-    self._connectToSlaprunner(
+    data = self._connectToSlaprunner(
         resource='setCurrentProject',
         data='path=workspace/slapos/software/%s/' % software_release
     )
+    if json.loads(data)['code'] is 0:
+      self.logger.warning(data['result'])
+      raise IOError(data['result'])
 
   def generateData(self):
     """

@@ -88,7 +88,7 @@ def parseArguments():
 
   return parser.parse_args()
 
-def setupLogging(log_path=None, name=__name__):
+def setupLogging(name=__name__, log_path=None):
   logger_format = '%(asctime)s %(name)-13s: %(levelname)-8s %(message)s'
   formatter = logging.Formatter(logger_format)
   logging.basicConfig(level=logging.INFO, format=logger_format)
