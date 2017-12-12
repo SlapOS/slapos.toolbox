@@ -95,30 +95,32 @@ exit 2
     promise = self.writePromiseOK('promise_1')
     parser = self.getPromiseParser()
     promise_runner = RunPromise(parser)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
 
     result_file = os.path.join(self.public_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
     result1 = json.loads(open(result_file).read().decode("utf-8"))
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
+    execution_time = result1.pop('execution-time')
     start_date = result1.pop('start-date')
 
-    expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
-      'title': u'promise_1', 'instance': 'Monitor',
-      '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
-        'message': 'success\n', 'type': 'status',
-        'portal_type': 'promise'}
+    expected_result = {u'status': u'OK', u'hosting_subscription': u'Monitor ROOT',
+      u'title': u'promise_1', u'instance': u'Monitor',
+      u'_links': 
+      {u'monitor': {u'href': u'https://monitor.test.com/share/private/'}},
+      u'message': u'success\n', u'type': u'status',
+      u'portal-type': u'promise', u'returncode': 0}
     self.assertEquals(expected_result, result1)
 
     # second run
     time.sleep(1)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
     result2 = json.loads(open(result_file).read().decode("utf-8"))
     change_time2 = result2.pop('change-time', 0)
     start_date2 = result2.pop('start-date')
     change_date2 = datetime.fromtimestamp(change_time2)
+    execution_time2 = result2.pop('execution-time')
     self.assertEquals(expected_result, result2)
     self.assertEquals(change_date.strftime('%Y-%m-%d %H:%M:%S'),
       change_date2.strftime('%Y-%m-%d %H:%M:%S'))
@@ -132,15 +134,17 @@ exit 2
     result1['change-time'] = change_time
     result1['start-date'] = start_date
     result1.pop('_links')
+    result1['execution-time'] = execution_time
     result2['start-date'] = start_date2
     result2['change-time'] = change_time2
+    result2['execution-time'] = execution_time2
     # not in history
     result2.pop('_links')
     result2.pop('hosting_subscription')
     result2.pop('title')
     result2.pop('instance')
     result2.pop('type')
-    result2.pop('portal_type')
+    result2.pop('portal-type')
     self.assertEquals(history['data'][0], result1)
     self.assertEquals(history['data'][1], result2)
 
@@ -150,7 +154,7 @@ exit 2
     promise2 = self.writePromiseOK('promise_2', monitor_folder=True)
     parser = self.getPromiseParser()
     promise_runner = RunPromise(parser)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
 
     result_file = os.path.join(self.public_dir, 'promise_1.status.json')
     result2_file = os.path.join(self.public_dir, 'promise_2.status.json')
@@ -159,25 +163,27 @@ exit 2
     result1 = json.loads(open(result_file).read().decode("utf-8"))
     result1.pop('change-time')
     result1.pop('start-date')
+    self.assertTrue(result1.pop('execution-time', None) is not None)
 
-    expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
-      'title': u'promise_1', 'instance': 'Monitor',
-      '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
-        'message': 'success\n', 'type': 'status',
-        'portal_type': 'promise'}
+    expected_result = {u'status': u'OK', u'hosting_subscription': u'Monitor ROOT',
+      u'title': u'promise_1', u'instance': u'Monitor',
+      u'_links': 
+      {u'monitor': {u'href': u'https://monitor.test.com/share/private/'}},
+      u'message': u'success\n', u'type': u'status',
+      u'portal-type': u'promise', u'returncode': 0}
     self.assertEquals(expected_result, result1)
 
     result2 = json.loads(open(result2_file).read())
     result2.pop('change-time')
     result2.pop('start-date')
+    self.assertTrue(result2.pop('execution-time', None) is not None)
 
-    expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
-      'title': u'promise_2', 'instance': 'Monitor',
-      '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
-        'message': 'success\n', 'type': 'status',
-        'portal_type': 'promise'}
+    expected_result = {u'status': u'OK', u'hosting_subscription': u'Monitor ROOT',
+      u'title': u'promise_2', u'instance': u'Monitor',
+      u'_links': 
+      {u'monitor': {u'href': u'https://monitor.test.com/share/private/'}},
+      u'message': u'success\n', u'type': u'status',
+      u'portal-type': u'promise', u'returncode': 0}
     self.assertEquals(expected_result, result2)
 
   def test_promise_One_By_One(self):
@@ -185,29 +191,31 @@ exit 2
     promise = self.writePromiseOK('promise_1')
     parser = self.getUniquePromiseParser('promise_1', promise, 'status')
     promise_runner = RunPromise(parser)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
 
     result_file = os.path.join(self.public_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
     result1 = json.loads(open(result_file).read().decode("utf-8"))
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
+    execution_time = result1.pop('execution-time', None)
     start_date = result1.pop('start-date')
 
-    expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
-      'title': u'promise_1', 'instance': 'Monitor',
-      '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
-        'message': 'success\n', 'type': 'status',
-        'portal_type': 'promise'}
+    expected_result = {u'status': u'OK', u'hosting_subscription': u'Monitor ROOT',
+      u'title': u'promise_1', u'instance': u'Monitor',
+      u'_links': 
+        {u'monitor': {u'href': u'https://monitor.test.com/share/private/'}},
+        u'message': u'success\n', u'type': u'status',
+        u'portal-type': u'promise', u'returncode': 0}
     self.assertEquals(expected_result, result1)
 
     # second run
-    promise_runner.runpromise()
+    promise_runner.runPromise()
     result2 = json.loads(open(result_file).read().decode("utf-8"))
-    change_time2 = result2.pop('change-time', 0)
-    result2.pop('start-date', '2016-08-05 00:00:00')
+    change_time2 = result2.pop('change-time', 2)
+    result2.pop('start-date')
     change_date2 = datetime.fromtimestamp(change_time2)
+    self.assertTrue(result2.pop('execution-time', None) is not None)
     self.assertEquals(expected_result, result2)
     self.assertEquals(change_date.strftime('%Y-%m-%d %H:%M:%S'),
       change_date2.strftime('%Y-%m-%d %H:%M:%S'))
@@ -220,6 +228,7 @@ exit 2
 
     result1['change-time'] = change_time
     result1['start-date'] = start_date
+    result1['execution-time'] = execution_time
     result1.pop('_links')
     self.assertEquals(history['data'][0], result1)
 
@@ -228,7 +237,7 @@ exit 2
     promise = self.writePromiseNOK('promise_1')
     parser = self.getPromiseParser()
     promise_runner = RunPromise(parser)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
 
     result_file = os.path.join(self.public_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
@@ -236,20 +245,22 @@ exit 2
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
-    
-    expected_result = {'status': 'ERROR', 'hosting_subscription': 'Monitor ROOT',
-      'title': u'promise_1', 'instance': 'Monitor',
-      '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
-        'message': 'failed\n', 'type': 'status',
-        'portal_type': 'promise'}
+
+    self.assertTrue(result1.pop('execution-time', None) is not None)
+    expected_result = {u'status': u'ERROR', u'hosting_subscription': u'Monitor ROOT',
+      u'title': u'promise_1', u'instance': u'Monitor',
+      u'_links': 
+        {u'monitor': {u'href': u'https://monitor.test.com/share/private/'}},
+        u'message': u'failed\n', u'type': u'status',
+        u'portal-type': u'promise', u'returncode': 2}
     self.assertEquals(expected_result, result1)
 
     # second run
-    promise_runner.runpromise()
+    promise_runner.runPromise()
     result2 = json.loads(open(result_file).read().decode("utf-8"))
-    change_time2 = result2.pop('change-time', 0)
-    result2.pop('start-date', '2016-08-05 00:00:00')
+    change_time2 = result2.pop('change-time', 1)
+    result2.pop('start-date')
+    self.assertTrue(result2.pop('execution-time', None) is not None)
     change_date2 = datetime.fromtimestamp(change_time2)
     self.assertEquals(expected_result, result2)
     self.assertEquals(change_date.strftime('%Y-%m-%d %H:%M:%S'),
@@ -260,7 +271,7 @@ exit 2
     promise = self.writePromiseOK('promise_1')
     parser = self.getPromiseParser()
     promise_runner = RunPromise(parser)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
 
     result_file = os.path.join(self.public_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
@@ -268,13 +279,14 @@ exit 2
     change_time = result1.pop('change-time')
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
-    
-    expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
-      'title': u'promise_1', 'instance': 'Monitor',
-      '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
-        'message': 'success\n', 'type': 'status',
-        'portal_type': 'promise'}
+
+    self.assertTrue(result1.pop('execution-time', None) is not None)
+    expected_result = {u'status': u'OK', u'hosting_subscription': u'Monitor ROOT',
+      u'title': u'promise_1', u'instance': u'Monitor',
+      u'_links': 
+        {u'monitor': {u'href': u'https://monitor.test.com/share/private/'}},
+        u'message': u'success\n', u'type': u'status',
+        u'portal-type': u'promise', u'returncode': 0}
     self.assertEquals(expected_result, result1)
 
     # second run with failure
@@ -283,12 +295,14 @@ exit 2
     parser = self.getPromiseParser()
     expected_result['message'] = 'failed\n'
     expected_result['status'] = 'ERROR'
-    promise_runner.runpromise()
+    expected_result['returncode'] = 2
+    promise_runner.runPromise()
 
     result2 = json.loads(open(result_file).read().decode("utf-8"))
     change_time2 = result2.pop('change-time')
     result2.pop('start-date')
     change_date2 = datetime.fromtimestamp(change_time2)
+    self.assertTrue(result2.pop('execution-time', None) is not None)
     self.assertEquals(expected_result, result2)
     self.assertNotEquals(change_date.strftime('%Y-%m-%d %H:%M:%S'),
       change_date2.strftime('%Y-%m-%d %H:%M:%S'))
@@ -298,7 +312,7 @@ exit 2
     promise = self.writePromiseOK('sample_report')
     parser = self.getUniquePromiseParser('sample_report', promise, 'report')
     promise_runner = RunPromise(parser)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
 
     result_file = os.path.join(self.private_dir, 'sample_report.report.json')
     self.assertTrue(os.path.exists(result_file))
@@ -306,20 +320,22 @@ exit 2
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
+    execution_time = result1.pop('execution-time')
     
-    expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
-      'title': 'sample_report', 'instance': 'Monitor',
-      '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
-        'message': 'success\n', 'type': 'report',
-        'portal_type': 'report'}
+    expected_result = {u'status': u'OK', u'hosting_subscription': u'Monitor ROOT',
+      u'title': u'sample_report', u'instance': u'Monitor',
+      u'_links': 
+      {u'monitor': {u'href': u'https://monitor.test.com/share/private/'}},
+      u'message': u'success\n', u'type': u'report',
+      u'portal-type': u'report', u'returncode': 0}
     self.assertEquals(expected_result, result1)
 
     # second run
-    promise_runner.runpromise()
+    promise_runner.runPromise()
     result2 = json.loads(open(result_file).read().decode("utf-8"))
-    change_time2 = result2.pop('change-time', 0)
-    result2.pop('start-date', '2016-08-05 00:00:00')
+    change_time2 = result2.pop('change-time', 2)
+    result2.pop('start-date')
+    result2.pop('execution-time')
     change_date2 = datetime.fromtimestamp(change_time2)
     self.assertEquals(expected_result, result2)
     self.assertEquals(change_date.strftime('%Y-%m-%d %H:%M:%S'),
@@ -332,6 +348,7 @@ exit 2
 
     result1['change-time'] = change_time
     result1['start-date'] = start_date
+    result1['execution-time'] = execution_time
     #result1.pop('_links')
     self.assertEquals(history, result1)
 
@@ -340,7 +357,7 @@ exit 2
     promise = self.writePromiseOK('sample_report')
     parser = self.getUniquePromiseParser('sample_report', promise, 'report')
     promise_runner = RunPromise(parser)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
 
     result_file = os.path.join(self.private_dir, 'sample_report.report.json')
     self.assertTrue(os.path.exists(result_file))
@@ -348,13 +365,14 @@ exit 2
     change_time = result1.pop('change-time', 0)
     change_date = datetime.fromtimestamp(change_time)
     start_date = result1.pop('start-date')
+    execution_time = result1.pop('execution-time')
     
-    expected_result = {'status': 'OK', 'hosting_subscription': 'Monitor ROOT',
-      'title': 'sample_report', 'instance': 'Monitor',
-      '_links': 
-        {'monitor': {'href': 'https://monitor.test.com/share/private/'}},
-        'message': 'success\n', 'type': 'report',
-        'portal_type': 'report'}
+    expected_result = {u'status': u'OK', u'hosting_subscription': u'Monitor ROOT',
+      u'title': u'sample_report', u'instance': u'Monitor',
+      u'_links': 
+      {u'monitor': {u'href': u'https://monitor.test.com/share/private/'}},
+      u'message': u'success\n', u'type': u'report',
+      u'portal-type': u'report', u'returncode': 0}
     self.assertEquals(expected_result, result1)
 
     # second run with failure
@@ -363,11 +381,13 @@ exit 2
     parser = self.getUniquePromiseParser('sample_report', promise, 'report')
     expected_result['message'] = 'failed\n'
     expected_result['status'] = 'ERROR'
-    promise_runner.runpromise()
+    expected_result['returncode'] = 2
+    promise_runner.runPromise()
 
     result2 = json.loads(open(result_file).read().decode("utf-8"))
     change_time2 = result2.pop('change-time')
     result2.pop('start-date')
+    result2.pop('execution-time')
     change_date2 = datetime.fromtimestamp(change_time2)
     self.assertEquals(expected_result, result2)
     self.assertNotEquals(change_date.strftime('%Y-%m-%d %H:%M:%S'),

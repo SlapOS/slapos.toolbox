@@ -141,7 +141,7 @@ exit %(code)s
     self.writePromise('promise_4')
     parser = self.getPromiseParser()
     promise_runner = RunPromise(parser)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
 
     self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'promise_1.status.json')))
     self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'promise_2.status.json')))
@@ -191,7 +191,7 @@ exit %(code)s
 		"process_resource": "monitor_resource_process.data",
 		"monitor_process_state": "monitor_resource.status"
 	},
-	"portal_type": "instance_state",
+	"portal_type": "Software Instance",
 	"state": {
 		"success": 2,
 		"error": 2
@@ -207,9 +207,9 @@ exit %(code)s
 			"href": "https://monitor.test.com/share/private/"
 		}
 	},
-	"computer_reference": "COMP-1234",
+	"aggregate_reference": "COMP-1234",
 	"type": "global",
-	"hosting-title": "Monitor ROOT"
+	"specialise_title": "Monitor ROOT"
 }"""
 
     with open(os.path.join(self.private_dir, 'monitor.global.json')) as r:
@@ -221,7 +221,7 @@ exit %(code)s
     # all promises are OK now
     self.writePromise('promise_2', success=True)
     self.writePromise('promise_3', success=True)
-    promise_runner.runpromise()
+    promise_runner.runPromise()
     globalstate.run([self.monitor_config_file, os.path.join(self.base_dir, 'instance.cfg')])
 
     expected_result_dict = json.loads(expected_result)

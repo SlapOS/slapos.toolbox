@@ -104,6 +104,7 @@ class Monitoring(object):
     self.config_folder = os.path.join(self.private_folder, 'config')
     self.report_folder = self.private_folder
     self.data_folder = os.path.join(self.private_folder, 'documents')
+    self.log_folder = os.path.join(self.private_folder, 'monitor-log')
 
     self.promise_output_file = config.get("monitor", "promise-output-file")
     self.bootstrap_is_ok = True
@@ -387,7 +388,8 @@ class Monitoring(object):
           '--history_folder "%s"' % self.data_folder,
           '--instance_name "%s"' % self.title,
           '--hosting_name "%s"' % self.root_title,
-          '--promise_type "report"']
+          '--promise_type "report"',
+          '--log_file "%s.report.log"' % os.path.join(self.log_folder, report_name)]
 
         cron_line_list.append(' '.join(report_cmd_line))
 
@@ -427,7 +429,9 @@ class Monitoring(object):
       '--monitor_url "%s/private/"' % self.webdav_url, # XXX hardcoded,
       '--history_folder "%s"' % self.public_folder,
       '--instance_name "%s"' % self.title,
-      '--hosting_name "%s"' % self.root_title]
+      '--hosting_name "%s"' % self.root_title,
+      '--log_file "%s.log"' % os.path.join(self.log_folder,
+                                           self.title.replace(' ', '_'))]
 
     registered_promise_list = os.listdir(self.promise_folder)
     registered_promise_list.extend(os.listdir(self.monitor_promise_folder))
@@ -500,6 +504,15 @@ class Monitoring(object):
     ]
     file_list = ["%s/*.history.json" % self.public_folder]
     self.generateLogrotateEntry('monitor.service.status', file_list, option_list)
+
+    # Rotate monitor log files
+    option_list = [
+      'daily', 'dateext', 'create', 'rotate 180',
+      'compress', 'delaycompress', 'notifempty',
+      'missingok'
+    ]
+    file_list = ["%s/*.log" % self.log_folder]
+    self.generateLogrotateEntry('monitor.promise.log', file_list, option_list)
 
     # Add cron entry for SlapOS Collect
     command = "sleep $((1 + RANDOM % 60)) && " # Random sleep between 1 to 60 seconds

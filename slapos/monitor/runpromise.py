@@ -12,6 +12,8 @@ from shutil import copyfile
 import glob
 import argparse
 import traceback
+import logging
+from slapos.grid.utils import checkPromiseList as _checkPromiseList
 
 # Promise timeout after 20 seconds by default
 promise_timeout = 20
@@ -49,13 +51,28 @@ def parseArguments():
   parser.add_argument('--hosting_name',
                       default='UNKNOWN Hosting Subscription',
                       help='Hosting Subscription name.')
+  parser.add_argument('--log_file',
+                      help='Path of log file.')
 
   return parser
+
 
 class RunPromise(object):
 
   def __init__(self, config_parser):
     self.config = config_parser
+    self.logger = logging.getLogger("RunPromise")
+    self.logger.setLevel(logging.DEBUG)
+
+    if not self.config.log_file:
+      if len(self.logger.handlers) == 0 or \
+          not isinstance(self.logger.handlers[0], logging.StreamHandler):
+        self.logger.addHandler(logging.StreamHandler())
+    else:
+      file_handler = logging.FileHandler(self.config.log_file)
+      file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+      self.logger.addHandler(file_handler)
+
     self.promise_timeout = promise_timeout
     if self.config.timeout_file and \
             os.path.exists(self.config.timeout_file):
@@ -64,15 +81,20 @@ class RunPromise(object):
         if timeout.isdigit():
           self.promise_timeout = int(timeout)
         else:
-          print "%s it not a valid promise-timeout value" % timeout
+          self.logger.warning("%s it not a valid promise-timeout value" % timeout)
 
-  def runpromise(self):
+  def runPromise(self):
 
     if self.config.promise_folder:
       # run all promises from the given folder in a synchronous way
-      return self.runpromise_synchronous()
+      return self.runPromiseSynchronous()
 
-    # run the promises in a new process
+    return self.runSinglePromise()
+
+  def runSinglePromise(self):
+    """
+      run a single promise in a new process
+    """
     if os.path.exists(self.config.pid_path):
       with open(self.config.pid_path, "r") as pidfile:
         try:
@@ -80,23 +102,27 @@ class RunPromise(object):
         except ValueError:
           pid = None
         if pid and os.path.exists("/proc/" + str(pid)):
-          print("A process is already running with pid " + str(pid))
+          self.logger.warning("A process is already running with pid " + str(pid))
           return 1
-    start_date = ""
+    start_date = datetime.utcnow()
     with open(self.config.pid_path, "w") as pidfile:
+      self.logger.info("Running script %s..." % self.config.promise_script)
       process = self.executeCommand(self.config.promise_script)
       ps_process = psutil.Process(process.pid)
-      start_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
       pidfile.write(str(process.pid))
 
-    status_json = self.generateStatusJsonFromProcess(process, start_date=start_date)
+    status_json = self.generateStatusJsonFromProcess(
+      process,
+      start_date=start_date,
+      title=self.config.promise_name
+    )
 
     status_json['_links'] = {"monitor": {"href": self.config.monitor_url}}
     status_json['title'] = self.config.promise_name
     status_json['instance'] = self.config.instance_name
     status_json['hosting_subscription'] = self.config.hosting_name
     status_json['type'] = self.config.promise_type
-    status_json['portal_type'] = "promise" if \
+    status_json['portal-type'] = "promise" if \
         self.config.promise_type == "status" else self.config.promise_type
 
     # Save the lastest status change date (needed for rss)
@@ -124,8 +150,7 @@ class RunPromise(object):
     os.rename(output_tmp, self.config.output)
     os.remove(self.config.pid_path)
 
-
-  def runpromise_synchronous(self):
+  def runPromiseSynchronous(self):
     """
       run all promises in sequential ways
     """
@@ -137,7 +162,7 @@ class RunPromise(object):
         except ValueError:
           pid = None
         if pid and os.path.exists("/proc/" + str(pid)):
-          print("A process is already running with pid " + str(pid))
+          self.logger.warning("A process is already running with pid " + str(pid))
           return []
 
     with open(self.config.pid_path, 'w') as fpid:
@@ -146,7 +171,7 @@ class RunPromise(object):
     promise_folder_list = [self.config.promise_folder]
     if self.config.monitor_promise_folder:
       promise_folder_list.append(self.config.monitor_promise_folder)
-    status_list = self.checkPromises(promise_folder_list)
+    status_list = self.checkPromisesList(promise_folder_list)
     promises_status_file = os.path.join(self.config.output, '_promise_status')
     previous_state_dict = {}
     new_state_dict = {}
@@ -232,7 +257,7 @@ class RunPromise(object):
         status_dict.pop('title', '')
         status_dict.pop('instance', '')
         status_dict.pop('type', '')
-        status_dict.pop('portal_type', '')
+        status_dict.pop('portal-type', '')
 
         with open (history_file, mode="r+") as f_history:
           f_history.seek(0,2)
@@ -246,25 +271,12 @@ class RunPromise(object):
         name)
 
       copyfile(status_file, os.path.join(history_path, filename))
-      """# Don't let history foler grow too much, keep xx files
-      file_list = filter(os.path.isfile,
-          glob.glob("%s/*.%s.history.json" % (history_path, promise_type))
-        )
-      file_count = len(file_list)
-      if file_count > keep_item_amount:
-        file_list.sort(key=lambda x: os.path.getmtime(x))
-        while file_count > keep_item_amount:
-          to_delete = file_list.pop(0)
-          try:
-            os.unlink(to_delete)
-            file_count -= 1
-          except OSError:
-            raise"""
 
   def generateStatusJsonFromProcess(self, process, start_date=None, title=None):
     stdout, stderr = process.communicate()
     status_json = {}
     if process.returncode != 0:
+      status_json["returncode"] = process.returncode
       status_json["status"] = "ERROR"
       if not stdout:
         status_json["message"] = stderr
@@ -273,93 +285,54 @@ class RunPromise(object):
     else:
       status_json["status"] = "OK" 
       status_json["message"] = stdout
+      status_json["returncode"] = 0
 
     if start_date:
-      status_json["start-date"] = start_date
+      date_diff = (datetime.utcnow() - start_date)
+      status_json["start-date"] = start_date.strftime('%Y-%m-%dT%H:%M:%S')
+      status_json["execution-time"] = date_diff.total_seconds()
+      self.logger.info("Finished execution of %s in %s second(s)." % (
+                    title, date_diff.total_seconds()))
     if title:
       status_json["title"] = title
     return status_json
 
-
   def executeCommand(self, args):
     return subprocess.Popen(
       args,
-      #cwd=instance_path,
-      #env=None if sys.platform == 'cygwin' else {},
       stdin=None,
       stdout=subprocess.PIPE,
       stderr=subprocess.PIPE
     )
 
-  def checkPromises(self, promise_dir_list):
+  def checkPromisesList(self, promise_dir_list):
     """
       Run all promises found into specified folder
     """
     promise_list = []
+    self.logger.info("Checking promises...")
     for promise_dir in promise_dir_list:
-      if not os.path.exists(promise_dir) or not os.path.isdir(promise_dir):
-        continue
-      promise_list.extend([os.path.join(promise_dir, promise)
-                            for promise in os.listdir(promise_dir)])
-
-    promise_result_list = []
+      promise_list.extend(_checkPromiseList(
+        promise_dir,
+        self.promise_timeout,
+        profile=False,
+        raise_on_failure=False,
+        logger=self.logger))
 
     # Check whether every promise is kept
-    for promise_script in promise_list:
+    for i in range(0, len(promise_list)):
+      promise_list[i]["status"] = "OK" if promise_list[i]["returncode"] == 0 else "ERROR"
+      promise_list[i]["type"] = "status"
+      promise_list[i]["portal-type"] = "promise"
+      promise_list[i]["change-time"] = time.mktime(promise_list[i]["start-date"].timetuple())
+      promise_list[i]["start-date"] = promise_list[i]["start-date"].strftime('%Y-%m-%dT%H:%M:%S')
 
-      if not os.path.isfile(promise_script) or not os.access(promise_script, os.X_OK):
-        # Not executable file
-        continue
-
-      command = [promise_script]
-      promise_name = os.path.basename(command[0])
-      result_dict = {
-        "status": "ERROR",
-        "type": "status", # keep compatibility
-        "portal_type": "promise",
-        "title": promise_name,
-        "start-date" : datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S'),
-        "change-time": time.time()
-      }
-
-      process_handler = subprocess.Popen(command,
-                                         stdout=subprocess.PIPE,
-                                         stderr=subprocess.PIPE,
-                                         stdin=subprocess.PIPE)
-      process_handler.stdin.flush()
-      process_handler.stdin.close()
-      process_handler.stdin = None
-
-      sleep_time = 0.1
-      increment_limit = int(self.promise_timeout / sleep_time)
-      for current_increment in range(0, increment_limit):
-        if process_handler.poll() is None:
-          time.sleep(sleep_time)
-          continue
-        if process_handler.poll() == 0:
-          # Success!
-          result_dict["message"] = process_handler.communicate()[0]
-          result_dict["status"] = "OK"
-        else:
-          stdout, stderr = process_handler.communicate()
-          result_dict["message"] = stderr
-          if not stderr:
-            result_dict["message"] = stdout
-        break
-      else:
-        process_handler.terminate()
-        message = process_handler.stderr.read()
-        if message is None:
-          message = process_handler.stdout.read() or ""
-        message += '\nPROMISE TIMED OUT AFTER %s SECONDS' % self.promise_timeout
-        result_dict["message"] = message
-
-      promise_result_list.append(result_dict)
-
-    return promise_result_list
+    self.logger.info("Finished promises.")
+    self.logger.info("---")
+    return promise_list
 
 
 def main():
   arg_parser = parseArguments()
   promise_runner = RunPromise(arg_parser.parse_args())
-  sys.exit(promise_runner.runpromise())
+  sys.exit(promise_runner.runPromise())

@@ -170,8 +170,6 @@ def run(args_list):
 
   instance_dict = {}
   global_state_dict['title'] = config.get('instance', 'name')
-  # XXX - hosting-title should be removed at some point in favour of specialise_title 
-  global_state_dict['hosting-title'] = config.get('instance', 'root-name')
   global_state_dict['specialise_title'] = config.get('instance', 'root-name')
   global_state_dict['aggregate_reference'] = config.get('instance', 'computer')
   if not global_state_dict['title']:
