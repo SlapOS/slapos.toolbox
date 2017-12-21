@@ -112,20 +112,20 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
     )
     try:
         json_data = json.loads(data)
-        if json_data['code'] is 0:
-            raise IOError(data['result'])
+        if json_data['code'] == 0:
+          raise IOError(json_data['result'])
         data = json_data['result']
         self.logger.info('Retrieved data are:\n%s' % data)
     except (ValueError, KeyError):
-        if data.find('<') is not -1:
+        if data.find('<') != -1:
           raise IOError(
               'Could not retrieve logfile content: retrieved content is html.'
           )
-        if data.find('Could not load') is not -1:
+        if data.find('Could not load') != -1:
           raise IOError(
               'Could not retrieve logfile content: server could not load the file.'
           )
-        if data.find('Hello') is -1:
+        if data.find('Hello') == -1:
           raise IOError(
               'Could not retrieve logfile content: retrieve content does not match "Hello".'
           )
@@ -207,13 +207,13 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
           data='repo=https://lab.nexedi.com/nexedi/slapos.git&name=workspace/slapos&email=slapos@slapos.org&user=slapos'
       )
       data = json.loads(data)
-      if data['code'] is 0:
+      if data['code'] == 0:
         self.logger.warning(data['result'])  
 
     except (NotHttpOkException, urllib2.HTTPError):
       # cloning can be very long.
       # XXX: quite dirty way to check.
-      while self._connectToSlaprunner('getProjectStatus', data='project=workspace/slapos').find('On branch master') is -1:
+      while self._connectToSlaprunner('getProjectStatus', data='project=workspace/slapos').find('On branch master') == -1:
         self.logger.info('git-cloning ongoing, sleeping...')
 
   def _openSoftwareRelease(self, software_release='erp5testnode/testsuite/dummy'):
@@ -222,7 +222,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
         resource='setCurrentProject',
         data='path=workspace/slapos/software/%s/' % software_release
     )
-    if json.loads(data)['code'] is 0:
+    if json.loads(data)['code'] == 0:
       self.logger.warning(data['result'])
       raise IOError(data['result'])
 
