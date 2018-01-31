@@ -108,6 +108,7 @@ class Monitoring(object):
 
     self.promise_output_file = config.get("monitor", "promise-output-file")
     self.bootstrap_is_ok = True
+    self.randomsleep = config.get("monitor", "randomsleep")
 
     if self.nice_command:
       # run monitor promises script with low priority
@@ -418,7 +419,7 @@ class Monitoring(object):
 
     promise_cmd_line = [
       "* * * * *",
-      "sleep $((1 + RANDOM % 20)) &&", # Sleep between 1 to 20 seconds
+      self.randomsleep + " 60 &&", # Sleep between 1 to 60 seconds
       self.promise_runner,
       '--pid_path "%s"' % os.path.join(self.service_pid_folder,
         "monitor-promises.pid"),
@@ -515,7 +516,7 @@ class Monitoring(object):
     self.generateLogrotateEntry('monitor.promise.log', file_list, option_list)
 
     # Add cron entry for SlapOS Collect
-    command = "sleep $((1 + RANDOM % 60)) && " # Random sleep between 1 to 60 seconds
+    command = self.randomsleep + " 60 && " # Random sleep between 1 to 60 seconds
     if self.nice_command:
       # run monitor collect with low priority
       command += '%s ' % self.nice_command
