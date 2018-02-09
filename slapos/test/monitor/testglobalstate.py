@@ -88,6 +88,7 @@ title = %(title)s
 service-pid-folder = %(base_dir)s/run
 promise-output-file = %(base_dir)s/monitor-bootstrap-status
 promise-runner = %(promise_run_script)s
+randomsleep = /bin/echo sleep
 """
 
   def tearDown(self):
