@@ -1,3 +1,10 @@
+0.74 (2018-02-12)                                                                                                                                                                             
+=================
+
+* qemu qmpclient: add support for cpu and memory hotplug
+* monitor: Add a random delay of maximum 60 seconds to all monitor cron jobs
+* monitor: use checkpromise method from slapos.core package
+
 0.73 (2017-10-06)
 =================
 
