@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Check if memory usage is greater than given threshold.
+Check if memory usage is lower than 80% of total memory.
 
 Uses:
 - /proc/meminfo
@@ -29,7 +29,7 @@ def getFreeMemory(database, time, date):
 
     # fetch free and used memory 
     where_query = "time between '%s:00' and '%s:30' " % (time, time)
-    query_result = database.select("system", date, "memory_used, memory_free", where=where_query)
+    query_result = database.select("system", date, "memory_free, memory_used", where=where_query)
     result = zip(*query_result)
     if not result or not result[0][0]: 
       print "couldn't fetch free memory"

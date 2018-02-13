@@ -47,7 +47,7 @@ class TestComputerMemory(unittest.TestCase):
     self.conn.close() 
 
   def test_check_memory(self):
-    self.assertEquals({'total': 33705312256.0, 'free': 33139023872.0, 'used': 566288384.0}, 
+    self.assertEquals({'total': 33705312256.0, 'used': 33139023872.0, 'free': 566288384.0},
       getFreeMemory('/tmp', '00:02', '2017-09-15'))
 
   def test_check_memory_with_unavailable_dates(self):
