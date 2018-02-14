@@ -69,7 +69,7 @@ class ResourceCollect:
     assert os.path.exists(db_path)
     if db_path.endswith("collector.db"):
       db_path = db_path[:-len("collector.db")]
-    self.db = Database(db_path)
+    self.db = Database(db_path, create=False)
     self.consumption_utils = ConsumptionReportBase(self.db)
 
   def has_table(self, name):
@@ -255,7 +255,18 @@ def main():
     initMemoryDataFile(mem_file)
     initIODataFile(io_file)
     with open(status_file, "w") as status_file:
-      status_file.write('{"cpu_time": 0, "cpu_percent": 0, "memory_rss": 0, "memory_percent": 0, "io_rw_counter": 0, "date": "", "total_process": 0, "disk_used": 0, "io_cycles_counter": 0, "cpu_num_threads": 0}')
+      status_file.write(json.dumps({
+        "cpu_time": 0,
+        "cpu_percent": 0,
+        "memory_rss": 0,
+        "memory_percent": 0,
+        "io_rw_counter": 0,
+        "date": "",
+        "total_process": 0,
+        "disk_used": 0,
+        "io_cycles_counter": 0,
+        "cpu_num_threads": 0
+      }))
     with open(resource_file, "w") as resource_file:
       resource_file.write('[]')
     exit(1)
