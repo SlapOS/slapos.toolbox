@@ -14,7 +14,7 @@ import PyRSS2Gen
 def getKey(item):
   return item.source.name
 
-class monitorFeed(object):
+class MonitorFeed(object):
 
   def __init__(self, instance_name, hosting_name,
       public_url, private_url, feed_url):
@@ -26,23 +26,24 @@ class monitorFeed(object):
     self.private_url = private_url
     self.feed_url = feed_url
 
-  def appendItem(self, item_dict):
-    event_time = datetime.utcfromtimestamp(item_dict['change-time'])
-    description = item_dict.get('message', '')
+  def appendItem(self, item_dict, has_string=""):
+    event_date = item_dict['result']['change-date']
+    report_date = item_dict['result']['date']
+    description = item_dict['result'].get('message', '')
     rss_item = PyRSS2Gen.RSSItem(
       categories = [item_dict['status']],
       source = PyRSS2Gen.Source(item_dict['title'], self.public_url),
       title = '[%s] %s' % (item_dict['status'], item_dict['title']),
-      description = "%s: %s\n\n%s" % (event_time, item_dict['status'], description),
+      description = "\n%s" % (description,),
       link = self.private_url,
-      pubDate = event_time,
-      guid = PyRSS2Gen.Guid(base64.b64encode("%s, %s, %s" % (self.hosting_name,
-                              item_dict['title'], event_time)),
+      pubDate = event_date,
+      guid = PyRSS2Gen.Guid(base64.b64encode("%s, %s, %s, %s" % (self.hosting_name,
+                              item_dict['title'], has_string, event_date)),
                             isPermaLink=False)
     )
     self.rss_item_list.append(rss_item)
 
-  def genrss(self, output_file):
+  def generateRSS(self, output_file):
     ### Build the rss feed
     # try to keep the list in the same order
     sorted(self.rss_item_list, key=getKey)
@@ -56,12 +57,6 @@ class monitorFeed(object):
 
     with open(output_file, 'w') as frss:
       frss.write(rss_feed.to_xml())
-
-def softConfigGet(config, *args, **kwargs):
-  try:
-    return config.get(*args, **kwargs)
-  except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
-    return ""
 
 def generateStatisticsData(stat_file_path, content):
   # csv document for success/error statictics
@@ -89,63 +84,148 @@ def generateStatisticsData(stat_file_path, content):
       fstat.seek(position)
       fstat.write('%s}' % ',"{}"]'.format(current_state))
 
-def run(args_list):
-  monitor_file, instance_file = args_list
+def writeDocumentList(folder_path):
+  # Save document list in a file called _document_list
+  public_document_list = [os.path.splitext(file)[0]
+                for file in os.listdir(folder_path) if file.endswith('.json')]
 
-  monitor_config = ConfigParser.ConfigParser()
-  monitor_config.read(monitor_file)
+  with open(os.path.join(folder_path, '_document_list'), 'w') as lfile:
+    lfile.write('\n'.join(public_document_list))
 
-  base_folder = monitor_config.get('monitor', 'private-folder')
-  status_folder = monitor_config.get('monitor', 'public-folder')
-  base_url = monitor_config.get('monitor', 'base-url')
-  related_monitor_list = monitor_config.get("monitor", "monitor-url-list").split()
-  statistic_folder = os.path.join(base_folder, 'documents')
-  # need webdav to update parameters
-  parameter_file = os.path.join(base_folder, 'config', '.jio_documents', 'config.json')
-  feed_output = os.path.join(status_folder, 'feed')
-  public_url = "%s/share/public/" % base_url
-  private_url = "%s/share/private/" % base_url
-  feed_url = "%s/public/feed" % base_url
-
-  error = success = 0
-  status = 'OK'
-  global_state_file = os.path.join(base_folder, 'monitor.global.json')
-  public_state_file = os.path.join(status_folder, 'monitor.global.json')
-
+def generateMonitoringData(config, public_folder, private_folder, public_url,
+    private_url, feed_url):
+  feed_output = os.path.join(public_folder, 'feed')
   # search for all status files
-  file_list = filter(os.path.isfile,
-      glob.glob("%s/*.status.json" % status_folder)
-    )
-  if os.path.exists(instance_file):
-    config = ConfigParser.ConfigParser()
-    config.read(instance_file)
-  else:
-    raise Exception("Cannot read instance configuration at %s" % instance_file)
+  file_list = filter(
+    os.path.isfile,
+    glob.glob("%s/promise/*.status.json" % public_folder)
+  )
 
-  report_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-  monitor_feed = monitorFeed(
-    config.get('instance', 'name'),
-    config.get('instance', 'root-name'),
+  promises_status_file = os.path.join(private_folder, '_promise_status')
+  previous_state_dict = {}
+  new_state_dict = {}
+  error = success = 0
+  monitor_feed = MonitorFeed(
+    config.get('monitor', 'title'),
+    config.get('monitor', 'root-title'),
     public_url,
     private_url,
     feed_url)
+
+  if os.path.exists(promises_status_file):
+    with open(promises_status_file) as f:
+      try:
+        previous_state_dict = json.loads(f.read())
+      except ValueError:
+        pass
+
   for file in file_list:
     try:
       with open(file, 'r') as temp_file:
         tmp_json = json.loads(temp_file.read())
-    except ValueError:
-      # bad json file ?
-      continue
-    if tmp_json['status'] == 'ERROR':
-      error  += 1
-    elif tmp_json['status'] == 'OK':
-      success += 1
-    monitor_feed.appendItem(tmp_json)
 
+      if tmp_json['result']['failed']:
+        promise_status = "ERROR"
+        error += 1
+      else:
+        promise_status = "OK"
+        success += 1
+      tmp_json['result']['change-date'] = tmp_json['result']['date']
+      if previous_state_dict.has_key(tmp_json['name']):
+        status, change_date, _ = previous_state_dict[tmp_json['name']]
+        if promise_status == status:
+          tmp_json['result']['change-date'] = change_date
+
+      tmp_json['status'] = promise_status
+      message_hash = hashlib.md5(tmp_json['result'].get('message', '')).hexdigest()
+      new_state_dict[tmp_json['name']] = [
+        promise_status,
+        tmp_json['result']['change-date'],
+        message_hash
+      ]
+      monitor_feed.appendItem(tmp_json, message_hash)
+      savePromiseHistory(
+        tmp_json['title'],
+        tmp_json,
+        previous_state_dict.get(tmp_json['name']),
+        public_folder
+      )
+    except ValueError, e:
+      # bad json file
+      print "ERROR: Bad json file at: %s\n%s" % (file, str(e))
+      continue
+
+  with open(promises_status_file, "w") as f:
+    json.dump(new_state_dict, f)
+
+  monitor_feed.generateRSS(feed_output)
+  return error, success
+
+def savePromiseHistory(promise_name, state_dict, previous_state_list,
+    history_folder):
+  if not os.path.exists(history_folder) and os.path.isdir(history_folder):
+    self.logger.warning('Bad promise history folder, history is not saved...')
+    return
+
+  history_file = os.path.join(
+    history_folder,
+    '%s.history.json' % promise_name
+  )
+
+  # Remove useless informations
+  result = state_dict.pop('result')
+  state_dict.update(result)
+  state_dict.pop('path', '')
+  state_dict.pop('type', '')
+  if not os.path.exists(history_file) or not os.stat(history_file).st_size:
+    with open(history_file, 'w') as f:
+      data_dict = {
+        "date": time.time(),
+        "data": [state_dict]
+      }
+      json.dump(data_dict, f)
+  else:
+    if previous_state_list is not None:
+      _, change_date, checksum = previous_state_list
+      current_sum = hashlib.md5(state_dict.get('message', '')).hexdigest()
+      if state_dict['change-date'] == change_date and \
+          current_sum == checksum:
+        # Only save the changes and not the same info
+        return
+
+    state_dict.pop('title', '')
+    state_dict.pop('name', '')
+    with open (history_file, mode="r+") as f:
+      f.seek(0,2)
+      f.seek(f.tell() -2)
+      f.write('%s}' % ',{}]'.format(json.dumps(state_dict)))
+
+def run(monitor_conf_file):
+
+  config = ConfigParser.ConfigParser()
+  config.read(monitor_conf_file)
+
+  base_folder = config.get('monitor', 'private-folder')
+  status_folder = config.get('monitor', 'public-folder')
+  base_url = config.get('monitor', 'base-url')
+  related_monitor_list = config.get("monitor", "monitor-url-list").split()
+  statistic_folder = os.path.join(base_folder, 'documents')
+  # need webdav to update parameters
+  parameter_file = os.path.join(base_folder, 'config', '.jio_documents', 'config.json')
+
+  public_url = "%s/share/public/" % base_url
+  private_url = "%s/share/private/" % base_url
+  feed_url = "%s/public/feed" % base_url
+  status = 'OK'
+  global_state_file = os.path.join(base_folder, 'monitor.global.json')
+  public_state_file = os.path.join(status_folder, 'monitor.global.json')
+  report_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+
+  error, success = generateMonitoringData(config, status_folder, base_folder,
+                                          public_url, private_url, feed_url)
   if error:
     status = 'ERROR'
 
-  monitor_feed.genrss(feed_output)
   global_state_dict = dict(
     status=status,
     state={
@@ -157,7 +237,8 @@ def run(args_list):
     date=report_date,
     _links={"rss_url": {"href": feed_url},
             "public_url": {"href": public_url},
-            "private_url": {"href": private_url}
+            "private_url": {"href": private_url},
+            "related_monitor": []
           },
     data={'state': 'monitor_state.data',
           'process_state': 'monitor_process_resource.status',
@@ -165,24 +246,18 @@ def run(args_list):
           'memory_resource': 'monitor_resource_memory.data',
           'io_resource': 'monitor_resource_io.data',
           'monitor_process_state': 'monitor_resource.status'},
-    _embedded={},
+    title=config.get('monitor', 'title'),
+    specialise_title=config.get('monitor', 'root-title'),
+    aggregate_reference=config.get('promises', 'computer-id'),
+    ipv4=config.get('promises', 'ipv4'),
+    ipv6=config.get('promises', 'ipv6'),
+    software_release=config.get('promises', 'software-release'),
+    software_type=config.get('promises', 'software-type'),
+    partition_id=config.get('promises', 'partition-id'),
   )
 
-  instance_dict = {}
-  global_state_dict['title'] = config.get('instance', 'name')
-  global_state_dict['specialise_title'] = config.get('instance', 'root-name')
-  global_state_dict['aggregate_reference'] = config.get('instance', 'computer')
   if not global_state_dict['title']:
     global_state_dict['title'] = 'Instance Monitoring'
-
-  instance_dict['computer'] = config.get('instance', 'computer')
-  instance_dict['ipv4'] = config.get('instance', 'ipv4')
-  instance_dict['ipv6'] = config.get('instance', 'ipv6')
-  instance_dict['software-release'] = config.get('instance', 'software-release')
-  instance_dict['software-type'] = config.get('instance', 'software-type')
-  instance_dict['partition'] = config.get('instance', 'partition')
-
-  global_state_dict['_embedded'].update({'instance' : instance_dict})
 
   if related_monitor_list:
     global_state_dict['_links']['related_monitor'] = [{'href': "%s/share/public" % url}
@@ -197,9 +272,9 @@ def run(args_list):
     status=status,
     date=report_date,
     _links={'monitor': {'href': '%s/share/private/' % base_url}},
-    title=global_state_dict.get('title', '')
+    title=global_state_dict.get('title', ''),
+    specialise_title=global_state_dict.get('specialise_title', ''),
   )
-  public_state_dict['specialise_title'] = global_state_dict.get('specialise_title', '')
   public_state_dict['_links']['related_monitor'] = global_state_dict['_links'].get('related_monitor', [])
 
   with open(global_state_file, 'w') as fglobal:
@@ -208,31 +283,20 @@ def run(args_list):
   with open(public_state_file, 'w') as fpglobal:
     fpglobal.write(json.dumps(public_state_dict))
 
-  # Save document list in a file called _document_list
-  public_document_list = [os.path.splitext(file)[0]
-                for file in os.listdir(status_folder) if file.endswith('.json')]
-  private_document_list = [os.path.splitext(file)[0]
-                  for file in os.listdir(base_folder) if file.endswith('.json')]
-  data_document_list = [os.path.splitext(file)[0]
-              for file in os.listdir(statistic_folder) if file.endswith('.json')]
-
-  with open(os.path.join(status_folder, '_document_list'), 'w') as lfile:
-    lfile.write('\n'.join(public_document_list))
-
-  with open(os.path.join(base_folder, '_document_list'), 'w') as lfile:
-    lfile.write('\n'.join(private_document_list))
-
-  with open(os.path.join(statistic_folder, '_document_list'), 'w') as lfile:
-    lfile.write('\n'.join(data_document_list))
+  # write list of files
+  writeDocumentList(status_folder)
+  writeDocumentList(base_folder)
+  writeDocumentList(statistic_folder)
 
   generateStatisticsData(
     os.path.join(statistic_folder, 'monitor_state.data.json'),
-    global_state_dict)
+    global_state_dict
+  )
 
   return 0
 
 def main():
-  if len(sys.argv) < 3:
-    print("Usage: %s <monitor_conf_path> <instance_conf_path>" % sys.argv[0])
+  if len(sys.argv) < 2:
+    print("Usage: %s <monitor_conf_path>" % sys.argv[0])
     sys.exit(2)
-  sys.exit(run(sys.argv[1:]))
+  sys.exit(run(sys.argv[1]))

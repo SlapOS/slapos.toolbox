@@ -36,7 +36,7 @@ def parseArguments():
   Parse arguments for monitor instance.
   """
   parser = argparse.ArgumentParser()
-  parser.add_argument('--config_file',
+  parser.add_argument('-c', '--config-file', required=True,
                       default='monitor.cfg',
                       help='Monitor Configuration file')
 
@@ -67,6 +67,7 @@ def createSymlink(source, destination):
 class Monitoring(object):
 
   def __init__(self, configuration_file):
+    self._config_file = configuration_file
     config = self.loadConfig([configuration_file])
 
     # Set Monitor variables
@@ -74,19 +75,11 @@ class Monitoring(object):
     self.root_title = config.get("monitor", "root-title")
     self.service_pid_folder = config.get("monitor", "service-pid-folder")
     self.crond_folder = config.get("monitor", "crond-folder")
-    self.logrotate_d = config.get("monitor", "logrotate-folder")
-    self.promise_runner = config.get("monitor", "promise-runner")
-    self.promise_folder = config.get("monitor", "promise-folder")
     self.public_folder = config.get("monitor", "public-folder")
     self.private_folder = config.get("monitor", "private-folder")
-    self.collector_db  = config.get("monitor", "collector-db")
-    self.collect_script = config.get("monitor", "collect-script")
-    self.statistic_script = config.get("monitor", "statistic-script")
     self.webdav_folder = config.get("monitor", "webdav-folder")
-    self.report_script_folder = config.get("monitor", "report-folder")
     self.webdav_url = '%s/share' % config.get("monitor", "base-url")
     self.public_url = '%s/public' % config.get("monitor", "base-url")
-    self.python = config.get("monitor", "python") or "python"
     self.public_path_list = config.get("monitor", "public-path-list").split()
     self.private_path_list = config.get("monitor", "private-path-list").split()
     self.monitor_url_list = config.get("monitor", "monitor-url-list").split()
@@ -94,25 +87,14 @@ class Monitoring(object):
     # Use this file to write knowledge0_cfg required by webrunner
     self.parameter_cfg_file = config.get("monitor", "parameter-file-path").strip()
     self.pid_file = config.get("monitor", "pid-file")
-    self.monitor_promise_folder = softConfigGet(config, "monitor",
-                                                "monitor-promise-folder")
-    self.promise_timeout_file = softConfigGet(config, "monitor",
-                                                "promises-timeout-file")
-    self.nice_command = softConfigGet(config, "monitor",
-                                                "nice-cmd")
+    self.promise_output_file = config.get("monitor", "promise-output-file")
+    self.promise_folder = config.get("promises", 'promise-folder')
+    self.legacy_promise_folder = config.get("promises", 'legacy-promise-folder')
+    self.promise_output = config.get("promises", 'output-folder')
 
     self.config_folder = os.path.join(self.private_folder, 'config')
-    self.report_folder = self.private_folder
-    self.data_folder = os.path.join(self.private_folder, 'documents')
-    self.log_folder = os.path.join(self.private_folder, 'monitor-log')
-
-    self.promise_output_file = config.get("monitor", "promise-output-file")
+    self.data_folder = config.get("monitor", "document-folder")
     self.bootstrap_is_ok = True
-    self.randomsleep = config.get("monitor", "randomsleep")
-
-    if self.nice_command:
-      # run monitor promises script with low priority
-      self.promise_runner = '%s %s' % (self.nice_command, self.promise_runner)
 
   def loadConfig(self, pathes, config=None):
     if config is None:
@@ -224,7 +206,7 @@ class Monitoring(object):
     success = False
     monitor_title = 'Unknown Instance'
     try:
-      # Timeout after 20 seconds to not stall on download
+      # Timeout after 20 seconds
       timeout = 20
       # XXX - working here with public url
       if hasattr(ssl, '_create_unverified_context'):
@@ -247,28 +229,6 @@ class Monitoring(object):
     self.bootstrap_is_ok = success
     return monitor_title
 
-  def getReportInfoFromFilename(self, filename):
-    splited_filename = filename.split('_every_')
-    possible_time_list = ['hour', 'minute']
-    if len(splited_filename) == 1:
-      return (filename, "* * * * *")
-
-    run_time = splited_filename[1].split('_')
-    report_name = splited_filename[0]
-    if len(run_time) != 2 or not run_time[1] in possible_time_list:
-      return (report_name, "* * * * *")
-
-    try:
-      value = int(run_time[0])
-    except ValueError:
-      print "Warning: Bad report filename: %s" % filename
-      return (report_name, "* * * * *")
-
-    if run_time[1] == 'hour':
-      return (report_name, "11 */%s * * *" % value)
-    if run_time[1] == 'minute':
-      return (report_name, "*/%s * * * *" % value)
-
   def configureFolders(self):
     # create symlinks from monitor.conf
     self.createSymlinksFromConfig(self.public_folder, self.public_path_list)
@@ -278,18 +238,7 @@ class Monitoring(object):
     self.createSymlinksFromConfig(self.webdav_folder, [self.private_folder])
 
     config_jio_folder = os.path.join(self.config_folder, '.jio_documents')
-
-    mkdirAll(self.data_folder)
     mkdirAll(config_jio_folder)
-
-    # Cleanup private folder, remove files that should not be synced from private root dir
-    cleanup_file_list = glob.glob("%s/*.history.json" % self.private_folder)
-    cleanup_file_list.extend(glob.glob("%s/*.report.json" % self.private_folder))
-    for file in cleanup_file_list:
-      try:
-        os.unlink(file)
-      except OSError:
-        print "failed to remove file %s. Ignoring..." % file
 
   def makeConfigurationFiles(self):
     config_folder = os.path.join(self.config_folder, '.jio_documents')
@@ -353,113 +302,43 @@ class Monitoring(object):
     with open(output_file, 'w') as wfile:
       wfile.write(opml_content)
 
-  def generateLogrotateEntry(self, name, file_list, option_list):
-    """
-      Will add a new entry in logrotate.d folder. This can help to rotate data file daily
-    """
-    content = "%(logfiles)s {\n%(options)s\n}\n" % {
-                'logfiles': ' '.join(file_list),
-                'options': '\n'.join(option_list)
-              }
-    file_path = os.path.join(self.logrotate_d, name)
-    with open(file_path, 'w') as flog:
-      flog.write(content)
+  def cleanupMonitorDeprecated(self):
+    # Monitor report feature is removed
+    cleanup_file_list = glob.glob("%s/*.history.json" % self.private_folder)
+    cleanup_file_list.extend(glob.glob("%s/*.report.json" % self.private_folder))
+    cleanup_file_list.extend(glob.glob("%s/*.report.json" % self.data_folder))
+    cleanup_file_list.extend(glob.glob("%s/*.history.json" % self.data_folder))
+    cleanup_file_list.extend(glob.glob("%s/*.status.json" % self.public_folder))
+    cleanup_file_list.append(self.crond_folder + "/monitor-reports")
+    cleanup_file_list.append(self.crond_folder + "/monitor-promises")
 
-  def generateReportCronEntries(self):
-    cron_line_list = []
+    for file in cleanup_file_list:
+      try:
+        if os.path.exists(file):
+          os.unlink(file)
+      except OSError, e:
+        print "failed to remove file %s." % file, str(e)
 
-    report_name_list = [name.replace('.report.json', '')
-      for name in os.listdir(self.report_folder) if name.endswith('.report.json')]
-
-    for filename in os.listdir(self.report_script_folder):
-      report_script = os.path.join(self.report_script_folder, filename)
-      if os.path.isfile(report_script) and os.access(report_script, os.X_OK):
-        report_name, frequency = self.getReportInfoFromFilename(filename)
-        report_json_name = "%s.report.json" % report_name
-
-        report_cmd_line = [
-          frequency,
-          self.promise_runner,
-          '--pid_path "%s"' % os.path.join(self.service_pid_folder,
-            "%s.pid" % filename),
-          '--output "%s"' % os.path.join(self.data_folder, report_json_name),
-          '--promise_script "%s"' % report_script,
-          '--promise_name "%s"' % report_name,
-          '--monitor_url "%s/private/"' % self.webdav_url, # XXX hardcoded,
-          '--history_folder "%s"' % self.data_folder,
-          '--instance_name "%s"' % self.title,
-          '--hosting_name "%s"' % self.root_title,
-          '--promise_type "report"',
-          '--log_file "%s.report.log"' % os.path.join(self.log_folder, report_name)]
-
-        cron_line_list.append(' '.join(report_cmd_line))
-
-      if report_name in report_name_list:
-        report_name_list.pop(report_name_list.index(report_name))
-
-    # cleanup removed report json result
-    if report_name_list != []:
-      for report_name in report_name_list:
-        result_path = os.path.join(self.report_folder, '%s.report.json' % report_name)
-        if os.path.exists(result_path):
-          try:
-            os.unlink(result_path)
-          except OSError, e:
-            print "Error: Failed to delete %s" % result_path, str(e)
-            pass
-
-    with open(self.crond_folder + "/monitor-reports", "w") as freport:
-      freport.write("\n".join(cron_line_list))
-
-  def generateServiceCronEntries(self):
-    # XXX only if at least one configuration file is modified, then write in the cron
-
-    service_name_list = [name.replace('.status.json', '')
-      for name in os.listdir(self.public_folder) if name.endswith('.status.json')]
-
-    promise_cmd_line = [
-      "* * * * *",
-      self.randomsleep + " 60 &&", # Sleep between 1 to 60 seconds
-      self.promise_runner,
-      '--pid_path "%s"' % os.path.join(self.service_pid_folder,
-        "monitor-promises.pid"),
-      '--output "%s"' % self.public_folder,
-      '--promise_folder "%s"' % self.promise_folder,
-      '--timeout_file "%s"' % self.promise_timeout_file,
-      '--monitor_promise_folder "%s"' % self.monitor_promise_folder,
-      '--monitor_url "%s/private/"' % self.webdav_url, # XXX hardcoded,
-      '--history_folder "%s"' % self.public_folder,
-      '--instance_name "%s"' % self.title,
-      '--hosting_name "%s"' % self.root_title,
-      '--log_file "%s.log"' % os.path.join(self.log_folder,
-                                           self.title.replace(' ', '_'))]
-
-    registered_promise_list = os.listdir(self.promise_folder)
-    registered_promise_list.extend(os.listdir(self.monitor_promise_folder))
-    delete_promise_list = []
-    for service_name in service_name_list:
-      if not service_name in registered_promise_list:
-        delete_promise_list.append(service_name)
-
-    if delete_promise_list != []:
-      # XXX Some service was removed, delete his status file so monitor will not consider the status anymore
-      for service_name in delete_promise_list:
-        status_path = os.path.join(self.public_folder, '%s.status.json' % service_name)
+    # cleanup result of promises that was removed
+    promise_list = os.listdir(self.legacy_promise_folder)
+    for name in os.listdir(self.promise_folder):
+      if name.startswith('__init__'):
+        continue
+      promise_list.append(os.path.splitext(name)[0])
+    for name in os.listdir(self.promise_output):
+      if not name.endswith('.status.json'):
+        continue
+      try:
+        position = promise_list.index(name.replace('.status.json', ''))
+      except ValueError:
+        status_path = os.path.join(self.promise_output, name)
         if os.path.exists(status_path):
           try:
             os.unlink(status_path)
           except OSError, e:
             print "Error: Failed to delete %s" % status_path, str(e)
-            pass
-
-    with open(self.crond_folder + "/monitor-promises", "w") as fp:
-      fp.write(' '.join(promise_cmd_line))
-
-  def addCronEntry(self, name, frequency, command):
-    entry_line = '%s %s' % (frequency, command)
-    cron_entry_file = os.path.join(self.crond_folder, name)
-    with open(cron_entry_file, "w") as cronf:
-      cronf.write(entry_line)
+      else:
+        promise_list.pop(position)
 
   def bootstrapMonitor(self):
 
@@ -476,56 +355,11 @@ class Monitoring(object):
     self.generateOpmlFile(self.monitor_url_list,
       os.path.join(self.public_folder, 'feeds'))
 
-    # put promises to a cron file
-    self.generateServiceCronEntries()
-
-    # put report script to cron
-    self.generateReportCronEntries()
+    # cleanup deprecated entries
+    self.cleanupMonitorDeprecated()
 
     # Generate parameters files and scripts
     self.makeConfigurationFiles()
-
-    # Rotate monitor data files
-    option_list = [
-      'daily', 'nocreate', 'olddir %s' % self.data_folder, 'rotate 5',
-      'nocompress', 'missingok', 'extension .json', 'dateext',
-      'dateformat -%Y-%m-%d', 'notifempty'
-    ]
-    file_list = [
-      "%s/*.data.json" % self.private_folder,
-      "%s/*.data.json" % self.data_folder]
-    self.generateLogrotateEntry('monitor.data', file_list, option_list)
-
-    # Rotate public history status file, delete data of previous days
-    option_list = [
-      'daily', 'nocreate', 'rotate 0',
-      'nocompress', 'notifempty', 'prerotate',
-      '   %s --history_folder %s' % (self.statistic_script, self.public_folder), 
-      'endscript'
-    ]
-    file_list = ["%s/*.history.json" % self.public_folder]
-    self.generateLogrotateEntry('monitor.service.status', file_list, option_list)
-
-    # Rotate monitor log files
-    option_list = [
-      'daily', 'dateext', 'create', 'rotate 180',
-      'compress', 'delaycompress', 'notifempty',
-      'missingok'
-    ]
-    file_list = ["%s/*.log" % self.log_folder]
-    self.generateLogrotateEntry('monitor.promise.log', file_list, option_list)
-
-    # Add cron entry for SlapOS Collect
-    command = self.randomsleep + " 60 && " # Random sleep between 1 to 60 seconds
-    if self.nice_command:
-      # run monitor collect with low priority
-      command += '%s ' % self.nice_command
-    command += "%s --output_folder %s --collector_db %s --pid_file %s" % (
-        self.collect_script,
-        self.data_folder,
-        self.collector_db,
-        os.path.join(self.service_pid_folder, "monitor-collect.pid"))
-    self.addCronEntry('monitor_collect', '* * * * *', command)
 
     # Write an empty file when monitor bootstrap went until the end
     if self.bootstrap_is_ok:

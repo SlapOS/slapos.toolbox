@@ -12,15 +12,18 @@ class MonitorBootstrapTest(unittest.TestCase):
 
   def setUp(self):
     self.base_dir = tempfile.mkdtemp()
+    os.mkdir(os.path.join(self.base_dir, 'plugin'))
     os.mkdir(os.path.join(self.base_dir, 'promise'))
-    os.mkdir(os.path.join(self.base_dir, 'monitor-promise'))
     os.mkdir(os.path.join(self.base_dir, 'public'))
     os.mkdir(os.path.join(self.base_dir, 'private'))
     os.mkdir(os.path.join(self.base_dir, 'cron.d'))
+    os.mkdir(os.path.join(self.base_dir, 'log'))
+    os.mkdir(os.path.join(self.base_dir, 'log-backup'))
     os.mkdir(os.path.join(self.base_dir, 'logrotate.d'))
     os.mkdir(os.path.join(self.base_dir, 'monitor-report'))
     os.mkdir(os.path.join(self.base_dir, 'webdav'))
     os.mkdir(os.path.join(self.base_dir, 'run'))
+    os.mkdir(os.path.join(self.base_dir, 'private/documents'))
     self.writeContent(os.path.join(self.base_dir, 'param'), '12345')
     self.writeContent(os.path.join(self.base_dir, '.monitor_pwd'), 'bcuandjy')
     self.writeContent(os.path.join(self.base_dir, 'test-httpd-cors.cfg'), '')
@@ -28,13 +31,12 @@ class MonitorBootstrapTest(unittest.TestCase):
     self.monitor_config_file = os.path.join(self.base_dir, 'monitor.conf')
 
     self.monitor_config_dict = dict(
+      monitor_conf=self.monitor_config_file,
       base_dir=self.base_dir,
       root_title="Monitor ROOT",
       title="Monitor",
       url_list="",
       base_url="https://monitor.test.com",
-      monitor_promise_folder=os.path.join(self.base_dir, 'monitor-promise'),
-      promise_folder=os.path.join(self.base_dir, 'promise'),
       promise_runner_pid=os.path.join(self.base_dir, 'run', 'monitor-promises.pid'),
       public_folder=os.path.join(self.base_dir, 'public'),
       public_path_list="",
@@ -45,18 +47,18 @@ class MonitorBootstrapTest(unittest.TestCase):
     )
     self.monitor_conf = """[monitor]
 parameter-file-path = %(base_dir)s/knowledge0.cfg
-promise-folder = %(base_dir)s/promise
 service-pid-folder = %(base_dir)s/run
-monitor-promise-folder = %(base_dir)s/monitor-promise
 private-folder = %(base_dir)s/private
 public-folder = %(base_dir)s/public
 public-path-list = %(public_path_list)s
 private-path-list = %(private_path_list)s
 crond-folder = %(base_dir)s/cron.d
 logrotate-folder = %(base_dir)s/logrotate.d
-report-folder = %(base_dir)s/monitor-report
 root-title = %(root_title)s
 pid-file =  %(base_dir)s/monitor.pid
+log-folder = %(base_dir)s/log
+log-backup-folder = %(base_dir)s/log-backup
+document-folder = %(base_dir)s/private/documents
 parameter-list = 
   raw monitor-user admin
   file sample %(base_dir)s/param
@@ -75,6 +77,12 @@ service-pid-folder = %(base_dir)s/run
 promise-output-file = %(base_dir)s/monitor-bootstrap-status
 promise-runner = %(promise_run_script)s
 randomsleep = /bin/echo sleep
+
+[promises]
+output-folder = %(base_dir)s/public
+legacy-promise-folder = %(base_dir)s/promise
+promise-folder = %(base_dir)s/plugin
+partition-folder = %(base_dir)s
 """
 
     self.opml_outline = """<outline text="%(title)s" title="%(title)s" type="rss" version="RSS" htmlUrl="%(base_url)s/public/feed" xmlUrl="%(base_url)s/public/feed" url="%(base_url)s/share/private/" />"""
@@ -87,21 +95,18 @@ randomsleep = /bin/echo sleep
     with open(file_path, 'w') as cfg:
       cfg.write(config)
 
-  def configPromises(self, amount):
+  def configPromiseList(self, amount):
     promise_dir = os.path.join(self.base_dir, 'promise')
+    plugin_dir = os.path.join(self.base_dir, 'plugin')
     promse_content = "/bin/bash echo something"
     for index in range(1, amount+1):
       promise_file = os.path.join(promise_dir, 'monitor_promise-%s' % index)
       self.writeContent(promise_file, promse_content)
       os.chmod(promise_file, 0755)
-
-  def configReports(self, amount):
-    promise_dir = os.path.join(self.base_dir, 'monitor-report')
-    promse_content = "/bin/bash echo something"
     for index in range(1, amount+1):
-      promise_file = os.path.join(promise_dir, 'monitor_report-%s' % index)
+      promise_file = os.path.join(plugin_dir, 'monitor_promise-%s.py' % index)
       self.writeContent(promise_file, promse_content)
-      os.chmod(promise_file, 0755)
+      os.chmod(promise_file, 0644)
 
   def checkOPML(self, url_list):
     opml_title = "<title>%(root_title)s</title>" % self.monitor_config_dict
@@ -115,54 +120,6 @@ randomsleep = /bin/echo sleep
           title=self.monitor_config_dict['title'],
           base_url=url)
       self.assertTrue(opml_outline in opml_content)
-
-  def check_promises(self, sequential=False):
-    promise_cron = os.path.join(self.base_dir, 'cron.d', 'monitor-promises')
-    self.assertTrue(os.path.exists(promise_cron))
-    with open(promise_cron) as cronf:
-      promise_command_list = cronf.read()
-
-    if not sequential:
-      promise_entry = '* * * * * /bin/echo sleep 60 && %(promise_run_script)s --pid_path "%(promise_runner_pid)s" --output "%(public_folder)s" --promise_folder "%(promise_folder)s" --timeout_file "None" --monitor_promise_folder "%(monitor_promise_folder)s" --monitor_url "%(base_url)s/share/private/" --history_folder "%(base_dir)s/public" --instance_name "%(title)s" --hosting_name "%(root_title)s"'
-      entry_line = promise_entry % self.monitor_config_dict
-      self.assertTrue(entry_line in promise_command_list,
-            "%s not in %s" %(entry_line, promise_command_list))
-    else:
-      promise_entry = '* * * * * /bin/echo sleep 60 &&%(promise_run_script)s --pid_path "%(promise_pid)s" --output "%(promise_output)s" --promise_script "%(promise_executable)s" --promise_name "%(promise_name)s" --monitor_url "%(base_url)s/share/private/" --history_folder "%(base_dir)s/public" --instance_name "%(title)s" --hosting_name "%(root_title)s"'
-    
-      promise_dir = os.path.join(self.base_dir, 'promise')
-      for filename in os.listdir(promise_dir):
-        promise_dict = dict(
-          promise_pid=os.path.join(self.base_dir, 'run', '%s.pid' % filename),
-          promise_output=os.path.join(self.base_dir, 'public', '%s.status.json' % filename),
-          promise_executable=os.path.join(promise_dir, filename),
-          promise_name=filename
-        )
-        promise_dict.update(self.monitor_config_dict)
-        entry_line = promise_entry % promise_dict
-        self.assertTrue(entry_line in promise_command_list)
-
-  def check_report(self):
-    promise_entry = '* * * * * %(promise_run_script)s --pid_path "%(promise_pid)s" --output "%(promise_output)s" --promise_script "%(promise_executable)s" --promise_name "%(promise_name)s" --monitor_url "%(base_url)s/share/private/" --history_folder "%(data_dir)s" --instance_name "%(title)s" --hosting_name "%(root_title)s" --promise_type "report"'
-    promise_dir = os.path.join(self.base_dir, 'monitor-report')
-    data_dir = os.path.join(self.base_dir, 'private', 'documents')
-
-    promise_cron = os.path.join(self.base_dir, 'cron.d', 'monitor-reports')
-    self.assertTrue(os.path.exists(promise_cron))
-    with open(promise_cron) as cronf:
-      promise_command_list = cronf.read()
-
-    for filename in os.listdir(promise_dir):
-      promise_dict = dict(
-        promise_pid=os.path.join(self.base_dir, 'run', '%s.pid' % filename),
-        promise_output=os.path.join(data_dir, '%s.report.json' % filename),
-        promise_executable=os.path.join(promise_dir, filename),
-        promise_name=filename,
-        data_dir=data_dir
-      )
-      promise_dict.update(self.monitor_config_dict)
-      entry_line = promise_entry % promise_dict
-      self.assertTrue(entry_line in promise_command_list)
 
   def check_folder_equals(self, source, destination):
     self.assertTrue(os.path.isdir(source))
@@ -261,7 +218,7 @@ randomsleep = /bin/echo sleep
     self.assertTrue(os.path.exists(os.path.join(self.base_dir, 'private/documents')))
 
   def test_monitor_bootstrap_promises(self):
-    self.configPromises(3)
+    self.configPromiseList(3)
 
     config_content = self.monitor_conf % self.monitor_config_dict
     self.writeContent(self.monitor_config_file, config_content)
@@ -273,38 +230,12 @@ randomsleep = /bin/echo sleep
 
     self.checkOPML([self.monitor_config_dict['base_url']])
 
-    self.check_promises()
-
     # Check update promises_list
-    self.configPromises(5) # Add two promises
+    self.configPromiseList(5) # Add two promises
     os.unlink(os.path.join(self.base_dir, 'promise', 'monitor_promise-2')) # drop promise number 2
     instance2 = Monitoring(self.monitor_config_file)
     instance2.bootstrapMonitor()
     self.assertTrue(os.path.exists(promise_file))
-    self.check_promises()
-
-  def test_monitor_bootstrap_report(self):
-    self.configReports(3)
-
-    config_content = self.monitor_conf % self.monitor_config_dict
-    self.writeContent(self.monitor_config_file, config_content)
-
-    instance = Monitoring(self.monitor_config_file)
-    instance.bootstrapMonitor()
-    promise_file = os.path.join(self.base_dir, 'monitor-bootstrap-status')
-    self.assertTrue(os.path.exists(promise_file))
-
-    self.checkOPML([self.monitor_config_dict['base_url']])
-
-    self.check_report()
-
-    # Check update promises_list
-    self.configReports(5) # Add two promises
-    os.unlink(os.path.join(self.base_dir, 'monitor-report', 'monitor_report-1')) # drop promise number 2
-    instance2 = Monitoring(self.monitor_config_file)
-    instance2.bootstrapMonitor()
-    self.assertTrue(os.path.exists(promise_file))
-    self.check_report()
 
   def test_monitor_bootstrap_genconfig(self):
     config_content = self.monitor_conf % self.monitor_config_dict

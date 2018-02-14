@@ -52,6 +52,7 @@ setup(name=name,
         'PyRSS2Gen',
         'dnspython',
         'requests',
+        'jsonschema',
       ] + additional_install_requires,
       extras_require = {
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access

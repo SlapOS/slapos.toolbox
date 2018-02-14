@@ -5,50 +5,56 @@ import shutil
 import tempfile
 import unittest
 import json
+import pkg_resources
 
 from slapos.monitor import globalstate
-from slapos.monitor.runpromise import RunPromise, parseArguments
+from slapos.monitor.runpromise import MonitorPromiseLauncher, getArgumentParser
 from slapos.monitor.monitor import Monitoring
+from jsonschema import validate
 
 class MonitorGlobalTest(unittest.TestCase):
 
   def setUp(self):
     self.base_dir = tempfile.mkdtemp()
-    os.mkdir(os.path.join(self.base_dir, 'promise'))
-    os.mkdir(os.path.join(self.base_dir, 'monitor-promise'))
+    self.etc_dir = os.path.join(self.base_dir, 'etc')
+    self.output_dir = os.path.join(self.base_dir, '.slapgrid/promise/result')
+    os.mkdir(self.etc_dir)
+    os.mkdir(os.path.join(self.etc_dir, 'plugin'))
+    os.mkdir(os.path.join(self.etc_dir, 'promise'))
     os.mkdir(os.path.join(self.base_dir, 'public'))
     os.mkdir(os.path.join(self.base_dir, 'private'))
     os.mkdir(os.path.join(self.base_dir, 'cron.d'))
+    os.mkdir(os.path.join(self.base_dir, 'log'))
+    os.mkdir(os.path.join(self.base_dir, 'log-backup'))
     os.mkdir(os.path.join(self.base_dir, 'logrotate.d'))
     os.mkdir(os.path.join(self.base_dir, 'monitor-report'))
     os.mkdir(os.path.join(self.base_dir, 'webdav'))
     os.mkdir(os.path.join(self.base_dir, 'run'))
+    os.mkdir(os.path.join(self.base_dir, 'private/documents'))
     self.writeContent(os.path.join(self.base_dir, 'param'), '12345')
     self.writeContent(os.path.join(self.base_dir, '.monitor_pwd'), 'bcuandjy')
     self.writeContent(os.path.join(self.base_dir, 'test-httpd-cors.cfg'), '')
     self.writeContent(os.path.join(self.base_dir, 'monitor-htpasswd'), '12345')
-    self.writeContent(os.path.join(self.base_dir, 'instance.cfg'), """[instance]
-name = Monitor
-root-name = Monitor ROOT
-computer = COMP-1234
-ipv4 = 10.0.151.118
-ipv6 = 2001:34c:1254:df3:89::5df3
-software-release = http://some.url.com/software.cfg
-software-type = default
-partition = slappart10""")
 
     self.monitor_config_file = os.path.join(self.base_dir, 'monitor.conf')
     self.public_dir = os.path.join(self.base_dir, 'public')
     self.private_dir = os.path.join(self.base_dir, 'private')
 
+    monitor_schema_string = \
+      pkg_resources.resource_string(
+        'slapos.monitor',
+        'doc/monitor_instance.schema.json')
+    self.monitor_instance_schema = json.loads(monitor_schema_string)
+
+
     self.monitor_config_dict = dict(
+      monitor_conf=self.monitor_config_file,
       base_dir=self.base_dir,
       root_title="Monitor ROOT",
       title="Monitor",
-      url_list="",
+      url_list="https://sub.monitor.test.com https://sub2.monitor.test.com",
       base_url="https://monitor.test.com",
-      monitor_promise_folder=os.path.join(self.base_dir, 'monitor-promise'),
-      promise_folder=os.path.join(self.base_dir, 'promise'),
+      etc_dir=self.etc_dir,
       promise_runner_pid=os.path.join(self.base_dir, 'run', 'monitor-promises.pid'),
       public_folder=os.path.join(self.base_dir, 'public'),
       public_path_list="",
@@ -59,18 +65,18 @@ partition = slappart10""")
     )
     self.monitor_conf = """[monitor]
 parameter-file-path = %(base_dir)s/knowledge0.cfg
-promise-folder = %(base_dir)s/promise
 service-pid-folder = %(base_dir)s/run
-monitor-promise-folder = %(base_dir)s/monitor-promise
 private-folder = %(base_dir)s/private
 public-folder = %(base_dir)s/public
 public-path-list = %(public_path_list)s
 private-path-list = %(private_path_list)s
 crond-folder = %(base_dir)s/cron.d
 logrotate-folder = %(base_dir)s/logrotate.d
-report-folder = %(base_dir)s/monitor-report
 root-title = %(root_title)s
 pid-file =  %(base_dir)s/monitor.pid
+log-folder = %(base_dir)s/log
+log-backup-folder = %(base_dir)s/log-backup
+document-folder = %(base_dir)s/private/documents
 parameter-list = 
   raw monitor-user admin
   file sample %(base_dir)s/param
@@ -89,6 +95,21 @@ service-pid-folder = %(base_dir)s/run
 promise-output-file = %(base_dir)s/monitor-bootstrap-status
 promise-runner = %(promise_run_script)s
 randomsleep = /bin/echo sleep
+
+[promises]
+output-folder = %(base_dir)s/public
+legacy-promise-folder = %(etc_dir)s/promise
+promise-folder = %(etc_dir)s/plugin
+partition-folder = %(base_dir)s
+computer-id = COMP-1234
+partition-cert = 
+partition-key = 
+partition-id = slappart0
+ipv6 = 2001:34c:1254:df3:89::5df3
+software-release = http://some.url.com/software.cfg
+master-url = http://10.0.151.118:50000
+software-type = default
+ipv4 = 10.0.151.118
 """
 
   def tearDown(self):
@@ -109,7 +130,7 @@ randomsleep = /bin/echo sleep
 echo "%(output)s"
 exit %(code)s
 """ % result_dict
-    promise_path = os.path.join(self.base_dir, 'promise', name)
+    promise_path = os.path.join(self.etc_dir, 'promise', name)
     self.writeContent(promise_path, content)
     os.chmod(promise_path, 0755)
     return promise_path
@@ -118,18 +139,13 @@ exit %(code)s
     pid_path = os.path.join(self.base_dir, 'run', 'monitor-promise.pid')
 
     promise_cmd = [
-      '--pid_path',
-      '%s' % pid_path, '--output', os.path.join(self.base_dir, 'public'),
-      '--promise_folder', os.path.join(self.base_dir, 'promise'),
-      '--monitor_promise_folder', os.path.join(self.base_dir, 'monitor-promise'),
-      '--promise_type', 'status',
-      '--monitor_url', 'https://monitor.test.com/share/private/',
-      '--history_folder', os.path.join(self.base_dir, 'public'),
-      '--instance_name', 'Monitor', '--hosting_name', 'Monitor ROOT']
-    arg_parser = parseArguments()
+      '--pid-path',
+      '%s' % pid_path, '-c', self.monitor_config_file]
+    arg_parser = getArgumentParser()
     return arg_parser.parse_args(promise_cmd)
 
   def test_monitor_instance_state(self):
+    self.maxDiff = None
     config_content = self.monitor_conf % self.monitor_config_dict
     self.writeContent(self.monitor_config_file, config_content)
 
@@ -141,31 +157,27 @@ exit %(code)s
     self.writePromise('promise_3', success=False)
     self.writePromise('promise_4')
     parser = self.getPromiseParser()
-    promise_runner = RunPromise(parser)
-    promise_runner.runPromise()
+    promise_runner = MonitorPromiseLauncher(parser)
+    promise_runner.start()
 
-    self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'promise_1.status.json')))
-    self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'promise_2.status.json')))
-    self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'promise_3.status.json')))
-    self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'promise_4.status.json')))
+    self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_1.status.json')))
+    self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_2.status.json')))
+    self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_3.status.json')))
+    self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_4.status.json')))
 
+    os.symlink(self.output_dir, '%s/public/promise' % self.base_dir)
     # generate instance state files
-    globalstate.run([self.monitor_config_file, os.path.join(self.base_dir, 'instance.cfg')])
+    globalstate.run(self.monitor_config_file)
     self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'feed')))
     self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'monitor.global.json')))
     self.assertTrue(os.path.exists(os.path.join(self.private_dir, 'monitor.global.json')))
     expected_result = """{
 	"status": "ERROR",
-	"_embedded": {
-		"instance": {
-			"partition": "slappart10",
-			"ipv6": "2001:34c:1254:df3:89::5df3",
-			"computer": "COMP-1234",
-			"ipv4": "10.0.151.118",
-			"software-release": "http://some.url.com/software.cfg",
-			"software-type": "default"
-		}
-	},
+	"partition_id": "slappart0",
+	"ipv6": "2001:34c:1254:df3:89::5df3",
+	"ipv4": "10.0.151.118",
+	"software_release": "http://some.url.com/software.cfg",
+	"software_type": "default",
 	"parameters": [{
 		"key": "",
 		"value": "admin",
@@ -206,7 +218,11 @@ exit %(code)s
 		},
 		"private_url": {
 			"href": "https://monitor.test.com/share/private/"
-		}
+		},
+		"related_monitor": [
+		  {"href": "https://sub.monitor.test.com/share/public"},
+      {"href": "https://sub2.monitor.test.com/share/public"}
+    ]
 	},
 	"aggregate_reference": "COMP-1234",
 	"type": "global",
@@ -222,15 +238,22 @@ exit %(code)s
     # all promises are OK now
     self.writePromise('promise_2', success=True)
     self.writePromise('promise_3', success=True)
-    promise_runner.runPromise()
-    globalstate.run([self.monitor_config_file, os.path.join(self.base_dir, 'instance.cfg')])
+    # rerun right now
+    promise_runner.config.force = True
+    promise_runner.start()
+    globalstate.run(self.monitor_config_file)
 
     expected_result_dict = json.loads(expected_result)
     expected_result_dict["status"] = "OK"
     expected_result_dict["state"] = {'error': 0, 'success': 4}
+    instance_result_dict = None
     with open(os.path.join(self.private_dir, 'monitor.global.json')) as r:
-      result = json.loads(r.read().decode("utf-8"))
+      instance_result_dict = json.loads(r.read().decode("utf-8"))
+      result = instance_result_dict.copy()
       result.pop("date")
       self.assertEquals(result,
         expected_result_dict)
+
+    # validate returned json result
+    validate(instance_result_dict, self.monitor_instance_schema)
 
