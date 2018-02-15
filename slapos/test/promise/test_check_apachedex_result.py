@@ -82,8 +82,8 @@ class TestCheckApacheDigestResult(unittest.TestCase):
     self._create_file(self.today, True)
 
   def test_threshold_is_lower(self):
-    status, message = checkApachedexResult(self.base_dir, self.status_file, 90)
-    self.assertEquals("Threshold is lower than expected:  Expected was 90 and current result is 80", message)
+    status, message = checkApachedexResult(self.base_dir, self.status_file, threshold)
+    self.assertEquals("Threshold is lower than expected:  Expected was 90.0 and current result is 80", message)
     self.assertEquals(1, status)
 
   def test_no_today_file_but_yesterday_file(self):
