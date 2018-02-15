@@ -38,7 +38,7 @@ def checkApachedexResult(apachedex_path, apachedex_report_status_file, desired_t
             if apx_result > desired_threshold:
               return 0,  "Thanks for keeping it all clean, result is %s" % apx_result
             else:
-              return 1, "Threshold is lower than expected:  Expected was %f and current result is %s" % (desired_threshold, apx_result)
+              return 1, "Threshold is lower than expected:  Expected was %s and current result is %s" % (desired_threshold, apx_result)
         message = "No result found in the apdex file or the file is corrupted"
         break
 
