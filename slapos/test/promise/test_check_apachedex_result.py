@@ -35,6 +35,11 @@ import shutil
 from slapos.test.promise import data
 from slapos.promise.check_apachedex_result import checkApachedexResult
 
+apdex_not_found_message = "No result found in the apdex file or the file is corrupted"
+low_score_message_formater = "Score too low: {}% - Threshold: {}%"
+ok_message_formater = "OK - Score: {}%"
+skip_message = "Instance has been just deployed. Skipping check.."
+
 class TestCheckApacheDigestResult(unittest.TestCase):
 
   def _create_file(self, date, with_content):
@@ -71,26 +76,27 @@ class TestCheckApacheDigestResult(unittest.TestCase):
 
   def test_threshold_is_greater(self):
     status, message = checkApachedexResult(self.base_dir, self.status_file, 60)
-    self.assertEquals("Thanks for keeping it all clean, result is 80", message)
+    self.assertEquals(ok_message_formater.format(80), message)
     self.assertEquals(0, status)
 
   def test_no_today_file_and_empty_yesterday_file(self):
     self._remove_file(self.today)
     status, message = checkApachedexResult(self.base_dir, self.status_file, 60)
-    self.assertEquals("No result found in the apdex file or the file is corrupted", message)
+    self.assertEquals(apdex_not_found_message, message)
     self.assertEquals(1, status)
     self._create_file(self.today, True)
 
   def test_threshold_is_lower(self):
+    threshold = 90.0
     status, message = checkApachedexResult(self.base_dir, self.status_file, threshold)
-    self.assertEquals("Threshold is lower than expected:  Expected was 90.0 and current result is 80", message)
+    self.assertEquals(low_score_message_formater.format(80, threshold), message)
     self.assertEquals(1, status)
 
   def test_no_today_file_but_yesterday_file(self):
     self._remove_file(self.today)
     self._create_file(self.yesterday, True)
     status, message = checkApachedexResult(self.base_dir, self.status_file, 60)
-    self.assertEquals("Thanks for keeping it all clean, result is 80", message)
+    self.assertEquals(ok_message_formater.format(80), message)
     self.assertEquals(0, status)
     self._create_file(self.today, True)
     self._remove_file(self.yesterday)
