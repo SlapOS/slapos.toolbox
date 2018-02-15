@@ -112,7 +112,7 @@ def main():
   
   free_space = round(free_space/(1024.0*1024*1024), 2)
   min_space = round(min_free_size/(1024.0*1024*1024), 2)
-  print 'Free disk space low: remaning %s G (threshold: %s G)' % (
+  print 'Free disk space low: remaining %s G (threshold: %s G)' % (
     free_space, min_space)
   print 'Please modify minimum value in your monitor interface.'
   exit(1)
