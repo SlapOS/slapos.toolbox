@@ -16,7 +16,7 @@ from slapos.collect.db import Database
 
 def getMemoryInfo(database, time, date):
 
-  mem = {}
+  memory_info = {}
   database = Database(database)
   try:
     database.connect()
@@ -24,7 +24,7 @@ def getMemoryInfo(database, time, date):
     result = zip(*query_result)
     if not result or not result[0][0]:
       return (None, "couldn't fetch total memory, collectordb is empty?")
-    mem['total'] = result[0][0]
+    memory_info['total'] = result[0][0]
 
     # fetch free and used memory 
     where_query = "time between '%s:00' and '%s:30' " % (time, time)
@@ -32,14 +32,14 @@ def getMemoryInfo(database, time, date):
     result = zip(*query_result)
     if not result or not result[0][0]: 
       return (None, "couldn't fetch free memory")
-    mem['free'] = result[0][0]
+    memory_info['free'] = result[0][0]
     if not result or not result[1][0]: 
       return (None, "couldn't fetch used memory")
-    mem['used'] = result[1][0]
+    memory_info['used'] = result[1][0]
   finally:
     database.close()
 
-  return (mem, "")
+  return (memory_info, "")
 
 def main():
   parser = argparse.ArgumentParser()
