@@ -63,7 +63,7 @@ def main():
 
   if memory is 0:
     return 0
-  if memory['free'] > threshold:
+  if memory['used'] <= threshold:
     print "OK - memory used: {:d}% ({}B of {}B)".format(memory["used"] * 100 / memory["total"], memory["used"], memory["total"])
     return 0
   print "Low memory - usage: {:d}% ({}B of {}B)".format(memory["used"] * 100 / memory["total"], memory["used"], memory["total"])
