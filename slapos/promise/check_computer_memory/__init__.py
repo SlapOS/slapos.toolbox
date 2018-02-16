@@ -24,7 +24,7 @@ def getMemoryInfo(database, time, date):
     result = zip(*query_result)
     if not result or not result[0][0]:
       return (None, "couldn't fetch total memory, collectordb is empty?")
-    memory_info['total'] = result[0][0]
+    memory_info['total'] = int(result[0][0])  # in byte
 
     # fetch free and used memory 
     where_query = "time between '%s:00' and '%s:30' " % (time, time)
@@ -32,18 +32,50 @@ def getMemoryInfo(database, time, date):
     result = zip(*query_result)
     if not result or not result[0][0]: 
       return (None, "couldn't fetch free memory")
-    memory_info['free'] = result[0][0]
+    memory_info['free'] = int(result[0][0])  # in byte
     if not result or not result[1][0]: 
       return (None, "couldn't fetch used memory")
-    memory_info['used'] = result[1][0]
+    memory_info['used'] = int(result[1][0])  # in byte
   finally:
     database.close()
 
+  memory_info["used_percent"] = memory_info["used"] * 100.0 / memory_info["total"]
+  memory_info["free_percent"] = memory_info["free"] * 100.0 / memory_info["total"]
   return (memory_info, "")
+
+def checkMemoryUsage(database_path, time, date, threshold, key="used", unit="byte"):
+  if key not in ("used", "free"):
+    raise ValueError("invalid key")
+  if unit not in ("byte", "percent"):
+    raise ValueError("invalid unit")
+  memory_info, error = getMemoryInfo(database_path, time, date)
+  if error:
+    return (False, "error", error)
+  if unit == "byte":
+    if key == "used":
+      if memory_info["used"] <= threshold:
+        return (True, "OK - memory used: {used}B of {total}B ({used_percent:.1f}%)".format(**memory_info), "")
+      return (False, "Low available memory - usage: {used}B of {total}B ({used_percent:.1f}%)".format(**memory_info), "")
+    else:  # if key == "free":
+      if memory_info["free"] > threshold:
+        return (True, "OK - free memory: {free}B of {total}B ({free_percent:.1f}%)".format(**memory_info), "")
+      return (False, "Low available memory - free: {free}B of {total}B ({free_percent:.1f}%)".format(**memory_info), "")
+  else:  # if unit == "percent":
+    if key == "used":
+      if memory_info["used_percent"] <= threshold:
+        return (True, "OK - memory used: {used_percent:.1f}% ({used}B of {total}B)".format(**memory_info), "")
+      return (False, "Low available memory - usage: {used_percent:.1f}% ({used}B of {total}B)".format(**memory_info), "")
+    else:  # if key == "free":
+      if memory_info["free_percent"] > threshold:
+        return (True, "OK - free memory: {free_percent:.1f}% ({free}B of {total}B)".format(**memory_info), "")
+      return (False, "Low available memory - free: {free_percent:.1f}% ({free}B of {total}B)".format(**memory_info), "")
 
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("-db", "--collectordb", required=True)
+  parser.add_argument("--threshold", required=True, type=float)
+  parser.add_argument("--key", argument_default="used", choices=("used", "free"))
+  parser.add_argument("--unit", argument_default="byte", choices=("byte", "percent"))
   args = parser.parse_args()
 
   # get last minute
@@ -55,17 +87,18 @@ def main():
   db_path = args.collectordb
 
   if db_path.endswith("collector.db"):db_path=db_path[:-len("collector.db")]
-  memory, error = getMemoryInfo(db_path, currenttime, currentdate)
+
+  result, message, error = checkMemoryUsage(
+    db_path, currenttime, currentdate,
+    threshold=args.threshold,
+    key=args.key,
+    unit=args.unit,
+  )
   if error:
     print error
     return 0
-  threshold = float(memory['total']) * 0.2
-
-  if memory['used'] <= threshold:
-    print "OK - memory used: {:d}% ({}B of {}B)".format(memory["used"] * 100 / memory["total"], memory["used"], memory["total"])
-    return 0
-  print "Low memory - usage: {:d}% ({}B of {}B)".format(memory["used"] * 100 / memory["total"], memory["used"], memory["total"])
-  return 1
+  print message
+  return 1 if result else 0
 
 if __name__ == "__main__":
   sys.exit(main())
