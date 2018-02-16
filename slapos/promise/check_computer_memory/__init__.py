@@ -14,7 +14,7 @@ import datetime
 
 from slapos.collect.db import Database
 
-def getFreeMemory(database, time, date):
+def getMemoryInfo(database, time, date):
 
   mem = {}
   database = Database(database)
@@ -55,7 +55,7 @@ def main():
   db_path = args.collectordb
 
   if db_path.endswith("collector.db"):db_path=db_path[:-len("collector.db")]
-  memory, error = getFreeMemory(db_path, currenttime, currentdate)
+  memory, error = getMemoryInfo(db_path, currenttime, currentdate)
   if error:
     print error
     return 0
