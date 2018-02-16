@@ -32,6 +32,8 @@ import sqlite3
 from slapos.test.promise import data
 from slapos.promise.check_computer_memory import getFreeMemory
 
+total_memory_fetch_failure_message = "couldn't fetch total memory, collectordb is empty?"
+
 class TestComputerMemory(unittest.TestCase):
 
   def setUp(self):
@@ -47,11 +49,14 @@ class TestComputerMemory(unittest.TestCase):
     self.conn.close() 
 
   def test_check_memory(self):
-    self.assertEquals({'total': 33705312256.0, 'used': 33139023872.0, 'free': 566288384.0},
+    self.assertEquals(({'total': 33705312256.0, 'used': 33139023872.0, 'free': 566288384.0}, ""),
       getFreeMemory('/tmp', '00:02', '2017-09-15'))
 
   def test_check_memory_with_unavailable_dates(self):
-    self.assertEquals(0, getFreeMemory('/tmp', '18:00', '2017-09-14'))
+    self.assertEquals(
+      (None, total_memory_fetch_failure_message),
+      getFreeMemory('/tmp', '18:00', '2017-09-14'),
+    )
 
   def tearDown(self):
     if os.path.exists(self.db_file):
