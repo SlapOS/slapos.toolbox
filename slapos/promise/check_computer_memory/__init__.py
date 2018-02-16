@@ -64,9 +64,9 @@ def main():
   if memory is 0:
     return 0
   if memory['free'] > threshold:
-    print "All Good. total memory: "+ str(memory['total']) + " and used memory: "+ str(memory['used'])
+    print "OK - memory used: {:d}% ({}B of {}B)".format(memory["used"] * 100 / memory["total"], memory["used"], memory["total"])
     return 0
-  print "Ops! Memory is low, total memory: "+ str(memory['total']) + " and used memory: "+ str(memory['used'])
+  print "Low memory - usage: {:d}% ({}B of {}B)".format(memory["used"] * 100 / memory["total"], memory["used"], memory["total"])
   return 1
 
 if __name__ == "__main__":
