@@ -69,7 +69,9 @@ class ResourceCollect:
     assert os.path.exists(db_path)
     if db_path.endswith("collector.db"):
       db_path = db_path[:-len("collector.db")]
-    self.db = Database(db_path, create=False)
+    # If the database is locked, wait until 15 seconds
+    # Do not try to created or update tables, access will be refused
+    self.db = Database(db_path, create=False, timeout=15)
     self.consumption_utils = ConsumptionReportBase(self.db)
 
   def has_table(self, name):
