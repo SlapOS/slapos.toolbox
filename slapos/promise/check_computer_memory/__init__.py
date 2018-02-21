@@ -98,7 +98,7 @@ def main():
     print error
     return 0
   print message
-  return 1 if result else 0
+  return 0 if result else 1
 
 if __name__ == "__main__":
   sys.exit(main())
