@@ -3,6 +3,7 @@ BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS computer (cpu_num_core real, cpu_frequency real, cpu_type text, memory_size real, memory_type text, partition_list text, date text, time text, reported integer NULL DEFAULT 0);
 INSERT INTO "computer" VALUES(12.0,0.0,'0',33705312256.0,'0','/dev/md0=280665088;/dev/md1=19534663680;/dev/md2=463722799104','2017-09-15','00:00:04',1);
 CREATE TABLE IF NOT EXISTS user (partition text, pid real, process text,  cpu_percent real, cpu_time real,  cpu_num_threads real,  memory_percent real,  memory_rss real, io_rw_counter real,  io_cycles_counter real, date text, time text,  reported integer NULL DEFAULT 0);
+INSERT INTO "user" VALUES('slaptestuser1',111.0,'process1',22.0,333.0,4.0,87.65432099725093,29544162598.0,7.0,8.0,'2017-09-15','00:01:09',0);
 CREATE TABLE IF NOT EXISTS folder (partition text, disk_used real, date text,  time text, reported integer NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS disk (partition text, used text, free text, mountpoint text,  date text, time text, reported integer NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS temperature (sensor_id name, temperature real, alarm integer, date text, time text, reported integer NULL DEFAULT 0);
