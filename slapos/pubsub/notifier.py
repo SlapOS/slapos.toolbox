@@ -116,7 +116,8 @@ def main():
   try:
     shutil.copy2(args.logfile[0], temp_file)
   except IOError:
-    error_message = "ERROR ON WRITING FEED"
+    # previous feed can be rotated, only pass
+    pass
   try:
     with open(temp_file, 'a') as file_:
       csvfile = csv.writer(file_)
@@ -127,8 +128,8 @@ def main():
         'slapos:%s' % uuid.uuid4(),
       ])
     os.rename(temp_file, args.logfile[0])
-  except:
-    error_message = "ERROR ON WRITING FEED"
+  except Exception, e:
+    error_message = "ERROR ON WRITING FEED - %s" % str(e)
   finally:
     try:
       os.remove(temp_file)
