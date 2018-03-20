@@ -1,0 +1,190 @@
+{  
+  "$schema":"http://json-schema.org/draft-04/schema#",
+  "description":"Monitor Instance global information.",
+  "additionalProperties":false,
+  "properties":{  
+    "title":{  
+      "description":"Title of the monitor instance.",
+      "type":"string"
+    },
+    "specialise_title":{  
+      "description":"Title of the root instance or parent instance",
+      "type":"string"
+    },
+    "portal_type":{  
+      "description":"Portal type of the document.",
+      "type":"string"
+    },
+    "date":{  
+      "description":"Date of the instance status.",
+      "format":"date-time",
+      "type":"string"
+    },
+    "status":{  
+      "description":"instance status.",
+      "type":"string",
+      "enum":[  
+        "ERROR",
+        "OK"
+      ]
+    },
+    "state":{  
+      "description":"Success and failure count",
+      "properties":{  
+        "error":{  
+          "description":"Number of promise failure.",
+          "type":"integer"
+        },
+        "success":{  
+          "description":"Number of promise OK.",
+          "type":"integer"
+        }
+      },
+      "type":"object"
+    },
+    "type":{  
+      "description":"Type of the document.",
+      "type":"string"
+    },
+    "aggregate_reference":{  
+      "description":"Computer Reference linked to this instance.",
+      "type":"string"
+    },
+    "ipv4":{  
+      "description":"IPv4 of the computer partition.",
+      "type":"string"
+    },
+    "ipv6":{  
+      "description":"IPv6 of the computer partition.",
+      "type":"string"
+    },
+    "software_release":{  
+      "description":"URL of the software release deployed.",
+      "type":"string"
+    },
+    "software_type":{  
+      "description":"Software type deployed.",
+      "type":"string"
+    },
+    "partition_id":{  
+      "description":"Computer Partition Reference of this instance.",
+      "type":"string"
+    },
+    "_links":{  
+      "description":"List of URLs",
+      "properties":{  
+        "rss_url":{  
+          "description":"URL of Instance RSS",
+          "properties":{  
+            "href":{  
+              "description":"URL link",
+              "type":"string",
+              "format":"uri"
+            }
+          },
+          "type":"object"
+        },
+        "public_url":{  
+          "description":"URL of Instance public folder",
+          "properties":{  
+            "href":{  
+              "description":"URL link",
+              "type":"string",
+              "format":"uri"
+            }
+          },
+          "type":"object"
+        },
+        "private_url":{  
+          "description":"URL of Instance private folder",
+          "properties":{  
+            "href":{  
+              "description":"URL link",
+              "type":"string",
+              "format":"uri"
+            }
+          },
+          "type":"object"
+        },
+        "related_monitor":{  
+          "description":"list of URL of sub monitor instances",
+          "items":{  
+            "description":"Dictionary containing monitor URLs.",
+            "properties":{  
+              "href":{  
+                "description":"URL link",
+                "type":"string",
+                "format":"uri"
+              }
+            },
+            "type":"object"
+          },
+          "type":"array",
+          "default":[  
+
+          ]
+        }
+      },
+      "type":"object"
+    },
+    "data":{
+      "description":"Generated data documents name",
+      "properties":{  
+        "state":{  
+          "description":"Data file for monitor promise state.",
+          "type":"string",
+          "default":""
+        },
+        "process_state":{  
+          "description":"Data file for processes consumption history.",
+          "type":"string",
+          "default":""
+        },
+        "process_resource":{  
+          "description":"Data file for detailed processes resource consumption.",
+          "type":"string",
+          "default":""
+        },
+        "memory_resource":{  
+          "description":"Data file for memory resource consumption history.",
+          "type":"string",
+          "default":""
+        },
+        "io_resource":{  
+          "description":"Data file for IO resource consumption history.",
+          "type":"string",
+          "default":""
+        },
+        "monitor_process_state":{  
+          "description":"Data file for global processes consumption.",
+          "type":"string",
+          "default":""
+        }
+      },
+      "type":"object"
+    },
+    "parameters": {
+      "description":"Instance parameters or info to show on monitor",
+      "items": {
+        "properties": {
+          "key":{  
+            "description":"Parameter key.",
+            "type":"string",
+            "default":""
+          },
+          "value":{  
+            "description":"Parameter value.",
+            "type":"string"
+          },
+          "title":{  
+            "description":"Parameter title to show in monitor.",
+            "type":"string"
+          }
+        }
+      },
+      "type": "array",
+      "default": []
+    }
+  },
+  "type":"object"
+}
