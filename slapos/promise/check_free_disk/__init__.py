@@ -16,7 +16,7 @@ from slapos.collect.db import Database
 
 def getFreeSpace(disk_partition, database, date, time):
 
-  database = Database(database)
+  database = Database(database, create=False, timeout=5)
   try:
     # fetch free disk space
     database.connect()
