@@ -17,7 +17,7 @@ from slapos.collect.db import Database
 def getMemoryInfo(database, time, date):
 
   memory_info = {}
-  database = Database(database)
+  database = Database(database, create=False, timeout=5)
   try:
     database.connect()
     query_result = database.select("computer", date, "memory_size", limit=1) 
