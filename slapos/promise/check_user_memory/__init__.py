@@ -30,7 +30,7 @@ def getMemoryInfo(database_path, moment, user):
     time_from_str = "00:00:00"
   escaped_user = escapeSqlStringValue(user)
   memory_info = {}
-  database = Database(database_path)
+  database = Database(database_path, create=False, timeout=5)
   try:
     database.connect()
     result = list(database.select(
