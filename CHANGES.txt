@@ -1,3 +1,10 @@
+0.75 (2018-03-30)
+=================
+
+* monitor: reimplement monitor following the new promise design in slapgrid
+* new promises, to check memory, check monitor bootstrap and partition state
+* fix 'attempt to write a readonly database' in some promises and monitor.collect
+
 0.74 (2018-02-12)                                                                                                                                                                             
 =================
 
