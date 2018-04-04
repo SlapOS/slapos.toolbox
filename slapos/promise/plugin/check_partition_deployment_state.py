@@ -4,8 +4,6 @@ from slapos.grid.promise.generic import GenericPromise
 import os
 from datetime import datetime
 
-MONITOR_URL = ""
-
 class RunPromise(GenericPromise):
 
   zope_interface.implements(interface.IPromise)
@@ -25,12 +23,13 @@ class RunPromise(GenericPromise):
     log_name = 'slapgrid-%s-error.log' % self.getConfig('partition-id')
     slapgrid_error_log_file = os.path.join(partition_folder, '.%s' % log_name)
     link_file = os.path.join(log_folder, log_name)
+    monitor_url = self.getConfig('monitor-url')
     message = ''
     if os.path.exists(slapgrid_error_log_file) and \
         os.stat(slapgrid_error_log_file).st_size:
       message = 'Buildout failed to process %s.' % self.getConfig('partition-id')
-      if MONITOR_URL:
-        message += '\nSee %s/log/%s for more information.' % (MONITOR_URL, log_name)
+      if monitor_url:
+        message += '\nSee %s/log/%s for more information.' % (monitor_url, log_name)
       if not os.path.exists(link_file):
         os.symlink(slapgrid_error_log_file, link_file)
     else:

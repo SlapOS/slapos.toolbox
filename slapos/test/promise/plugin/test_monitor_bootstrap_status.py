@@ -38,11 +38,12 @@ class TestPromiseMonitorBoostrap(TestPromisePluginMixin):
     self.promise_name = "my-monitor-bootstrap.py"
 
     content = """from slapos.promise.plugin.monitor_bootstrap_status import RunPromise
-from slapos.promise.plugin import monitor_bootstrap_status
 
-monitor_bootstrap_status.PROCESS_PID_FILE = "%(pid_file)s"
-monitor_bootstrap_status.PROCESS_NAME = "monitor.boostrap"
-monitor_bootstrap_status.STATUS_FILE = "%(state_file)s"
+extra_config_dict = {
+  'process-pid-file': "%(pid_file)s",
+  'process-name': "monitor.boostrap",
+  'status-file': "%(state_file)s",
+}
 """ % {'pid_file': self.pid_file, 'state_file': self.state_file}
     self.writePromise(self.promise_name, content)
 
