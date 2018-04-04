@@ -4,11 +4,7 @@ from slapos.grid.promise.generic import GenericPromise
 import os
 import time
 import psutil
-from slapos.runner.utils import tail
-
-PROCESS_PID_FILE = ""
-PROCESS_NAME = ""
-STATUS_FILE = ""
+from .util import tail_file
 
 class RunPromise(GenericPromise):
 
@@ -19,20 +15,17 @@ class RunPromise(GenericPromise):
     self.setPeriodicity(minute=2)
 
   def sense(self):
-    if PROCESS_PID_FILE == "" or PROCESS_NAME == "" or STATUS_FILE == "":
-      self.logger.info("")
-      return
-
-    if not os.path.exists(PROCESS_PID_FILE):
+    process_pid_file = self.getConfig('process-pid-file')
+    if not os.path.exists(process_pid_file):
       self.logger.info("Bootstrap didn't run!")
       return
 
-    with open(PROCESS_PID_FILE) as f:
+    with open(process_pid_file) as f:
       try:
         pid = int(f.read())
       except ValueError, e:
         raise ValueError("%r is empty or doesn't contain a valid pid number: %s" % (
-          PROCESS_PID_FILE, str(e)))
+          process_pid_file, str(e)))
 
     try:
       process = psutil.Process(pid)
@@ -51,18 +44,18 @@ class RunPromise(GenericPromise):
       # process exited
       pass
 
-    if os.path.exists(STATUS_FILE) and not os.stat(STATUS_FILE).st_size:
+    status_file = self.getConfig('status-file')
+    if os.path.exists(status_file) and not os.stat(status_file).st_size:
       self.logger.info("Bootstrap OK")
       return
 
     message = "Monitor bootstrap exited with error."
     log_file = os.path.join(self.getPartitionFolder(), ".%s_%s.log" % (
       self.getConfig('partition-id'),
-      PROCESS_NAME))
+      self.getConfig('process-name')))
     if os.path.exists(log_file):
-      with open(log_file) as f:
-        message += "\n ---- Latest monitor-boostrap.log ----\n"
-        message += tail(f, 4)
+      message += "\n ---- Latest monitor-boostrap.log ----\n"
+      message += tail_file(log_file, 4)
 
     self.logger.error(message)
 
