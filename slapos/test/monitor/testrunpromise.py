@@ -220,14 +220,11 @@ class RunPromise(GenericPromise):
     }
     self.assertEquals(expected_result, my_result)
 
-    if "my_promise" in sys.modules:
-      # force to reload the module without rerun python
-      os.system('rm %s/*.pyc' % self.promise_dir)
-      del sys.modules["my_promise"]
-    time.sleep(1.5)
-    self.generatePromiseScript('my_promise.py', success=True, periodicity=0.017)
-    promise_runner = MonitorPromiseLauncher(parser)
-    promise_runner.start()
+    os.system('rm %s/*.pyc' % self.promise_dir)
+    time.sleep(2)
+    self.generatePromiseScript('my_promise.py', success=True)
+    promise_runner2 = MonitorPromiseLauncher(parser)
+    promise_runner2.start()
 
     my_result = json.loads(open(result_file).read().decode("utf-8"))
     my_result['result'].pop('date')
