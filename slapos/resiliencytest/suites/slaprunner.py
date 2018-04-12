@@ -279,7 +279,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
     time.sleep(15)
     new_data = self._retrieveInstanceLogFile()
 
-    if new_data == self.data:
+    if new_data.startswith(self.data):
       self.logger.info('Data are the same: success.')
       return True
     else:
