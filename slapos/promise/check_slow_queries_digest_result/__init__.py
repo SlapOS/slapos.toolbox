@@ -53,6 +53,8 @@ def checkMariadbDigestResult(mariadbdex_path, mariadbdex_report_status_file,
         message = "No result found in the slow query digest file or the file is corrupted"
         break
 
+  if not os.path.exists(mariadbdex_report_status_file):
+    return 0, "No slow query result yet!"
   with open(mariadbdex_report_status_file) as f:
     try:
       json_content = json.load(f)

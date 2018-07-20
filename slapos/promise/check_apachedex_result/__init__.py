@@ -42,6 +42,8 @@ def checkApachedexResult(apachedex_path, apachedex_report_status_file, desired_t
         message = "No result found in the apdex file or the file is corrupted"
         break
 
+  if not os.path.exists(apachedex_report_status_file):
+    return 0, "ApacheDex didn't run yet!"
   with open(apachedex_report_status_file) as f:
     try:
       json_content = json.load(f)
