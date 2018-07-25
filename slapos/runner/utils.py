@@ -473,6 +473,7 @@ def removeCurrentInstance(config):
   svcStopAll(config)
   if stopProxy(config):
     removeProxyDb(config)
+    startProxy(config)
   else:
     return "Something went wrong when trying to stop slapproxy."
 
