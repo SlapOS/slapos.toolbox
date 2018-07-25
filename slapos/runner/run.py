@@ -12,7 +12,7 @@ import urlparse
 from slapos.htpasswd import HtpasswdFile
 from slapos.runner.process import setHandler
 import sys
-from slapos.runner.utils import runInstanceWithLock
+from slapos.runner.utils import runInstanceWithLock, startProxy
 from slapos.runner.views import *
 from slapos.runner.gittools import cloneRepo, switchBranch
 from git import GitCommandError
@@ -147,6 +147,9 @@ def serve(config):
   except GitCommandError, e:
     app.logger.warning('Error while cloning default repository: %s' % str(e))
     traceback.print_exc()
+  # Start slapproxy here when runner is starting
+  app.logger.info('Stating slapproxy...')
+  startProxy(app.config)
   app.logger.info('Running slapgrid...')
   if app.config['auto_deploy_instance'] in TRUE_VALUES:
     import thread
