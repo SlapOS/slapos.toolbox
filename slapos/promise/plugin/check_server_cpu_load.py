@@ -11,6 +11,7 @@ class RunPromise(GenericPromise):
 
   def __init__(self, config):
     GenericPromise.__init__(self, config)
+    # test load every 3 minutes
     self.setPeriodicity(minute=3)
 
   def checkCPULoad(self, tolerance=2.2):
@@ -50,7 +51,9 @@ class RunPromise(GenericPromise):
     self.checkCPULoad(threshold or 2.2)
 
   def test(self):
-    return self._test(result_count=5, failure_amount=5)
+    # fail if load is high than the threshold for more than 30 minutes
+    return self._test(result_count=10, failure_amount=10)
 
   def anomaly(self):
-    return self._test(result_count=5, failure_amount=5)
+    # fail if load is high than the threshold for more than 30 minutes
+    return self._test(result_count=10, failure_amount=10)
