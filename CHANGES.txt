@@ -1,3 +1,9 @@
+0.77 (2018-07-31)
+=================
+
+ * runner: always start slaproxy service in webrunner
+ * promise: add new promise to check cpu load based on a threshold value
+
 0.76 (2018-04-09)
 =================
 
