@@ -102,7 +102,7 @@ def main():
     db_path=db_path[:-len("collector.db")]
 
   free_space = getFreeSpace(disk_partition, db_path, currentdate, currenttime)
-  if free_space > min_free_size:
+  if free_space and free_space > min_free_size:
     inode_usage = getInodeUsage(args.home_path)
     if inode_usage:
       print inode_usage
