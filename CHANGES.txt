@@ -1,3 +1,8 @@
+0.78 (2018-08-13)
+=================
+
+ * promise: check_free_disk does not return error if no data is found in collect db
+
 0.77 (2018-07-31)
 =================
 
