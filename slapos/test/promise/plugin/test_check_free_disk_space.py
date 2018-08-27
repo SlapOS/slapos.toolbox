@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2017 Vifib SARL and Contributors. All Rights Reserved.
+# Copyright (c) 2018 Vifib SARL and Contributors. All Rights Reserved.
 #
 # WARNING: This program as such is intended to be used by professional
 # programmers who take the whole responsibility of assessing all potential
@@ -25,26 +25,50 @@
 #
 ##############################################################################
 
-import unittest
+from slapos.test.promise.plugin import TestPromisePluginMixin
+from slapos.grid.promise import PromiseError
 import os
 import sqlite3
-
 from slapos.test.promise import data
 from slapos.promise.check_free_disk import getFreeSpace
+from slapos.grid.promise import PromiseError
 
-class TestFreeDisk(unittest.TestCase):
+class TestCheckFreeDiskSpace(TestPromisePluginMixin):
 
   def setUp(self):
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
-    self.status = "ok"
+    TestPromisePluginMixin.setUp(self)
+    log_folder = os.path.join(self.partition_dir, 'var/log')
+    os.makedirs(log_folder)
+
     self.db_file = '/tmp/collector.db'
+    self.base_path = "/".join(data.__file__.split("/")[:-1])
 
     # populate db
     self.conn = sqlite3.connect(self.db_file)
     f = open(self.base_path+"/disktest.sql")
     sql = f.read()
     self.conn.executescript(sql)
-    self.conn.close() 
+    self.conn.close()
+
+    self.promise_name = "check-free-disk-space.py"
+    self.th_file = os.path.join(self.partition_dir, 'min-disk-value')
+    with open(self.th_file, 'w') as f:
+      f.write('2048')
+
+    content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
+
+extra_config_dict = {
+  'collectordb': '%(collectordb)s',
+  'threshold-file': '%(th_file)s',
+  'test-check-date': '2017-10-02',
+}
+""" % {'collectordb': self.db_file, 'th_file': self.th_file}
+    self.writePromise(self.promise_name, content)
+
+  def tearDown(self):
+    TestPromisePluginMixin.tearDown(self)
+    if os.path.exists(self.db_file):
+      os.remove(self.db_file)
 
   def test_check_disk(self):
     self.assertEquals(288739385344,
@@ -53,10 +77,22 @@ class TestFreeDisk(unittest.TestCase):
   def test_check_free_disk_with_unavailable_dates(self):
     self.assertEquals(0, getFreeSpace('/', '/tmp', '18:00', '2017-09-14'))
 
-  def tearDown(self):
-    if os.path.exists(self.db_file):
-      os.remove(self.db_file)
+  def test_disk_space_ok(self):
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEquals(result['result']['failed'], False)
+    self.assertEquals(result['result']['message'], "Disk usage: OK")
+
+  def test_disk_space_nok(self):
+    with open(self.th_file, 'w') as f:
+      f.write('298927494144')
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEquals(result['result']['failed'], True)
+    self.assertEquals(result['result']['message'], "Free disk space low: remaining 269.1 G (threshold: 291921381.0 G)")
 
 if __name__ == '__main__':
   unittest.main()
-
