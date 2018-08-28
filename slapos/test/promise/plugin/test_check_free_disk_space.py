@@ -30,7 +30,7 @@ from slapos.grid.promise import PromiseError
 import os
 import sqlite3
 from slapos.test.promise import data
-from slapos.promise.check_free_disk import getFreeSpace
+from slapos.promise.plugin.check_free_disk_space import getFreeSpace
 from slapos.grid.promise import PromiseError
 
 class TestCheckFreeDiskSpace(TestPromisePluginMixin):
