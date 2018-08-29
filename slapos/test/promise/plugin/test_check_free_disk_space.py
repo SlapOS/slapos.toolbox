@@ -30,7 +30,6 @@ from slapos.grid.promise import PromiseError
 import os
 import sqlite3
 from slapos.test.promise import data
-from slapos.promise.plugin.check_free_disk_space import getFreeSpace
 from slapos.grid.promise import PromiseError
 
 class TestCheckFreeDiskSpace(TestPromisePluginMixin):
@@ -70,12 +69,23 @@ extra_config_dict = {
     if os.path.exists(self.db_file):
       os.remove(self.db_file)
 
-  def test_check_disk(self):
-    self.assertEquals(288739385344,
-      getFreeSpace('/dev/sda1', '/tmp', '2017-10-02', '09:27'))
-
   def test_check_free_disk_with_unavailable_dates(self):
-    self.assertEquals(0, getFreeSpace('/', '/tmp', '18:00', '2017-09-14'))
+    content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
+
+extra_config_dict = {
+  'collectordb': '%(collectordb)s',
+  'threshold-file': '%(th_file)s',
+  'test-check-date': '2017-09-14',
+  'test-check-time': '18:00'
+}
+""" % {'collectordb': self.db_file, 'th_file': self.th_file}
+    self.writePromise(self.promise_name, content)
+
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEquals(result['result']['failed'], False)
+    self.assertEquals(result['result']['message'], "No result from collector database: disk check skipped")
 
   def test_disk_space_ok(self):
     self.configureLauncher()

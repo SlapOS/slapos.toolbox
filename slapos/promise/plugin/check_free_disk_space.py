@@ -12,33 +12,6 @@ import psutil
 
 from slapos.collect.db import Database
 
-def getFreeSpace(disk_partition, database, date, time, logger=None):
-
-  database = Database(database, create=False, timeout=10)
-  try:
-    # fetch free disk space
-    database.connect()
-    where_query = "time between '%s:00' and '%s:30' and partition='%s'" % (time, time, disk_partition)
-    query_result = database.select("disk", date, "free", where=where_query)
-    result = zip(*query_result)
-    if not result or not result[0][0]:
-      if logger is not None:
-        logger.info("No result from collector database: disk check skipped")
-      return 0
-    disk_free = result[0][0]
-  except sqlite3.OperationalError, e:
-    # if database is still locked after timeout expiration (another process is using it)
-    # we print warning message and try the promise at next run until max warn msg
-    locked_message = "database is locked"
-    if locked_message in str(e) and \
-        not self.raiseOnDatabaseLocked(locked_message):
-      return 0
-    raise
-  finally:
-    database.close()
-    pass
-  return int(disk_free)
-
 class RunPromise(GenericPromise):
 
   zope_interface.implements(interface.IPromise)
@@ -47,6 +20,34 @@ class RunPromise(GenericPromise):
     GenericPromise.__init__(self, config)
     # check disk space at least every 3 minutes
     self.setPeriodicity(minute=3)
+
+  def getFreeSpace(self, disk_partition, database, date, time):
+
+    database = Database(database, create=False, timeout=10)
+    try:
+      # fetch free disk space
+      database.connect()
+      where_query = "time between '%s:00' and '%s:30' and partition='%s'" % (time, time, disk_partition)
+      query_result = database.select("disk", date, "free", where=where_query)
+      result = zip(*query_result)
+      if not result or not result[0][0]:
+        self.logger.info("No result from collector database: disk check skipped")
+        return 0
+      disk_free = result[0][0]
+    except sqlite3.OperationalError, e:
+      # if database is still locked after timeout expiration (another process is using it)
+      # we print warning message and try the promise at next run until max warn count
+      locked_message = "database is locked"
+      if locked_message in str(e) and \
+          not self.raiseOnDatabaseLocked(locked_message):
+        return 0
+      raise
+    finally:
+      try:
+        database.close()
+      except Exception:
+        pass
+    return int(disk_free)
 
   def raiseOnDatabaseLocked(self, locked_message):
     max_warn = 10
@@ -72,9 +73,8 @@ class RunPromise(GenericPromise):
       # too many warning on database locked, now fail.
       return True
 
-    self.logger.warn("collector database is locked by another process: %s %s" % (warning_count, len(latest_result_list)))
+    self.logger.warn("collector database is locked by another process")
     return False
-
 
   def getInodeUsage(self, path):
     max_inode_usage = 97.99 # < 98% usage
@@ -149,8 +149,8 @@ class RunPromise(GenericPromise):
     if db_path.endswith("collector.db"):
       db_path=db_path[:-len("collector.db")]
 
-    free_space = getFreeSpace(disk_partition, db_path, currentdate,
-                              currenttime, self.logger)
+    free_space = self.getFreeSpace(disk_partition, db_path, currentdate,
+                                   currenttime)
     if free_space == 0:
       return
     elif free_space > min_free_size:
