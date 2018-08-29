@@ -1,3 +1,9 @@
+0.79 (2018-08-29)
+=================
+
+ * promise: move check_free_disk_space promise to plugin promise with improvements
+ * runner: fix creating software link folder which cause rebuild of sr when /isRSReady is called
+
 0.78 (2018-08-13)
 =================
 
