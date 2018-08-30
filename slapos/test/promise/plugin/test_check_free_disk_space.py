@@ -104,5 +104,14 @@ extra_config_dict = {
     self.assertEquals(result['result']['failed'], True)
     self.assertEquals(result['result']['message'], "Free disk space low: remaining 269.1 G (threshold: 291921381.0 G)")
 
+  def test_check_free_disk_with_unicode_string_path(self):
+    # set path unicode
+    self.partition_dir = u'%s' % self.partition_dir
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEquals(result['result']['failed'], False)
+    self.assertEquals(result['result']['message'], "Disk usage: OK")
+
 if __name__ == '__main__':
   unittest.main()
