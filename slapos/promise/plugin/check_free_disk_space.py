@@ -109,7 +109,7 @@ class RunPromise(GenericPromise):
       else:
         break
       for p in partitions:
-        if p.mountpoint is path:
+        if p.mountpoint == path:
           disk_partition = p.device
           break
     if not disk_partition:
