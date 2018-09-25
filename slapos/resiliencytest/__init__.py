@@ -109,7 +109,7 @@ def setupLogging(name=__name__, log_path=None):
   logger = logging.getLogger(name)
   return logger, fname
 
-def runTestSuite(test_suite_title, test_suite_arguments, log):
+def runTestSuite(test_suite_title, test_suite_arguments, logger):
   """
   Run a specified test suite, by dynamically loading the module and calling
   its "runTestSuite" method.
@@ -121,8 +121,7 @@ def runTestSuite(test_suite_title, test_suite_arguments, log):
     test_suite_module = importFrom(test_suite_title)
     success = test_suite_module.runTestSuite(**parsed_arguments)
   except:
-    log('Impossible to run resiliency test:')
-    log(traceback.print_exc())
+    logger.exception('Impossible to run resiliency test:')
     success = False
   return success
 
@@ -259,7 +258,7 @@ def runUnitTest():
     success = runTestSuite(
         args.test_suite,
         args.additional_arguments,
-        logger.info,
+        logger,
     )
 
     if success:
