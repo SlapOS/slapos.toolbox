@@ -27,6 +27,8 @@
 #
 ##############################################################################
 
+from six.moves import zip
+
 import sqlite3
 import os
 import pwd
@@ -80,7 +82,7 @@ class ResourceCollect:
       table="sqlite_master",
       columns='name',
       where="type='table' AND name='%s'" % name)
-    table_exists_result = zip(*check_result_cursor)
+    table_exists_result = list(zip(*check_result_cursor))
     if not len(table_exists_result) or table_exists_result[0][0] is None:
       return False
     return True
@@ -159,7 +161,7 @@ class ResourceCollect:
     query_result = self.db.select('user', date_scope, colums, 
                                   where="partition='%s' and (time between '%s' and '%s') %s" % 
                                   (partition_id, min_time, max_time, where))
-    result_list = zip(*query_result)
+    result_list = list(zip(*query_result))
 
     process_dict = memory_dict = io_dict = {}
     if len(result_list):
@@ -188,7 +190,7 @@ class ResourceCollect:
           )
         )
     
-        disk_used_sum = zip(*disk_result_cursor)
+        disk_used_sum = list(zip(*disk_result_cursor))
         if len(disk_used_sum) and disk_used_sum[0][0] is not None:
           io_dict['disk_used'] = round(disk_used_sum[0][0]/1024.0, 2)
     self.db.close()
@@ -252,7 +254,7 @@ def main():
   status_file = os.path.join(parser.output_folder, 'monitor_resource.status.json')
 
   if not os.path.exists(parser.collector_db):
-    print "Collector database not found..."
+    print("Collector database not found...")
     initProcessDataFile(process_file)
     initMemoryDataFile(mem_file)
     initIODataFile(io_file)

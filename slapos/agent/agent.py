@@ -25,7 +25,7 @@
 #
 ##############################################################################
 
-import ConfigParser
+from six.moves import configparser
 import argparse
 import collections
 import json
@@ -214,7 +214,7 @@ def main():
 
   logger, log_file = getLogger(log, args.verbose)
 
-  configuration = ConfigParser.SafeConfigParser()
+  configuration = configparser.SafeConfigParser()
   configuration.readfp(args.configuration_file)
 
   pidfile = args.pidfile

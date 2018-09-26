@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import argparse
 import re
 import time
@@ -22,10 +24,10 @@ def main():
 
   result = test(args.address, args.ipv4, args.count)
 
-  print "%s host=%s code=%s, result=%s, packet_lost_ratio=%s msg=%s" % result
+  print("%s host=%s code=%s, result=%s, packet_lost_ratio=%s msg=%s" % result)
   if result[4] != "0":
     # Packet lost occurred
-    print "FAIL"
+    print("FAIL")
     sys.exit(1)
-  print "OK"
+  print("OK")
 

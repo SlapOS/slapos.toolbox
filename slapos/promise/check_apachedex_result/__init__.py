@@ -47,7 +47,7 @@ def checkApachedexResult(apachedex_path, apachedex_report_status_file, desired_t
   with open(apachedex_report_status_file) as f:
     try:
       json_content = json.load(f)
-    except ValueError, e:
+    except ValueError as e:
       json_content = ''
   if json_content:
     message += "\n" + json_content["message"]

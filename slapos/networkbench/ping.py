@@ -22,6 +22,7 @@ def ping(host, timeout=10, protocol="4", count=10):
     test_title = 'PING6'
 
   proc = subprocess.Popen((ping_bin, '-c', str(count), '-w', str(timeout), host),
+                          universal_newlines=True,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
   out, err = proc.communicate()
@@ -29,7 +30,7 @@ def ping(host, timeout=10, protocol="4", count=10):
     return (test_title, host, 600, 'failed', 100, "Network is unreachable")
   try:
     packet_loss_line, summary_line = (out.splitlines() or [''])[-2:]
-  except:
+  except Exception:
     return (test_title, host, 600, 'failed', -1, "Fail to parser ping output")
   m = ping_re.match(summary_line)
   match = re.search('(\d*)% packet loss', packet_loss_line)

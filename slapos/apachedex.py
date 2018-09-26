@@ -27,6 +27,8 @@
 #
 ##############################################################################
 
+from __future__ import print_function
+
 import os, errno
 import subprocess
 import argparse
@@ -52,7 +54,7 @@ def build_command(apachedex_executable, output_file,
     # Automaticaly replace variable 'date'.
     apache_log = logfile.strip() % {'date': today}
     if not os.path.exists(apache_log):
-      print "WARNING: File %s not found..." % apache_log
+      print("WARNING: File %s not found..." % apache_log)
       continue
     log_list.append(apache_log)
   if not log_list:
@@ -81,7 +83,7 @@ def main():
   base_url = args.base_url.strip()
 
   if not os.path.exists(output_folder) or not os.path.isdir(output_folder):
-    print "ERROR: Output folder is not a directory. Exiting..."
+    print("ERROR: Output folder is not a directory. Exiting...")
     return 1
 
   today = date.today().strftime("%Y-%m-%d")
@@ -93,7 +95,7 @@ def main():
                             args.apache_log_list,
                             config)
   except ValueError as e:
-    print e
+    print(e)
     return 1
   process_handler = subprocess.Popen(argument_list,
                                      stdout=subprocess.PIPE,
@@ -103,11 +105,11 @@ def main():
   stdout, stderr = process_handler.communicate()
   if process_handler.returncode != 0:
     if stderr:
-      print stderr
+      print(stderr)
     return 1
   
   with open(output_file, 'r') as f:
-    print base_url + '/ApacheDex-%s.html' % today
+    print(base_url + '/ApacheDex-%s.html' % today)
   return 0
 
 if __name__ == "__main__":

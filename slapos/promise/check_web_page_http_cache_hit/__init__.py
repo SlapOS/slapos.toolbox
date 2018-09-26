@@ -7,14 +7,16 @@ import sys
 import tempfile
 import os
 import argparse
-import ConfigParser
+from six.moves import configparser
 import re
 
 import pycurl
 
-from mimetools import Message
-from cStringIO import StringIO
-from HTMLParser import HTMLParser
+from email.message import Message
+from six.moves import (
+  cStringIO as StringIO,
+  html_parser as HTMLParser,
+)
 
 begins_by_known_protocol_re = re.compile("^https?://")
 get_protocol_re = re.compile("^([a-z]+)://")
@@ -119,7 +121,7 @@ def checkWebpageHttpCacheHit(url_list, resolve_list=[], cookie_jar_path=None):
 def getConfig(config_parser, section, option, default=None, raw=False, vars=None):
   try:
     return config_parser.get(section, option, raw=raw, vars=vars)
-  except ConfigParser.NoOptionError:
+  except configparser.NoOptionError:
     return default
 
 def main():
@@ -132,7 +134,7 @@ def main():
   args.url_list = getattr(args, "url-list")
 
   if args.config is not None:
-    parser = ConfigParser.ConfigParser()
+    parser = configparser.ConfigParser()
     parser.read(args.config)
     if args.url_list == []:
       args.url_list = getConfig(parser, "public", "url-list", "").split()

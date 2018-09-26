@@ -7,12 +7,16 @@ Uses:
 - /proc/meminfo
 """
 
+from __future__ import print_function
+
 import sys
 import sqlite3
 import argparse
 import datetime
 
 from slapos.collect.db import Database
+
+from six.moves import zip
 
 def getMemoryInfo(database, time, date):
 
@@ -21,7 +25,7 @@ def getMemoryInfo(database, time, date):
   try:
     database.connect()
     query_result = database.select("computer", date, "memory_size", limit=1) 
-    result = zip(*query_result)
+    result = list(zip(*query_result))
     if not result or not result[0][0]:
       return (None, "couldn't fetch total memory, collectordb is empty?")
     memory_info['total'] = int(result[0][0])  # in byte
@@ -29,7 +33,7 @@ def getMemoryInfo(database, time, date):
     # fetch free and used memory 
     where_query = "time between '%s:00' and '%s:30' " % (time, time)
     query_result = database.select("system", date, "memory_free, memory_used", where=where_query)
-    result = zip(*query_result)
+    result = list(zip(*query_result))
     if not result or not result[0][0]: 
       return (None, "couldn't fetch free memory")
     memory_info['free'] = int(result[0][0])  # in byte
@@ -95,9 +99,9 @@ def main():
     unit=args.unit,
   )
   if error:
-    print error
+    print(error)
     return 0
-  print message
+  print(message)
   return 0 if result else 1
 
 if __name__ == "__main__":

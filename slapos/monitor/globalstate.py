@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import sys
 import os
 import glob
 import json
-import ConfigParser
+from six.moves import configparser
 import time
 from datetime import datetime
 import base64
@@ -150,9 +152,9 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
         previous_state_dict.get(tmp_json['name']),
         public_folder
       )
-    except ValueError, e:
+    except ValueError as e:
       # bad json file
-      print "ERROR: Bad json file at: %s\n%s" % (file, str(e))
+      print("ERROR: Bad json file at: %s\n%s" % (file, str(e)))
       continue
 
   with open(promises_status_file, "w") as f:
@@ -202,7 +204,7 @@ def savePromiseHistory(promise_name, state_dict, previous_state_list,
 
 def run(monitor_conf_file):
 
-  config = ConfigParser.ConfigParser()
+  config = configparser.ConfigParser()
   config.read(monitor_conf_file)
 
   base_folder = config.get('monitor', 'private-folder')

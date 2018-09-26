@@ -102,11 +102,11 @@ partition-folder = %(base_dir)s
     for index in range(1, amount+1):
       promise_file = os.path.join(promise_dir, 'monitor_promise-%s' % index)
       self.writeContent(promise_file, promse_content)
-      os.chmod(promise_file, 0755)
+      os.chmod(promise_file, 0o755)
     for index in range(1, amount+1):
       promise_file = os.path.join(plugin_dir, 'monitor_promise-%s.py' % index)
       self.writeContent(promise_file, promse_content)
-      os.chmod(promise_file, 0644)
+      os.chmod(promise_file, 0o644)
 
   def checkOPML(self, url_list):
     opml_title = "<title>%(root_title)s</title>" % self.monitor_config_dict

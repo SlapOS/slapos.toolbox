@@ -24,6 +24,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
+from __future__ import print_function
+
 import os
 import argparse
 import subprocess
@@ -108,4 +110,4 @@ def shred(options):
 def main():
   arg_parser = getAgumentParser()
   output = shred(arg_parser.parse_args())
-  print output
+  print(output)

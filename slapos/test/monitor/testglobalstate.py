@@ -44,7 +44,7 @@ class MonitorGlobalTest(unittest.TestCase):
       pkg_resources.resource_string(
         'slapos.monitor',
         'doc/monitor_instance.schema.json')
-    self.monitor_instance_schema = json.loads(monitor_schema_string)
+    self.monitor_instance_schema = json.loads(monitor_schema_string.decode('utf-8'))
 
 
     self.monitor_config_dict = dict(
@@ -132,7 +132,7 @@ exit %(code)s
 """ % result_dict
     promise_path = os.path.join(self.etc_dir, 'promise', name)
     self.writeContent(promise_path, content)
-    os.chmod(promise_path, 0755)
+    os.chmod(promise_path, 0o755)
     return promise_path
 
   def getPromiseParser(self):

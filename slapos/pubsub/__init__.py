@@ -1,7 +1,7 @@
 import argparse
 import csv
 import feedparser
-import httplib # To avoid magic numbers
+from six.moves import http_client as httplib # To avoid magic numbers
 import io
 import json
 import logging

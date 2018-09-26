@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import argparse
 import re
 import time
@@ -7,10 +9,10 @@ from slapos.networkbench.ping import ping, ping6
 def test(ipv6, ipv4, count):
 
   result_ipv4 = ping(ipv4, count=count)
-  print "%s host=%s code=%s, result=%s, packet_lost_ratio=%s msg=%s" % result_ipv4
+  print("%s host=%s code=%s, result=%s, packet_lost_ratio=%s msg=%s" % result_ipv4)
 
   result_ipv6 = ping6(ipv6, count=count)
-  print "%s host=%s code=%s, result=%s, packet_lost_ratio=%s msg=%s" % result_ipv6
+  print("%s host=%s code=%s, result=%s, packet_lost_ratio=%s msg=%s" % result_ipv6)
 
   if result_ipv4[3] == "failed" and result_ipv6[3] != "failed":
     # IPv4 is unreacheable
@@ -34,7 +36,7 @@ def test(ipv6, ipv4, count):
   # Increase latency with the value.
   latency4 += acceptable_delay + latency4*acceptable_lost
   if latency4 < latency6:
-    print "Fail %s (latency4) > %s (latence6)" % (latency4, latency6)
+    print("Fail %s (latency4) > %s (latence6)" % (latency4, latency6))
     return "FAIL"
 
   # Compare if both has Same working rate
@@ -51,7 +53,7 @@ def main():
 
   result = test(args.ipv6, args.ipv4, args.count)
 
-  print result
+  print(result)
   if result != "OK":
     # re6st is not on an optimal state.
     sys.exit(1)

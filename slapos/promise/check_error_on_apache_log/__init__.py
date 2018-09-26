@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import re
 import time
 import sys
@@ -21,7 +23,7 @@ def test(log_file, maximum_delay):
 
     f.seek(0, 2)
     block_end_byte = f.tell()
-    f.seek(-min(block_end_byte, 4096), 1)
+    f.seek(block_end_byte - min(block_end_byte, 4096), 0)
 
     data = f.read()
     for line in reversed(data.splitlines()):
@@ -76,7 +78,7 @@ def main():
 
   result = test(args.log_file, args.maximum_delay)
 
-  print result
+  print(result)
   if result != "OK":
     sys.exit(1)
 

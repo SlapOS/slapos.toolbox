@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import sys
 import os
 import stat
 import json
-import ConfigParser
+from six.moves import configparser
 import traceback
 import argparse
-import urllib2
+from six.moves import urllib
 import ssl
 import glob
 import socket
@@ -46,7 +48,7 @@ def parseArguments():
 def mkdirAll(path):
   try:
     os.makedirs(path)
-  except OSError, e:
+  except OSError as e:
     if e.errno == os.errno.EEXIST and os.path.isdir(path):
       pass
     else: raise
@@ -54,13 +56,13 @@ def mkdirAll(path):
 def softConfigGet(config, *args, **kwargs):
   try:
     return config.get(*args, **kwargs)
-  except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
+  except (configparser.NoOptionError, configparser.NoSectionError):
     return None
 
 def createSymlink(source, destination):
   try:
     os.symlink(source, destination)
-  except OSError, e:
+  except OSError as e:
     if e.errno != os.errno.EEXIST:
       raise
 
@@ -98,10 +100,10 @@ class Monitoring(object):
 
   def loadConfig(self, pathes, config=None):
     if config is None:
-      config = ConfigParser.ConfigParser()
+      config = configparser.ConfigParser()
     try:
       config.read(pathes)
-    except ConfigParser.MissingSectionHeaderError:
+    except configparser.MissingSectionHeaderError:
       traceback.print_exc()
     return config
 
@@ -130,8 +132,8 @@ class Monitoring(object):
             try:
               with open(config_list[2]) as cfile:
                 param_value = cfile.read()
-            except OSError, e:
-              print 'Cannot read file %s, Error is: %s' % (config_list[2], str(e))
+            except OSError as e:
+              print('Cannot read file %s, Error is: %s' % (config_list[2], str(e)))
               pass
           else:
             param_value = ""
@@ -146,7 +148,7 @@ class Monitoring(object):
           )
           if config_list[0] == 'htpasswd':
             if len(config_list) != 5 or not os.path.exists(config_list[4]):
-              print 'htpasswd file is not specified: %s' % str(config_list)
+              print('htpasswd file is not specified: %s' % str(config_list))
               continue
             parameter['description']['user'] = config_list[3]
             parameter['description']['htpasswd'] = config_list[4]
@@ -177,8 +179,8 @@ class Monitoring(object):
               }
             )
             configuration_list.append(parameter)
-          except OSError, e:
-            print 'Cannot read file at %s, Error is: %s' % (old_cors_file, str(e))
+          except OSError as e:
+            print('Cannot read file at %s, Error is: %s' % (old_cors_file, str(e)))
             pass
     return configuration_list
 
@@ -191,7 +193,7 @@ class Monitoring(object):
           try:
             mkdirAll(dirname)  # could also raise OSError
             os.symlink(path, os.path.join(dirname, os.path.basename(path)))
-          except OSError, e:
+          except OSError as e:
             if e.errno != os.errno.EEXIST:
               raise
 
@@ -211,20 +213,20 @@ class Monitoring(object):
       # XXX - working here with public url
       if hasattr(ssl, '_create_unverified_context'):
         context = ssl._create_unverified_context()
-        response = urllib2.urlopen(url, context=context, timeout=timeout)
+        response = urllib.urlopen(url, context=context, timeout=timeout)
       else:
-        response = urllib2.urlopen(url, timeout=timeout)
-    except urllib2.HTTPError:
-      print "ERROR: Failed to get Monitor configuration file at %s " % url
-    except socket.timeout, e:
-      print "ERROR: Timeout while downloading monitor config at %s " % url
+        response = urllib.urlopen(url, timeout=timeout)
+    except urllib.HTTPError:
+      print("ERROR: Failed to get Monitor configuration file at %s " % url)
+    except socket.timeout as e:
+      print("ERROR: Timeout while downloading monitor config at %s " % url)
     else:
       try:
         monitor_dict = json.loads(response.read())
         monitor_title = monitor_dict.get('title', 'Unknown Instance')
         success = True
-      except ValueError, e:
-        print "ERROR: Json file at %s is not valid" % url
+      except ValueError as e:
+        print("ERROR: Json file at %s is not valid" % url)
 
     self.bootstrap_is_ok = success
     return monitor_title
@@ -266,8 +268,8 @@ class Monitoring(object):
         for parameter in parameter_list:
           if parameter['key']:
             pfile.write('%s = %s\n' % (parameter['key'], parameter['value']))
-    except OSError, e:
-      print "Error failed to create file %s" % self.parameter_cfg_file
+    except OSError as e:
+      print("Error failed to create file %s" % self.parameter_cfg_file)
       pass
 
 
@@ -316,8 +318,8 @@ class Monitoring(object):
       try:
         if os.path.exists(file):
           os.unlink(file)
-      except OSError, e:
-        print "failed to remove file %s." % file, str(e)
+      except OSError as e:
+        print("failed to remove file %s." % file, str(e))
 
     # cleanup result of promises that was removed
     promise_list = os.listdir(self.legacy_promise_folder)
@@ -335,8 +337,8 @@ class Monitoring(object):
         if os.path.exists(status_path):
           try:
             os.unlink(status_path)
-          except OSError, e:
-            print "Error: Failed to delete %s" % status_path, str(e)
+          except OSError as e:
+            print("Error: Failed to delete %s" % status_path, str(e))
       else:
         promise_list.pop(position)
 
@@ -365,7 +367,7 @@ class Monitoring(object):
     if self.bootstrap_is_ok:
       with open(self.promise_output_file, 'w') as promise_file:
         promise_file.write("")
-      print "SUCCESS: bootstrap is OK"
+      print("SUCCESS: bootstrap is OK")
 
     return 0
 

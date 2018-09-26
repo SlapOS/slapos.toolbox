@@ -25,6 +25,8 @@
 #
 ##############################################################################
 
+from __future__ import print_function
+
 import argparse
 import json
 import os
@@ -71,7 +73,7 @@ def getInitialQemuResourceDict(pid_file):
   with open(pid_file) as f:
     try:
       pid = int(f.read())
-    except ValueError, e:
+    except ValueError as e:
       raise ValueError("%r is empty or doesn't contain a valid pid number: %s" % (
         pid_file, str(e)))
 
@@ -81,7 +83,7 @@ def getInitialQemuResourceDict(pid_file):
       process = psutil.Process(pid)
       break
     except psutil.NoSuchProcess:
-      print "Qemu process is not started yet..."
+      print("Qemu process is not started yet...")
       wait_count -= 1
       time.sleep(0.5)
   else:
@@ -130,7 +132,7 @@ class QemuQMPWrapper(object):
     if not os.path.exists(unix_socket_location):
       raise Exception('unix socket %s does not exist.' % unix_socket_location)
 
-    print 'Connecting to qemu...'
+    print('Connecting to qemu...')
     so = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     connected = False
     while not connected:
@@ -138,7 +140,7 @@ class QemuQMPWrapper(object):
         so.connect(unix_socket_location)
       except socket.error:
         time.sleep(1)
-        print 'Could not connect, retrying...'
+        print('Could not connect, retrying...')
       else:
         connected = True
     so.recv(1024)
@@ -159,7 +161,7 @@ class QemuQMPWrapper(object):
         raise QmpCommandError(response["error"]["desc"])
       if 'event' in response:
         self._event_list.append(response)
-        print response
+        print(response)
         if not only_event:
           continue
 
@@ -171,7 +173,7 @@ class QemuQMPWrapper(object):
     for i in range(0, retry):
       if response is not None:
         break
-      print "Retrying send command after %s second(s)..." % sleep
+      print("Retrying send command after %s second(s)..." % sleep)
       time.sleep(sleep)
       self.socket.sendall(json.dumps(message))
       response = self._readResponse()
@@ -191,14 +193,14 @@ class QemuQMPWrapper(object):
         if actual_status == wanted_status:
           return
         else:
-          print 'VM in %s status, wanting it to be %s, retrying...' % (
-              actual_status, wanted_status)
+          print('VM in %s status, wanting it to be %s, retrying...' % (
+              actual_status, wanted_status))
           time.sleep(1)
       except IOError:
-          print 'VM not ready, retrying...'
+          print('VM not ready, retrying...')
 
   def capabilities(self):
-    print 'Asking for capabilities...'
+    print('Asking for capabilities...')
     self._send({'execute': 'qmp_capabilities'})
 
   def getEventList(self, timeout=0, cleanup=False):
@@ -223,7 +225,7 @@ class QemuQMPWrapper(object):
       self.socket.setblocking(0)
       try:
         self._readResponse(only_event=True)
-      except socket.error, err:
+      except socket.error as err:
         if err[0] == errno.EAGAIN:
           # No data available
           pass
@@ -240,7 +242,7 @@ class QemuQMPWrapper(object):
 
   def setVNCPassword(self, password):
     # Set VNC password
-    print 'Setting VNC password...'
+    print('Setting VNC password...')
     result = self._send({
       "execute": "change",
       "arguments": {
@@ -251,19 +253,19 @@ class QemuQMPWrapper(object):
     })
     if result and result.get('return', None) != {}:
       raise ValueError(result)
-    print 'Done.'
+    print('Done.')
 
   def powerdown(self):
-    print 'Stopping the VM...'
+    print('Stopping the VM...')
     self._send({'execute': 'system_powerdown'})
 
   def suspend(self):
-    print 'Suspending VM...'
+    print('Suspending VM...')
     self._send({'execute': 'stop'})
     self._waitForVMStatus('paused')
 
   def resume(self):
-    print 'Resuming VM...'
+    print('Resuming VM...')
     self._send({'execute': 'cont'})
     self._waitForVMStatus('running')
 
@@ -285,7 +287,7 @@ class QemuQMPWrapper(object):
       return
 
   def driveBackup(self, backup_target, source_device='virtio0', sync_type='full'):
-    print 'Asking Qemu to perform backup to %s' % backup_target
+    print('Asking Qemu to perform backup to %s' % backup_target)
     # XXX: check for error
     self._send({
         'execute': 'drive-backup',
@@ -296,17 +298,17 @@ class QemuQMPWrapper(object):
          }
     })
     while self._getRunningJobList(backup_target):
-      print 'Job is not finished yet.'
+      print('Job is not finished yet.')
       time.sleep(20)
 
   def createSnapshot(self, snapshot_file, device='virtio0'):
-    print self._send({
+    print(self._send({
         'execute': 'blockdev-snapshot-sync',
         'arguments': {
             'device': device,
             'snapshot-file': snapshot_file,
          }
-    })
+    }))
 
   def createInternalSnapshot(self, name=None, device='virtio0'):
     if name is None:
@@ -372,9 +374,9 @@ class QemuQMPWrapper(object):
       try:
         if resend:
           result = self._send(command_dict)
-      except QmpCommandError, e:
-        print "ERROR: ", str(e)
-        print "%s\nRetry remove %r in few seconds..." % (result, dev_id)
+      except QmpCommandError as e:
+        print("ERROR: ", str(e))
+        print("%s\nRetry remove %r in few seconds..." % (result, dev_id))
         resend = True
       else:
         for event in self.getEventList(timeout=2, cleanup=True):
@@ -388,13 +390,13 @@ class QemuQMPWrapper(object):
         if stop_retry:
           break
         elif result is None and max_retry > 0:
-          print "Retry remove %r in few seconds..." % dev_id
+          print("Retry remove %r in few seconds..." % dev_id)
       time.sleep(2)
 
     if result is not None:
       if result.get('return', None) == {} or ('error' in result and \
           result['error'].get('class', '') == 'DeviceNotFound'):
-        print 'Device %s was removed.' % dev_id
+        print('Device %s was removed.' % dev_id)
         return
 
     # device was not remove after retries
@@ -417,7 +419,7 @@ class QemuQMPWrapper(object):
 
     if not system_exited:
       # hard reset the VM
-      print "Trying hard shutdown of the VM..."
+      print("Trying hard shutdown of the VM...")
       self._send({"execute": "quit"})
 
     raise QmpDeviceRemoveError("Stopped Qemu in order to remove the device %r" % dev_id)
@@ -459,14 +461,14 @@ class QemuQMPWrapper(object):
 
     if cpu_amount == hotplug_amount:
       # no chanches
-      print "Hotplug CPU is up to date."
+      print("Hotplug CPU is up to date.")
       return
 
     if cpu_amount > hotplug_amount:
       # we will remove CPU
       cpu_diff = -1 * cpu_diff
       if cpu_diff >= 1:
-        print "Request remove %s CPUs..." % cpu_diff
+        print("Request remove %s CPUs..." % cpu_diff)
         used_socket_id_list.reverse()
         for i in range(0, cpu_diff):
           self._removeDevice(used_socket_id_list[i], {
@@ -478,7 +480,7 @@ class QemuQMPWrapper(object):
         # no hotplugable cpu socket found for Add
         raise ValueError("Cannot Configure %s CPUs, the maximum amount of " \
           "hotplugable CPU is %s!" % (hotplug_amount, max_hotplug_cpu))
-      print "Adding %s CPUs..." % cpu_diff 
+      print("Adding %s CPUs..." % cpu_diff) 
       for i in range(0, cpu_diff):
         self._send({
             'execute': 'device_add',
@@ -491,10 +493,10 @@ class QemuQMPWrapper(object):
     if hotplug_amount != final_cpu_count:
       raise ValueError("Consistency error: Expected %s hotplugged CPU(s) but" \
         " current CPU amount is %s" % (hotplug_amount, final_cpu_count))
-    print "Done."
+    print("Done.")
 
   def _removeMemory(self, id_dict, auto_reboot=False):
-    print "Trying to remove devices %s, %s..." % (id_dict['id'], id_dict['memdev'])
+    print("Trying to remove devices %s, %s..." % (id_dict['id'], id_dict['memdev']))
     self._removeDevice(id_dict['id'] ,{
       'execute': 'device_del',
       'arguments': {'id': id_dict['id']}
@@ -544,7 +546,7 @@ class QemuQMPWrapper(object):
 
     # cleanup memdev that was not removed because of failure
     for memdev in cleanup_memdev_id_dict.keys():
-      print "Cleaning up memdev %s..." % memdev
+      print("Cleaning up memdev %s..." % memdev)
       self._removeDevice(memdev, {
         'execute': 'object-del',
         'arguments': {
@@ -559,9 +561,9 @@ class QemuQMPWrapper(object):
     if (mem_size / slot_size) > slot_amount:
       raise ValueError("No enough slots available to add %sMB of RAM" % mem_size)
 
-    current_size = current_size/(1024 * 1024)
+    current_size = current_size // (1024 * 1024)
     if current_size == mem_size:
-      print "Hotplug Memory size is up to date."
+      print("Hotplug Memory size is up to date.")
       return
 
     if mem_size < 0:
@@ -569,7 +571,7 @@ class QemuQMPWrapper(object):
     elif current_size > mem_size:
       # Request to remove memory
       to_remove_size = current_size - mem_size
-      print "Removing %s MB of memory..." % to_remove_size
+      print("Removing %s MB of memory..." % to_remove_size)
 
       for i in range(num_slot_used, 0, -1):
         # remove all slots that won't be used
@@ -587,9 +589,9 @@ class QemuQMPWrapper(object):
             )
     elif current_size < mem_size:
       # ask for increase memory
-      slot_add = (mem_size - current_size) / slot_size
+      slot_add = (mem_size - current_size) // slot_size
 
-      print "Adding %s memory slot(s) of %s MB..." % (slot_add, slot_size)
+      print("Adding %s memory slot(s) of %s MB..." % (slot_add, slot_size))
       for i in range(0, slot_add):
         index = num_slot_used + i + 1
         self._send({
@@ -618,11 +620,11 @@ class QemuQMPWrapper(object):
     if mem_size != final_mem_size:
       raise ValueError("Consistency error: Expected %s MB of hotplugged RAM " \
         "but current RAM size is %s MB" % (mem_size, final_mem_size))
-    print "Done."
+    print("Done.")
 
   def updateDevice(self, option_dict):
     argument_dict = {}
-    if option_dict.has_key('device'):
+    if 'device' in option_dict:
       if option_dict['device'] == 'cpu':
         return self._updateCPU(
           amount=int(option_dict['amount']),
