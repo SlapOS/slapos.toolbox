@@ -85,15 +85,19 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
     Connect through HTTP to the slaprunner instance.
     Require self.slaprunner_backend_url to be set.
     """
-    url = "%s/%s" % (self.slaprunner_backend_url, resource)
-    if data:
-      result = self._opener_director.open(url, data=data)
-    else:
-      result = self._opener_director.open(url)
+    try:
+      url = "%s/%s" % (self.slaprunner_backend_url, resource)
+      if data:
+        result = self._opener_director.open(url, data=data)
+      else:
+        result = self._opener_director.open(url)
 
-    if result.getcode() is not 200:
-      raise NotHttpOkException(result.getcode())
-    return result.read()
+      if result.getcode() is not 200:
+        raise NotHttpOkException(result.getcode())
+      return result.read()
+    except urllib2.HTTPError:
+      self.logger.error('Error when contacting slaprunner at URL: {}'.format(url))
+      raise
 
   def _login(self):
     self.logger.debug('Logging in...')
@@ -208,7 +212,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
       )
       data = json.loads(data)
       if data['code'] == 0:
-        self.logger.warning(data['result'])  
+        self.logger.warning(data['result'])
 
     except (NotHttpOkException, urllib2.HTTPError):
       # cloning can be very long.
