@@ -191,7 +191,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     self._connectToSlaprunner('/startAllPartition')
 
     self.logger.info('Waiting 30 seconds so that erp5 can be bootstrapped...')
-    for i in range(10):
+    for i in range(20):
       time.sleep(30)
       try:
         if "erp5" == self._getCreatedERP5SiteId():
