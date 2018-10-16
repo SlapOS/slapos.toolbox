@@ -46,6 +46,10 @@ setup(name=name,
         'slapos.core', # as it provides library for slap
         'xml_marshaller', # needed to dump information
         'GitPython', #needed for git manipulation into slaprunner
+        'croniter', # needed to know cron schedule
+        'python-dateutil', # needed by croniter
+        'six', # needed by python-dateutil
+        'pytz', # needed to manipulate timezone
         'passlib',
         'netifaces',
         'erp5.util',
