@@ -98,7 +98,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
 
     # Restart HAProxy
     self._connectToSlaprunner(
-        resource='/startStopProccess/name/slappart7:haproxy/cmd/RESTART'
+        resource='/startStopProccess/name/slappart7:*/cmd/RESTART'
     )
 
 
