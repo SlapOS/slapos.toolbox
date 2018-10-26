@@ -1,3 +1,10 @@
+0.82 (2018-10-26)
+=================
+
+ * 2 new promises: check_port_listening and backupserver_check_backup
+ * runner: add favicon
+ * resiliencytest: several fixes
+
 0.81 (2018-08-29)
 =================
 
