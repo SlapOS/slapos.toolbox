@@ -33,18 +33,21 @@ def buildStatistic(history_folder):
 
     last_date = None
     if stats_dict["data"]:
-      last_date = stats_dict["data"][-1]["start-date"]
+      if stats_dict["data"][-1].has_key("start-date"):
+        last_date = stats_dict["data"][-1]["date"]
+      else:
+        last_date = stats_dict["data"][-1]["date"]
 
     with open(p) as f:
       j = json.load(f)
 
-      j_last_date = j['data'][-1]["start-date"]
+      j_last_date = j['data'][-1]["date"]
       if last_date == j_last_date:
         # This file was already loaded, so skip
         continue
 
       for entry in j['data']:
-        day = entry["start-date"].split(" ")[0]
+        day = entry["date"].split("T")[0]
         result.setdefault(day, {"ERROR": 0, "OK": 0})
         result[day][str(entry["status"])] += 1
       f.close()
@@ -53,7 +56,7 @@ def buildStatistic(history_folder):
       stats_list.append(
         {"status": "ERROR" if stat["ERROR"] > 0 else "OK",
          "change-time": now,
-         "start-date": j_last_date,
+         "date": j_last_date,
          "message": stat})
 
 
