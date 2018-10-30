@@ -34,7 +34,7 @@ def buildStatistic(history_folder):
     last_date = None
     if stats_dict["data"]:
       if stats_dict["data"][-1].has_key("start-date"):
-        last_date = stats_dict["data"][-1]["date"]
+        last_date = stats_dict["data"][-1]["start-date"]
       else:
         last_date = stats_dict["data"][-1]["date"]
 
