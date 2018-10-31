@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import argparse
 import errno
 import glob
@@ -17,7 +19,7 @@ from zc.buildout.configparser import parse
 
 os.environ['LC_ALL'] = 'C'
 # TODO: check it is the same as umask 077
-os.umask(077)
+os.umask(0o77)
 
 
 class CwdContextManager:
@@ -74,7 +76,7 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
   arg_list.append(source)
   arg_list.append(destination)
   if dry:
-    print 'DEBUG: ', arg_list
+    print('DEBUG:', arg_list)
   else:
     rsync_process = subprocess.Popen(arg_list)
     rsync_process.wait()
@@ -130,6 +132,7 @@ def getSha256Sum(file_path):
   # TODO : introduce reading by chunk,
   # otherwise reading backup files of 5Gb
   # may crash the server.
+  # XXX : Use os.open ?
   with open(file_path, 'rb') as f:
     return sha256(f.read()).hexdigest()
 
@@ -201,7 +204,7 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
 
 
 def backupFilesWereModifiedDuringExport():
-  process = subprocess.Popen(['find', '-mmin',  '0.1', '-type', 'f'], stdout=subprocess.PIPE)
+  process = subprocess.Popen(['find', '-cmin',  '0.1', '-type', 'f'], stdout=subprocess.PIPE)
   process.wait()
   changed_file_output = process.stdout.read()
   for line in changed_file_output.split('\n'):
@@ -211,7 +214,7 @@ def backupFilesWereModifiedDuringExport():
 
 
 def runExport():
-  print datetime.now().isoformat()
+  print(datetime.now().isoformat())
 
   args = parseArgumentList()
 
@@ -254,7 +257,7 @@ def runExport():
   # Check that export didn't happen during backup of instances
   with CwdContextManager(backup_runner_path):
     if backupFilesWereModifiedDuringExport():
-      print "ERROR: Some backups are not consistent, exporter should be re-run."
-      print "Let's sleep minutes, to let the backup end..." % backup_wait_time
+      print("ERROR: Some backups are not consistent, exporter should be re-run."
+            " Let's sleep %s minutes, to let the backup end..." % backup_wait_time)
       time.sleep(backup_wait_time * 60)
       system.exit(1)
