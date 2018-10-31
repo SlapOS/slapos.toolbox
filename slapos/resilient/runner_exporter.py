@@ -45,17 +45,12 @@ class CwdContextManager:
 
 def parseArgumentList():
   parser = argparse.ArgumentParser()
-  base_argument_dict = {
-    'action': 'store',
-    'type': str,
-    'required': True,
-  }
-  parser.add_argument('--srv-path', **base_argument_dict)
-  parser.add_argument('--backup-path', **base_argument_dict)
-  parser.add_argument('--etc-path', **base_argument_dict)
-  parser.add_argument('--tmp-path', **base_argument_dict)
-  parser.add_argument('--rsync-binary', **base_argument_dict)
-  parser.add_argument('--backup-wait-time', type=int, action='store', required=True)
+  parser.add_argument('--srv-path', required=True)
+  parser.add_argument('--backup-path', required=True)
+  parser.add_argument('--etc-path', required=True)
+  parser.add_argument('--tmp-path', required=True)
+  parser.add_argument('--rsync-binary', required=True)
+  parser.add_argument('--backup-wait-time', type=int, required=True)
   parser.add_argument('-n', action='store_true', dest='dry', default=False)
 
   return parser.parse_args()
