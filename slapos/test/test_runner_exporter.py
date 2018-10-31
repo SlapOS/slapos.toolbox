@@ -13,31 +13,31 @@ parts = folders hello-nicolas hello-rafael exclude
 [folders]
 __buildout_installed__ = 
 __buildout_signature__ = wcwidth-0.1.7-py2.7.egg contextlib2-0.5.5-py2.7.egg ...
-etc = /srv/slapgrid/slappart18/test/etc
+etc = /some/prefix/slappart18/test/etc
 home = /srv/slapgrid/slappart18/test
 recipe = slapos.cookbook:mkdirectory
-srv = /srv/slapgrid/slappart18/test/srv
+srv = /some/prefix/slappart18/test/srv
 
 [hello-nicolas]
 __buildout_installed__ = ./instance/slappart0/etc/nicolas.txt
 __buildout_signature__ = MarkupSafe-1.0-py2.7-linux-x86_64.egg Jinja2-2.10-py2.7.egg zc.buildout-2.12.2-py2.7.egg slapos.recipe.template-4.3-py2.7.egg setuptools-40.4.3-py2.7.egg
 mode = 0644
 name = Nicolas
-output = /srv/slapgrid/slappart18/test/etc/nicolas.txt
+output = /some/prefix/slappart18/test/etc/nicolas.txt
 recipe = slapos.recipe.template
 
 [hello-rafael]
 __buildout_installed__ = ./instance/slappart0/etc//rafael.txt
 __buildout_signature__ = MarkupSafe-1.0-py2.7-linux-x86_64.egg Jinja2-2.10-py2.7.egg zc.buildout-2.12.2-py2.7.egg slapos.recipe.template-4.3-py2.7.egg setuptools-40.4.3-py2.7.egg
 name = Rafael
-output = /srv/slapgrid/slappart18/test/etc/rafael.txt
+output = /some/prefix/slappart18/test/etc/rafael.txt
 recipe = slapos.recipe.template
 
 [exclude]
 __buildout_installed__ = srv/exporter.exclude
 __buildout_signature__ = MarkupSafe-1.0-py2.7-linux-x86_64.egg Jinja2-2.10-py2.7.egg zc.buildout-2.12.2-py2.7.egg slapos.recipe.template-4.3-py2.7.egg setuptools-40.4.3-py2.7.egg
 recipe = slapos.recipe.template:jinja2
-rendered = /srv/slapgrid/slappart18/test/srv/exporter.exclude
+rendered = /some/prefix/slappart18/test/srv/exporter.exclude
 template = inline:
         srv/backup/**"""
 

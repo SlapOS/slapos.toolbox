@@ -18,7 +18,6 @@ from zc.buildout.configparser import parse
 
 
 os.environ['LC_ALL'] = 'C'
-# TODO: check it is the same as umask 077
 os.umask(0o77)
 
 
@@ -95,7 +94,7 @@ def getExcludePathList(path):
         excluded_path_list.append(os.path.relpath(p, path))
 
   for partition in glob.glob(path + "/instance/slappart*"):
-    if not (os.path.exists(partition) and os.path.isdir(partition)):
+    if not os.path.isdir(partition):
       continue
 
     with CwdContextManager(partition):
