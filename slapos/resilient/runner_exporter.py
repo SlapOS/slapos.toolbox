@@ -131,15 +131,6 @@ def getSha256Sum(file_path):
     return sha256(f.read()).hexdigest()
 
 
-def getCustomSignature(signature_script_path, file_path):
-  try:
-    process = subprocess.Popen([signature_script_path, file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    process.wait()
-  except OSError:
-    raise RuntimeError(process.stderr.read())
-  return process.stdout.read()
-
-
 def synchroniseRunnerConfigurationDirectory(config, backup_path):
   rsync(config.rsync_binary, 'config.json', backup_path, dry=config.dry)
 
