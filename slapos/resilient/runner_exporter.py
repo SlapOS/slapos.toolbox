@@ -73,8 +73,7 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
   if dry:
     print('DEBUG:', arg_list)
   else:
-    rsync_process = subprocess.Popen(arg_list)
-    rsync_process.wait()
+    rsync_process = subprocess.check_call(arg_list)
   # TODO : pipe stdout dans : (egrep -v "$IGNOREOUT" || true) || [ $? = "$IGNOREEXIT" ]
   # with :
   # IGNOREEXIT=24
@@ -127,7 +126,7 @@ def getSha256Sum(file_path):
   # TODO : introduce reading by chunk,
   # otherwise reading backup files of 5Gb
   # may crash the server.
-  # XXX : Use os.open ?
+  # XXX : Use os.open ?
   with open(file_path, 'rb') as f:
     return sha256(f.read()).hexdigest()
 
@@ -183,7 +182,10 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
     # Find if special signature function should be applied
     for special_slappart in special_slappart_list:
       if dirpath.startswith(special_slappart):
-        signature_function = lambda x: getCustomSignature(os.path.join(runner_working_path, slappart_signature_method_dict[special_slappart]), x)
+        signature_function = lambda x: subprocess.check_output([
+          os.path.join(runner_working_path, slappart_signature_method_dict[special_slappart]),
+          x
+        ])
         break
     else:
       signature_function = getSha256Sum
