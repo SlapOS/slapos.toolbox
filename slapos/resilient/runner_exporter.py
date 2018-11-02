@@ -75,7 +75,10 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
   ]
   if isinstance(extra_args, list):
     arg_list.extend(extra_args)
-  arg_list.append(source)
+  if isinstance(source, list):
+    arg_list.extend(source)
+  else:
+    arg_list.append(source)
   arg_list.append(destination)
 
   if dry:
@@ -143,27 +146,28 @@ def getSha256Sum(file_path):
 
 
 def synchroniseRunnerConfigurationDirectory(config, backup_path):
-  rsync(config.rsync_binary, 'config.json', backup_path, dry=config.dry)
-
-  for hidden_file in [
-      x for x in os.listdir('.')
-      if x[0] == '.'
-    ]:
-    rsync(config.rsync_binary, hidden_file, backup_path, dry=config.dry)
+  file_list = ['config.json']
+  for hidden_file in os.listdir('.'):
+    if hidden_file[0] == '.':
+      file_list.append(hidden_file)
+  rsync(config.rsync_binary, file_list, backup_path, dry=config.dry)
 
 
 def synchroniseRunnerWorkingDirectory(config, backup_path):
   if os.path.isdir('instance'):
-      exclude_list = getExcludePathList('.')
-      rsync(
-        config.rsync_binary, 'instance', backup_path,
-        ["--exclude={}".format(x) for x in exclude_list],
-        dry=config.dry,
-      )
+    exclude_list = getExcludePathList('.')
+    rsync(
+      config.rsync_binary, 'instance', backup_path,
+      ["--exclude={}".format(x) for x in exclude_list],
+      dry=config.dry,
+    )
 
+  file_list = []
   for file in ('project', 'public', 'proxy.db'):
     if os.path.exists(file):
-      rsync(config.rsync_binary, file, backup_path, dry=config.dry)
+      file_list.append(file)
+  if file_list:
+    rsync(config.rsync_binary, file_list, backup_path, dry=config.dry)
 
 
 def getSlappartSignatureMethodDict():
