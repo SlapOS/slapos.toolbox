@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 
+from contextlib import contextmanager
 from datetime import datetime
 from hashlib import sha256
 from zc.buildout.configparser import parse
@@ -20,26 +21,23 @@ from zc.buildout.configparser import parse
 os.environ['LC_ALL'] = 'C'
 os.umask(0o77)
 
-
-class CwdContextManager:
-  # Context Manager Class for executing code
-  # in a given directory
-  # There is no need to provide fallback or basic
-  # checks in this code, as these checkes should
-  # exist in the code invoking this Context Manager.
-  # If someone needs to add checks here, I'm pretty
-  # sure it means that they are trying to hide legitimate
-  # errors.
-  # See tests to see examples of invokation
-  def __init__(self, path):
-    self.path = path
-
-  def __enter__(self):
-    self.oldpath = os.getcwd()
-    os.chdir(self.path)
-
-  def __exit__(self, exc_type, exc_value, traceback):
-    os.chdir(self.oldpath)
+@contextmanager
+def CwdContextManager(path):
+  """
+  Context Manager for executing code in a given directory.
+  There is no need to provide fallback or basic checks
+  in this code, as these checkes should exist in the code
+  invoking this Context Manager.
+  If someone needs to add checks here, I'm pretty sure
+  it means that they are trying to hide legitimate errors.
+  See tests to see examples of invokation
+  """
+  old_path = os.getcwd()
+  try:
+    os.chdir(path)
+    yield
+  finally:
+    os.chdir(old_path)
 
 
 def parseArgumentList():
