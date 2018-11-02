@@ -78,7 +78,7 @@ class TestRunnerExporter(unittest.TestCase):
     os.makedirs('instance/slappart0/srv/backup')
 
     os.makedirs('instance/slappart1/etc')
-    os.makedirs('instance/slappart1/srv')
+    os.makedirs('instance/slappart1/srv/backup')
 
     self._createFile('instance/slappart0/.installed.cfg', tested_instance_cfg)
 
@@ -207,3 +207,5 @@ class TestRunnerExporter(unittest.TestCase):
       self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport(datetime.now() + timedelta(seconds=-5)))
       time.sleep(2)
       self.assertFalse(runner_exporter.backupFilesWereModifiedDuringExport(datetime.now() + timedelta(seconds=-1)))
+      self._createFile('slappart1/srv/backup/bakckup.data', 'my backup')
+      self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport(datetime.now() + timedelta(seconds=-1)))

@@ -191,8 +191,7 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
 
 def backupFilesWereModifiedDuringExport(export_start_date):
   export_time = (datetime.now() - export_start_date).total_seconds()
-  time.sleep(1)
-  process = subprocess.Popen(['find', '-cmin',  str(export_time / 60.), '-type', 'f', '!', '-path', '*/srv/backup/*'], stdout=subprocess.PIPE)
+  process = subprocess.Popen(['find', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'], stdout=subprocess.PIPE)
   process.wait()
   if process.stdout.read():
     return True
