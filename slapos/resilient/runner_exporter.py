@@ -23,6 +23,14 @@ os.environ['LC_ALL'] = 'C'
 os.umask(0o77)
 
 
+def read_file_by_chunk(path, chunk_size=1024 * 10):
+  with open(path, 'rb') as f:
+    chunk = f.read(chunk_size)
+    while chunk:
+      yield chunk
+      chunk = f.read(chunk_size)
+
+
 @contextmanager
 def CwdContextManager(path):
   """
@@ -128,12 +136,10 @@ def getExcludePathList(path):
 
 
 def getSha256Sum(file_path):
-  # TODO : introduce reading by chunk,
-  # otherwise reading backup files of 5Gb
-  # may crash the server.
-  # XXX : Use os.open ?
-  with open(file_path, 'rb') as f:
-    return sha256(f.read()).hexdigest()
+  hash_sum = sha256()
+  for chunk in read_file_by_chunk(file_path):
+    hash_sum.update(chunk)
+  return hash_sum.hexdigest()
 
 
 def synchroniseRunnerConfigurationDirectory(config, backup_path):
