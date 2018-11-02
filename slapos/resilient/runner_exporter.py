@@ -21,6 +21,7 @@ from zc.buildout.configparser import parse
 os.environ['LC_ALL'] = 'C'
 os.umask(0o77)
 
+
 @contextmanager
 def CwdContextManager(path):
   """
@@ -91,7 +92,7 @@ def getExcludePathList(path):
       if p:
         excluded_path_list.append(os.path.relpath(p, path))
 
-  for partition in glob.glob(path + "/instance/slappart*"):
+  for partition in glob.glob(os.path.join(path, "instance", "slappart*")):
     if not os.path.isdir(partition):
       continue
 
@@ -139,7 +140,7 @@ def synchroniseRunnerConfigurationDirectory(config, backup_path):
 
 
 def synchroniseRunnerWorkingDirectory(config, backup_path):
-  if os.path.exists('instance') and os.path.isdir('instance'):
+  if os.path.isdir('instance'):
       exclude_list = getExcludePathList('.')
       rsync(
         config.rsync_binary, 'instance', backup_path,
@@ -188,18 +189,19 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
       signature_file.write("\n".join(sorted(signature_list)))
 
 
-def backupFilesWereModifiedDuringExport():
-  process = subprocess.Popen(['find', '-cmin',  '0.1', '-type', 'f'], stdout=subprocess.PIPE)
+def backupFilesWereModifiedDuringExport(export_start_date):
+  export_time = (datetime.now() - export_start_date).total_seconds()
+  time.sleep(1)
+  process = subprocess.Popen(['find', '-cmin',  str(export_time / 60.), '-type', 'f', '!', '-path', '*/srv/backup/*'], stdout=subprocess.PIPE)
   process.wait()
-  changed_file_output = process.stdout.read()
-  for line in changed_file_output.split('\n'):
-    if '/srv/backup/' in line:
-      return True
+  if process.stdout.read():
+    return True
   return False
 
 
 def runExport():
-  print(datetime.now().isoformat())
+  export_start_date = datetime.now()
+  print(export_start_date.isoformat())
 
   args = parseArgumentList()
 
@@ -232,7 +234,7 @@ def runExport():
   # BBB: clean software folder if it was synchronized
   # in an old instance
   backup_software_path = os.path.join(backup_runner_path, 'software')
-  if os.path.exists(backup_software_path) and os.path.isdir(backup_software_path):
+  if os.path.isdir(backup_software_path):
     shutil.rmtree(backup_software_path)
 
 
@@ -241,7 +243,7 @@ def runExport():
 
   # Check that export didn't happen during backup of instances
   with CwdContextManager(backup_runner_path):
-    if backupFilesWereModifiedDuringExport():
+    if backupFilesWereModifiedDuringExport(export_start_date):
       print("ERROR: Some backups are not consistent, exporter should be re-run."
             " Let's sleep %s minutes, to let the backup end..." % backup_wait_time)
       time.sleep(backup_wait_time * 60)

@@ -4,6 +4,7 @@ import shutil
 import time
 import unittest
 
+from datetime import datetime, timedelta
 from slapos.resilient import runner_exporter
 
 tested_instance_cfg = """[buildout]
@@ -203,6 +204,6 @@ class TestRunnerExporter(unittest.TestCase):
   def test_backupFilesWereModifiedDuringExport(self):
     self._setUpFakeInstanceFolder()
     with runner_exporter.CwdContextManager('instance'):
-      self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport())
-      time.sleep(11)
-      self.assertFalse(runner_exporter.backupFilesWereModifiedDuringExport())
+      self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport(datetime.now() + timedelta(seconds=-5)))
+      time.sleep(2)
+      self.assertFalse(runner_exporter.backupFilesWereModifiedDuringExport(datetime.now() + timedelta(seconds=-1)))
