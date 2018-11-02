@@ -55,7 +55,7 @@ def parseArgumentList():
   parser.add_argument('--srv-path', required=True)
   parser.add_argument('--backup-path', required=True)
   parser.add_argument('--etc-path', required=True)
-  parser.add_argument('--rsync-binary', required=True)
+  parser.add_argument('--rsync-binary', default='rsync')
   parser.add_argument('--backup-wait-time', type=int, required=True)
   parser.add_argument('-n', action='store_true', dest='dry', default=False)
 
