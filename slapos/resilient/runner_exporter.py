@@ -154,20 +154,23 @@ def synchroniseRunnerConfigurationDirectory(config, backup_path):
 
 
 def synchroniseRunnerWorkingDirectory(config, backup_path):
-  if os.path.isdir('instance'):
-    exclude_list = getExcludePathList('.')
-    rsync(
-      config.rsync_binary, 'instance', backup_path,
-      ["--exclude={}".format(x) for x in exclude_list],
-      dry=config.dry,
-    )
-
   file_list = []
+  exclude_list = []
+
+  if os.path.isdir('instance'):
+    file_list.append('instance')
+    exclude_list = getExcludePathList('.')
+
   for file in ('project', 'public', 'proxy.db'):
     if os.path.exists(file):
       file_list.append(file)
+
   if file_list:
-    rsync(config.rsync_binary, file_list, backup_path, dry=config.dry)
+    rsync(
+      config.rsync_binary, file_list, backup_path,
+      ["--exclude={}".format(x) for x in exclude_list],
+      dry=config.dry
+    )
 
 
 def getSlappartSignatureMethodDict():
