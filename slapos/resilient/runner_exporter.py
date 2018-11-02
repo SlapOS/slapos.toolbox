@@ -74,20 +74,15 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
     print('DEBUG:', arg_list)
     return
 
-  rsync_process = subprocess.call(arg_list)
-  print(rsync_process.stdout.read())
-
-  # All rsync errors are not to be considered as errors
-  allowed_error_message_regex = \
-    '^(file has vanished: |rsync warning: some files vanished before they could be transferred)'
-  rsync_process_stderr = rsync_process.stderr.read()
-
-  if rsync_process.returncode in (0, 24) or \
-      re.match(allowed_error_message_regex, rsync_process_stderr):
-    return
-
-  print(rsync_process_stderr)
-  raise RuntimeError("An issue occured when running rsync.")
+  try:
+    subprocess.check_call(arg_list)
+  except subprocess.CalledProcessError as e:
+    # All rsync errors are not to be considered as errors
+    allowed_error_message_regex = \
+      '^(file has vanished: |rsync warning: some files vanished before they could be transferred)'
+    if e.returncode not in (0, 24) or \
+        re.match(allowed_error_message_regex, e.output) is not None:
+      raise e
 
 
 def getExcludePathList(path):
