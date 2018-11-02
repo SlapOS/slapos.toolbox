@@ -6,6 +6,7 @@ import unittest
 
 from datetime import datetime, timedelta
 from slapos.resilient import runner_exporter
+from StringIO import StringIO
 
 tested_instance_cfg = """[buildout]
 installed_develop_eggs = 
@@ -45,6 +46,13 @@ template = inline:
 
 class Config():
   pass
+
+
+class SubprocessCallReturnObject:
+  returncode = 0
+  stderr = StringIO('')
+  stdout = StringIO('')
+
 
 class TestRunnerExporter(unittest.TestCase):
   def setUp(self):
@@ -124,8 +132,9 @@ class TestRunnerExporter(unittest.TestCase):
     )
 
 
-  @mock.patch('subprocess.check_call')
-  def test_synchroniseRunnerConfigurationDirectory(self, check_call_mock):
+  @mock.patch('subprocess.call')
+  def test_synchroniseRunnerConfigurationDirectory(self, call_mock):
+    call_mock.return_value = SubprocessCallReturnObject()
     self._setUpFakeInstanceFolder()
     config = Config()
     config.rsync_binary = 'rsync'
@@ -134,20 +143,21 @@ class TestRunnerExporter(unittest.TestCase):
       runner_exporter.synchroniseRunnerConfigurationDirectory(
         config, 'backup/runner/etc/'
       )
-    self.assertEqual(check_call_mock.call_count, 3)
-    check_call_mock.assert_any_call(
+    self.assertEqual(call_mock.call_count, 3)
+    call_mock.assert_any_call(
       ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', 'config.json', 'backup/runner/etc/']
     )
-    check_call_mock.assert_any_call(
+    call_mock.assert_any_call(
       ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '.project', 'backup/runner/etc/']
     )
-    check_call_mock.assert_any_call(
+    call_mock.assert_any_call(
       ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '.project', 'backup/runner/etc/']
     )
 
 
-  @mock.patch('subprocess.check_call')
-  def test_synchroniseRunnerWorkingDirectory(self, check_call_mock):
+  @mock.patch('subprocess.call')
+  def test_synchroniseRunnerWorkingDirectory(self, call_mock):
+    call_mock.return_value = SubprocessCallReturnObject()
     self._setUpFakeInstanceFolder()
     config = Config()
     config.rsync_binary = 'rsync'
@@ -157,10 +167,10 @@ class TestRunnerExporter(unittest.TestCase):
         config, 'backup/runner/runner'
       )
 
-    check_call_mock.assert_any_call(
+    call_mock.assert_any_call(
       ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '--exclude=*.sock', '--exclude=*.socket', '--exclude=*.pid', '--exclude=.installed*.cfg', '--exclude=srv/backup/**', '--exclude=instance/slappart0/etc/nicolas.txt', '--exclude=instance/slappart0/etc/rafael.txt', '--exclude=srv/exporter.exclude', 'instance', 'backup/runner/runner']
     )
-    check_call_mock.assert_any_call(
+    call_mock.assert_any_call(
       ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', 'proxy.db', 'backup/runner/runner']
     )
 

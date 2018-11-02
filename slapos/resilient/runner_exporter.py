@@ -4,6 +4,7 @@ import argparse
 import errno
 import glob
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -68,14 +69,25 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
     arg_list.extend(extra_args)
   arg_list.append(source)
   arg_list.append(destination)
+
   if dry:
     print('DEBUG:', arg_list)
-  else:
-    rsync_process = subprocess.check_call(arg_list)
-  # TODO : pipe stdout dans : (egrep -v "$IGNOREOUT" || true) || [ $? = "$IGNOREEXIT" ]
-  # with :
-  # IGNOREEXIT=24
-  # IGNOREOUT='^(file has vanished: |rsync warning: some files vanished before they could be transferred)'
+    return
+
+  rsync_process = subprocess.call(arg_list)
+  print(rsync_process.stdout.read())
+
+  # All rsync errors are not to be considered as errors
+  allowed_error_message_regex = \
+    '^(file has vanished: |rsync warning: some files vanished before they could be transferred)'
+  rsync_process_stderr = rsync_process.stderr.read()
+
+  if rsync_process.returncode in (0, 24) or \
+      re.match(allowed_error_message_regex, rsync_process_stderr):
+    return
+
+  print(rsync_process_stderr)
+  raise RuntimeError("An issue occured when running rsync.")
 
 
 def getExcludePathList(path):
