@@ -85,7 +85,7 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
     return
 
   try:
-    subprocess.check_output(arg_list)
+    print(subprocess.check_output(arg_list))
   except subprocess.CalledProcessError as e:
     # All rsync errors are not to be considered as errors
     allowed_error_message_list = \
