@@ -209,7 +209,7 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
 
 
 def backupFilesWereModifiedDuringExport(export_start_date):
-  export_time = (datetime.now() - export_start_date).total_seconds()
+  export_time = time.time() - export_start_date
   process = subprocess.Popen(['find', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'], stdout=subprocess.PIPE)
   process.wait()
   if process.stdout.read():
@@ -218,8 +218,8 @@ def backupFilesWereModifiedDuringExport(export_start_date):
 
 
 def runExport():
-  export_start_date = datetime.now()
-  print(export_start_date.isoformat())
+  export_start_date = int(time.time())
+  print(datetime.fromtimestamp(export_start_date).isoformat())
 
   args = parseArgumentList()
 
@@ -232,7 +232,7 @@ def runExport():
   # Synchronise runner's etc directory
   with CwdContextManager(args.etc_path):
     with open('.resilient-timestamp', 'w') as f:
-      f.write(datetime.now().strftime("%s"))
+      f.write(export_start_date)
 
     # "+ '/'" is mandatory otherwise rsyncing the etc directory
     # will create in the backup_etc_path only a file called etc

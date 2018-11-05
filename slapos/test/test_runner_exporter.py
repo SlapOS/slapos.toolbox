@@ -4,7 +4,6 @@ import shutil
 import time
 import unittest
 
-from datetime import datetime, timedelta
 from slapos.resilient import runner_exporter
 from StringIO import StringIO
 
@@ -198,8 +197,8 @@ class TestRunnerExporter(unittest.TestCase):
   def test_backupFilesWereModifiedDuringExport(self):
     self._setUpFakeInstanceFolder()
     with runner_exporter.CwdContextManager('instance'):
-      self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport(datetime.now() + timedelta(seconds=-5)))
+      self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport(time.time() - 5))
       time.sleep(2)
-      self.assertFalse(runner_exporter.backupFilesWereModifiedDuringExport(datetime.now() + timedelta(seconds=-1)))
+      self.assertFalse(runner_exporter.backupFilesWereModifiedDuringExport(time.time() - 1))
       self._createFile('slappart1/srv/backup/bakckup.data', 'my backup')
-      self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport(datetime.now() + timedelta(seconds=-1)))
+      self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport(time.time() - 1))
