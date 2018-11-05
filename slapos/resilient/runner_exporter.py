@@ -16,9 +16,6 @@ from hashlib import sha256
 from zc.buildout.configparser import parse
 
 
-#TODO : Redirect output to log. maybe it can be done at slapos level
-
-
 os.environ['LC_ALL'] = 'C'
 os.umask(0o77)
 
@@ -163,6 +160,8 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
     file_list.append('instance')
     exclude_list = getExcludePathList('.')
 
+  # XXX: proxy.db should be properly dumped to leverage its
+  # atomic properties
   for file in ('project', 'public', 'proxy.db'):
     if os.path.exists(file):
       file_list.append(file)
