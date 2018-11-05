@@ -184,11 +184,14 @@ def getSlappartSignatureMethodDict():
   return slappart_signature_method_dict
 
 
-def writeSignatureFile(slappart_signature_method_dict, runner_working_path, signature_file_path='../backup.signature'):
+def writeSignatureFile(slappart_signature_method_dict, runner_working_path, signature_file_path='backup.signature'):
   special_slappart_list = slappart_signature_method_dict.keys()
   signature_list = []
 
   for dirpath, dirname_list, filename_list in os.walk('.'):
+    if dirpath == '.':
+      continue
+
     # Find if special signature function should be applied
     for special_slappart in special_slappart_list:
       if dirpath.startswith(special_slappart):
