@@ -89,7 +89,7 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
       '^(file has vanished: |rsync warning: some files vanished before they could be transferred)'
     if e.returncode != 24 or \
         re.search(allowed_error_message_regex, e.output, re.M) is None:
-      raise e
+      raise
 
 
 def getExcludePathList(path):
