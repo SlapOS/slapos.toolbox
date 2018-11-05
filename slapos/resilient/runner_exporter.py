@@ -85,13 +85,13 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
     return
 
   try:
-    subprocess.check_call(arg_list)
+    subprocess.check_output(arg_list)
   except subprocess.CalledProcessError as e:
     # All rsync errors are not to be considered as errors
-    allowed_error_message_regex = \
+    allowed_error_message_list = \
       '^(file has vanished: |rsync warning: some files vanished before they could be transferred)'
-    if e.returncode not in (0, 24) or \
-        re.match(allowed_error_message_regex, e.output) is not None:
+    if e.returncode != 24 or \
+        re.search(allowed_error_message_regex, e.output, re.M) is None:
       raise e
 
 
