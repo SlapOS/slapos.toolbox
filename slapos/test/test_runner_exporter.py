@@ -190,9 +190,9 @@ class TestRunnerExporter(unittest.TestCase):
         signature_file_content = f.read()
 
     # Slappart1 is using md5sum as signature, others are using sha256sum (default)
-    self.assertEqual(signature_file_content, """2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824  {cwd}/backup/instance/slappart0/data
-49b74873d57ff0307b7c9364e2fe2a3876d8722fbe7ce3a6f1438d47647a86f4  {cwd}/backup/instance/etc/.project
-7d793037a0760186574b0282f2f435e7  {cwd}/backup/instance/slappart1/data""".format(cwd=os.getcwd()))
+    self.assertEqual(signature_file_content, """2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824  ./instance/slappart0/data
+49b74873d57ff0307b7c9364e2fe2a3876d8722fbe7ce3a6f1438d47647a86f4  ./instance/etc/.project
+7d793037a0760186574b0282f2f435e7  ./instance/slappart1/data""")
 
   def test_backupFilesWereModifiedDuringExport(self):
     self._setUpFakeInstanceFolder()
