@@ -203,7 +203,7 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
     # Calculate all signatures
     for filename in filename_list:
       file_path = os.path.join(dirpath, filename)
-      signature_list.append("%s  %s" % (signature_function(file_path), os.path.realpath(file_path)))
+      signature_list.append("%s  %s" % (signature_function(file_path), file_path))
 
     # Write the signatures in file
     with open(signature_file_path, 'w+') as signature_file:
@@ -248,7 +248,7 @@ def runExport():
     slappart_signature_method_dict = getSlappartSignatureMethodDict()
 
   # Calculate signature of synchronised files
-  with CwdContextManager(backup_runner_path):
+  with CwdContextManager(args.backup_path):
     writeSignatureFile(slappart_signature_method_dict, runner_working_path)
 
   # BBB: clean software folder if it was synchronized
