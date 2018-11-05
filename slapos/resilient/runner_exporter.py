@@ -235,7 +235,7 @@ def runExport():
   # Synchronise runner's etc directory
   with CwdContextManager(args.etc_path):
     with open('.resilient-timestamp', 'w') as f:
-      f.write(export_start_date)
+      f.write(str(export_start_date))
 
     # "+ '/'" is mandatory otherwise rsyncing the etc directory
     # will create in the backup_etc_path only a file called etc
