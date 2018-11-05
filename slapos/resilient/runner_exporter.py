@@ -23,7 +23,7 @@ os.environ['LC_ALL'] = 'C'
 os.umask(0o77)
 
 
-def read_file_by_chunk(path, chunk_size=1024 * 10):
+def read_file_by_chunk(path, chunk_size=1024 * 1024):
   with open(path, 'rb') as f:
     chunk = f.read(chunk_size)
     while chunk:
