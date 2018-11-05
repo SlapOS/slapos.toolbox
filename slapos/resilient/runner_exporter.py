@@ -145,6 +145,9 @@ def getSha256Sum(file_path):
 
 
 def synchroniseRunnerConfigurationDirectory(config, backup_path):
+  if not os.path.exists(backup_path):
+    os.makedirs(backup_path)
+
   file_list = ['config.json']
   for hidden_file in os.listdir('.'):
     if hidden_file[0] == '.':
