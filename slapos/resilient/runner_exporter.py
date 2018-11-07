@@ -164,7 +164,7 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
 
   if os.path.isdir('instance'):
     file_list.append('instance')
-    exclude_list = getExcludePathList('.')
+    exclude_list = getExcludePathList(os.getcwd())
 
   # XXX: proxy.db should be properly dumped to leverage its
   # atomic properties

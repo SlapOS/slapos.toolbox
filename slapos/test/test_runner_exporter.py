@@ -20,7 +20,7 @@ recipe = slapos.cookbook:mkdirectory
 srv = /some/prefix/slappart18/test/srv
 
 [hello-nicolas]
-__buildout_installed__ = ./instance/slappart0/etc/nicolas.txt
+__buildout_installed__ = {cwd}/instance/slappart0/etc/nicolas.txt
 __buildout_signature__ = MarkupSafe-1.0-py2.7-linux-x86_64.egg Jinja2-2.10-py2.7.egg zc.buildout-2.12.2-py2.7.egg slapos.recipe.template-4.3-py2.7.egg setuptools-40.4.3-py2.7.egg
 mode = 0644
 name = Nicolas
@@ -28,14 +28,14 @@ output = /some/prefix/slappart18/test/etc/nicolas.txt
 recipe = slapos.recipe.template
 
 [hello-rafael]
-__buildout_installed__ = ./instance/slappart0/etc//rafael.txt
+__buildout_installed__ = {cwd}/instance/slappart0/etc//rafael.txt
 __buildout_signature__ = MarkupSafe-1.0-py2.7-linux-x86_64.egg Jinja2-2.10-py2.7.egg zc.buildout-2.12.2-py2.7.egg slapos.recipe.template-4.3-py2.7.egg setuptools-40.4.3-py2.7.egg
 name = Rafael
 output = /some/prefix/slappart18/test/etc/rafael.txt
 recipe = slapos.recipe.template
 
 [exclude]
-__buildout_installed__ = srv/exporter.exclude
+__buildout_installed__ = {cwd}/instance/slappart0/srv/exporter.exclude
 __buildout_signature__ = MarkupSafe-1.0-py2.7-linux-x86_64.egg Jinja2-2.10-py2.7.egg zc.buildout-2.12.2-py2.7.egg slapos.recipe.template-4.3-py2.7.egg setuptools-40.4.3-py2.7.egg
 recipe = slapos.recipe.template:jinja2
 rendered = /some/prefix/slappart18/test/srv/exporter.exclude
@@ -81,7 +81,8 @@ class TestRunnerExporter(unittest.TestCase):
     os.makedirs('instance/slappart1/etc')
     os.makedirs('instance/slappart1/srv/backup')
 
-    self._createFile('instance/slappart0/.installed.cfg', tested_instance_cfg)
+    self._createFile('instance/slappart0/.installed.cfg',
+                     tested_instance_cfg.format(cwd=os.getcwd()))
 
     self._createFile('instance/slappart0/srv/backup/data.dat',
                      'all my fortune lays on this secret !')
@@ -111,7 +112,7 @@ class TestRunnerExporter(unittest.TestCase):
   def test_getExcludePathList(self):
     self._setUpFakeInstanceFolder()
     self.assertEqual(
-      sorted(runner_exporter.getExcludePathList('.')),
+      sorted(runner_exporter.getExcludePathList(os.getcwd())),
       [
         '*.pid',
         '*.sock',
@@ -119,8 +120,8 @@ class TestRunnerExporter(unittest.TestCase):
         '.installed*.cfg',
         'instance/slappart0/etc/nicolas.txt',
         'instance/slappart0/etc/rafael.txt',
-        'srv/backup/**',
-        'srv/exporter.exclude',
+        'instance/slappart0/srv/backup/**',
+        'instance/slappart0/srv/exporter.exclude',
       ]
     )
 
@@ -147,14 +148,14 @@ class TestRunnerExporter(unittest.TestCase):
     config = Config()
     config.rsync_binary = 'rsync'
     config.dry = False
-    with runner_exporter.CwdContextManager('.'):
+    with runner_exporter.CwdContextManager(os.getcwd()):
       runner_exporter.synchroniseRunnerWorkingDirectory(
         config, 'backup/runner/runner'
       )
 
     self.assertEqual(check_output_mock.call_count, 1)
     check_output_mock.assert_any_call(
-      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '--exclude=*.sock', '--exclude=*.socket', '--exclude=*.pid', '--exclude=.installed*.cfg', '--exclude=srv/backup/**', '--exclude=instance/slappart0/etc/nicolas.txt', '--exclude=instance/slappart0/etc/rafael.txt', '--exclude=srv/exporter.exclude', 'instance', 'project', 'public', 'proxy.db', 'backup/runner/runner']
+      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '--exclude=*.sock', '--exclude=*.socket', '--exclude=*.pid', '--exclude=.installed*.cfg', '--exclude=instance/slappart0/srv/backup/**', '--exclude=instance/slappart0/etc/nicolas.txt', '--exclude=instance/slappart0/etc/rafael.txt', '--exclude=instance/slappart0/srv/exporter.exclude', 'instance', 'project', 'public', 'proxy.db', 'backup/runner/runner']
     )
 
   def test_getSlappartSignatureMethodDict(self):
