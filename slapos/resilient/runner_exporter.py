@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import errno
 import glob
+import itertools
 import os
 import re
 import shutil
@@ -211,12 +212,20 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
       signature_function = getSha256Sum
 
     # Calculate the signature of all files in this directory
-    signature_list.extend(
-      signature_function([
-        os.path.join(dirpath, filename)
-        for filename in filename_list
-      ])
+    # The number of files passed to the signature function is
+    # hardcoded in max_argument_number
+    max_argument_number = 10
+    file_list_generator = (
+      os.path.join(dirpath, filename)
+      for filename in filename_list
     )
+    arg_list = [file_list_generator] * max_argument_number
+    for file_list in itertools.izip_longest(*arg_list):
+      # izip_longest fills with None
+      file_list = [x for x in file_list if x]
+      signature_list.extend(
+        signature_function(file_list)
+      )
 
     # Write the signatures in file
     with open(signature_file_path, 'w+') as signature_file:
