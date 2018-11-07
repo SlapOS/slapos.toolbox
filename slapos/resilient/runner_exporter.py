@@ -1,8 +1,6 @@
 from __future__ import print_function
 
 import argparse
-import errno
-import glob
 import os
 import re
 import shutil
@@ -10,41 +8,12 @@ import subprocess
 import sys
 import time
 
-from contextlib import contextmanager
 from datetime import datetime
-from hashlib import sha256
-from zc.buildout.configparser import parse
+from .utils import *
 
 
 os.environ['LC_ALL'] = 'C'
 os.umask(0o77)
-
-
-def read_file_by_chunk(path, chunk_size=1024 * 1024):
-  with open(path, 'rb') as f:
-    chunk = f.read(chunk_size)
-    while chunk:
-      yield chunk
-      chunk = f.read(chunk_size)
-
-
-@contextmanager
-def CwdContextManager(path):
-  """
-  Context Manager for executing code in a given directory.
-  There is no need to provide fallback or basic checks
-  in this code, as these checkes should exist in the code
-  invoking this Context Manager.
-  If someone needs to add checks here, I'm pretty sure
-  it means that they are trying to hide legitimate errors.
-  See tests to see examples of invokation
-  """
-  old_path = os.getcwd()
-  try:
-    os.chdir(path)
-    yield
-  finally:
-    os.chdir(old_path)
 
 
 def parseArgumentList():
@@ -92,55 +61,6 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
       raise
 
 
-def getExcludePathList(path):
-  excluded_path_list = [
-    "*.sock",
-    "*.socket",
-    "*.pid",
-    ".installed*.cfg",
-  ]
-
-  def append_relative(path_list):
-    for p in path_list:
-      p = p.strip()
-      if p:
-        excluded_path_list.append(os.path.relpath(p, path))
-
-  for partition in glob.glob(os.path.join(path, "instance", "slappart*")):
-    if not os.path.isdir(partition):
-      continue
-
-    with CwdContextManager(partition):
-      try:
-        with open("srv/exporter.exclude") as f:
-          exclude = f.readlines()
-      except IOError as e:
-        if e.errno != errno.ENOENT:
-          raise
-      else:
-        append_relative(exclude)
-      for installed in glob.glob(".installed*.cfg"):
-        try:
-          with open(installed) as f:
-            installed = parse(f, installed)
-        except IOError as e:
-          if e.errno != errno.ENOENT:
-            raise
-        else:
-          for section in installed.itervalues():
-            append_relative(section.get(
-              '__buildout_installed__', '').splitlines())
-
-  return excluded_path_list
-
-
-def getSha256Sum(file_path):
-  hash_sum = sha256()
-  for chunk in read_file_by_chunk(file_path):
-    hash_sum.update(chunk)
-  return hash_sum.hexdigest()
-
-
 def synchroniseRunnerConfigurationDirectory(config, backup_path):
   if not os.path.exists(backup_path):
     os.makedirs(backup_path)
@@ -172,45 +92,6 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
       ["--exclude={}".format(x) for x in exclude_list],
       dry=config.dry
     )
-
-
-def getSlappartSignatureMethodDict():
-  slappart_signature_method_dict = {}
-  for partition in glob.glob("./instance/slappart*"):
-    if os.path.isdir(partition):
-      script_path = os.path.join(partition, 'srv', '.backup_identity_script')
-      if os.path.exists(script_path):
-        slappart_signature_method_dict[partition] = script_path
-  return slappart_signature_method_dict
-
-
-def writeSignatureFile(slappart_signature_method_dict, runner_working_path, signature_file_path='backup.signature'):
-  special_slappart_list = slappart_signature_method_dict.keys()
-  signature_list = []
-
-  for dirpath, dirname_list, filename_list in os.walk('.'):
-    if dirpath == '.':
-      continue
-
-    # Find if special signature function should be applied
-    for special_slappart in special_slappart_list:
-      if dirpath.startswith(special_slappart):
-        signature_function = lambda x: subprocess.check_output([
-          os.path.join(runner_working_path, slappart_signature_method_dict[special_slappart]),
-          x
-        ])
-        break
-    else:
-      signature_function = getSha256Sum
-
-    # Calculate all signatures
-    for filename in filename_list:
-      file_path = os.path.join(dirpath, filename)
-      signature_list.append("%s  %s" % (signature_function(file_path), file_path))
-
-    # Write the signatures in file
-    with open(signature_file_path, 'w+') as signature_file:
-      signature_file.write("\n".join(sorted(signature_list)))
 
 
 def backupFilesWereModifiedDuringExport(export_start_date):
