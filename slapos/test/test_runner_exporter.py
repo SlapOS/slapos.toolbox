@@ -95,7 +95,7 @@ class TestRunnerExporter(unittest.TestCase):
 
     self._createExecutableFile(
       'instance/slappart1/srv/.backup_identity_script',
-      '#!/bin/bash\nmd5sum $1 | cut -d " " -f 1 | tr -d "\n"'
+      '#!/bin/bash\nmd5sum $*'
     )
 
 

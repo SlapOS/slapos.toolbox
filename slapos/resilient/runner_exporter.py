@@ -134,11 +134,16 @@ def getExcludePathList(path):
   return excluded_path_list
 
 
-def getSha256Sum(file_path):
-  hash_sum = sha256()
-  for chunk in read_file_by_chunk(file_path):
-    hash_sum.update(chunk)
-  return hash_sum.hexdigest()
+def getSha256Sum(file_path_list):
+  result_list = []
+
+  for file_path in file_path_list:
+    hash_sum = sha256()
+    for chunk in read_file_by_chunk(file_path):
+      hash_sum.update(chunk)
+    result_list.append("%s  %s" % (hash_sum.hexdigest(), file_path))
+
+  return result_list
 
 
 def synchroniseRunnerConfigurationDirectory(config, backup_path):
@@ -189,24 +194,29 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
   signature_list = []
 
   for dirpath, dirname_list, filename_list in os.walk('.'):
-    if dirpath == '.':
+    if dirpath == '.' or not filename_list:
       continue
 
     # Find if special signature function should be applied
     for special_slappart in special_slappart_list:
       if dirpath.startswith(special_slappart):
-        signature_function = lambda x: subprocess.check_output([
-          os.path.join(runner_working_path, slappart_signature_method_dict[special_slappart]),
-          x
-        ])
+        # We have to rstrip as most programs return an empty line
+        # at the end of their output
+        signature_function = lambda file_path_list: subprocess.check_output(
+          [
+            os.path.join(runner_working_path, slappart_signature_method_dict[special_slappart]),
+          ] + file_path_list).rstrip('\n').split('\n')
         break
     else:
       signature_function = getSha256Sum
 
-    # Calculate all signatures
-    for filename in filename_list:
-      file_path = os.path.join(dirpath, filename)
-      signature_list.append("%s  %s" % (signature_function(file_path), file_path))
+    # Calculate the signature of all files in this directory
+    signature_list.extend(
+      signature_function([
+        os.path.join(dirpath, filename)
+        for filename in filename_list
+      ])
+    )
 
     # Write the signatures in file
     with open(signature_file_path, 'w+') as signature_file:
