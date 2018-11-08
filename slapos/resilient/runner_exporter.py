@@ -200,32 +200,47 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
 
     # Find if special signature function should be applied
     for special_slappart in special_slappart_list:
+      backup_identity_script_path = os.path.join(
+        runner_working_path,
+        slappart_signature_method_dict[special_slappart]
+      )
+
       if dirpath.startswith(special_slappart):
+        signature_process = subprocess.Popen(
+          backup_identity_script_path,
+          stdin=subprocess.PIPE,
+          stdout=subprocess.PIPE,
+        )
+
+        for filename in filename_list:
+          signature_process.stdin.write(os.path.join(dirpath, filename) + '\0')
+        signature_process.stdin.close()
+
+        output = signature_process.stdout.read()
+        while signature_process.poll() is None:
+          time.sleep(1)
+          output += signature_process.stdout.read()
+        output += signature_process.stdout.read()
+
+        if signature_process.returncode != 0:
+          print(
+            "An issue occured when calculating the custom signature"
+            " with %s :\n%s" % (
+              backup_identity_script_path, signature_process.stderr.read()
+            )
+          )
+          system.exit(1)
+
         # We have to rstrip as most programs return an empty line
         # at the end of their output
-        signature_function = lambda file_path_list: subprocess.check_output(
-          [
-            os.path.join(runner_working_path, slappart_signature_method_dict[special_slappart]),
-          ] + file_path_list).rstrip('\n').split('\n')
-        break
-    else:
-      signature_function = getSha256Sum
-
-    # Calculate the signature of all files in this directory
-    # The number of files passed to the signature function is
-    # hardcoded in max_argument_number
-    max_argument_number = 10
-    file_list_generator = (
-      os.path.join(dirpath, filename)
-      for filename in filename_list
-    )
-    arg_list = [file_list_generator] * max_argument_number
-    for file_list in itertools.izip_longest(*arg_list):
-      # izip_longest fills with None
-      file_list = [x for x in file_list if x]
-      signature_list.extend(
-        signature_function(file_list)
-      )
+        signature_list.extend(output.strip('\n').split('\n'))
+      else:
+        signature_list.extend(
+          getSha256Sum([
+            os.path.join(dirpath, filename)
+            for filename in filename_list
+          ])
+        )
 
     # Write the signatures in file
     with open(signature_file_path, 'w+') as signature_file:
