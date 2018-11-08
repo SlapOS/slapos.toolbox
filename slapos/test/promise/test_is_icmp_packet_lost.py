@@ -41,16 +41,16 @@ class TestIsICMPPacketLost(unittest.TestCase):
     result = test("couscous", True, 5)
     self.assertEqual(result[4], -1)
 
-  def test_localhost6 (self):
+  def test_localhost6_with_ping6 (self):
     result = test("::1", False, 5)
     self.assertEqual(result[4], '0')
   
+  def test_localhost6_with_ping4 (self):
+    result = test("::1", True, 5)
+    self.assertEqual(result[4], '0')
+
   def test_error6(self):
     result = test("couscous", False, 5)
-    self.assertEqual(result[4], -1)
-
-  def test_error_4_6(self):
-    result = test("::1", True, 5)
     self.assertEqual(result[4], -1)
 
 if __name__ == '__main__':
