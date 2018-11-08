@@ -37,13 +37,11 @@ DNS_EXPECTED_LIST = ["85.118.38.162", "176.31.129.213"]
 class TestDNSBench(unittest.TestCase):
 
   def test_dnsbench_ok(self):
-    """ Test dns resolution, this test may fail if
-        not ran from Europe. 
-
-        # Update domain later.
+    """
+    Test dns resolution
     """
     info = dnsbench.resolve(
-       "www.erp5.com", DNS_EXPECTED_LIST)
+       "eu.web.vifib.com", DNS_EXPECTED_LIST)
   
     self.assertEqual(info[0], 'DNS')
     self.assertEqual(info[1], 'www.erp5.com')
