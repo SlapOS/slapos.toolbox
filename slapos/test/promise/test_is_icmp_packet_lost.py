@@ -35,23 +35,23 @@ class TestIsICMPPacketLost(unittest.TestCase):
 
   def test_localhost(self):
     result = test("localhost", True, 5)
-    self.assertEquals(result[4], '0')
+    self.assertEqual(result[4], '0')
   
   def test_error(self):
     result = test("couscous", True, 5)
-    self.assertEquals(result[4], -1)
+    self.assertEqual(result[4], -1)
 
   def test_localhost6 (self):
     result = test("::1", False, 5)
-    self.assertEquals(result[4], '0')
+    self.assertEqual(result[4], '0')
   
   def test_error6(self):
     result = test("couscous", False, 5)
-    self.assertEquals(result[4], -1)
+    self.assertEqual(result[4], -1)
 
   def test_error_4_6(self):
     result = test("::1", True, 5)
-    self.assertEquals(result[4], -1)
+    self.assertEqual(result[4], -1)
 
 if __name__ == '__main__':
   unittest.main()

@@ -51,7 +51,7 @@ class TestUserMemory(unittest.TestCase):
     self.conn.close()
 
   def test_check_memory(self):
-    self.assertEquals(
+    self.assertEqual(
       ({
         'byte': 29544162598,
         'percent': 87.65432099725093,
@@ -62,7 +62,7 @@ class TestUserMemory(unittest.TestCase):
         'slaptestuser1',
       ),
     )
-    self.assertEquals(
+    self.assertEqual(
       (True, "User memory usage: 29544162598B (87.7%)", ""),
       checkMemoryUsage(
         self.db_dir,
@@ -71,7 +71,7 @@ class TestUserMemory(unittest.TestCase):
         threshold=29600000000,
       ),
     )
-    self.assertEquals(
+    self.assertEqual(
       (True, "User memory usage: 87.7% (29544162598B)", ""),
       checkMemoryUsage(
         self.db_dir,
@@ -81,7 +81,7 @@ class TestUserMemory(unittest.TestCase):
         unit="percent",
       ),
     )
-    self.assertEquals(
+    self.assertEqual(
       (False, "High user memory usage: 29544162598B (87.7%)", ""),
       checkMemoryUsage(
         self.db_dir,
@@ -90,7 +90,7 @@ class TestUserMemory(unittest.TestCase):
         threshold=29500000000,
       ),
     )
-    self.assertEquals(
+    self.assertEqual(
       (False, "High user memory usage: 87.7% (29544162598B)", ""),
       checkMemoryUsage(
         self.db_dir,
@@ -102,7 +102,7 @@ class TestUserMemory(unittest.TestCase):
     )
 
   def test_check_memory_with_unavailable_dates(self):
-    self.assertEquals(
+    self.assertEqual(
       (False, "error", no_result_message),
       checkMemoryUsage(self.db_dir, datetime(2017, 9, 14, 18, 0 , 0), "slaptestuser1", 1.0),
     )

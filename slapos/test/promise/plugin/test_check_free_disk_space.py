@@ -84,15 +84,15 @@ extra_config_dict = {
     self.configureLauncher()
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['failed'], False)
-    self.assertEquals(result['result']['message'], "No result from collector database: disk check skipped")
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(result['result']['message'], "No result from collector database: disk check skipped")
 
   def test_disk_space_ok(self):
     self.configureLauncher()
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['failed'], False)
-    self.assertEquals(result['result']['message'], "Disk usage: OK")
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(result['result']['message'], "Disk usage: OK")
 
   def test_disk_space_nok(self):
     with open(self.th_file, 'w') as f:
@@ -101,8 +101,8 @@ extra_config_dict = {
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['failed'], True)
-    self.assertEquals(result['result']['message'], "Free disk space low: remaining 269.1 G (threshold: 291921381.0 G)")
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(result['result']['message'], "Free disk space low: remaining 269.1 G (threshold: 291921381.0 G)")
 
   def test_check_free_disk_with_unicode_string_path(self):
     # set path unicode
@@ -110,8 +110,8 @@ extra_config_dict = {
     self.configureLauncher()
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['failed'], False)
-    self.assertEquals(result['result']['message'], "Disk usage: OK")
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(result['result']['message'], "Disk usage: OK")
 
 if __name__ == '__main__':
   unittest.main()

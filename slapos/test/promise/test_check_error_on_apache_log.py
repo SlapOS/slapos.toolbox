@@ -63,31 +63,31 @@ class TestCheckErrorOnApacheLog(unittest.TestCase):
     self._update_logs()
 
   def test_no_error(self):
-    self.assertEquals("OK",
+    self.assertEqual("OK",
       test(self.base_path + "/SOFTINST-0_infoonly_error_log", 0))
 
-    self.assertEquals("OK",
+    self.assertEqual("OK",
       test(self.base_path + "/SOFTINST-0_infoonly_error_log", 3600))
 
   def test_error(self):
-    self.assertEquals("ERROR=2 (NOTROUTE=2, UNREACHEABLENET=0, TIMEOUT=0)",
+    self.assertEqual("ERROR=2 (NOTROUTE=2, UNREACHEABLENET=0, TIMEOUT=0)",
       test(self.base_path + "/SOFTINST-0_apache_error_log", 0))
 
-    self.assertEquals("ERROR=1 (NOTROUTE=1, UNREACHEABLENET=0, TIMEOUT=0)",
+    self.assertEqual("ERROR=1 (NOTROUTE=1, UNREACHEABLENET=0, TIMEOUT=0)",
       test(self.base_path + "/SOFTINST-0_apache_error_log", 3600))
 
   def test_error_timeout(self):
-    self.assertEquals("ERROR=4 (NOTROUTE=0, UNREACHEABLENET=0, TIMEOUT=4)",
+    self.assertEqual("ERROR=4 (NOTROUTE=0, UNREACHEABLENET=0, TIMEOUT=4)",
       test(self.base_path + "/SOFTINST-0_timeout_error_log", 0))
 
-    self.assertEquals("ERROR=2 (NOTROUTE=0, UNREACHEABLENET=0, TIMEOUT=2)",
+    self.assertEqual("ERROR=2 (NOTROUTE=0, UNREACHEABLENET=0, TIMEOUT=2)",
       test(self.base_path + "/SOFTINST-0_timeout_error_log", 3600))
 
   def test_error_unreacheabler(self):
-    self.assertEquals("ERROR=11 (NOTROUTE=0, UNREACHEABLENET=11, TIMEOUT=0)",
+    self.assertEqual("ERROR=11 (NOTROUTE=0, UNREACHEABLENET=11, TIMEOUT=0)",
       test(self.base_path + "/SOFTINST-0_unreachable_error_log", 0))
 
-    self.assertEquals("ERROR=11 (NOTROUTE=0, UNREACHEABLENET=11, TIMEOUT=0)",
+    self.assertEqual("ERROR=11 (NOTROUTE=0, UNREACHEABLENET=11, TIMEOUT=0)",
       test(self.base_path + "/SOFTINST-0_unreachable_error_log", 3600))   
   
 if __name__ == '__main__':

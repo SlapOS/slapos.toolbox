@@ -186,8 +186,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       }
     }
     qmpwrapper.setVNCPassword("my password")
-    self.assertEquals(len(self.call_stack_list), 1)
-    self.assertEquals(self.call_stack_list[0], expected_result)
+    self.assertEqual(len(self.call_stack_list), 1)
+    self.assertEqual(self.call_stack_list[0], expected_result)
 
   def test_updateDevice_cpu_add(self):
     self.free_cpu_slot_amount = 4
@@ -226,8 +226,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-cpus'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 4)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 4)
+    self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_cpu_increase(self):
     self.free_cpu_slot_amount = 2
@@ -266,8 +266,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-cpus'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 4)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 4)
+    self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_cpu_remove(self):
     self.free_cpu_slot_amount = 2
@@ -292,8 +292,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-cpus'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 3)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 3)
+    self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_cpu_no_update(self):
     self.free_cpu_slot_amount = 2
@@ -309,8 +309,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-hotpluggable-cpus'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 1)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 1)
+    self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_add(self):
     self.hotplugged_memory_amount = 0
@@ -364,8 +364,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memory-devices'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 7)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 7)
+    self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_increase(self):
     qmpwrapper = QemuQMPWrapper(self.socket_file, auto_connect=False)
@@ -403,8 +403,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memory-devices'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 5)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 5)
+    self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_delete(self):
     qmpwrapper = QemuQMPWrapper(self.socket_file, auto_connect=False)
@@ -444,8 +444,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memory-devices'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 7)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 7)
+    self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_delete_all(self):
     qmpwrapper = QemuQMPWrapper(self.socket_file, auto_connect=False)
@@ -493,8 +493,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memory-devices'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 9)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 9)
+    self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_no_update(self):
     qmpwrapper = QemuQMPWrapper(self.socket_file, auto_connect=False)
@@ -515,8 +515,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memdev'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 2)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 2)
+    self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_will_reboot(self):
     qmpwrapper = QemuQMPWrapper(self.socket_file, auto_connect=False)
@@ -563,8 +563,8 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'quit'}
     ]
 
-    self.assertEquals(len(self.call_stack_list), 9)
-    self.assertEquals(self.call_stack_list, expected_result)
+    self.assertEqual(len(self.call_stack_list), 9)
+    self.assertEqual(self.call_stack_list, expected_result)
 
 if __name__ == '__main__':
   unittest.main()

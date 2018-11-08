@@ -232,7 +232,7 @@ exit %(code)s
     with open(os.path.join(self.private_dir, 'monitor.global.json')) as r:
       result = json.loads(r.read().decode("utf-8"))
       result.pop("date")
-      self.assertEquals(result,
+      self.assertEqual(result,
         json.loads(expected_result))
 
     # all promises are OK now
@@ -251,7 +251,7 @@ exit %(code)s
       instance_result_dict = json.loads(r.read().decode("utf-8"))
       result = instance_result_dict.copy()
       result.pop("date")
-      self.assertEquals(result,
+      self.assertEqual(result,
         expected_result_dict)
 
     # validate returned json result

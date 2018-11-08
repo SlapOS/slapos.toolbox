@@ -49,7 +49,7 @@ class TestComputerMemory(unittest.TestCase):
     self.conn.close() 
 
   def test_check_memory(self):
-    self.assertEquals(
+    self.assertEqual(
       ({
         'total': 33705312256,
         'used': 33139023872,
@@ -58,41 +58,41 @@ class TestComputerMemory(unittest.TestCase):
         'free_percent': 1.6801161184886904,
       }, ""),
       getMemoryInfo('/tmp', '00:02', '2017-09-15'))
-    self.assertEquals(
+    self.assertEqual(
       (True, "OK - memory used: 33139023872B of 33705312256B (98.3%)", ""),
       checkMemoryUsage('/tmp', '00:02', '2017-09-15', threshold=33500000000),
     )
-    self.assertEquals(
+    self.assertEqual(
       (True, "OK - memory used: 98.3% (33139023872B of 33705312256B)", ""),
       checkMemoryUsage('/tmp', '00:02', '2017-09-15', threshold=99, unit="percent"),
     )
-    self.assertEquals(
+    self.assertEqual(
       (True, "OK - free memory: 566288384B of 33705312256B (1.7%)", ""),
       checkMemoryUsage('/tmp', '00:02', '2017-09-15', threshold=500000000, key="free"),
     )
-    self.assertEquals(
+    self.assertEqual(
       (True, "OK - free memory: 1.7% (566288384B of 33705312256B)", ""),
       checkMemoryUsage('/tmp', '00:02', '2017-09-15', threshold=1, key="free", unit="percent"),
     )
-    self.assertEquals(
+    self.assertEqual(
       (False, "Low available memory - usage: 33139023872B of 33705312256B (98.3%)", ""),
       checkMemoryUsage('/tmp', '00:02', '2017-09-15', threshold=33000000000),
     )
-    self.assertEquals(
+    self.assertEqual(
       (False, "Low available memory - usage: 98.3% (33139023872B of 33705312256B)", ""),
       checkMemoryUsage('/tmp', '00:02', '2017-09-15', threshold=98, unit="percent"),
     )
-    self.assertEquals(
+    self.assertEqual(
       (False, "Low available memory - free: 566288384B of 33705312256B (1.7%)", ""),
       checkMemoryUsage('/tmp', '00:02', '2017-09-15', threshold=600000000, key="free"),
     )
-    self.assertEquals(
+    self.assertEqual(
       (False, "Low available memory - free: 1.7% (566288384B of 33705312256B)", ""),
       checkMemoryUsage('/tmp', '00:02', '2017-09-15', threshold=2, key="free", unit="percent"),
     )
 
   def test_check_memory_with_unavailable_dates(self):
-    self.assertEquals(
+    self.assertEqual(
       (False, "error", total_memory_fetch_failure_message),
       checkMemoryUsage('/tmp', '18:00', '2017-09-14', 1.0),
     )

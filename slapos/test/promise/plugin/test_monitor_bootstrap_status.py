@@ -67,8 +67,8 @@ extra_config_dict = {
     self.configureLauncher()
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['failed'], False)
-    self.assertEquals(result['result']['message'], "Bootstrap didn't run!")
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(result['result']['message'], "Bootstrap didn't run!")
 
   def test_monitor_bootstrap_ok(self):
     self.writeResult('')
@@ -76,8 +76,8 @@ extra_config_dict = {
     self.configureLauncher()
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['failed'], False)
-    self.assertEquals(result['result']['message'], "Bootstrap OK")
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(result['result']['message'], "Bootstrap OK")
 
   def test_monitor_bootstrap_fail(self):
     self.writePid(2425)
@@ -85,9 +85,9 @@ extra_config_dict = {
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['failed'], True)
+    self.assertEqual(result['result']['failed'], True)
     message = "Monitor bootstrap exited with error.\n ---- Latest monitor-boostrap.log ----\nBuildout running..."
-    self.assertEquals(result['result']['message'], message)
+    self.assertEqual(result['result']['message'], message)
 
 if __name__ == '__main__':
   unittest.main()

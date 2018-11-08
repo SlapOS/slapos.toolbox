@@ -91,26 +91,26 @@ class TestTestMap(unittest.TestCase):
 
   def test_group(self):
     """ Check available group of tests """
-    self.assertEquals(self.test_map.getGroupList(), 
+    self.assertEqual(self.test_map.getGroupList(), 
           ["COMP-1", "COMP-2"])
 
   def test_getnextgroup(self):
     """ Get Next Group """
-    self.assertEquals(self.test_map.getNextGroup([]),
+    self.assertEqual(self.test_map.getNextGroup([]),
       "COMP-1")
-    self.assertEquals(
+    self.assertEqual(
       self.test_map.getNextGroup(ignore_list=["COMP-1"]),
       "COMP-2")
 
   def test_getexcludelist(self):
     """ Check available group of tests """
-    self.assertEquals(self.test_map.getExcludeList("COMP-1"),
+    self.assertEqual(self.test_map.getExcludeList("COMP-1"),
       set(['test-agent-software-release',
            'test-wendelin-software-release',
            'test-monitor-software-release',
            'test-re6stnetmaster-software-release',
            'test-powerdns-software-release']))
-    self.assertEquals(
+    self.assertEqual(
       self.test_map.getExcludeList("COMP-2"),
       set(['test-apache-frontend-software-release',
            'test-slapos-master-software-release',
@@ -120,7 +120,7 @@ class TestTestMap(unittest.TestCase):
            'test-nayuos-software-release']))
 
     self.test_map.addRanTest('test-agent-software-release')
-    self.assertEquals(
+    self.assertEqual(
       self.test_map.getExcludeList("COMP-2"),
       set(['test-apache-frontend-software-release',
            'test-slapos-master-software-release',
@@ -133,22 +133,22 @@ class TestTestMap(unittest.TestCase):
   def test_dropgroup(self):
     """ Check available group of tests """
     test_map_copy = TestMap(TESTMAP_DICT)
-    self.assertEquals(test_map_copy.getGroupList(),
+    self.assertEqual(test_map_copy.getGroupList(),
           ["COMP-1", "COMP-2"])
 
     test_map_copy.dropGroup("COMP-1")
-    self.assertEquals(test_map_copy.getGroupList(),
+    self.assertEqual(test_map_copy.getGroupList(),
           ["COMP-2"])
 
   def test_cleanup_empty_group(self):
     """ Check available group of tests """
     test_map_copy = TestMap(TESTMAP_DICT)
     test_map_copy.test_map_dict["NEWGROUP"] = {}
-    self.assertEquals(test_map_copy.getGroupList(),
+    self.assertEqual(test_map_copy.getGroupList(),
           ["COMP-1", "COMP-2", "NEWGROUP"])
 
     test_map_copy.cleanEmptyGroup()
-    self.assertEquals(test_map_copy.getGroupList(),
+    self.assertEqual(test_map_copy.getGroupList(),
           ["COMP-1", "COMP-2"])
 
 class TestAutoSTemp(unittest.TestCase):
@@ -158,7 +158,7 @@ class TestAutoSTemp(unittest.TestCase):
         removes it when deleted.
     """
     f = AutoSTemp("foo")
-    self.assertEquals(open(f.name, "r").read(), "foo")
+    self.assertEqual(open(f.name, "r").read(), "foo")
     fname = f.name
     self.assertTrue(os.path.isfile(fname))
     del f

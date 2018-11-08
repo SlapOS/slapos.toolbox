@@ -78,7 +78,7 @@ extra_config_dict = {{
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['failed'], False)
+    self.assertEqual(result['result']['failed'], False)
     self.assertIn("Backup OK", result['result']['message'])
 
   def test_check_backup_fail(self):
@@ -103,7 +103,7 @@ extra_config_dict = {{
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['failed'], True)
+    self.assertEqual(result['result']['failed'], True)
     self.assertIn("Backup didn't start at correct time", result['result']['message'])
 
 if __name__ == '__main__':

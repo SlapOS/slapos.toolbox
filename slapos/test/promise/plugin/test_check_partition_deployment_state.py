@@ -49,8 +49,8 @@ from slapos.promise.plugin.check_partition_deployment_state import RunPromise
     self.configureLauncher()
     self.launcher.run()
     result = self.getPromiseResult("partition-deployment-state.py")
-    self.assertEquals(result['result']['failed'], False)
-    self.assertEquals(result['result']['message'], 'buildout is OK')
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(result['result']['message'], 'buildout is OK')
 
   def test_partition_deployment_state_failed(self):
     content = """
@@ -65,10 +65,10 @@ from slapos.promise.plugin.check_partition_deployment_state import RunPromise
     result = self.getPromiseResult("partition-deployment-state.py")
     buildout_output = os.path.join(self.partition_dir, 'var/log', 'slapgrid-%s-error.log' % self.partition_id)
 
-    self.assertEquals(result['result']['failed'], True)
-    self.assertEquals(result['result']['message'], 'Buildout failed to process %s.' % self.partition_id)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(result['result']['message'], 'Buildout failed to process %s.' % self.partition_id)
     with open(buildout_output) as f:
-      self.assertEquals(f.read(), message)
+      self.assertEqual(f.read(), message)
 
 if __name__ == '__main__':
   unittest.main()

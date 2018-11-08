@@ -128,7 +128,7 @@ partition-folder = %(base_dir)s
       destination += '/'
     dest_file_list = os.listdir(destination)
     source_file_list = os.listdir(source)
-    self.assertEquals(dest_file_list, source_file_list)
+    self.assertEqual(dest_file_list, source_file_list)
 
   def check_symlink(self, source, destination):
     if source.endswith('/'):
@@ -139,7 +139,7 @@ partition-folder = %(base_dir)s
 
     source_basename = os.path.basename(source)
     dest_basename = os.path.basename(destination)
-    self.assertEquals(source_basename, dest_basename)
+    self.assertEqual(source_basename, dest_basename)
 
     if os.path.isdir(source):
       self.check_folder_equals(source, destination)
@@ -251,32 +251,32 @@ partition-folder = %(base_dir)s
     instance_config = os.path.join(instance.config_folder, '.jio_documents', 'config.json')
     self.assertTrue(os.path.exists(instance_config))
     config_content = json.loads(open(instance_config).read())
-    self.assertEquals(len(config_content), 4)
+    self.assertEqual(len(config_content), 4)
     key_list = ['', 'sample', 'monitor-password', 'cors-domain']
     for parameter in config_content:
       if parameter['key'] in key_list:
         key_list.pop(key_list.index(parameter['key']))
       if parameter['key'] == '':
-        self.assertEquals(parameter, dict(
+        self.assertEqual(parameter, dict(
           key="",
           title="monitor-user",
           value="admin"))
       if parameter['key'] == 'sample':
-        self.assertEquals(parameter, dict(
+        self.assertEqual(parameter, dict(
           key="sample",
           title="sample",
           value="12345"))
       if parameter['key'] == 'monitor-password':
-        self.assertEquals(parameter, dict(
+        self.assertEqual(parameter, dict(
           key="monitor-password",
           title="monitor-password",
           value="bcuandjy"))
       if parameter['key'] == 'cors-domain':
-        self.assertEquals(parameter, dict(
+        self.assertEqual(parameter, dict(
           key="cors-domain",
           title="cors-domain",
           value=""))
 
-    self.assertEquals(key_list, [])
+    self.assertEqual(key_list, [])
 
 

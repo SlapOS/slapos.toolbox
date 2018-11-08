@@ -35,19 +35,19 @@ class TestCheckRe6stOptimalStatus(unittest.TestCase):
 
   def test_ipv6_is_faster(self):
     result = test('::1', '8.8.8.8', 5)
-    self.assertEquals(result, 'OK')
+    self.assertEqual(result, 'OK')
 
   def test_ipv4_is_faster(self):
     result = test('2001:67c:1254::1', '127.0.0.1', 5)
-    self.assertEquals(result, 'FAIL')
+    self.assertEqual(result, 'FAIL')
 
   def test_ipv4_unreacheable_and_ipv6_ok(self):
     result = test('::1', 'couscous', 5)
-    self.assertEquals(result, 'OK')
+    self.assertEqual(result, 'OK')
 
   def test_ipv6_fail(self):
     result = test('couscous', '127.0.0.1', 5)
-    self.assertEquals(result, 'FAILED')
+    self.assertEqual(result, 'FAILED')
 
 if __name__ == '__main__':
   unittest.main()

@@ -119,13 +119,13 @@ echo "htpasswd $@" > %s/monitor-htpasswd
         command = 'htpasswd -cb %s admin %s%s' % (http_passwd, config["value"], '\n')
         self.assertTrue(os.path.exists(parameter['file']))
         self.assertTrue(os.path.exists(http_passwd))
-        self.assertEquals(config["value"], open(parameter['file']).read())
-        self.assertEquals(open(http_passwd).read(), command)
+        self.assertEqual(config["value"], open(parameter['file']).read())
+        self.assertEqual(open(http_passwd).read(), command)
       elif config["key"] == 'cors-domain':
         cors_file = "%s/test-httpd-cors.cfg" % self.base_dir
         self.assertTrue(os.path.exists(cors_file))
         cors_string = self.generate_cors_string(config["value"].split())
-        self.assertEquals(cors_string, open(cors_file).read())
+        self.assertEqual(cors_string, open(cors_file).read())
 
   def check_cfg_config(self, config_list):
     cfg_output = os.path.join(self.config_dir, 'config.cfg')
@@ -150,7 +150,7 @@ echo "htpasswd $@" > %s/monitor-htpasswd
     result = instance.applyConfigChanges()
     self.assertTrue(os.path.exists(cfg_output))
     # Check result of non raw parameter edition
-    self.assertEquals(result, {'cors-domain': True, 'from-file': True, 'httpd-password': True})
+    self.assertEqual(result, {'cors-domain': True, 'from-file': True, 'httpd-password': True})
     self.check_config()
     self.check_cfg_config(self.config)
 
@@ -172,7 +172,7 @@ echo "htpasswd $@" > %s/monitor-htpasswd
     result = instance.applyConfigChanges()
     self.assertTrue(os.path.exists(cfg_output))
     # Check result of non raw parameter edition
-    self.assertEquals(result, {'from-file': True, 'httpd-password': True})
+    self.assertEqual(result, {'from-file': True, 'httpd-password': True})
     self.check_config()
     self.check_cfg_config(self.config)
 
@@ -189,7 +189,7 @@ echo "htpasswd $@" > %s/monitor-htpasswd
 
     result = instance.applyConfigChanges()
     self.assertTrue(os.path.exists(cfg_output))
-    self.assertEquals(result, {'cors-domain': True, 'from-file': True, 'httpd-password': True})
+    self.assertEqual(result, {'cors-domain': True, 'from-file': True, 'httpd-password': True})
     self.check_config()
     self.check_cfg_config(self.config)
 
@@ -199,7 +199,7 @@ echo "htpasswd $@" > %s/monitor-htpasswd
     self.writeContent(self.config_path, json.dumps(self.config))
 
     result = instance.applyConfigChanges()
-    self.assertEquals(result, {'cors-domain': True, 'from-file': True, 'httpd-password': True})
+    self.assertEqual(result, {'cors-domain': True, 'from-file': True, 'httpd-password': True})
     self.check_config()
     self.check_cfg_config(self.config)
 
@@ -210,6 +210,6 @@ echo "htpasswd $@" > %s/monitor-htpasswd
     self.writeContent(self.config_path, json.dumps(self.config))
 
     result = instance.applyConfigChanges()
-    self.assertEquals(result, {'cors-domain': True, 'from-file': True, 'httpd-password': True})
+    self.assertEqual(result, {'cors-domain': True, 'from-file': True, 'httpd-password': True})
     self.check_config()
     self.check_cfg_config(self.config)

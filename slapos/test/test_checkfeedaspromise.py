@@ -75,10 +75,10 @@ class TestCheckFeedAsPromise(unittest.TestCase):
     feed = self.generateOKFeed()
 
     option.ok_pattern_list = ['OK']
-    self.assertEquals(checkFeedAsPromise(feed, option), "")
+    self.assertEqual(checkFeedAsPromise(feed, option), "")
     option.title, option.description  = False, True
     option.ok_pattern_list = ['DONE', 'OK']
-    self.assertEquals(checkFeedAsPromise(feed, option), "")
+    self.assertEqual(checkFeedAsPromise(feed, option), "")
 
 
   def test_ifKOFoundErrorReturned(self):
@@ -111,7 +111,7 @@ class TestCheckFeedAsPromise(unittest.TestCase):
     feed = self.generateKOFeed([extra_item,])
     option.time_buffer = 4000
     # buffer longer than last item's age
-    self.assertEquals(checkFeedAsPromise(feed, option), "")
+    self.assertEqual(checkFeedAsPromise(feed, option), "")
 
     # shorter buffer, we want to raise an error
     option.time_buffer = 1800
@@ -123,7 +123,7 @@ class TestCheckFeedAsPromise(unittest.TestCase):
     option.title = True
     
     feed = self.generateFeed([])
-    self.assertEquals(checkFeedAsPromise(feed, option), "")
+    self.assertEqual(checkFeedAsPromise(feed, option), "")
 
 
 if __name__ == '__main__':

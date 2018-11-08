@@ -45,14 +45,14 @@ class TestDNSBench(unittest.TestCase):
     info = dnsbench.resolve(
        "www.erp5.com", DNS_EXPECTED_LIST)
   
-    self.assertEquals(info[0], 'DNS')
-    self.assertEquals(info[1], 'www.erp5.com')
-    self.assertEquals(info[2], 200)
+    self.assertEqual(info[0], 'DNS')
+    self.assertEqual(info[1], 'www.erp5.com')
+    self.assertEqual(info[2], 200)
 
     self.assertTrue(info[3] < 1)
-    self.assertEquals(info[4], 'OK', 
+    self.assertEqual(info[4], 'OK', 
           "%s != OK, full info: %s" % (info[4], info) )
-    self.assertEquals(set(info[5]), set([u'85.118.38.162', u'176.31.129.213']),
+    self.assertEqual(set(info[5]), set([u'85.118.38.162', u'176.31.129.213']),
           "%s != set([u'85.118.38.162', u'176.31.129.213']), full info: %s" % (set(info[5]), info))
     
   def test_dnsbench_fail(self):
@@ -61,13 +61,13 @@ class TestDNSBench(unittest.TestCase):
     info = dnsbench.resolve(
        "thisdomaindontexist.erp5.com")
    
-    self.assertEquals(info[0], 'DNS')
-    self.assertEquals(info[1], 'thisdomaindontexist.erp5.com')
-    self.assertEquals(info[2], 600)
+    self.assertEqual(info[0], 'DNS')
+    self.assertEqual(info[1], 'thisdomaindontexist.erp5.com')
+    self.assertEqual(info[2], 600)
 
     self.assertTrue(info[3] < 1)
-    self.assertEquals(info[4], 'Cannot resolve the hostname')
-    self.assertEquals(info[5], [])
+    self.assertEqual(info[4], 'Cannot resolve the hostname')
+    self.assertEqual(info[5], [])
 
   def test_dnsbench_unexpected(self):
     """ Test dns unexpected resolution
@@ -75,52 +75,52 @@ class TestDNSBench(unittest.TestCase):
     info = dnsbench.resolve(
        "www.erp5.com", [DNS_EXPECTED_LIST[0]])
    
-    self.assertEquals(info[0], 'DNS')
-    self.assertEquals(info[1], 'www.erp5.com')
-    self.assertEquals(info[2], 200)
+    self.assertEqual(info[0], 'DNS')
+    self.assertEqual(info[1], 'www.erp5.com')
+    self.assertEqual(info[2], 200)
 
     self.assertTrue(info[3] < 1)
-    self.assertEquals(info[4], 'UNEXPECTED')
+    self.assertEqual(info[4], 'UNEXPECTED')
     self.assertTrue(info[5].startswith("['85.118.38.162'] (expected) != "))
 
 class TestPing(unittest.TestCase):
 
   def test_ping_ok(self):
     info = ping("localhost")
-    self.assertEquals(info[0], 'PING')
-    self.assertEquals(info[1], 'localhost')
-    self.assertEquals(info[2], 200)
+    self.assertEqual(info[0], 'PING')
+    self.assertEqual(info[1], 'localhost')
+    self.assertEqual(info[2], 200)
     self.assertTrue(float(info[3]) < 0.2)
-    self.assertEquals(info[4], '0')
+    self.assertEqual(info[4], '0')
     self.assertTrue(info[5].startswith("min"))
 
   def test_ping_fail(self):
     info = ping("couscous")
-    self.assertEquals(info[0], 'PING')
-    self.assertEquals(info[1], 'couscous')
-    self.assertEquals(info[2], 600)
-    self.assertEquals(info[3], 'failed')
-    self.assertEquals(info[4], -1)
-    self.assertEquals(info[5], 'Fail to parser ping output')
+    self.assertEqual(info[0], 'PING')
+    self.assertEqual(info[1], 'couscous')
+    self.assertEqual(info[2], 600)
+    self.assertEqual(info[3], 'failed')
+    self.assertEqual(info[4], -1)
+    self.assertEqual(info[5], 'Fail to parser ping output')
 
 
   def test_ping6_ok(self):
     info = ping6("localhost")
-    self.assertEquals(info[0], 'PING6')
-    self.assertEquals(info[1], 'localhost')
-    self.assertEquals(info[2], 200)
+    self.assertEqual(info[0], 'PING6')
+    self.assertEqual(info[1], 'localhost')
+    self.assertEqual(info[2], 200)
     self.assertTrue(float(info[3]) < 0.2)
-    self.assertEquals(info[4], '0')
+    self.assertEqual(info[4], '0')
     self.assertTrue(info[5].startswith("min"))
 
   def test_ping6_fail(self):
     info = ping6("couscous")
-    self.assertEquals(info[0], 'PING6')
-    self.assertEquals(info[1], 'couscous')
-    self.assertEquals(info[2], 600)
-    self.assertEquals(info[3], 'failed')
-    self.assertEquals(info[4], -1)
-    self.assertEquals(info[5], 'Fail to parser ping output')
+    self.assertEqual(info[0], 'PING6')
+    self.assertEqual(info[1], 'couscous')
+    self.assertEqual(info[2], 600)
+    self.assertEqual(info[3], 'failed')
+    self.assertEqual(info[4], -1)
+    self.assertEqual(info[5], 'Fail to parser ping output')
 
 
 class TestHTTPBench(unittest.TestCase):
@@ -131,11 +131,11 @@ class TestHTTPBench(unittest.TestCase):
     """
     info = request("https://www.erp5.com", {})
 
-    self.assertEquals(info[0], 'GET')
-    self.assertEquals(info[1], 'https://www.erp5.com')
-    self.assertEquals(info[2], 200)
-    self.assertEquals(len(info[3].split(';')), 5 )
-    self.assertEquals(info[4], "OK")
+    self.assertEqual(info[0], 'GET')
+    self.assertEqual(info[1], 'https://www.erp5.com')
+    self.assertEqual(info[2], 200)
+    self.assertEqual(len(info[3].split(';')), 5 )
+    self.assertEqual(info[4], "OK")
 
   def test_request_expected_response(self):
     """ This test is way to badly written as it depends on
@@ -143,11 +143,11 @@ class TestHTTPBench(unittest.TestCase):
     """
     info = request("https://www.erp5.com", {"expected_response": 200})
 
-    self.assertEquals(info[0], 'GET')
-    self.assertEquals(info[1], 'https://www.erp5.com')
-    self.assertEquals(info[2], 200)
-    self.assertEquals(len(info[3].split(';')), 5 )
-    self.assertEquals(info[4], "OK")
+    self.assertEqual(info[0], 'GET')
+    self.assertEqual(info[1], 'https://www.erp5.com')
+    self.assertEqual(info[2], 200)
+    self.assertEqual(len(info[3].split(';')), 5 )
+    self.assertEqual(info[4], "OK")
 
   def test_request_expected_redirection(self):
     """ This test is way to badly written as it depends on
@@ -155,11 +155,11 @@ class TestHTTPBench(unittest.TestCase):
     """
     info = request("http://www.erp5.com", {"expected_response": 302})
 
-    self.assertEquals(info[0], 'GET')
-    self.assertEquals(info[1], 'http://www.erp5.com')
-    self.assertEquals(info[2], 302)
-    self.assertEquals(len(info[3].split(';')), 5 )
-    self.assertEquals(info[4], "OK")
+    self.assertEqual(info[0], 'GET')
+    self.assertEqual(info[1], 'http://www.erp5.com')
+    self.assertEqual(info[2], 302)
+    self.assertEqual(len(info[3].split(';')), 5 )
+    self.assertEqual(info[4], "OK")
 
 
   def test_request_expected_text(self):
@@ -168,11 +168,11 @@ class TestHTTPBench(unittest.TestCase):
     """
     info = request("https://www.erp5.com", {"expected_text": "ERP5"})
 
-    self.assertEquals(info[0], 'GET')
-    self.assertEquals(info[1], 'https://www.erp5.com')
-    self.assertEquals(info[2], 200)
-    self.assertEquals(len(info[3].split(';')), 5 )
-    self.assertEquals(info[4], "OK")
+    self.assertEqual(info[0], 'GET')
+    self.assertEqual(info[1], 'https://www.erp5.com')
+    self.assertEqual(info[2], 200)
+    self.assertEqual(len(info[3].split(';')), 5 )
+    self.assertEqual(info[4], "OK")
 
 
   def test_request_fail(self):
@@ -180,11 +180,11 @@ class TestHTTPBench(unittest.TestCase):
     """
     info = request("http://thisurldontexist.erp5.com", {})
 
-    self.assertEquals(info[0], 'GET')
-    self.assertEquals(info[1], 'http://thisurldontexist.erp5.com')
-    self.assertEquals(info[2], 0)
-    self.assertEquals(len(info[3].split(';')), 5 )
-    self.assertEquals(info[4], "FAIL")
+    self.assertEqual(info[0], 'GET')
+    self.assertEqual(info[1], 'http://thisurldontexist.erp5.com')
+    self.assertEqual(info[2], 0)
+    self.assertEqual(len(info[3].split(';')), 5 )
+    self.assertEqual(info[4], "FAIL")
 
   def test_request_unexpected_response(self):
     """ This test is way to badly written as it depends on
@@ -192,11 +192,11 @@ class TestHTTPBench(unittest.TestCase):
     """
     info = request("http://www.erp5.com", {"expected_response": 200})
 
-    self.assertEquals(info[0], 'GET')
-    self.assertEquals(info[1], 'http://www.erp5.com')
-    self.assertEquals(info[2], 302)
-    self.assertEquals(len(info[3].split(';')), 5 )
-    self.assertEquals(info[4], "UNEXPECTED (200 != 302)")
+    self.assertEqual(info[0], 'GET')
+    self.assertEqual(info[1], 'http://www.erp5.com')
+    self.assertEqual(info[2], 302)
+    self.assertEqual(len(info[3].split(';')), 5 )
+    self.assertEqual(info[4], "UNEXPECTED (200 != 302)")
 
   def test_request_unexpected_text(self):
     """ This test is way to badly written as it depends on
@@ -204,11 +204,11 @@ class TestHTTPBench(unittest.TestCase):
     """
     info = request("https://www.erp5.com", {"expected_text": "COUSCOUS"})
 
-    self.assertEquals(info[0], 'GET')
-    self.assertEquals(info[1], 'https://www.erp5.com')
-    self.assertEquals(info[2], 200)
-    self.assertEquals(len(info[3].split(';')), 5 )
-    self.assertEquals(info[4], "UNEXPECTED (COUSCOUS not in page content)")
+    self.assertEqual(info[0], 'GET')
+    self.assertEqual(info[1], 'https://www.erp5.com')
+    self.assertEqual(info[2], 200)
+    self.assertEqual(len(info[3].split(';')), 5 )
+    self.assertEqual(info[4], "UNEXPECTED (COUSCOUS not in page content)")
 
 
 

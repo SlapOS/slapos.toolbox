@@ -71,27 +71,27 @@ class TestCheckSlowQueriesDigestResult(unittest.TestCase):
 
   def test_threshold_is_greater(self):
     status, message = checkMariadbDigestResult(self.base_dir, self.status_file, 5000, 100)
-    self.assertEquals("Thanks for keeping it all clean, total queries are : 3420.0 slowest query time is : 34", message)
-    self.assertEquals(0, status)
+    self.assertEqual("Thanks for keeping it all clean, total queries are : 3420.0 slowest query time is : 34", message)
+    self.assertEqual(0, status)
 
   def test_no_today_file_and_empty_yesterday_file(self):
     self._remove_file(self.today)
     status, message = checkMariadbDigestResult(self.base_dir, self.status_file, 60, 100)
-    self.assertEquals("No result found in the slow query digest file or the file is corrupted", message)
-    self.assertEquals(1, status)
+    self.assertEqual("No result found in the slow query digest file or the file is corrupted", message)
+    self.assertEqual(1, status)
     self._create_file(self.today, True)
 
   def test_fail(self):
     status, message = checkMariadbDigestResult(self.base_dir, self.status_file, 90, 100)
-    self.assertEquals("Threshold is lower than expected: \nExpected total queries : 90 and current is: 3420.0\nExpected slowest query : 100 and current is: 34", message)
-    self.assertEquals(1, status)
+    self.assertEqual("Threshold is lower than expected: \nExpected total queries : 90 and current is: 3420.0\nExpected slowest query : 100 and current is: 34", message)
+    self.assertEqual(1, status)
 
   def test_no_today_file_but_yesterday_file(self):
     self._remove_file(self.today)
     self._create_file(self.yesterday, True)
     status, message = checkMariadbDigestResult(self.base_dir, self.status_file, 5000, 100)
-    self.assertEquals("Thanks for keeping it all clean, total queries are : 3420.0 slowest query time is : 34", message)
-    self.assertEquals(0, status)
+    self.assertEqual("Thanks for keeping it all clean, total queries are : 3420.0 slowest query time is : 34", message)
+    self.assertEqual(0, status)
     self._create_file(self.today, True)
     self._remove_file(self.yesterday)
     self._create_file(self.yesterday, False)

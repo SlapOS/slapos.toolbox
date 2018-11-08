@@ -50,7 +50,7 @@ extra_config_dict = {
     if result['result']['failed']:
       self.assertTrue("CPU load is high" in result['result']['message'])
     else:
-      self.assertEquals("CPU load is OK", result['result']['message'].strip())
+      self.assertEqual("CPU load is OK", result['result']['message'].strip())
 
 if __name__ == '__main__':
   unittest.main()

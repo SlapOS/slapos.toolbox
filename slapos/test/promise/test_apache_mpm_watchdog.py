@@ -46,30 +46,30 @@ class TestApacheMPMWatchdog(unittest.TestCase):
       server_status = f.read()
       f.close()
 
-    self.assertEquals(['12345', '12346'], 
+    self.assertEqual(['12345', '12346'], 
       re.findall(search_pid_regex, server_status))
 
     
 
   def test_loadJSONFile(self):
-    self.assertEquals({},
+    self.assertEqual({},
        loadJSONFile("couscous"))
 
-    self.assertEquals(
+    self.assertEqual(
       {"1234": 1496161635.514768 , "4321": 1496161635.514768},
       loadJSONFile(os.path.join(self.base_path, "test_db.json")))
 
-    self.assertEquals(
+    self.assertEqual(
       {},
       loadJSONFile(os.path.join(self.base_path, "corrupted_db.json")))
 
   def test_writeJSONFile(self):
     # Check if don't raise.
-    self.assertEquals(None,
+    self.assertEqual(None,
       writeJSONFile({}, None))
 
     current_pid = os.getpid() 
-    self.assertEquals(None,
+    self.assertEqual(None,
       writeJSONFile({"123482": 123, current_pid: 124},
           os.path.join(self.base_path, "write_db.json")))
 
@@ -77,14 +77,14 @@ class TestApacheMPMWatchdog(unittest.TestCase):
       json_content = f.read()
       f.close()
 
-    self.assertEquals(json_content,
+    self.assertEqual(json_content,
       '{"%s": 124}' % current_pid)
 
 
   def test_getServerStatus(self):
-    self.assertEquals(None,
+    self.assertEqual(None,
         getServerStatus("http://localhost/", None, None))
-    self.assertEquals(None,
+    self.assertEqual(None,
         getServerStatus("http://localhost/", 
                            "user", "password"))
     self.assertNotEquals(None,

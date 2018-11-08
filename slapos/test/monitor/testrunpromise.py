@@ -161,7 +161,7 @@ class RunPromise(GenericPromise):
       u'execution-time': 0.1,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
-    self.assertEquals(expected_result, my_result)
+    self.assertEqual(expected_result, my_result)
 
     result_file = os.path.join(self.output_dir, 'my_second_promise.status.json')
     self.assertTrue(os.path.exists(result_file))
@@ -176,7 +176,7 @@ class RunPromise(GenericPromise):
       u'execution-time': 0.1,
       u'path': u'%s/my_second_promise.py' % self.promise_dir,
     }
-    self.assertEquals(expected_result, second_result)
+    self.assertEqual(expected_result, second_result)
 
   def test_promise_generic_failed(self):
     promise_file = self.generatePromiseScript('my_promise.py', success=False)
@@ -197,7 +197,7 @@ class RunPromise(GenericPromise):
       u'execution-time': 0.1,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
-    self.assertEquals(expected_result, my_result)
+    self.assertEqual(expected_result, my_result)
 
   def test_promise_generic_status_change(self):
     promise_file = self.generatePromiseScript('my_promise.py', success=False)
@@ -218,7 +218,7 @@ class RunPromise(GenericPromise):
       u'execution-time': 0.1,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
-    self.assertEquals(expected_result, my_result)
+    self.assertEqual(expected_result, my_result)
 
     os.system('rm %s/*.pyc' % self.promise_dir)
     time.sleep(2)
@@ -237,7 +237,7 @@ class RunPromise(GenericPromise):
       u'execution-time': 0.1,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
-    self.assertEquals(expected_result, my_result)
+    self.assertEqual(expected_result, my_result)
 
   def test_promise_generic_periodicity(self):
     promise_file = self.generatePromiseScript('my_promise.py', success=False, periodicity=0.03)
@@ -305,7 +305,7 @@ class RunPromise(GenericPromise):
     promise_runner.start()
     result2 = json.loads(open(result_file).read().decode("utf-8"))
     start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S')
-    self.assertEquals(expected_result, result2)
+    self.assertEqual(expected_result, result2)
 
   def test_promise_two_folder(self):
 
@@ -330,7 +330,7 @@ class RunPromise(GenericPromise):
       u'execution-time': 0.1,
       u'path': u'%s' % promise,
     }
-    self.assertEquals(expected_result, result1)
+    self.assertEqual(expected_result, result1)
 
     result2 = json.loads(open(result2_file).read())
     start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S')
@@ -343,7 +343,7 @@ class RunPromise(GenericPromise):
       u'execution-time': 0.1,
       u'path': u'%s' % promise2,
     }
-    self.assertEquals(expected_result, result2)
+    self.assertEqual(expected_result, result2)
 
   def test_promise_NOK(self):
     promise = self.writePromiseNOK('promise_1')
@@ -363,14 +363,14 @@ class RunPromise(GenericPromise):
       u'execution-time': 0.1,
       u'path': u'%s' % promise,
     }
-    self.assertEquals(expected_result, result1)
+    self.assertEqual(expected_result, result1)
 
     # second run
     promise_runner = MonitorPromiseLauncher(parser)
     promise_runner.start()
     result2 = json.loads(open(result_file).read().decode("utf-8"))
     result2['result'].pop('date')
-    self.assertEquals(expected_result, result2)
+    self.assertEqual(expected_result, result2)
 
   def test_promise_mixed(self):
     promise = self.writePromiseOK('promise_1')
@@ -390,7 +390,7 @@ class RunPromise(GenericPromise):
       u'execution-time': 0.1,
       u'path': u'%s' % promise,
     }
-    self.assertEquals(expected_result, result1)
+    self.assertEqual(expected_result, result1)
 
     # second run with failure
     time.sleep(1)
@@ -403,5 +403,5 @@ class RunPromise(GenericPromise):
 
     result2 = json.loads(open(result_file).read().decode("utf-8"))
     result2['result'].pop('date')
-    self.assertEquals(expected_result, result2)
+    self.assertEqual(expected_result, result2)
 

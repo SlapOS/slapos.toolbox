@@ -34,10 +34,10 @@ from slapos.promise.is_local_tcp_port_opened import isLocalTcpPortOpened
 class TestLocalTcpPortOpened(unittest.TestCase):
 
   def test_port_is_not_open(self):
-    self.assertEquals(isLocalTcpPortOpened("127.0.0.1",65550), False)
+    self.assertEqual(isLocalTcpPortOpened("127.0.0.1",65550), False)
 
   def test_port6_is_not_open(self):
-    self.assertEquals(isLocalTcpPortOpened("::1",65550), False)
+    self.assertEqual(isLocalTcpPortOpened("::1",65550), False)
  
   def test_port_is_open(self):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,7 +45,7 @@ class TestLocalTcpPortOpened(unittest.TestCase):
       s.bind(("127.0.0.1", 0))
       s.listen(1)
       port = s.getsockname()[1]
-      self.assertEquals(isLocalTcpPortOpened("127.0.0.1",port), True)
+      self.assertEqual(isLocalTcpPortOpened("127.0.0.1",port), True)
     finally:
       s.close()
 
@@ -55,7 +55,7 @@ class TestLocalTcpPortOpened(unittest.TestCase):
       s.bind(("::1", 0))
       s.listen(1)
       port = s.getsockname()[1]
-      self.assertEquals(isLocalTcpPortOpened("::1",port), True)
+      self.assertEqual(isLocalTcpPortOpened("::1",port), True)
     finally:
       s.close()
 
