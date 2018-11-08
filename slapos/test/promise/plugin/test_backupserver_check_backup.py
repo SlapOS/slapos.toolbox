@@ -79,7 +79,7 @@ extra_config_dict = {{
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEquals(result['result']['failed'], False)
-    self.assertEquals(result['result']['message'][:9], "Backup OK")
+    self.assertIn("Backup OK", result['result']['message'])
 
   def test_check_backup_fail(self):
     now = datetime.utcnow()
@@ -91,7 +91,7 @@ extra_config_dict = {{
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['message'][:13], "Backup FAILED")
+    self.assertIn("Backup FAILED", result['result']['message'])
 
   def test_check_backup_too_long(self):
     now = datetime.utcnow()
@@ -104,7 +104,7 @@ extra_config_dict = {{
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEquals(result['result']['failed'], True)
-    self.assertEquals(result['result']['message'][:35], "Backup didn't start at correct time")
+    self.assertIn("Backup didn't start at correct time", result['result']['message'])
 
 if __name__ == '__main__':
   unittest.main()
