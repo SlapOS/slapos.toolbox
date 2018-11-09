@@ -1,0 +1,188 @@
+DATETIME,928 - Thread 140691697874688: Started on 1542293628.8; Running for 4.0 secs; request: GET 
+retry count: 0
+form: {}
+other: {'AcceptLanguage': {},
+ 'PARENTS': [<Application at >],
+ 'RESPONSE': HTTPResponse(''),
+ 'SERVER_URL': '',
+ 'URL': '',
+ 'method': 'GET'}
+Traceback:
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZServer/PubCore/ZServerPublisher.py", line 31, in __init__
+    response=b)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 455, in publish_module
+    environ, debug, request, response)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Products.LongRequestLogger-2.1.0-py2.7.egg/Products/LongRequestLogger/__init__.py", line 19, in publish_module_standard
+    return publish_module_standard.original(*args, **kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 249, in publish_module_standard
+    response = publish(request, module_name, after_list, debug=debug)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/Localizer/patches.py", line 84, in new_publish
+    x = zope_publish(request, module_name, after_list, debug)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 138, in publish
+    request, bind=1)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/mapply.py", line 77, in mapply
+    if debug is not None: return debug(object,args,context)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 48, in call_object
+    result=apply(object,args) # Type s<cr> to step into published object.
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 2467, in addERP5Site
+    **{k: kw.get(k, v) for k, v in default_kw.iteritems()
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 100, in manage_addERP5Site
+    sql_reset=sql_reset)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 1964, in create
+    reindex=reindex, **kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 2374, in setup
+    self.setupERP5Core(p,**kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 2398, in setupERP5Core
+    bt = template_tool.download(url)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Tool/TemplateTool.py", line 382, in download
+    bt = self._download_local(path, id)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Tool/TemplateTool.py", line 328, in _download_local
+    bt.importFile(path)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 5860, in importFile
+    item_object.importFile(bta)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 585, in importFile
+    bta.importFiles(self)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 431, in importFiles
+    item._importFile(file_name, f)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 4001, in _importFile
+    return ObjectTemplateItem._importFile(self, file_name, *args, **kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 957, in _importFile
+    self.removeProperties(obj, 0)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/ExportImport.py", line 85, in importFile
+    return customImporters[magic](self, f, clue)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5Type/patches/ppml.py", line 818, in importXML
+    return jar.importFile(outfile,clue)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/ExportImport.py", line 98, in importFile
+    return self.get(return_oid_list[0])
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/transaction-1.7.0-py2.7.egg/transaction/_transaction.py", line 205, in savepoint
+    return savepoint
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/transaction-1.7.0-py2.7.egg/transaction/_transaction.py", line 684, in __init__
+    savepoints.append(savepoint)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 1193, in savepoint
+    return result
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 643, in _commit
+    self._added_during_commit = None
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 717, in _store_objects
+    self._handle_serial(oid, s)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 1346, in store
+    self._file.write(header)
+
+DATETIME,945 - Thread 140691697874688: Started on 1542293628.8; Running for 6.1 secs; Traceback:
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZServer/PubCore/ZServerPublisher.py", line 31, in __init__
+    response=b)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 455, in publish_module
+    environ, debug, request, response)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Products.LongRequestLogger-2.1.0-py2.7.egg/Products/LongRequestLogger/__init__.py", line 19, in publish_module_standard
+    return publish_module_standard.original(*args, **kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 249, in publish_module_standard
+    response = publish(request, module_name, after_list, debug=debug)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/Localizer/patches.py", line 84, in new_publish
+    x = zope_publish(request, module_name, after_list, debug)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 138, in publish
+    request, bind=1)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/mapply.py", line 77, in mapply
+    if debug is not None: return debug(object,args,context)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 48, in call_object
+    result=apply(object,args) # Type s<cr> to step into published object.
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 2467, in addERP5Site
+    **{k: kw.get(k, v) for k, v in default_kw.iteritems()
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 100, in manage_addERP5Site
+    sql_reset=sql_reset)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 1964, in create
+    reindex=reindex, **kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 2374, in setup
+    self.setupERP5Core(p,**kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 2398, in setupERP5Core
+    bt = template_tool.download(url)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Tool/TemplateTool.py", line 382, in download
+    bt = self._download_local(path, id)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Tool/TemplateTool.py", line 328, in _download_local
+    bt.importFile(path)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 5860, in importFile
+    item_object.importFile(bta)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 585, in importFile
+    bta.importFiles(self)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 431, in importFiles
+    item._importFile(file_name, f)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 4001, in _importFile
+    return ObjectTemplateItem._importFile(self, file_name, *args, **kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 936, in _importFile
+    obj = connection.importFile(file_obj, customImporters=customImporters)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/ExportImport.py", line 85, in importFile
+    return customImporters[magic](self, f, clue)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5Type/patches/ppml.py", line 818, in importXML
+    return jar.importFile(outfile,clue)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/ExportImport.py", line 95, in importFile
+    t.savepoint(optimistic=True)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/transaction-1.7.0-py2.7.egg/transaction/_transaction.py", line 195, in savepoint
+    savepoint = Savepoint(self, optimistic, *self._resources)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/transaction-1.7.0-py2.7.egg/transaction/_transaction.py", line 682, in __init__
+    savepoint = savepoint()
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 1178, in savepoint
+    self._commit(None)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 639, in _commit
+    self._store_objects(ObjectWriter(obj), transaction)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 698, in _store_objects
+    s = self._storage.store(oid, serial, p, '', transaction)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 1347, in store
+    self._file.write(data)
+
+DATETIME,972 - Thread 140691697874688: Started on 1542293628.8; Running for 8.1 secs; Traceback:
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZServer/PubCore/ZServerPublisher.py", line 31, in __init__
+    response=b)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 455, in publish_module
+    environ, debug, request, response)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Products.LongRequestLogger-2.1.0-py2.7.egg/Products/LongRequestLogger/__init__.py", line 19, in publish_module_standard
+    return publish_module_standard.original(*args, **kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 249, in publish_module_standard
+    response = publish(request, module_name, after_list, debug=debug)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/Localizer/patches.py", line 84, in new_publish
+    x = zope_publish(request, module_name, after_list, debug)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 138, in publish
+    request, bind=1)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/mapply.py", line 77, in mapply
+    if debug is not None: return debug(object,args,context)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/Zope2-2.13.28-py2.7.egg/ZPublisher/Publish.py", line 48, in call_object
+    result=apply(object,args) # Type s<cr> to step into published object.
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 2467, in addERP5Site
+    **{k: kw.get(k, v) for k, v in default_kw.iteritems()
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 100, in manage_addERP5Site
+    sql_reset=sql_reset)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 1964, in create
+    reindex=reindex, **kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 2374, in setup
+    self.setupERP5Core(p,**kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/ERP5Site.py", line 2398, in setupERP5Core
+    bt = template_tool.download(url)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Tool/TemplateTool.py", line 382, in download
+    bt = self._download_local(path, id)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Tool/TemplateTool.py", line 328, in _download_local
+    bt.importFile(path)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 5860, in importFile
+    item_object.importFile(bta)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 585, in importFile
+    bta.importFiles(self)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 431, in importFiles
+    item._importFile(file_name, f)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 4001, in _importFile
+    return ObjectTemplateItem._importFile(self, file_name, *args, **kw)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5/Document/BusinessTemplate.py", line 957, in _importFile
+    self.removeProperties(obj, 0)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/ExportImport.py", line 85, in importFile
+    return customImporters[magic](self, f, clue)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/parts/erp5/product/ERP5Type/patches/ppml.py", line 818, in importXML
+    return jar.importFile(outfile,clue)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/ExportImport.py", line 98, in importFile
+    return self.get(return_oid_list[0])
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/transaction-1.7.0-py2.7.egg/transaction/_transaction.py", line 205, in savepoint
+    return savepoint
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/transaction-1.7.0-py2.7.egg/transaction/_transaction.py", line 682, in __init__
+    savepoint = savepoint()
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 1178, in savepoint
+    self._commit(None)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 639, in _commit
+    self._store_objects(ObjectWriter(obj), transaction)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 698, in _store_objects
+    s = self._storage.store(oid, serial, p, '', transaction)
+  File "/srv/slapgrid/slappart10/srv/runner/software/f57b129e434a946b25a1a611eef1a7d0/eggs/ZODB-4.4.5-py2.7.egg/ZODB/Connection.py", line 1341, in store
+    self._file.seek(self.position)
