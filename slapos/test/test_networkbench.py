@@ -44,7 +44,7 @@ class TestDNSBench(unittest.TestCase):
        "eu.web.vifib.com", DNS_EXPECTED_LIST)
   
     self.assertEqual(info[0], 'DNS')
-    self.assertEqual(info[1], 'www.erp5.com')
+    self.assertEqual(info[1], 'eu.web.vifib.com')
     self.assertEqual(info[2], 200)
 
     self.assertTrue(info[3] < 1)
