@@ -149,6 +149,6 @@ def runExport():
   with CwdContextManager(backup_runner_path):
     if backupFilesWereModifiedDuringExport(export_start_date):
       print("ERROR: Some backups are not consistent, exporter should be re-run."
-            " Let's sleep %s minutes, to let the backup end..." % backup_wait_time)
-      time.sleep(backup_wait_time * 60)
+            " Let's sleep %s minutes, to let the backup end..." % args.backup_wait_time)
+      time.sleep(args.backup_wait_time * 60)
       system.exit(1)
