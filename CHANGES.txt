@@ -1,3 +1,10 @@
+0.83 (2018-11-14)
+=================
+
+ * Add scripts in python to be used in the resilience
+ * Usability improvement in the promess framework
+ * Fix flacky tests
+
 0.82 (2018-10-26)
 =================
 
