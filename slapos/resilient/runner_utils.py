@@ -109,6 +109,7 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
       continue
 
     # Find if special signature function should be applied
+    signature_process = None
     for special_slappart in special_slappart_list:
       backup_identity_script_path = os.path.join(
         runner_working_path,
@@ -121,30 +122,32 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
           stdin=subprocess.PIPE,
           stdout=subprocess.PIPE,
         )
+        break
 
-        (output, error_output) = signature_process.communicate(
-          '\0'.join([os.path.join(dirpath, filename) for filename in filename_list])
-        )
+    if signature_process:
+      (output, error_output) = signature_process.communicate(
+        '\0'.join([os.path.join(dirpath, filename) for filename in filename_list])
+      )
 
-        if signature_process.returncode != 0:
-          print(
-            "An issue occured when calculating the custom signature"
-            " with %s :\n%s" % (
-              backup_identity_script_path, error_output
-            )
+      if signature_process.returncode != 0:
+        print(
+          "An issue occured when calculating the custom signature"
+          " with %s :\n%s\n%s" % (
+            backup_identity_script_path, output, error_output
           )
-          sys.exit(1)
-
-        # We have to rstrip as most programs return an empty line
-        # at the end of their output
-        signature_list.extend(output.strip('\n').split('\n'))
-      else:
-        signature_list.extend(
-          getSha256Sum([
-            os.path.join(dirpath, filename)
-            for filename in filename_list
-          ])
         )
+        sys.exit(1)
+
+      # We have to rstrip as most programs return an empty line
+      # at the end of their output
+      signature_list.extend(output.strip('\n').split('\n'))
+    else:
+      signature_list.extend(
+        getSha256Sum([
+          os.path.join(dirpath, filename)
+          for filename in filename_list
+        ])
+      )
 
     # Write the signatures in file
     with open(signature_file_path, 'w+') as signature_file:
