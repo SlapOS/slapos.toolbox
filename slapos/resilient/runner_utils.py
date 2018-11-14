@@ -2,6 +2,7 @@ import errno
 import glob
 import os
 import subprocess
+import sys
 
 from contextlib import contextmanager
 from hashlib import sha256
