@@ -115,7 +115,7 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
         slappart_signature_method_dict[special_slappart]
       )
 
-      if dirpath.startswith(special_slappart):
+      if dirpath.startswith('./' + os.path.relpath(os.path.join('./runner', special_slappart))):
         signature_process = subprocess.Popen(
           backup_identity_script_path,
           stdin=subprocess.PIPE,

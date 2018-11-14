@@ -172,13 +172,13 @@ class TestRunnerExporter(unittest.TestCase):
   def test_writeSignatureFile(self):
     self._setUpFakeInstanceFolder()
 
-    os.makedirs('backup/instance/etc')
-    os.makedirs('backup/instance/slappart0')
-    os.makedirs('backup/instance/slappart1')
+    os.makedirs('backup/etc')
+    os.makedirs('backup/runner/instance/slappart0')
+    os.makedirs('backup/runner/instance/slappart1')
 
-    self._createFile('backup/instance/etc/.project', 'workspace/slapos-dev/software/erp5')
-    self._createFile('backup/instance/slappart0/data', 'hello')
-    self._createFile('backup/instance/slappart1/data', 'world')
+    self._createFile('backup/etc/.project', 'workspace/slapos-dev/software/erp5')
+    self._createFile('backup/runner/instance/slappart0/data', 'hello')
+    self._createFile('backup/runner/instance/slappart1/data', 'world')
 
     slappart_signature_method_dict = {
       './instance/slappart1': './instance/slappart1/srv/.backup_identity_script',
@@ -191,9 +191,9 @@ class TestRunnerExporter(unittest.TestCase):
         signature_file_content = f.read()
 
     # Slappart1 is using md5sum as signature, others are using sha256sum (default)
-    self.assertEqual(signature_file_content, """2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824  ./instance/slappart0/data
-49b74873d57ff0307b7c9364e2fe2a3876d8722fbe7ce3a6f1438d47647a86f4  ./instance/etc/.project
-7d793037a0760186574b0282f2f435e7  ./instance/slappart1/data""")
+    self.assertEqual(signature_file_content, """2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824  ./runner/instance/slappart0/data
+49b74873d57ff0307b7c9364e2fe2a3876d8722fbe7ce3a6f1438d47647a86f4  ./etc/.project
+7d793037a0760186574b0282f2f435e7  ./runner/instance/slappart1/data""")
 
   def test_backupFilesWereModifiedDuringExport(self):
     self._setUpFakeInstanceFolder()
