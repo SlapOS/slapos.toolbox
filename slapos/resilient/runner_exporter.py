@@ -151,4 +151,4 @@ def runExport():
       print("ERROR: Some backups are not consistent, exporter should be re-run."
             " Let's sleep %s minutes, to let the backup end..." % args.backup_wait_time)
       time.sleep(args.backup_wait_time * 60)
-      system.exit(1)
+      sys.exit(1)
