@@ -149,6 +149,6 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
         ])
       )
 
-    # Write the signatures in file
-    with open(signature_file_path, 'w+') as signature_file:
-      signature_file.write("\n".join(sorted(signature_list)))
+  # Write the signatures in file
+  with open(signature_file_path, 'w+') as signature_file:
+    signature_file.write("\n".join(sorted(signature_list)))
