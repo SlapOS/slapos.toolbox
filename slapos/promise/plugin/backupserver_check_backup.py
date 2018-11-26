@@ -6,6 +6,7 @@ from slapos.grid.promise.generic import TestResult
 import re
 import sys
 import pytz
+from os.path import isfile, getmtime
 from datetime import datetime
 from croniter import croniter
 from dateutil.parser import parse
@@ -31,10 +32,19 @@ class RunPromise(GenericPromise):
          * we can't grep "backup failed" in the text file
     """
 
+    script = self.getConfig('script_fullpath')
     status = self.getConfig('status_fullpath')
     prev_cron = croniter(self.getConfig('cron_frequency'), datetime.now(pytz.utc)).get_prev(datetime) # date of the previous time cron launched
     status_url = "{}/private/{}/{}".format(self.getConfig("monitor_url"), self.getConfig("status_dirbasename"), self.getConfig("status_name"))
     statistic_url = "{}/private/{}/{}".format(self.getConfig("monitor_url"), self.getConfig("statistic_dirbasename"), self.getConfig("statistic_name"))
+
+    # If log file is not present, it can be OK if we launched the instance after the last cron due date
+    if not isfile(status):
+      if pytz.utc.localize(datetime.utcfromtimestamp(getmtime(script))) < prev_cron:
+        self.logger.error("Backup status file is not present")
+      else:
+        self.logger.info("Backup was never launched")
+      return
 
     # First, parse the log file
     backup_started = False
@@ -73,10 +83,9 @@ class RunPromise(GenericPromise):
 
   def test(self):
     """
-      Test is never failing because we don't want to check when buildout deploy
-      the instance that the backup is working as it may not have started yet.
+      This is the default test function. Could be commented.
     """
-    return TestResult(problem=False, message="")
+    return self._test(result_count=1, failure_amount=1)
 
   def anomaly(self):
     """
