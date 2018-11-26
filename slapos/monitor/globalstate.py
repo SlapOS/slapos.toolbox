@@ -219,7 +219,7 @@ def run(monitor_conf_file):
   status = 'OK'
   global_state_file = os.path.join(base_folder, 'monitor.global.json')
   public_state_file = os.path.join(status_folder, 'monitor.global.json')
-  report_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+  report_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+0000')
 
   error, success = generateMonitoringData(config, status_folder, base_folder,
                                           public_url, private_url, feed_url)
