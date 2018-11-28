@@ -24,11 +24,12 @@ def calculateSignature():
 
   result = re.match('^\.\/runner\/instance\/slappart(\d)', file_list[0])
   base_relative_path = result.group()
-  excluded_path_list = tuple(['./' + os.path.relpath(os.path.join(base_relative_path, path)) for path in args.exclude_path])
+  excluded_path_list = ['./' + os.path.relpath(os.path.join(base_relative_path, path)) for path in args.exclude_path]
+  excluded_path_regex_list = [re.compile(excluded_path) for excluded_path in excluded_path_list]
 
   filtered_file_list = [
     x for x in file_list
-    if not x.startswith(excluded_path_list)
+    if not any([re.match(excluded_path_regex, x) for excluded_path_regex in excluded_path_regex_list])
   ]
 
   print('\n'.join(getSha256Sum(filtered_file_list)))
