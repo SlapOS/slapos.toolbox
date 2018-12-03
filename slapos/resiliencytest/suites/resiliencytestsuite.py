@@ -28,6 +28,7 @@
 
 import slapos.slap
 
+import glob
 import logging
 import os
 import subprocess
@@ -193,6 +194,25 @@ class ResiliencyTestSuite(object):
       return True
     return False
 
+  def _testPromises(self):
+    """
+    Run promises in all instances (export, PBS, import(s)) and
+    check their output. An error at any step of the resilience
+    should make at least one of the promises complain.
+    """
+    for promise_directory in glob.glob('../*/etc/promise/'):
+      promise_list = os.listdir(promise_directory)
+      for promise in promise_list:
+        # XXX: for the moment ignore monitor promises as they can never succeed
+        # in a testnode environment.
+        if 'monitor' in promise:
+          continue
+        try:
+          process = subprocess.check_output(os.path.join(promise_directory, promise))
+        except subprocess.CalledProcessError as e:
+          self.logger.error('ERROR : promise "%s" failed with output :\n%s', promise, e.output)
+          return False
+
   def runTestSuite(self):
     """
     Generate data to send,
@@ -213,16 +233,16 @@ class ResiliencyTestSuite(object):
     # In case we have only one clone: test the takeover twice
     # so that we test the reconstruction of a new clone.
     if clone_count == 1:
-      return self._testClone(1)
+      return self._testClone(1) and self._testPromises()
       #for i in range(2):
-      #  success = self._testClone(1)
+      #  success = self._testClone(1) and self._testPromises()
       #  if not success:
       #    return False
 
     else:
       # Test each clone
       while current_clone <= clone_count:
-        success = self._test_clone(current_clone)
+        success = self._testClone(current_clone) and self._testPromises()
         if not success:
           return False
         current_clone = current_clone + 1
