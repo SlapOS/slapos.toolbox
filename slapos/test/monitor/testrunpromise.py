@@ -288,7 +288,7 @@ class RunPromise(GenericPromise):
     result_file = os.path.join(self.output_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
     result1 = json.loads(open(result_file).read().decode("utf-8"))
-    start_date = datetime.strptime(result1['result'].pop('date'), '%Y-%m-%dT%H:%M:%S')
+    start_date = datetime.strptime(result1['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
 
     expected_result = {
       u'title': u'promise_1', u'name': u'promise_1',
@@ -304,7 +304,7 @@ class RunPromise(GenericPromise):
     promise_runner = MonitorPromiseLauncher(parser)
     promise_runner.start()
     result2 = json.loads(open(result_file).read().decode("utf-8"))
-    start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S')
+    start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
     self.assertEqual(expected_result, result2)
 
   def test_promise_two_folder(self):
@@ -320,7 +320,7 @@ class RunPromise(GenericPromise):
     self.assertTrue(os.path.exists(result_file))
     self.assertTrue(os.path.exists(result2_file))
     result1 = json.loads(open(result_file).read().decode("utf-8"))
-    start_date = datetime.strptime(result1['result'].pop('date'), '%Y-%m-%dT%H:%M:%S')
+    start_date = datetime.strptime(result1['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
 
     expected_result = {
       u'title': u'promise_1', u'name': u'promise_1',
@@ -333,7 +333,7 @@ class RunPromise(GenericPromise):
     self.assertEqual(expected_result, result1)
 
     result2 = json.loads(open(result2_file).read())
-    start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S')
+    start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
 
     expected_result = {
       u'title': u'promise_2', u'name': u'promise_2',
