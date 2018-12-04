@@ -201,6 +201,7 @@ class ResiliencyTestSuite(object):
     should make at least one of the promises complain.
     """
     for promise_directory in glob.glob('../*/etc/promise/'):
+      self.logger.info("Testing promises of instance's directory : %s", promise_directory)
       promise_list = os.listdir(promise_directory)
       for promise in promise_list:
         # XXX: for the moment ignore monitor promises as they can never succeed
@@ -212,6 +213,8 @@ class ResiliencyTestSuite(object):
         except subprocess.CalledProcessError as e:
           self.logger.error('ERROR : promise "%s" failed with output :\n%s', promise, e.output)
           return False
+
+    return True
 
   def runTestSuite(self):
     """
