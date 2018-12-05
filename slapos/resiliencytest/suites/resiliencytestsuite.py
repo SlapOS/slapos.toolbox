@@ -190,8 +190,15 @@ class ResiliencyTestSuite(object):
       subprocess.Popen(command, stdout=devnull, stderr=devnull).wait()
 
     success = self.checkDataOnCloneInstance()
+
     if success:
-      return True
+      self.logger.info(
+        'Sleeping for %s seconds that new clone is set up.' % self.sleep_time_between_test
+      )
+      time.sleep(self.sleep_time_between_test)
+
+      return success and self._testPromises()
+
     return False
 
   def _testPromises(self):
@@ -200,7 +207,8 @@ class ResiliencyTestSuite(object):
     check their output. An error at any step of the resilience
     should make at least one of the promises complain.
     """
-    for promise_directory in glob.glob('../*/etc/promise/'):
+    for promise_directory in glob.glob(
+        os.path.realpath(os.path.join(os.path.dirname(sys.argv[0]), '..', '..', '..', 'inst*', '*', 'etc', 'promise'))):
       self.logger.info("Testing promises of instance's directory : %s", promise_directory)
       promise_list = os.listdir(promise_directory)
       for promise in promise_list:
@@ -236,16 +244,16 @@ class ResiliencyTestSuite(object):
     # In case we have only one clone: test the takeover twice
     # so that we test the reconstruction of a new clone.
     if clone_count == 1:
-      return self._testClone(1) and self._testPromises()
+      return self._testClone(1)
       #for i in range(2):
-      #  success = self._testClone(1) and self._testPromises()
+      #  success = self._testClone(1)
       #  if not success:
       #    return False
 
     else:
       # Test each clone
       while current_clone <= clone_count:
-        success = self._testClone(current_clone) and self._testPromises()
+        success = self._testClone(current_clone)
         if not success:
           return False
         current_clone = current_clone + 1
