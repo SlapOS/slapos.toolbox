@@ -169,6 +169,10 @@ class ResiliencyTestSuite(object):
         ))
     time.sleep(self.sleep_time_between_test)
 
+    # Before doing takeover we expect the instances to be in a stable state
+    if not self._testPromises():
+      return False
+
     self.logger.info('Testing %s%s instance.' % (self.namebase, clone))
     self._doTakeover(self.namebase, clone)
 
@@ -192,14 +196,7 @@ class ResiliencyTestSuite(object):
     success = self.checkDataOnCloneInstance()
 
     if success:
-      self.logger.info(
-        'Sleeping for %s seconds that new clone is set up.' % self.sleep_time_between_test
-      )
-      time.sleep(self.sleep_time_between_test)
-
-      return success and self._testPromises()
-
-    return False
+      return True
 
   def _testPromises(self):
     """
