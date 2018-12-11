@@ -64,7 +64,7 @@
             <tr>
                <th>Parameter Name</th><th>Parameter Value</th>
             </tr>
-            {% for k in item[1] %}
+            {% for k in sorted(item[1].iterkeys()) %}
             <tr>
                <td class="propertie first">{{k}}</td><td align='left'><span class="slapvalues">{{item[1][k]}}</span></td>
             </tr>
