@@ -10,6 +10,7 @@ from os.path import isfile, getmtime
 from datetime import datetime
 from croniter import croniter
 from dateutil.parser import parse
+from tzlocal import get_localzone
 
 class RunPromise(GenericPromise):
 
@@ -34,7 +35,9 @@ class RunPromise(GenericPromise):
 
     script = self.getConfig('script_fullpath')
     status = self.getConfig('status_fullpath')
-    prev_cron = croniter(self.getConfig('cron_frequency'), datetime.now(pytz.utc)).get_prev(datetime) # date of the previous time cron launched
+    local_tz = get_localzone()
+    prev_cron = croniter(self.getConfig('cron_frequency'), datetime.now()).get_prev(datetime) # date of the previous time cron launched
+    prev_cron = local_tz.localize(prev_cron)
     status_url = "{}/private/{}/{}".format(self.getConfig("monitor_url"), self.getConfig("status_dirbasename"), self.getConfig("status_name"))
     statistic_url = "{}/private/{}/{}".format(self.getConfig("monitor_url"), self.getConfig("statistic_dirbasename"), self.getConfig("statistic_name"))
 
