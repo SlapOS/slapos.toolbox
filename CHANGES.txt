@@ -1,3 +1,10 @@
+0.84 (2018-12-13)
+=================
+
+ * improve backupserver_check_backup promise
+ * fix resiliency tests
+ * add UTC timezone in promises logs ("+0000")
+
 0.83 (2018-11-14)
 =================
 
