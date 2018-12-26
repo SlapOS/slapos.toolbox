@@ -151,11 +151,11 @@ class TestHTTPBench(unittest.TestCase):
     """ This test is way to badly written as it depends on
         www.erp5.com for now, please replace it
     """
-    info = request("http://www.erp5.com", {"expected_response": 302})
+    info = request("http://www.erp5.com", {"expected_response": 301})
 
     self.assertEqual(info[0], 'GET')
     self.assertEqual(info[1], 'http://www.erp5.com')
-    self.assertEqual(info[2], 302)
+    self.assertEqual(info[2], 301)
     self.assertEqual(len(info[3].split(';')), 5 )
     self.assertEqual(info[4], "OK")
 
@@ -192,9 +192,9 @@ class TestHTTPBench(unittest.TestCase):
 
     self.assertEqual(info[0], 'GET')
     self.assertEqual(info[1], 'http://www.erp5.com')
-    self.assertEqual(info[2], 302)
+    self.assertEqual(info[2], 301)
     self.assertEqual(len(info[3].split(';')), 5 )
-    self.assertEqual(info[4], "UNEXPECTED (200 != 302)")
+    self.assertEqual(info[4], "UNEXPECTED (200 != 301)")
 
   def test_request_unexpected_text(self):
     """ This test is way to badly written as it depends on
