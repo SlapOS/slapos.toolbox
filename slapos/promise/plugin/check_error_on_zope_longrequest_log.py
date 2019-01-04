@@ -20,8 +20,8 @@ class RunPromise(GenericPromise):
   def sense(self):
     log_file = self.getConfig('log-file')
     error_threshold = self.getConfig('error-threshold')
+    maximum_delay = self.getConfig('maximum-delay')
     error_amount = 0
-    maximum_delay = 0
     if not os.path.exists(log_file):
       # file don't exist, nothing to check
       self.logger.info("log file does not exist: log check skipped")
@@ -41,19 +41,14 @@ class RunPromise(GenericPromise):
           t = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
         except ValueError:
           continue
-
         if maximum_delay and (time.time()-time.mktime(t)) > maximum_delay:
           # no result in the latest hour
           break
-
         error_amount += 1
-
-
     if error_amount > error_threshold:
       self.logger.error('ERROR=%s' % error_amount)
     else:
-      self.logger.info('ERROR=%s' % error_amount)
-    
+      self.logger.info('INFO=%s' % error_amount)
 
   def test(self):
     return self._test(result_count=1, failure_amount=1)

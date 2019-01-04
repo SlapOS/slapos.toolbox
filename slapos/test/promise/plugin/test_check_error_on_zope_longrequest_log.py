@@ -26,11 +26,9 @@
 ##############################################################################
 
 from slapos.test.promise.plugin import TestPromisePluginMixin
-from slapos.grid.promise import PromiseError
 import os
-import sqlite3
 from slapos.test.promise import data
-from slapos.grid.promise import PromiseError
+import time
 
 class TestCheckErrorOnZopeLongrequestLog(TestPromisePluginMixin):
 
@@ -39,22 +37,73 @@ class TestCheckErrorOnZopeLongrequestLog(TestPromisePluginMixin):
     self.promise_name = "check-error-on-zope_longrequest-log.py"
     self.base_path = "/".join(data.__file__.split("/")[:-1])
     self.log_file = self.base_path + "/longrequest_logger_zope.log"
-    
+    self.test_log_file = self.base_path + "/SOFTINST-0_longrequest_logger_zope.log"
+    self._update_logs()
 
-  def test_xxxxxx(self):
+  def get_time(self, sec):
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()-sec))
+
+  def _update_logs(self):
+    i = 600
+    new = ""
+    old = ""
+    with open(self.log_file) as f:
+      for line in f:
+        new += line.replace("DATETIME", self.get_time(i))
+        old += line.replace("DATETIME", self.get_time(i + 3600))
+        i -= 1
+      with open(self.test_log_file, "w") as f:
+        f.write(old)
+        f.write(new) 
+
+  def test_no_delay_no_error_threshold(self):
     content = """from slapos.promise.plugin.check_error_on_zope_longrequest_log import RunPromise
 
 extra_config_dict = {
   'log-file': '%(log_file)s',
   'error-threshold': '%(error_threshold)s',
+  'maximum-delay': '%(maximum_delay)s'
 }
-""" % {'log_file': self.log_file, 'error_threshold': 3}
+""" % {'log_file': self.test_log_file, 'error_threshold': 0, 'maximum_delay':0}
     self.writePromise(self.promise_name, content)
 
     self.configureLauncher()
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['message'], "ERROR=7")
+    self.assertEquals(result['result']['message'], "ERROR=6")
+
+  def test_no_delay_error_threshold(self):
+    content = """from slapos.promise.plugin.check_error_on_zope_longrequest_log import RunPromise
+
+extra_config_dict = {
+  'log-file': '%(log_file)s',
+  'error-threshold': '%(error_threshold)s',
+  'maximum-delay': '%(maximum_delay)s'
+}
+""" % {'log_file': self.test_log_file, 'error_threshold': 7, 'maximum_delay':0}
+    self.writePromise(self.promise_name, content)
+
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEquals(result['result']['message'], "INFO=6")
+
+  def test_delay_no_error_threshold(self):
+    content = """from slapos.promise.plugin.check_error_on_zope_longrequest_log import RunPromise
+
+extra_config_dict = {
+  'log-file': '%(log_file)s',
+  'error-threshold': '%(error_threshold)s',
+  'maximum-delay': '%(maximum_delay)s'
+}
+""" % {'log_file': self.test_log_file, 'error_threshold': 2, 'maximum_delay':3600}
+    self.writePromise(self.promise_name, content)
+
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEquals(result['result']['message'], "ERROR=3")
+
 
 if __name__ == '__main__':
   unittest.main()
