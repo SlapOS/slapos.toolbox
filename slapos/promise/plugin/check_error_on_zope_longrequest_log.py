@@ -46,9 +46,9 @@ class RunPromise(GenericPromise):
           break
         error_amount += 1
     if error_amount > error_threshold:
-      self.logger.error('ERROR=%s' % error_amount)
+      self.logger.error('ERROR: Site has %s long request' % error_amount)
     else:
-      self.logger.info('INFO=%s' % error_amount)
+      self.logger.info('INFO: Site has %s long request' % error_amount)
 
   def test(self):
     return self._test(result_count=1, failure_amount=1)
