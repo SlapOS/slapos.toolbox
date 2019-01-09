@@ -73,7 +73,7 @@ extra_config_dict = {
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['message'], "ERROR: Site has 6 long request")
+    self.assertEqual(result['result']['message'], "ERROR: Site has 6 long request")
 
   def test_02_no_delay_error_threshold(self):
     content = """from slapos.promise.plugin.check_error_on_zope_longrequest_log import RunPromise
@@ -89,7 +89,7 @@ extra_config_dict = {
     self.configureLauncher()
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['message'], "INFO: Site has 6 long request")
+    self.assertEqual(result['result']['message'], "INFO: Site has 6 long request")
 
   def test_03_delay_no_error_threshold(self):
     content = """from slapos.promise.plugin.check_error_on_zope_longrequest_log import RunPromise
@@ -105,7 +105,7 @@ extra_config_dict = {
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEquals(result['result']['message'], "ERROR: Site has 3 long request")
+    self.assertEqual(result['result']['message'], "ERROR: Site has 3 long request")
 
 
 if __name__ == '__main__':
