@@ -1,3 +1,8 @@
+0.85 (2019-01-09)
+=================
+
+ * promise: add new promise to check long request
+
 0.84 (2018-12-13)
 =================
 
