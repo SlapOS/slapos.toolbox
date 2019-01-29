@@ -57,17 +57,15 @@ setup(name=name,
         'requests',
         'jsonschema',
         'zc.buildout',
+        'pycurl',
       ] + additional_install_requires,
       extras_require = {
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
         'zodbpack': ['ZODB3'], # needed to play with ZODB
         'flask_auth' : ["Flask-Auth"],
-        'networkbench' : ['pycurl'],
-        'check_web_page_http_cache_hit' : ['pycurl'], # needed for check_web_page_http_cache_hit module
       },
       tests_require = [
         'mock',
-        'pycurl'
       ],
       zip_safe=False, # proxy depends on Flask, which has issues with
                       # accessing templates
