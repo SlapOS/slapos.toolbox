@@ -3,6 +3,7 @@ from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 import os
 import subprocess
+from slapos.grid.utils import SlapPopen
 
 class RunPromise(GenericPromise):
 
@@ -20,19 +21,12 @@ class RunPromise(GenericPromise):
 
     validate_script = self.getConfig('verification-script')
     result = float(subprocess.check_output([validate_script]))
-    process = subprocess.Popen(
-        [validate_script],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    )
+    process = SlapPopen([validate_script])
     stdout, stderr = process.communicate()
     if process.returncode != 0:
       self.logger.info("OK")
     else:
-      if stderr:
-        self.logger.error(stderr)
-      else:
-        self.logger.error(stdout)
+      self.logger.error("%s\n%s" % (stdout, stderr))
 
   def anomaly(self):
     return self._test(result_count=2, failure_amount=2)

@@ -26,6 +26,8 @@ class RunPromise(GenericPromise):
     curl.setopt(pycurl.TIMEOUT, timeout)
     curl.setopt(pycurl.FOLLOWLOCATION, True)
     curl.setopt(pycurl.SSL_VERIFYPEER, False)
+    curl.setopt(pycurl.SSL_VERIFYHOST, False)
+    curl.setopt(pycurl.WRITEFUNCTION, lambda x: None)
 
     ca_cert_file = self.getConfig('ca-cert-file')
     cert_file = self.getConfig('cert-file')
@@ -44,18 +46,18 @@ class RunPromise(GenericPromise):
       return
 
     http_code = curl.getinfo(pycurl.HTTP_CODE)
-    check_secure = self.getConfig('check_secure')
+    check_secure = self.getConfig('check-secure')
     
     if http_code == 0:
       self.logger.error("%s is not available (server not reachable)." % url)
     elif http_code == 401 and check_secure == "1":
-      self.logger.error("%s is protected (returned %s)." % (url, http_code))
+      self.logger.info("%s is protected (returned %s)." % (url, http_code))
 
     elif http_code != expected_http_code:
       self.logger.error("%s is not available (returned %s, expected %s)." % (
         url, http_code, expected_http_code))
     else:
-      self.logger.info("URL is available")
+      self.logger.info("%s: URL is available" % http_code)
 
   def anomaly(self):
     return self._test(result_count=3, failure_amount=3)
