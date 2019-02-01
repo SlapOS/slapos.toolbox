@@ -26,6 +26,7 @@
 ##############################################################################
 
 from slapos.test.promise.plugin import TestPromisePluginMixin
+from slapos.grid.promise import PromiseError
 import os
 import os.path
 import socket
@@ -59,11 +60,11 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
+    self.configureLauncher(timeout=20)
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
-    self.assertEqual(result['result']['message'], "0")
+    self.assertTrue('packet_lost_ratio=0' in result['result']['message'])
 
   def test_error(self):
     content = self.base_content % {
@@ -73,11 +74,12 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
-    self.launcher.run()
+    self.configureLauncher(timeout=20)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "-1")
+    self.assertTrue('packet_lost_ratio=-1' in result['result']['message'])
 
   def test_localhost6_with_ping6(self):
     content = self.base_content % {
@@ -87,11 +89,11 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
+    self.configureLauncher(timeout=20)
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
-    self.assertEqual(result['result']['message'], "0")
+    self.assertTrue('packet_lost_ratio=0' in result['result']['message'])
 
   def test_localhost6_with_ping4(self):
     content = self.base_content % {
@@ -101,11 +103,11 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
+    self.configureLauncher(timeout=20)
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
-    self.assertEqual(result['result']['message'], "0")
+    self.assertTrue('packet_lost_ratio=0' in result['result']['message'])
 
   def test_error6(self):
     content = self.base_content % {
@@ -115,11 +117,12 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
-    self.launcher.run()
+    self.configureLauncher(timeout=20)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "-1")
+    self.assertTrue('packet_lost_ratio=-1' in result['result']['message'])
 
 if __name__ == '__main__':
   unittest.main()

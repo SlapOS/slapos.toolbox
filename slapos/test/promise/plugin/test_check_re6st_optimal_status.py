@@ -26,6 +26,7 @@
 ##############################################################################
 
 from slapos.test.promise.plugin import TestPromisePluginMixin
+from slapos.grid.promise import PromiseError
 import os
 
 class TestCheckRe6stOptimalStatus(TestPromisePluginMixin):
@@ -34,7 +35,7 @@ class TestCheckRe6stOptimalStatus(TestPromisePluginMixin):
     TestPromisePluginMixin.setUp(self)
     self.promise_name = "check-icmp-packet-lost.py"
 
-    self.base_content = """from slapos.promise.plugin.check_icmp_packet_lost import RunPromise
+    self.base_content = """from slapos.promise.plugin.check_re6st_optimal_status import RunPromise
 
 extra_config_dict = {
   'ipv4': '%(ipv4)s',
@@ -54,11 +55,12 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
+    self.configureLauncher(timeout=20)
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
+    last_message = result['result']['message'].split('\n')[-1]
     self.assertEqual(result['result']['failed'], False)
-    self.assertEqual(result['result']['message'], "OK")
+    self.assertEqual(last_message, "OK")
 
   def test_ipv4_is_faster(self):
     content = self.base_content % {
@@ -68,11 +70,13 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
-    self.launcher.run()
+    self.configureLauncher(timeout=20)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
+    last_message = result['result']['message'].split('\n')[-1]
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "FAIL")
+    self.assertTrue(last_message.startswith('FAIL'))
 
   def test_ipv4_unreacheable_and_ipv6_ok(self):
     content = self.base_content % {
@@ -82,11 +86,12 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
+    self.configureLauncher(timeout=20)
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
+    last_message = result['result']['message'].split('\n')[-1]
     self.assertEqual(result['result']['failed'], False)
-    self.assertEqual(result['result']['message'], "OK")
+    self.assertEqual(last_message, "OK")
 
   def test_ipv6_fail(self):
     content = self.base_content % {
@@ -96,11 +101,13 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
-    self.launcher.run()
+    self.configureLauncher(timeout=20)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
+    last_message = result['result']['message'].split('\n')[-1]
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "FAILED")
+    self.assertEqual(last_message, "FAILED")
 
 if __name__ == '__main__':
   unittest.main()

@@ -20,7 +20,7 @@ class RunPromise(GenericPromise):
       Check if frontend URL is available
     """
     log_file = self.getConfig('log-file')
-    maximum_delay = int(self.getConfig('maximum-delay'))
+    maximum_delay = int(self.getConfig('maximum-delay', 0))
     if not log_file:
       raise ValueError("log file was not set in promise parameters.")
 
@@ -76,8 +76,8 @@ class RunPromise(GenericPromise):
     if error_amount:
       self.logger.error("ERROR=%s (NOTROUTE=%s, UNREACHEABLENET=%s, TIMEOUT=%s)" % (
         error_amount, no_route_error, network_is_unreacheable, timeout))
-
-    self.logger.info("OK")
+    else:
+      self.logger.info("OK")
 
   def anomaly(self):
     # only check the result of the two latest sense call

@@ -27,7 +27,9 @@
 
 from slapos.test.promise.plugin import TestPromisePluginMixin
 import os
+import time
 from slapos.test.promise import data
+from slapos.grid.promise import PromiseError
 
 class TestCheckErrorOnApacheLog(TestPromisePluginMixin):
 
@@ -63,6 +65,7 @@ class TestCheckErrorOnApacheLog(TestPromisePluginMixin):
     self._update_logs()
 
     self.promise_name = "check-error-on-apache-log.py"
+    self.promise_pyc = os.path.join(self.plugin_dir, self.promise_name + "c")
 
     self.base_content = """from slapos.promise.plugin.check_error_on_apache_log import RunPromise
 
@@ -95,6 +98,9 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
+    # remove previous pyc, so modified promise file will be used
+    if os.path.exists(self.promise_pyc):
+      os.unlink(self.promise_pyc)
     # Ignore periodicity of the promise
     self.configureLauncher(force=True)
     self.launcher.run()
@@ -111,7 +117,8 @@ extra_config_dict = {
     self.writePromise(self.promise_name, content)
 
     self.configureLauncher()
-    self.launcher.run()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(result['result']['message'], "ERROR=2 (NOTROUTE=2, UNREACHEABLENET=0, TIMEOUT=0)")
@@ -122,12 +129,16 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
+    # remove previous pyc, so modified promise file will be used
+    if os.path.exists(self.promise_pyc):
+      os.unlink(self.promise_pyc)
     # Ignore periodicity of the promise
-    self.configureLauncher(force=True)
-    self.launcher.run()
+    self.configureLauncher(force=True, debug=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR=1 (NOTROUTE=1, UNREACHEABLENET=0, TIMEOUT=0")
+    self.assertEqual(result['result']['message'], "ERROR=1 (NOTROUTE=1, UNREACHEABLENET=0, TIMEOUT=0)")
 
   def test_error_timeout(self):
     self.base_path = "/".join(data.__file__.split("/")[:-1])
@@ -138,7 +149,8 @@ extra_config_dict = {
     self.writePromise(self.promise_name, content)
 
     self.configureLauncher()
-    self.launcher.run()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(result['result']['message'], "ERROR=4 (NOTROUTE=0, UNREACHEABLENET=0, TIMEOUT=4)")
@@ -149,9 +161,13 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
+    # remove previous pyc, so modified promise file will be used
+    if os.path.exists(self.promise_pyc):
+      os.unlink(self.promise_pyc)
     # Ignore periodicity of the promise
     self.configureLauncher(force=True)
-    self.launcher.run()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(result['result']['message'], "ERROR=2 (NOTROUTE=0, UNREACHEABLENET=0, TIMEOUT=2)")
@@ -165,7 +181,8 @@ extra_config_dict = {
     self.writePromise(self.promise_name, content)
 
     self.configureLauncher()
-    self.launcher.run()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(result['result']['message'], "ERROR=11 (NOTROUTE=0, UNREACHEABLENET=11, TIMEOUT=0)")
@@ -176,9 +193,13 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
+    # remove previous pyc, so modified promise file will be used
+    if os.path.exists(self.promise_pyc):
+      os.unlink(self.promise_pyc)
     # Ignore periodicity of the promise
     self.configureLauncher(force=True)
-    self.launcher.run()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(result['result']['message'], "ERROR=11 (NOTROUTE=0, UNREACHEABLENET=11, TIMEOUT=0)")
