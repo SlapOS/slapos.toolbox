@@ -22,7 +22,7 @@ class RunPromise(GenericPromise):
     # promise ipv6 and ipv4 address to compare.
     ipv4 = self.getConfig('ipv4')
     ipv6 = self.getConfig('ipv6')
-    count = self.getConfig('count', 10)
+    count = int(self.getConfig('count', 10))
     if not ipv4:
       raise ValueError("'ipv4' was not set in promise parameters.")
     if not ipv6:

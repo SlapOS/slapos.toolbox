@@ -2,7 +2,10 @@ from zope import interface as zope_interface
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
-import subprocess
+try:
+  import subprocess32 as subprocess
+except ImportError:
+  import subprocess
 
 class RunPromise(GenericPromise):
 
@@ -10,7 +13,7 @@ class RunPromise(GenericPromise):
 
   def __init__(self, config):
     GenericPromise.__init__(self, config)
-    self.setPeriodicity(minute=5)
+    self.setPeriodicity(minute=int(self.getConfig('frequency', 5)))
 
   def sense(self):
     """

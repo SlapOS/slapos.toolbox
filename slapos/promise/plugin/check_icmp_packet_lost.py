@@ -25,7 +25,7 @@ class RunPromise(GenericPromise):
       raise ValueError("'address' was not set in promise parameters.")
     # Force use ipv4 protocol ?
     ipv4 = self.getConfig('ipv4') in ('True', 'true', '1')
-    count = self.getConfig('count', 10)
+    count = int(self.getConfig('count', 10))
     threshold = int(self.getConfig('threshold', 0))
     if threshold < 0:
       raise ValueError("'threshold' value should be greater than 0.")
