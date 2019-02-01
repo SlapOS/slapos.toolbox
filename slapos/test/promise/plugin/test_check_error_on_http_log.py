@@ -86,7 +86,9 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
+    self.configureLauncher(force=True, enable_anomaly=True)
+    self.launcher.run()
+    # run a second time to add more results
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
@@ -102,7 +104,6 @@ extra_config_dict = {
     if os.path.exists(self.promise_pyc):
       os.unlink(self.promise_pyc)
     # Ignore periodicity of the promise
-    self.configureLauncher(force=True)
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
@@ -116,7 +117,8 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
+    self.configureLauncher(force=True, enable_anomaly=True)
+    self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
@@ -133,7 +135,6 @@ extra_config_dict = {
     if os.path.exists(self.promise_pyc):
       os.unlink(self.promise_pyc)
     # Ignore periodicity of the promise
-    self.configureLauncher(force=True, debug=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
@@ -148,7 +149,8 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
+    self.configureLauncher(force=True, enable_anomaly=True)
+    self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
@@ -165,7 +167,6 @@ extra_config_dict = {
     if os.path.exists(self.promise_pyc):
       os.unlink(self.promise_pyc)
     # Ignore periodicity of the promise
-    self.configureLauncher(force=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
@@ -180,7 +181,8 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher()
+    self.configureLauncher(force=True, enable_anomaly=True)
+    self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
@@ -197,7 +199,6 @@ extra_config_dict = {
     if os.path.exists(self.promise_pyc):
       os.unlink(self.promise_pyc)
     # Ignore periodicity of the promise
-    self.configureLauncher(force=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)

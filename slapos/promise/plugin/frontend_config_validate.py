@@ -20,7 +20,6 @@ class RunPromise(GenericPromise):
     """
 
     validate_script = self.getConfig('verification-script')
-    result = float(subprocess.check_output([validate_script]))
     process = SlapPopen([validate_script])
     stdout, stderr = process.communicate()
     if process.returncode != 0:
@@ -29,4 +28,4 @@ class RunPromise(GenericPromise):
       self.logger.error("%s\n%s" % (stdout, stderr))
 
   def anomaly(self):
-    return self._test(result_count=2, failure_amount=2)
+    return self._test()

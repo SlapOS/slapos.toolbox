@@ -46,6 +46,7 @@ extra_config_dict = {
   'ipv4': '%(ipv4)s',
   'count': '%(count)s',
   'address': '%(address)s',
+  'threshold': '%(threshold)s'
 }
 """
 
@@ -56,11 +57,14 @@ extra_config_dict = {
     content = self.base_content % {
       'address': "localhost",
       'count': 5,
-      "ipv4": True
+      "ipv4": True,
+      "threshold": 0
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher(timeout=20)
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
+    # run a second time to add more results
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
@@ -70,11 +74,13 @@ extra_config_dict = {
     content = self.base_content % {
       'address': "couscous",
       'count': 5,
-      "ipv4": True
+      "ipv4": True,
+      "threshold": 0
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher(timeout=20)
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
@@ -85,11 +91,14 @@ extra_config_dict = {
     content = self.base_content % {
       'address': "::1",
       'count': 5,
-      "ipv4": False
+      "ipv4": False,
+      "threshold": 0
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher(timeout=20)
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
+    # run a second time to add more results
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
@@ -99,11 +108,14 @@ extra_config_dict = {
     content = self.base_content % {
       'address': "::1",
       'count': 5,
-      "ipv4": True
+      "ipv4": True,
+      "threshold": 0
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher(timeout=20)
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
+    # run a second time to add more results
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
@@ -113,16 +125,35 @@ extra_config_dict = {
     content = self.base_content % {
       'address': "couscous",
       'count': 5,
-      "ipv4": False
+      "ipv4": False,
+      "threshold": 0
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher(timeout=20)
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
     self.assertTrue('packet_lost_ratio=-1' in result['result']['message'])
+
+  def test_packet_lost_less_than_threshold(self):
+    content = self.base_content % {
+      'address': "10.2.3.4",
+      'count': 5,
+      "ipv4": True,
+      "threshold": 110
+    }
+    self.writePromise(self.promise_name, content)
+
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
+    # run a second time to add more results
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertTrue('packet_lost_ratio=100' in result['result']['message'])
 
 if __name__ == '__main__':
   unittest.main()

@@ -55,12 +55,14 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher(timeout=20)
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
+    # run a second time to add more results
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     last_message = result['result']['message'].split('\n')[-1]
     self.assertEqual(result['result']['failed'], False)
-    self.assertEqual(last_message, "OK")
+    self.assertEqual(last_message, "OK: IPv4 reachable, IPv6 reachable")
 
   def test_ipv4_is_faster(self):
     content = self.base_content % {
@@ -70,7 +72,8 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher(timeout=20)
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
@@ -86,12 +89,14 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher(timeout=20)
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
+    # run a second time to add more results
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     last_message = result['result']['message'].split('\n')[-1]
     self.assertEqual(result['result']['failed'], False)
-    self.assertEqual(last_message, "OK")
+    self.assertEqual(last_message, "OK: IPv4 unreachable, IPv6 reachable")
 
   def test_ipv6_fail(self):
     content = self.base_content % {
@@ -101,13 +106,14 @@ extra_config_dict = {
     }
     self.writePromise(self.promise_name, content)
 
-    self.configureLauncher(timeout=20)
+    self.configureLauncher(force=True, timeout=20, enable_anomaly=True)
+    self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     last_message = result['result']['message'].split('\n')[-1]
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(last_message, "FAILED")
+    self.assertEqual(last_message, "FAILED: IPv4 reachable, IPv6 unreachable")
 
 if __name__ == '__main__':
   unittest.main()

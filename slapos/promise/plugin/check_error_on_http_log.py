@@ -1,6 +1,6 @@
 from zope import interface as zope_interface
 from slapos.grid.promise import interface
-from slapos.grid.promise.generic import GenericPromise
+from slapos.grid.promise.generic import GenericPromise, TestResult
 import re
 import time
 import os
@@ -12,12 +12,12 @@ class RunPromise(GenericPromise):
   def __init__(self, config):
     GenericPromise.__init__(self, config)
     # set periodicity to run the promise twice per day
-    self.custom_frequency = 720
+    self.custom_frequency = int(self.getConfig('frequency', 720))
     self.setPeriodicity(self.custom_frequency)
 
   def sense(self):
     """
-      Check if frontend URL is available
+      Check if http log file contain errors
     """
     log_file = self.getConfig('log-file')
     maximum_delay = int(self.getConfig('maximum-delay', 0))
@@ -82,3 +82,6 @@ class RunPromise(GenericPromise):
   def anomaly(self):
     # only check the result of the two latest sense call
     return self._test(result_count=2, failure_amount=2, latest_minute=self.custom_frequency*3)
+
+  def test(self):
+    return TestResult(message="")
