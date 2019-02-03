@@ -27,7 +27,7 @@ class RunPromise(GenericPromise):
         stderr=subprocess.STDOUT,
     )
     result = process.communicate()[0].strip()
-    if process.returncode != 0:
+    if process.returncode == 0:
       self.logger.info("OK")
     else:
       self.logger.error("Cache not available, availability: %s" % result)

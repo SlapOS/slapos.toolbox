@@ -40,6 +40,7 @@ class RunPromise(GenericPromise):
 
     try:
       curl.perform()
+      curl.close()
     except pycurl.error, e:
       code, message = e
       self.logger.error("%s: %s" % (code, message))

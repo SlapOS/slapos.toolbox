@@ -1,9 +1,10 @@
 from zope import interface as zope_interface
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
-import os
-import subprocess
-from slapos.grid.utils import SlapPopen
+try:
+  import subprocess32 as subprocess
+except ImportError:
+  import subprocess
 
 class RunPromise(GenericPromise):
 
@@ -12,20 +13,26 @@ class RunPromise(GenericPromise):
   def __init__(self, config):
     GenericPromise.__init__(self, config)
     # check configuration every 5 minutes (only for anomaly)
-    self.setPeriodicity(minute=5)
+    self.setPeriodicity(minute=int(self.getConfig('frequency', 5)))
 
   def sense(self):
     """
-      RUn frontend validatation script
+      Run frontend validatation script
     """
 
     validate_script = self.getConfig('verification-script')
-    process = SlapPopen([validate_script])
-    stdout, stderr = process.communicate()
-    if process.returncode != 0:
+    if not validate_script:
+      raise ValueError("'verification-script' was not set in promise parameters.")
+    process = subprocess.Popen(
+        [validate_script],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    message = process.communicate()[0]
+    if process.returncode == 0:
       self.logger.info("OK")
     else:
-      self.logger.error("%s\n%s" % (stdout, stderr))
+      self.logger.error("%s" % message)
 
   def anomaly(self):
     return self._test()
