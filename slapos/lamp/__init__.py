@@ -12,6 +12,7 @@
 #
 ##############################################################################
 
+from __future__ import print_function
 
 import os
 import time
@@ -76,7 +77,7 @@ def run():
   result = parser.parse_args()
   arguments = dict(result._get_kwargs())
   if arguments['token'] == None and arguments['file_token'] == None:
-    print "lampconfigure: Error: Please specify where condition will be taken, use -d or -f option"
+    print("lampconfigure: Error: Please specify where condition will be taken, use -d or -f option")
     return
   setup(arguments)
 
@@ -84,7 +85,7 @@ def setup(arguments):
   timeout = 5;
   while True:
     if not checkAction(arguments):
-      print "Waiting for 3s and retrying"
+      print("Waiting for 3s and retrying")
       time.sleep(3)
       continue
     time.sleep(timeout)
@@ -115,9 +116,9 @@ def checkAction(arguments):
                         user = arguments['mysql_user'],
                         passwd = arguments['mysql_password'],
                         db = arguments['token'])
-    except Exception, ex:
+    except Exception as e:
       #Mysql is not ready yet?...
-      print ex.message
+      print(e)
       return False
     if arguments['table'] == "**":
       #only detect if mysql has been started
@@ -145,7 +146,7 @@ def rename(arguments):
   source = os.path.join(arguments['target_directory'], arguments['source'])
   destination = os.path.join(arguments['target_directory'], arguments['destination'])
   if not os.path.exists(source):
-    print "Error when moving: '%s': no such file or directory" % source
+    print("Error when moving: '%s': no such file or directory" % source)
     return
   os.rename(source, destination)
   if arguments['mode'] != None:
@@ -155,7 +156,7 @@ def delete(arguments):
   for path in arguments['delete_target']:
     path = os.path.join(arguments['target_directory'], path)
     if not os.path.exists(path):
-      print "Error when deleting: '%s': no such file or directory" % path
+      print("Error when deleting: '%s': no such file or directory" % path)
       continue
     if os.path.isdir(path):
       shutil.rmtree(path)
@@ -164,7 +165,7 @@ def delete(arguments):
 
 def run_script(arguments):
   script = os.path.join(arguments['target_directory'], arguments['script'])
-  print 'Running script: %s' % script
+  print('Running script: %s' % script)
   if os.path.exists(script):
     import subprocess
     #run python script with predefined data
@@ -176,12 +177,12 @@ def run_script(arguments):
     result = subprocess.Popen(data, env={'PYTHONPATH': ':'.join(sys.path)})
     result.wait()
   else:
-    print "Error: can not read file '%s'" % script
+    print("Error: can not read file '%s'" % script)
 
 
 def run_sql_script(arguments):
   script = os.path.join(arguments['target_directory'], arguments['sql_script'])
-  print 'Running SQL script: %s' % script
+  print('Running SQL script: %s' % script)
   if os.path.exists(script):
     conn = MySQLdb.connect(host=arguments['mysql_host'],
                            port=int(arguments['mysql_port']),
@@ -196,7 +197,7 @@ def run_sql_script(arguments):
       conn.close()
 
   else:
-    print "Error: can not read file '%s'" % script
+    print("Error: can not read file '%s'" % script)
 
 
 
@@ -204,6 +205,6 @@ def chmod(arguments):
   for path in arguments['chmod_target']:
     path = os.path.join(arguments['target_directory'], path)
     if not os.path.exists(path):
-      print "Error when changing mode: '%s': no such file or directory" % path
+      print("Error when changing mode: '%s': no such file or directory" % path)
       continue
     os.chmod(path, int(arguments['mode'], 8))

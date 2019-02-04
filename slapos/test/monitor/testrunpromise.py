@@ -69,7 +69,7 @@ exit 0
 """
     promise_path = os.path.join(self.old_promise_dir, name)
     self.writeContent(promise_path, content)
-    os.chmod(promise_path, 0755)
+    os.chmod(promise_path, 0o755)
     return promise_path
 
   def writePromiseNOK(self, name):
@@ -80,18 +80,17 @@ exit 2
 """
     promise_path = os.path.join(self.old_promise_dir, name)
     self.writeContent(promise_path, content)
-    os.chmod(promise_path, 0755)
+    os.chmod(promise_path, 0o755)
     return promise_path
 
   def generatePromiseScript(self, name, success=True, failure_count=1, content="",
       periodicity=0.03):
-    promise_content = """from zope import interface as zope_interface
+    promise_content = """from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise import GenericPromise
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
- zope_interface.implements(interface.IPromise)
 
  def __init__(self, config):
    GenericPromise.__init__(self, config)
@@ -151,21 +150,23 @@ class RunPromise(GenericPromise):
     result_file = os.path.join(self.output_dir, 'my_promise.status.json')
     os.system('cat %s' % result_file)
     self.assertTrue(os.path.exists(result_file))
-    my_result = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      my_result = json.load(f)
     my_result['result'].pop('date')
     expected_result = {
       u'title': u'my_promise', u'name': u'my_promise.py',
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
+    self.assertTrue(my_result.pop('execution-time'))
     self.assertEqual(expected_result, my_result)
 
     result_file = os.path.join(self.output_dir, 'my_second_promise.status.json')
     self.assertTrue(os.path.exists(result_file))
-    second_result = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      second_result = json.load(f)
     second_result['result'].pop('date')
 
     expected_result = {
@@ -173,9 +174,9 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s/my_second_promise.py' % self.promise_dir,
     }
+    self.assertTrue(second_result.pop('execution-time'))
     self.assertEqual(expected_result, second_result)
 
   def test_promise_generic_failed(self):
@@ -186,7 +187,8 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'my_promise.status.json')
     self.assertTrue(os.path.exists(result_file))
-    my_result = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      my_result = json.load(f)
     my_result['result'].pop('date')
 
     expected_result = {
@@ -194,9 +196,9 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': True, u'message': u'failed', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
+    self.assertTrue(my_result.pop('execution-time'))
     self.assertEqual(expected_result, my_result)
 
   def test_promise_generic_status_change(self):
@@ -207,7 +209,8 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'my_promise.status.json')
     self.assertTrue(os.path.exists(result_file))
-    my_result = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      my_result = json.load(f)
     my_result['result'].pop('date')
 
     expected_result = {
@@ -215,9 +218,9 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': True, u'message': u'failed', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
+    self.assertTrue(my_result.pop('execution-time'))
     self.assertEqual(expected_result, my_result)
 
     os.system('rm %s/*.pyc' % self.promise_dir)
@@ -226,7 +229,8 @@ class RunPromise(GenericPromise):
     promise_runner2 = MonitorPromiseLauncher(parser)
     promise_runner2.start()
 
-    my_result = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      my_result = json.load(f)
     my_result['result'].pop('date')
 
     expected_result = {
@@ -234,9 +238,9 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
+    self.assertTrue(my_result.pop('execution-time'))
     self.assertEqual(expected_result, my_result)
 
   def test_promise_generic_periodicity(self):
@@ -287,7 +291,8 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      result1 = json.load(f)
     start_date = datetime.strptime(result1['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
 
     expected_result = {
@@ -295,7 +300,6 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s' % promise,
     }
 
@@ -303,8 +307,10 @@ class RunPromise(GenericPromise):
     parser = self.getPromiseParser(force=True)
     promise_runner = MonitorPromiseLauncher(parser)
     promise_runner.start()
-    result2 = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      result2 = json.load(f)
     start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
+    self.assertTrue(result2.pop('execution-time'))
     self.assertEqual(expected_result, result2)
 
   def test_promise_two_folder(self):
@@ -319,7 +325,8 @@ class RunPromise(GenericPromise):
     result2_file = os.path.join(self.output_dir, 'promise_2.status.json')
     self.assertTrue(os.path.exists(result_file))
     self.assertTrue(os.path.exists(result2_file))
-    result1 = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      result1 = json.load(f)
     start_date = datetime.strptime(result1['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
 
     expected_result = {
@@ -327,12 +334,13 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s' % promise,
     }
+    self.assertTrue(result1.pop('execution-time'))
     self.assertEqual(expected_result, result1)
 
-    result2 = json.loads(open(result2_file).read())
+    with open(result2_file) as f:
+      result2 = json.load(f)
     start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
 
     expected_result = {
@@ -340,9 +348,9 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s' % promise2,
     }
+    self.assertTrue(result2.pop('execution-time'))
     self.assertEqual(expected_result, result2)
 
   def test_promise_NOK(self):
@@ -353,23 +361,26 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      result1 = json.load(f)
     result1['result'].pop('date')
     expected_result = {
       u'title': u'promise_1', u'name': u'promise_1',
       u'result': {
         u'failed': True, u'message': u'failed', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s' % promise,
     }
+    self.assertTrue(result1.pop('execution-time'))
     self.assertEqual(expected_result, result1)
 
     # second run
     promise_runner = MonitorPromiseLauncher(parser)
     promise_runner.start()
-    result2 = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      result2 = json.load(f)
     result2['result'].pop('date')
+    self.assertTrue(result2.pop('execution-time'))
     self.assertEqual(expected_result, result2)
 
   def test_promise_mixed(self):
@@ -380,16 +391,17 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      result1 = json.load(f)
     result1['result'].pop('date')
     expected_result = {
       u'title': u'promise_1', u'name': u'promise_1',
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s' % promise,
     }
+    self.assertTrue(result1.pop('execution-time'))
     self.assertEqual(expected_result, result1)
 
     # second run with failure
@@ -401,7 +413,9 @@ class RunPromise(GenericPromise):
     promise_runner = MonitorPromiseLauncher(parser)
     promise_runner.start()
 
-    result2 = json.loads(open(result_file).read().decode("utf-8"))
+    with open(result_file) as f:
+      result2 = json.load(f)
     result2['result'].pop('date')
+    self.assertTrue(result2.pop('execution-time'))
     self.assertEqual(expected_result, result2)
 

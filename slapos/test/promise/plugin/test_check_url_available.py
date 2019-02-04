@@ -27,6 +27,7 @@
 
 from slapos.grid.promise import PromiseError
 from slapos.test.promise.plugin import TestPromisePluginMixin
+from slapos.util import str2bytes
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -34,12 +35,13 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
-import BaseHTTPServer
+from six.moves import BaseHTTPServer
 import datetime
 import ipaddress
 import json
 import multiprocessing
 import os
+import six
 import ssl
 import tempfile
 import time
@@ -66,10 +68,10 @@ def createCSR(common_name, ip=None):
   subject_alternative_name_list = []
   if ip is not None:
     subject_alternative_name_list.append(
-      x509.IPAddress(ipaddress.ip_address(unicode(ip)))
+      x509.IPAddress(ipaddress.ip_address(ip))
     )
   csr = x509.CertificateSigningRequestBuilder().subject_name(x509.Name([
-     x509.NameAttribute(NameOID.COMMON_NAME, unicode(common_name)),
+     x509.NameAttribute(NameOID.COMMON_NAME, common_name),
   ]))
 
   if len(subject_alternative_name_list):
@@ -89,10 +91,10 @@ class CertificateAuthority(object):
     public_key = self.key.public_key()
     builder = x509.CertificateBuilder()
     builder = builder.subject_name(x509.Name([
-      x509.NameAttribute(NameOID.COMMON_NAME, unicode(common_name)),
+      x509.NameAttribute(NameOID.COMMON_NAME, common_name),
     ]))
     builder = builder.issuer_name(x509.Name([
-      x509.NameAttribute(NameOID.COMMON_NAME, unicode(common_name)),
+      x509.NameAttribute(NameOID.COMMON_NAME, common_name),
     ]))
     builder = builder.not_valid_before(
       datetime.datetime.utcnow() - datetime.timedelta(days=2))
@@ -147,16 +149,19 @@ class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     response = {
       'Path': self.path,
     }
-    self.wfile.write(json.dumps(response, indent=2))
+    self.wfile.write(str2bytes(json.dumps(response, indent=2)))
 
 
 class CheckUrlAvailableMixin(TestPromisePluginMixin):
   @classmethod
   def setUpClass(cls):
-    cls.another_server_ca = CertificateAuthority("Another Server Root CA")
-    cls.test_server_ca = CertificateAuthority("Test Server Root CA")
+    cls.another_server_ca = CertificateAuthority(u"Another Server Root CA")
+    cls.test_server_ca = CertificateAuthority(u"Test Server Root CA")
+    ip = SLAPOS_TEST_IPV4.decode('utf-8') \
+         if isinstance(SLAPOS_TEST_IPV4, bytes) \
+         else SLAPOS_TEST_IPV4
     key, key_pem, csr, csr_pem = createCSR(
-      "testserver.example.com", SLAPOS_TEST_IPV4)
+      u"testserver.example.com", ip)
     _, cls.test_server_certificate_pem = cls.test_server_ca.signCSR(csr)
 
     cls.test_server_certificate_file = tempfile.NamedTemporaryFile(
@@ -175,17 +180,17 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
        cls.test_server_ca.certificate_pem)
     cls.test_server_ca_certificate_file.close()
 
-    server = BaseHTTPServer.HTTPServer(
-      (SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT),
-      TestHandler)
+    def server():
+      server = BaseHTTPServer.HTTPServer(
+        (SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT),
+        TestHandler)
+      server.socket = ssl.wrap_socket(
+        server.socket,
+        certfile=cls.test_server_certificate_file.name,
+        server_side=True)
+      server.serve_forever()
 
-    server.socket = ssl.wrap_socket(
-      server.socket,
-      certfile=cls.test_server_certificate_file.name,
-      server_side=True)
-
-    cls.server_process = multiprocessing.Process(
-      target=server.serve_forever)
+    cls.server_process = multiprocessing.Process(target=server)
     cls.server_process.start()
 
   @classmethod
@@ -269,7 +274,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "ERROR: Invalid URL u'https://': No host supplied"
+      "ERROR: Invalid URL %s'https://': No host supplied" %
+        ('' if six.PY3 else 'u')
     )
 
   def test_check_url_malformed(self):

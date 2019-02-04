@@ -24,6 +24,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
+from __future__ import print_function
+
 import os
 import argparse
 import subprocess
@@ -96,7 +98,8 @@ def shred(options):
   arg_list.extend(getFileList(options.file_list, options.check_exist))
 
   pshred = subprocess.Popen(arg_list, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
+                            stderr=subprocess.STDOUT,
+                            universal_newlines=True)
   result, stderr = pshred.communicate()
   if pshred.returncode is None:
     pshred.kill()
@@ -108,4 +111,4 @@ def shred(options):
 def main():
   arg_parser = getAgumentParser()
   output = shred(arg_parser.parse_args())
-  print output
+  print(output)

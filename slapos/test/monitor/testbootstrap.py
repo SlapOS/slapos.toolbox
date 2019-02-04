@@ -73,7 +73,6 @@ monitor-url-list = %(url_list)s
 collector-db = 
 base-url = %(base_url)s
 title = %(title)s
-service-pid-folder = %(base_dir)s/run
 promise-output-file = %(base_dir)s/monitor-bootstrap-status
 promise-runner = %(promise_run_script)s
 randomsleep = /bin/echo sleep
@@ -102,11 +101,11 @@ partition-folder = %(base_dir)s
     for index in range(1, amount+1):
       promise_file = os.path.join(promise_dir, 'monitor_promise-%s' % index)
       self.writeContent(promise_file, promse_content)
-      os.chmod(promise_file, 0755)
+      os.chmod(promise_file, 0o755)
     for index in range(1, amount+1):
       promise_file = os.path.join(plugin_dir, 'monitor_promise-%s.py' % index)
       self.writeContent(promise_file, promse_content)
-      os.chmod(promise_file, 0644)
+      os.chmod(promise_file, 0o644)
 
   def checkOPML(self, url_list):
     opml_title = "<title>%(root_title)s</title>" % self.monitor_config_dict
@@ -250,7 +249,8 @@ partition-folder = %(base_dir)s
 
     instance_config = os.path.join(instance.config_folder, '.jio_documents', 'config.json')
     self.assertTrue(os.path.exists(instance_config))
-    config_content = json.loads(open(instance_config).read())
+    with open(instance_config) as f:
+      config_content = json.load(f)
     self.assertEqual(len(config_content), 4)
     key_list = ['', 'sample', 'monitor-password', 'cors-domain']
     for parameter in config_content:

@@ -68,7 +68,8 @@ def synchroniseRunnerConfigurationDirectory(config, backup_path):
     os.makedirs(backup_path)
 
   file_list = ['config.json']
-  for hidden_file in os.listdir('.'):
+  # `sorted` is used for Python 2-3 compatibility
+  for hidden_file in sorted(os.listdir('.')):
     if hidden_file[0] == '.':
       file_list.append(hidden_file)
   rsync(config.rsync_binary, file_list, backup_path, dry=config.dry)
@@ -80,7 +81,8 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
 
   if os.path.isdir('instance'):
     file_list.append('instance')
-    exclude_list = getExcludePathList(os.getcwd())
+    # `sorted` is used for Python 2-3 compatibility
+    exclude_list = sorted(getExcludePathList(os.getcwd()))
 
   # XXX: proxy.db should be properly dumped to leverage its
   # atomic properties

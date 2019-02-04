@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import ConfigParser
+from six.moves import configparser
 import argparse
-import gdbm
+from six.moves import dbm_gnu as gdbm
 
 import sys
 import os
@@ -41,7 +41,7 @@ def main():
         run(args)
 
 def run(args):
-    slapos_conf = ConfigParser.ConfigParser()
+    slapos_conf = configparser.ConfigParser()
     slapos_conf.read(args.configuration_file)
 
     current_binary = os.path.join(os.getcwd(), sys.argv[0])
@@ -52,7 +52,7 @@ def run(args):
     partition_base_name = slapos_conf.get('slapformat', 'partition_base_name')
     try:
         bridge_name = slapos_conf.get('slapformat', 'interface_name')
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         bridge_name = slapos_conf.get('slapformat', 'bridge_name')
     instance_root = slapos_conf.get('slapos', 'instance_root')
     partition_base_path = os.path.join(instance_root, partition_base_name)
@@ -61,7 +61,7 @@ def run(args):
 
     logging.basicConfig(level=logging.getLevelName(args.log[0]))
 
-    database = gdbm.open(args.database, 'c', 0600)
+    database = gdbm.open(args.database, 'c', 0o600)
     try:
         process.main(sr_directory, partition_list, database, bridge_name)
     finally:

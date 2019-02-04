@@ -4,6 +4,8 @@
 Check user memory usage according to a given threshold.
 """
 
+from __future__ import print_function
+
 import sys
 import os
 import argparse
@@ -87,9 +89,9 @@ def main():
     unit=args.unit,
   )
   if error:
-    print error
+    print(error)
     return 0
-  print message
+  print(message)
   return 0 if result else 1
 
 if __name__ == "__main__":

@@ -28,7 +28,8 @@ def isLocalTcpPortOpened(ip_address, port):
   ip_addr_hex = ('%08X' * int_count) % struct.unpack('I' * int_count, socket.inet_pton(family, ip_address))
   full_addr_hex = ip_addr_hex + ":%04X" % port
 
-  return any(full_addr_hex == line.split()[1] for line in open(tcp_path).readlines())
+  with open(tcp_path) as f:
+    return any(full_addr_hex == line.split()[1] for line in f.readlines())
 
 def main():
   if isLocalTcpPortOpened(sys.argv[1], int(sys.argv[2])):
