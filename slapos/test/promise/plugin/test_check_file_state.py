@@ -32,6 +32,7 @@ import tempfile
 import os
 import unittest
 import shutil
+import six
 
 
 class TestCheckFileState(TestPromisePluginMixin):
@@ -69,8 +70,10 @@ extra_config_dict = {
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "ERROR IOError(21, 'Is a directory') "
-      "during opening and reading file %r" % (filename,)
+      "ERROR %s(21, 'Is a directory') "
+      "during opening and reading file %r" % (
+        "IsADirectoryError" if six.PY3 else "IOError",
+        filename)
     )
 
   def test_check_file_not_exists(self):
@@ -88,8 +91,10 @@ extra_config_dict = {
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "ERROR IOError(2, 'No such file or directory') "
-      "during opening and reading file %r" % (filename,)
+      "ERROR %s(2, 'No such file or directory') "
+      "during opening and reading file %r" % (
+        "FileNotFoundError" if six.PY3 else "IOError",
+        filename)
     )
 
   def test_check_file_empty(self):

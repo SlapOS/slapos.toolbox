@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import argparse
 import sys
 import os
@@ -12,7 +14,7 @@ def killpidfromfile():
   if sig is None:
     raise ValueError('Unknown signal name %s' % sys.argv[2])
   pid = int(open(file).read())
-  print 'Killing pid %s with signal %s' % (pid, sys.argv[2])
+  print('Killing pid %s with signal %s' % (pid, sys.argv[2]))
   os.kill(pid, sig)
 
 def sublist(a, b):
@@ -63,7 +65,7 @@ def kill():
       cmdline = p.cmdline()
       if cmdline == args.arg if args.full else sublist(cmdline, args.arg):
         p.send_signal(s)
-        print 'killed pid %s with signal %s' % (p.pid, args.signal)
+        print('killed pid %s with signal %s' % (p.pid, args.signal))
         r = 0
     except psutil.Error:
       pass

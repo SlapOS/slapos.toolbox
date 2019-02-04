@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import socket
 import logging
 import time
@@ -11,10 +13,10 @@ import random
 import pycurl
 import argparse
 import json
-from StringIO import StringIO
-from ping import ping, ping6
-from dnsbench import resolve
-from http import get_curl, request
+from io import StringIO
+from .ping import ping, ping6
+from .dnsbench import resolve
+from .http import get_curl, request
 import textwrap
 
 class HelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
@@ -62,11 +64,11 @@ def download_external_configuration(url):
     try:
       return json.loads(buffer.getvalue())
     except ValueError:
-      print "Unable to parse external configuration, error:"
+      print("Unable to parse external configuration, error:")
       import traceback
       traceback.print_exc(file=sys.stderr)
       sys.stderr.flush()
-      print "Ignoring external configuration"
+      print("Ignoring external configuration")
     finally:
       curl.close()
 

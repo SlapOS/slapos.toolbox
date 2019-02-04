@@ -124,7 +124,7 @@ def main():
 
     run(config)
     return_code = 0
-  except SystemExit, err:
+  except SystemExit as err:
     # Catch exception raise by optparse
     return_code = err
 

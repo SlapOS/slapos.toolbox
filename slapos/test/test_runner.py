@@ -3,7 +3,6 @@ import os
 import string
 import random
 import supervisor
-import thread
 import unittest
 
 
@@ -28,14 +27,6 @@ class TestRunnerBackEnd(unittest.TestCase):
     for garbage_file in garbage_file_list:
       if os.path.exists(garbage_file):
         os.remove(garbage_file)
-
-  def _startSupervisord(self):
-    cwd = os.getcwd()
-    supervisord_config_file = os.path.join(cwd, 'supervisord.conf')
-    open(supervisord_config_file, 'w').write("""
-    """)
-    supervisord = supervisor.supervisord.Supervisord('-c', supervisord_config_file)
-    thread.start_new_thread()
 
   def test_UserCanLoginAndUpdateCredentials(self):
     """

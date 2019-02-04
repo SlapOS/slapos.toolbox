@@ -3,7 +3,7 @@
 import os
 import signal
 import time
-import xmlrpclib
+import six.moves.xmlrpc_client as xmlrpclib
 
 # This mini-library is used to communicate with supervisord process
 # It aims to replace the file "process.py"

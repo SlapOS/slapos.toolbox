@@ -1,14 +1,12 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise, TestResult
 import re
 import time
 import os
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
-
   def __init__(self, config):
     GenericPromise.__init__(self, config)
     # set periodicity to run the promise twice per day
@@ -26,7 +24,7 @@ class RunPromise(GenericPromise):
     if not log_file:
       raise ValueError("log file was not set in promise parameters.")
 
-    regex = re.compile("^(\[[^\]]+\]) (\[[^\]]+\]) (.*)$")
+    regex = re.compile(br"^(\[[^\]]+\]) (\[[^\]]+\]) (.*)$")
     error_amount = 0
     no_route_error = 0
     network_is_unreachable = 0
@@ -38,7 +36,7 @@ class RunPromise(GenericPromise):
       self.logger.info("OK")
       return
 
-    with open(log_file) as f:
+    with open(log_file, "rb") as f:
       f.seek(0, 2)
       block_end_byte = f.tell()
       f.seek(-min(block_end_byte, 4096), 1)
@@ -50,10 +48,10 @@ class RunPromise(GenericPromise):
         dt, level, msg = m.groups()
         try:
           try:
-            t = time.strptime(dt[1:-1], "%a %b %d %H:%M:%S %Y")
+            t = time.strptime(dt[1:-1].decode('utf-8'), "%a %b %d %H:%M:%S %Y")
           except ValueError:
             # Fail to parser for the first time, try a different output.
-            t = time.strptime(dt[1:-1], "%a %b %d %H:%M:%S.%f %Y")
+            t = time.strptime(dt[1:-1].decode('utf-8'), "%a %b %d %H:%M:%S.%f %Y")
         except ValueError:
             # Probably it fail to parse
             if parsing_failure < 3:
@@ -65,14 +63,14 @@ class RunPromise(GenericPromise):
         if maximum_delay and (time.time()-time.mktime(t)) > maximum_delay:
           # no result in the latest hour
           break
-        if level != "[error]":
+        if level != b"[error]":
           continue
         # Classify the types of errors
-        if "(113)No route to host" in msg:
+        if b"(113)No route to host" in msg:
           no_route_error += 1
-        elif "(101)Network is unreachable" in msg:
+        elif b"(101)Network is unreachable" in msg:
           network_is_unreachable += 1
-        elif "(110)Connection timed out" in msg:
+        elif b"(110)Connection timed out" in msg:
           timeout += 1
         error_amount += 1
     if error_amount:
