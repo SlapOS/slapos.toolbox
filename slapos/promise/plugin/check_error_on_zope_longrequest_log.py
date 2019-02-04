@@ -1,4 +1,4 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 import time
@@ -7,12 +7,10 @@ import os
 import sys
 import re
 
-r = re.compile("^([0-9]+\-[0-9]+\-[0-9]+ [0-9]+\:[0-9]+\:[0-9]+)(\,[0-9]+) - ([A-z]+) (.*)$")
+r = re.compile(br"^([0-9]+\-[0-9]+\-[0-9]+ [0-9]+\:[0-9]+\:[0-9]+)(\,[0-9]+) - ([A-z]+) (.*)$")
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
-
   def __init__(self, config):
     GenericPromise.__init__(self, config)
     self.setPeriodicity(minute=10)
@@ -27,7 +25,7 @@ class RunPromise(GenericPromise):
       self.logger.info("log file does not exist: log check skipped")
       return 0
     
-    with open(log_file) as f:
+    with open(log_file, "rb") as f:
       f.seek(0, 2)
       block_end_byte = f.tell()
       f.seek(-min(block_end_byte, 4096*10), 1)
@@ -38,7 +36,7 @@ class RunPromise(GenericPromise):
           continue
         dt, _, level, msg = m.groups()
         try:
-          t = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
+          t = time.strptime(dt.decode('utf-8'), "%Y-%m-%d %H:%M:%S")
         except ValueError:
           continue
         if maximum_delay and (time.time()-time.mktime(t)) > maximum_delay:

@@ -140,7 +140,7 @@ class TestQemuQMPWrapper(unittest.TestCase):
     elif message['execute'] == 'query-memory-devices':
       memory_list = []
       added_mem = self.readChange('dimm') + self.hotplugged_memory_amount
-      slot_amount = added_mem / self.memory_slot_size
+      slot_amount = added_mem // self.memory_slot_size
       for i in range(slot_amount, 0, -1):
         memory_list.append({
           u'data': {
@@ -159,7 +159,7 @@ class TestQemuQMPWrapper(unittest.TestCase):
     elif message['execute'] == 'query-memdev':
       memory_list = []
       added_mem = self.readChange('dimm') + self.hotplugged_memory_amount
-      slot_amount = added_mem / self.memory_slot_size
+      slot_amount = added_mem // self.memory_slot_size
       for i in range(slot_amount, 0, -1):
         memory_list.append({
           u'dump': True,

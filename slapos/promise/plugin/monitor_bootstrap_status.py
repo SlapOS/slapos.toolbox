@@ -1,4 +1,4 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 import os
@@ -6,9 +6,8 @@ import time
 import psutil
 from .util import tail_file
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
 
   def __init__(self, config):
     GenericPromise.__init__(self, config)
@@ -23,7 +22,7 @@ class RunPromise(GenericPromise):
     with open(process_pid_file) as f:
       try:
         pid = int(f.read())
-      except ValueError, e:
+      except ValueError as e:
         raise ValueError("%r is empty or doesn't contain a valid pid number: %s" % (
           process_pid_file, str(e)))
 

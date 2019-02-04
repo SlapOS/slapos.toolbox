@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import datetime
 import json
 import sys
@@ -50,16 +52,16 @@ def retryOnNetworkFailure(func):
     while True:
       try:
         return func(*args, **kwargs)
-      except SAFE_RPC_EXCEPTION_LIST, e:
-        print 'Network failure: %s , %s' % (sys.exc_info(), e)
-      except HTTPError, e:
-        print 'Network failure: %s , %s' % (sys.exc_info(), e)
-      except ConnectionError, e:
-        print 'Network failure: %s , %s' % (sys.exc_info(), e)
-      except slapos.slap.ConnectionError, e:
-        print 'Network failure: %s , %s' % (sys.exc_info(), e)
+      except SAFE_RPC_EXCEPTION_LIST as e:
+        print('Network failure: %s , %s' % (sys.exc_info(), e))
+      except HTTPError as e:
+        print('Network failure: %s , %s' % (sys.exc_info(), e))
+      except ConnectionError as e:
+        print('Network failure: %s , %s' % (sys.exc_info(), e))
+      except slapos.slap.ConnectionError as e:
+        print('Network failure: %s , %s' % (sys.exc_info(), e))
 
-      print 'Retry method %s in %i seconds' % (func, retry_time)
+      print('Retry method %s in %i seconds' % (func, retry_time))
       time.sleep(retry_time)
       retry_time = min(retry_time*1.5, 640)
 
@@ -218,7 +220,7 @@ class SlapOSMasterCommunicator(object):
     result = self.hateoas_navigator.GET(url)
     result = json.loads(result)
     if result['_links'].get('action_object_slap', None) is None:
-      print result['links']
+      print(result['links'])
       return None
 
     object_link = self.hateoas_navigator.hateoasGetLinkFromLinks(

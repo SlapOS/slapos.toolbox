@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import sys
 import os
 import glob
 import json
-import ConfigParser
+from six.moves import configparser
 import time
 from datetime import datetime
 import base64
 import hashlib
 import PyRSS2Gen
+
+from slapos.util import bytes2str, str2bytes
 
 def getKey(item):
   return item.source.name
@@ -30,6 +34,8 @@ class MonitorFeed(object):
     event_date = item_dict['result']['change-date']
     report_date = item_dict['result']['date']
     description = item_dict['result'].get('message', '')
+    guid = base64.b64encode(str2bytes("%s, %s, %s, %s" % (self.hosting_name,
+      item_dict['title'], has_string, event_date)))
     rss_item = PyRSS2Gen.RSSItem(
       categories = [item_dict['status']],
       source = PyRSS2Gen.Source(item_dict['title'], self.public_url),
@@ -37,9 +43,7 @@ class MonitorFeed(object):
       description = "\n%s" % (description,),
       link = self.private_url,
       pubDate = event_date,
-      guid = PyRSS2Gen.Guid(base64.b64encode("%s, %s, %s, %s" % (self.hosting_name,
-                              item_dict['title'], has_string, event_date)),
-                            isPermaLink=False)
+      guid = PyRSS2Gen.Guid(bytes2str(guid), isPermaLink=False)
     )
     self.rss_item_list.append(rss_item)
 
@@ -69,7 +73,7 @@ def generateStatisticsData(stat_file_path, content):
       fstat.write(json.dumps(data_dict))
 
   current_state = ''
-  if content.has_key('state'):
+  if 'state' in content:
     current_state = '%s, %s, %s, %s' % (
       content['date'],
       content['state']['success'],
@@ -131,13 +135,14 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
         promise_status = "OK"
         success += 1
       tmp_json['result']['change-date'] = tmp_json['result']['date']
-      if previous_state_dict.has_key(tmp_json['name']):
+      if tmp_json['name'] in previous_state_dict:
         status, change_date, _ = previous_state_dict[tmp_json['name']]
         if promise_status == status:
           tmp_json['result']['change-date'] = change_date
 
       tmp_json['status'] = promise_status
-      message_hash = hashlib.md5(tmp_json['result'].get('message', '')).hexdigest()
+      message_hash = hashlib.md5(
+        str2bytes(tmp_json['result'].get('message', ''))).hexdigest()
       new_state_dict[tmp_json['name']] = [
         promise_status,
         tmp_json['result']['change-date'],
@@ -150,9 +155,9 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
         previous_state_dict.get(tmp_json['name']),
         public_folder
       )
-    except ValueError, e:
+    except ValueError as e:
       # bad json file
-      print "ERROR: Bad json file at: %s\n%s" % (file, str(e))
+      print("ERROR: Bad json file at: %s\n%s" % (file, e))
       continue
 
   with open(promises_status_file, "w") as f:
@@ -187,7 +192,7 @@ def savePromiseHistory(promise_name, state_dict, previous_state_list,
   else:
     if previous_state_list is not None:
       _, change_date, checksum = previous_state_list
-      current_sum = hashlib.md5(state_dict.get('message', '')).hexdigest()
+      current_sum = hashlib.md5(str2bytes(state_dict.get('message', ''))).hexdigest()
       if state_dict['change-date'] == change_date and \
           current_sum == checksum:
         # Only save the changes and not the same info
@@ -202,7 +207,7 @@ def savePromiseHistory(promise_name, state_dict, previous_state_list,
 
 def run(monitor_conf_file):
 
-  config = ConfigParser.ConfigParser()
+  config = configparser.ConfigParser()
   config.read(monitor_conf_file)
 
   base_folder = config.get('monitor', 'private-folder')

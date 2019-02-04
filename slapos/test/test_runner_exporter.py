@@ -5,7 +5,6 @@ import time
 import unittest
 
 from slapos.resilient import runner_exporter
-from StringIO import StringIO
 
 tested_instance_cfg = """[buildout]
 installed_develop_eggs = 
@@ -75,7 +74,7 @@ class TestRunnerExporter(unittest.TestCase):
 
   def _createExecutableFile(self, path, content=''):
     self._createFile(path, content)
-    os.chmod(path, 0700)
+    os.chmod(path, 0o700)
 
   def _setUpFakeInstanceFolder(self):
     self._createFile('proxy.db')

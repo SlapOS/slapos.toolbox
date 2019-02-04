@@ -7,14 +7,14 @@ import sys
 import tempfile
 import os
 import argparse
-import ConfigParser
+from six.moves import configparser
 import re
 
 import pycurl
 
-from mimetools import Message
-from cStringIO import StringIO
-from HTMLParser import HTMLParser
+from email.message import Message
+from io import BytesIO
+from six.moves.html_parser import HTMLParser
 
 begins_by_known_protocol_re = re.compile("^https?://")
 get_protocol_re = re.compile("^([a-z]+)://")
@@ -63,8 +63,8 @@ def checkWebpageHttpCacheHit(url_list, resolve_list=[], cookie_jar_path=None):
     parsed_url_dict.add(url)
     print("Checking cache hit for " + url)
     c = pycurl.Curl()
-    response_headers = StringIO()
-    output = StringIO()
+    response_headers = BytesIO()
+    output = BytesIO()
     c.setopt(c.URL, url)
     c.setopt(c.RESOLVE, resolve_list)
     c.setopt(c.WRITEFUNCTION, output.write)
@@ -76,8 +76,9 @@ def checkWebpageHttpCacheHit(url_list, resolve_list=[], cookie_jar_path=None):
       response_headers.truncate(0)
       output.truncate(0)
       c.perform()
-      if str(c.getinfo(pycurl.HTTP_CODE))[0:1] != "2":
-        if c.getinfo(pycurl.HTTP_CODE) >= 400:
+      code = c.getinfo(pycurl.HTTP_CODE)
+      if not (200 <= code < 300):
+        if code >= 400:
           report_line_list.append("Status code %s received for %s" % (c.getinfo(pycurl.HTTP_CODE), url))
         else:
           print("Status code %s not handled" % c.getinfo(pycurl.HTTP_CODE))
@@ -119,7 +120,7 @@ def checkWebpageHttpCacheHit(url_list, resolve_list=[], cookie_jar_path=None):
 def getConfig(config_parser, section, option, default=None, raw=False, vars=None):
   try:
     return config_parser.get(section, option, raw=raw, vars=vars)
-  except ConfigParser.NoOptionError:
+  except configparser.NoOptionError:
     return default
 
 def main():
@@ -132,7 +133,7 @@ def main():
   args.url_list = getattr(args, "url-list")
 
   if args.config is not None:
-    parser = ConfigParser.ConfigParser()
+    parser = configparser.ConfigParser()
     parser.read(args.config)
     if args.url_list == []:
       args.url_list = getConfig(parser, "public", "url-list", "").split()
