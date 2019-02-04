@@ -58,32 +58,32 @@ class TestSecureDelete(unittest.TestCase):
     passes = 2 + 1 # Option -z is used, plus one more pass
     result = shred(options)
     self.assertFalse(os.path.exists(self.remove_file))
-    self.assertTrue("pass %s/%s" % (passes, passes) in result)
-    self.assertTrue("%s: removed" % os.path.basename(self.remove_file) in result)
+    self.assertIn("pass %d/%d" % (passes, passes), result)
+    self.assertIn("%s: removed" % os.path.basename(self.remove_file), result)
 
   def test_secure_remove_file_keep_file(self):
     options = getAgumentParser().parse_args(['-n', '2', '-z', '--file', self.remove_file])
     passes = 2 + 1 # Option -z is used, plus one more pass
     result = shred(options)
     self.assertTrue(os.path.exists(self.remove_file))
-    self.assertTrue("pass %s/%s" % (passes, passes) in result)
-    self.assertFalse("%s: removed" % os.path.basename(self.remove_file) in result)
+    self.assertIn("pass %d/%d" % (passes, passes), result)
+    self.assertNotIn("%s: removed" % os.path.basename(self.remove_file), result)
 
   def test_secure_remove_file_non_zero(self):
     options = getAgumentParser().parse_args(['-n', '2', '-u', '--file', self.remove_file])
     passes = 2
     result = shred(options)
     self.assertFalse(os.path.exists(self.remove_file))
-    self.assertTrue("pass %s/%s" % (passes, passes) in result)
-    self.assertTrue("%s: removed" % os.path.basename(self.remove_file) in result)
+    self.assertIn("pass %d/%d" % (passes, passes), result)
+    self.assertIn("%s: removed" % os.path.basename(self.remove_file), result)
 
   def test_secure_remove_file_check_exist(self):
     options = getAgumentParser().parse_args(['-n', '2', '-u', '-s', '--file', 'random.txt', self.remove_file])
     passes = 2
     result = shred(options)
     self.assertFalse(os.path.exists(self.remove_file))
-    self.assertTrue("pass %s/%s" % (passes, passes) in result)
-    self.assertTrue("%s: removed" % os.path.basename(self.remove_file) in result)
+    self.assertIn("pass %d/%d" % (passes, passes), result)
+    self.assertIn("%s: removed" % os.path.basename(self.remove_file), result)
 
   def test_secure_remove_file_check_exist_false(self):
     options = getAgumentParser().parse_args(['-n', '2', '-u', '--file', 'random.txt'])
@@ -99,19 +99,19 @@ class TestSecureDelete(unittest.TestCase):
     # shred removed link and target file
     self.assertFalse(os.path.exists(self.remove_file))
     self.assertFalse(os.path.exists(self.link_name))
-    self.assertTrue("pass %s/%s" % (passes, passes) in result)
-    self.assertTrue("%s: removed" % os.path.basename(self.remove_file) in result)
+    self.assertIn("pass %d/%d" % (passes, passes), result)
+    self.assertIn("%s: removed" % os.path.basename(self.remove_file), result)
 
   def test_secure_remove_file_multiple_files(self):
     options = getAgumentParser().parse_args(['-n', '2', '-u', '-z', '--file', self.remove_file, self.remove_file2])
     passes = 2 + 1 # Option -z is used, plus one more pass
     result = shred(options)
     self.assertFalse(os.path.exists(self.remove_file))
-    self.assertTrue("pass %s/%s" % (passes, passes) in result)
-    self.assertTrue("%s: removed" % os.path.basename(self.remove_file) in result)
+    self.assertIn("pass %d/%d" % (passes, passes), result)
+    self.assertIn("%s: removed" % os.path.basename(self.remove_file), result)
 
     self.assertFalse(os.path.exists(self.remove_file2))
-    self.assertTrue("%s: removed" % os.path.basename(self.remove_file2) in result)
+    self.assertIn("%s: removed" % os.path.basename(self.remove_file2), result)
 
 if __name__ == '__main__':
   unittest.main()

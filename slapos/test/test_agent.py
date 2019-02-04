@@ -29,58 +29,59 @@ import unittest
 import os.path
 from slapos.agent.agent import AutoSTemp, TestMap
 
-TESTMAP_DICT = {
-  "test-wendelin-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/wendelin/software.cfg", 
-    "supply_computer": "COMP-2", 
-    "group": "COMP-2", 
-    "title": "test-wendelin-software-release"}, 
-  "test-agent-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/agent/software.cfg", 
-    "supply_computer": "COMP-2", 
-    "group": "COMP-2", 
-    "title": "test-agent-software-release"}, 
-  "test-powerdns-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/powerdns/software.cfg", 
-    "supply_computer": "COMP-2", 
-    "group": "COMP-2", 
-    "title": "test-powerdns-software-release"}, 
-  "test-monitor-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/monitor/software.cfg", 
-    "supply_computer": "COMP-2", 
-    "group": "COMP-2", 
-    "title": "test-monitor-software-release"}, 
-  "test-slapos-master-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/slapos-master/software.cfg", 
-    "supply_computer": "COMP-1", 
-    "group": "COMP-1", 
-    "title": "test-slapos-master-software-release"}, 
-  "test-webrunner-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/slaprunner/software.cfg", 
-    "supply_computer": "COMP-1", 
-    "group": "COMP-1", 
-    "title": "test-webrunner-software-release"}, 
-  "test-re6stnetmaster-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/re6stnet/software.cfg", 
-    "supply_computer": "COMP-2", 
-    "group": "COMP-2", 
-    "title": "test-re6stnetmaster-software-release"}, 
-  "test-erp5testnode-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/erp5testnode/software.cfg", 
-    "supply_computer": "COMP-1", 
-    "group": "COMP-1", 
-    "title": "test-erp5testnode-software-release"}, 
-  "test-apache-frontend-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/apache-frontend/software.cfg", 
-    "supply_computer": "COMP-1", 
-    "group": "COMP-1", 
-    "title": "test-apache-frontend-software-release"}, 
-  "test-nayuos-software-release": {
-    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/nayuos/software.cfg", 
-    "supply_computer": "COMP-1", 
-    "group": "COMP-1", 
-    "title": "test-nayuos-software-release"}
-  }
+from collections import OrderedDict
+TESTMAP_DICT = OrderedDict([
+  ("test-apache-frontend-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/apache-frontend/software.cfg",
+    "supply_computer": "COMP-1",
+    "group": "COMP-1",
+    "title": "test-apache-frontend-software-release"}),
+  ("test-slapos-master-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/slapos-master/software.cfg",
+    "supply_computer": "COMP-1",
+    "group": "COMP-1",
+    "title": "test-slapos-master-software-release"}),
+  ("test-erp5testnode-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/erp5testnode/software.cfg",
+    "supply_computer": "COMP-1",
+    "group": "COMP-1",
+    "title": "test-erp5testnode-software-release"}),
+  ("test-webrunner-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/slaprunner/software.cfg",
+    "supply_computer": "COMP-1",
+    "group": "COMP-1",
+    "title": "test-webrunner-software-release"}),
+  ("test-agent-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/agent/software.cfg",
+    "supply_computer": "COMP-2",
+    "group": "COMP-2",
+    "title": "test-agent-software-release"}),
+  ("test-powerdns-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/powerdns/software.cfg",
+    "supply_computer": "COMP-2",
+    "group": "COMP-2",
+    "title": "test-powerdns-software-release"}),
+  ("test-nayuos-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/nayuos/software.cfg",
+    "supply_computer": "COMP-1",
+    "group": "COMP-1",
+    "title": "test-nayuos-software-release"}),
+  ("test-wendelin-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/wendelin/software.cfg",
+    "supply_computer": "COMP-2",
+    "group": "COMP-2",
+    "title": "test-wendelin-software-release"}),
+  ("test-monitor-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/monitor/software.cfg",
+    "supply_computer": "COMP-2",
+    "group": "COMP-2",
+    "title": "test-monitor-software-release"}),
+  ("test-re6stnetmaster-software-release", {
+    "url": "https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/re6stnet/software.cfg",
+    "supply_computer": "COMP-2",
+    "group": "COMP-2",
+    "title": "test-re6stnetmaster-software-release"}),
+])
 
 
 
@@ -158,7 +159,8 @@ class TestAutoSTemp(unittest.TestCase):
         removes it when deleted.
     """
     f = AutoSTemp("foo")
-    self.assertEqual(open(f.name, "r").read(), "foo")
+    with open(f.name, "r") as file:
+      self.assertEqual(file.read(), "foo")
     fname = f.name
     self.assertTrue(os.path.isfile(fname))
     del f

@@ -87,10 +87,10 @@ class TestCheckFeedAsPromise(unittest.TestCase):
     feed = self.generateKOFeed()
 
     option.ko_pattern_list = ['Error']
-    self.assertNotEquals(checkFeedAsPromise(feed, option), "")
+    self.assertNotEqual(checkFeedAsPromise(feed, option), "")
     option.title, option.description  = False, True
     option.ko_pattern_list = ['FAILURE', 'Error']
-    self.assertNotEquals(checkFeedAsPromise(feed, option), "")
+    self.assertNotEqual(checkFeedAsPromise(feed, option), "")
 
 
   def test_ifNoOKPatternFoundErrorIsRaised(self):
@@ -100,7 +100,7 @@ class TestCheckFeedAsPromise(unittest.TestCase):
 
     # If no time buffer, then not OK is always wrong
     option.ok_pattern_list = ['OK']
-    self.assertNotEquals(len(checkFeedAsPromise(feed, option)), 0)
+    self.assertNotEqual(len(checkFeedAsPromise(feed, option)), 0)
 
     # if time buffer, then not OK is wrong only after buffer expires
     extra_item = {
@@ -115,7 +115,7 @@ class TestCheckFeedAsPromise(unittest.TestCase):
 
     # shorter buffer, we want to raise an error
     option.time_buffer = 1800
-    self.assertNotEquals(len(checkFeedAsPromise(feed, option)), 0)
+    self.assertNotEqual(len(checkFeedAsPromise(feed, option)), 0)
 
 
   def test_noItemInTheFeedIsNotAnError(self):
