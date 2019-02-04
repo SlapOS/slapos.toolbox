@@ -78,7 +78,7 @@ echo "htpasswd $@" > %s/monitor-htpasswd
     self.writeContent(self.monitor_https_cors, '{% set allow_domain = "|".join(domain.replace(".", "\.").split()) -%}\n'
                                                'SetEnvIf Origin "^http(s)?://(.+\.)?({{ allow_domain }})$" ORIGIN_DOMAIN=$0\n'
                                                'Header always set Access-Control-Allow-Origin "%{ORIGIN_DOMAIN}e" env=ORIGIN_DOMAIN')
-    os.chmod(self.httpd_passwd_bin, 0755)
+    os.chmod(self.httpd_passwd_bin, 0o755)
 
   def tearDown(self):
     if os.path.exists(self.base_dir):
@@ -101,31 +101,37 @@ echo "htpasswd $@" > %s/monitor-htpasswd
 
   def check_config(self):
     config_parameter = os.path.join(self.config_dir, 'config.parameters.json')
-    config_parameter_json = json.load(open(config_parameter))
-    config_json = json.load(open(self.config_path))
+    with open(config_parameter) as f:
+      config_parameter_json = json.load(f)
+    with open(self.config_path) as f:
+      config_json = json.load(f)
 
     for config in config_json:
       if config["key"]:
-        self.assertTrue(config_parameter_json.has_key(config["key"]))
+        self.assertIn(config["key"], config_parameter_json)
         parameter = config_parameter_json[config["key"]]
       else:
         continue
       if config["key"] == 'from-file':
         self.assertTrue(os.path.exists(parameter['file']))
-        self.assertEqual(config["value"], open(parameter['file']).read())
+        with open(parameter['file']) as f:
+          self.assertEqual(config["value"], f.read())
       elif config["key"] == 'httpd-password':
         http_passwd = "%s/monitor-htpasswd" % self.base_dir
         #XXX where \n bellow come from ?
         command = 'htpasswd -cb %s admin %s%s' % (http_passwd, config["value"], '\n')
         self.assertTrue(os.path.exists(parameter['file']))
         self.assertTrue(os.path.exists(http_passwd))
-        self.assertEqual(config["value"], open(parameter['file']).read())
-        self.assertEqual(open(http_passwd).read(), command)
+        with open(parameter['file']) as f:
+          self.assertEqual(config["value"], f.read())
+        with open(http_passwd) as f:
+          self.assertEqual(f.read(), command)
       elif config["key"] == 'cors-domain':
         cors_file = "%s/test-httpd-cors.cfg" % self.base_dir
         self.assertTrue(os.path.exists(cors_file))
         cors_string = self.generate_cors_string(config["value"].split())
-        self.assertEqual(cors_string, open(cors_file).read())
+        with open(cors_file) as f:
+          self.assertEqual(cors_string, f.read())
 
   def check_cfg_config(self, config_list):
     cfg_output = os.path.join(self.config_dir, 'config.cfg')

@@ -27,7 +27,7 @@
 import os
 import sys
 from optparse import OptionParser, Option
-import urllib
+from six.moves.urllib.request import urlopen
 
 
 class Parser(OptionParser):
@@ -55,7 +55,7 @@ class Config:
     self.file_path = file_path
 
 def onetimedownload(url, file_path):
-  url_file = urllib.urlopen(url)
+  url_file = urlopen(url)
   data = url_file.read()
   file_object = open(file_path, 'w')
   file_object.write(data)
@@ -72,7 +72,7 @@ def main():
 
     onetimedownload(config.url, config.file_path)
     return_code = 0
-  except SystemExit, err:
+  except SystemExit as err:
     # Catch exception raise by optparse
     return_code = err
 

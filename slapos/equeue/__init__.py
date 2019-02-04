@@ -28,7 +28,7 @@
 
 import argparse
 import errno
-import gdbm
+from six.moves import dbm_gnu as gdbm
 import json
 from lockfile import LockFile
 import logging
@@ -38,8 +38,8 @@ import signal
 import socket
 import subprocess
 import sys
-import SocketServer
-import StringIO
+from six.moves import socketserver
+import io
 import threading
 
 # Copied from erp5.util:erp5/util/testnode/ProcessManager.py
@@ -75,15 +75,15 @@ def subprocess_capture(p, log, log_prefix, get_output=True):
   return (p.stdout and ''.join(stdout),
           p.stderr and ''.join(stderr))
 
-class EqueueServer(SocketServer.ThreadingUnixStreamServer):
+class EqueueServer(socketserver.ThreadingUnixStreamServer):
 
   daemon_threads = True
 
   def __init__(self, *args, **kw):
     self.options = kw.pop('equeue_options')
-    SocketServer.ThreadingUnixStreamServer.__init__(self,
-                                                    RequestHandlerClass=None,
-                                                    *args, **kw)
+    super(EqueueServer, self).__init__(self,
+                                       RequestHandlerClass=None,
+                                       *args, **kw)
     # Equeue Specific elements
     self.setLogger(self.options.logfile[0], self.options.loglevel[0])
     self.setDB(self.options.database[0])
@@ -106,7 +106,7 @@ class EqueueServer(SocketServer.ThreadingUnixStreamServer):
     self.logger.addHandler(handler)
 
   def setDB(self, database):
-    self.db = gdbm.open(database, 'cs', 0700)
+    self.db = gdbm.open(database, 'cs', 0o700)
 
   def _hasTakeoverBeenTriggered(self):
     if hasattr(self, 'takeover_triggered_file_path') and \
@@ -149,7 +149,7 @@ class EqueueServer(SocketServer.ThreadingUnixStreamServer):
     # Handle request
     self.logger.debug("Connection with file descriptor %d", request.fileno())
     request.settimeout(self.options.timeout)
-    request_string = StringIO.StringIO()
+    request_string = io.StringIO()
     segment = None
     try:
       while segment != '':
@@ -181,7 +181,7 @@ class EqueueServer(SocketServer.ThreadingUnixStreamServer):
 def remove_existing_file(path):
   try:
     os.remove(path)
-  except OSError, e:
+  except OSError as e:
     if e.errno != errno.ENOENT:
       raise
 

@@ -13,7 +13,7 @@ import glob
 import argparse
 import traceback
 import logging
-import ConfigParser
+from six.moves import configparser
 from slapos.grid.promise import PromiseLauncher, PromiseQueueResult, PromiseError
 from slapos.grid.promise.generic import PROMISE_LOG_FOLDER_NAME
 from slapos.util import mkdir_p
@@ -92,7 +92,7 @@ class MonitorPromiseLauncher(object):
 
 
   def _loadConfigFromFile(self, config_file):
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read([config_file])
     known_key_list = ['partition-cert', 'partition-key', 'partition-id',
                       'pid-path', 'computer-id', 'check-anomaly',
@@ -159,7 +159,7 @@ class MonitorPromiseLauncher(object):
     exit_code = 0
     try:
       promise_launcher.run()
-    except PromiseError, e:
+    except PromiseError as e:
       # error was already logged
       exit_code = 1
     os.remove(self.config.pid_path)

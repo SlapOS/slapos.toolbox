@@ -4,6 +4,8 @@
 Check if a mariadb result matches the desired threshold or raises an error.
 """
 
+from __future__ import print_function
+
 import json
 import os
 import re
@@ -58,7 +60,7 @@ def checkMariadbDigestResult(mariadbdex_path, mariadbdex_report_status_file,
   with open(mariadbdex_report_status_file) as f:
     try:
       json_content = json.load(f)
-    except ValueError, e:
+    except ValueError as e:
       json_content = ''
   if json_content:
     message += "\n" + json_content["message"]
@@ -76,5 +78,5 @@ def main():
                                     args.max_queries_threshold, args.slowest_query_threshold
                                     )
 
-  print message
+  print(message)
   sys.exit(status)

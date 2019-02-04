@@ -27,6 +27,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
+from __future__ import print_function
+
 import os
 import shutil
 import sys
@@ -35,6 +37,7 @@ import shlex
 from subprocess import Popen, PIPE, STDOUT
 import logging
 from datetime import datetime
+import six
 
 _MARKER = []
 WGET = 'wget'
@@ -428,7 +431,7 @@ class HTTPCacheCheckerTestSuite(object):
 
     if self.report_dict:
       report_message_list = ['*Errors*:']
-      for url, message_list in self.report_dict.iteritems():
+      for url, message_list in six.iteritems(self.report_dict):
         unique_message_list = []
         for message in message_list:
           if message not in unique_message_list:
@@ -447,7 +450,7 @@ class HTTPCacheCheckerTestSuite(object):
 
 
 from optparse import OptionParser
-import ConfigParser
+from six.moves.configparser import RawConfigParser
 
 def _formatConfiguration(configuration):
   """ format the configuration"""
@@ -463,11 +466,11 @@ def web_checker_utility():
 
   (options, args) = parser.parse_args()
   if len(args) != 1 :
-    print parser.print_help()
+    print(parser.print_help())
     parser.error('incorrect number of arguments')
   config_path = args[0]
 
-  config = ConfigParser.RawConfigParser()
+  config = RawConfigParser()
   config.read(config_path)
 
   working_directory = config.get('web_checker', 'working_directory')
@@ -525,7 +528,7 @@ def web_checker_utility():
     file_object.write(result)
     file_object.close()
   else:
-    print result
+    print(result)
 
 if __name__ == '__main__':
   sys.exit(web_checker_utility())
