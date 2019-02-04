@@ -40,7 +40,6 @@ class RunPromise(GenericPromise):
 
     try:
       curl.perform()
-      curl.close()
     except pycurl.error, e:
       code, message = e
       self.logger.error("%s: %s" % (code, message))
@@ -48,6 +47,7 @@ class RunPromise(GenericPromise):
 
     http_code = curl.getinfo(pycurl.HTTP_CODE)
     check_secure = self.getConfig('check-secure')
+    curl.close()
     
     if http_code == 0:
       self.logger.error("%s is not available (server not reachable)." % url)
