@@ -5,7 +5,6 @@ import time
 import unittest
 
 from slapos.resilient import runner_exporter
-from StringIO import StringIO
 
 tested_instance_cfg = """[buildout]
 installed_develop_eggs = 
@@ -67,7 +66,7 @@ class TestRunnerExporter(unittest.TestCase):
 
   def _createExecutableFile(self, path, content=''):
     self._createFile(path, content)
-    os.chmod(path, 0700)
+    os.chmod(path, 0o700)
 
   def _setUpFakeInstanceFolder(self):
     self._createFile('proxy.db')
@@ -155,7 +154,7 @@ class TestRunnerExporter(unittest.TestCase):
 
     self.assertEqual(check_output_mock.call_count, 1)
     check_output_mock.assert_any_call(
-      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '--exclude=*.sock', '--exclude=*.socket', '--exclude=*.pid', '--exclude=.installed*.cfg', '--exclude=instance/slappart0/srv/backup/**', '--exclude=instance/slappart0/etc/nicolas.txt', '--exclude=instance/slappart0/etc/rafael.txt', '--exclude=instance/slappart0/srv/exporter.exclude', 'instance', 'project', 'public', 'proxy.db', 'backup/runner/runner']
+      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '--exclude=*.pid', '--exclude=*.sock', '--exclude=*.socket', '--exclude=.installed*.cfg', '--exclude=instance/slappart0/etc/nicolas.txt', '--exclude=instance/slappart0/etc/rafael.txt', '--exclude=instance/slappart0/srv/backup/**', '--exclude=instance/slappart0/srv/exporter.exclude', 'instance', 'project', 'public', 'proxy.db', 'backup/runner/runner']
     )
 
   def test_getSlappartSignatureMethodDict(self):

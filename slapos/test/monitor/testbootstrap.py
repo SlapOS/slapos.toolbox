@@ -73,7 +73,6 @@ monitor-url-list = %(url_list)s
 collector-db = 
 base-url = %(base_url)s
 title = %(title)s
-service-pid-folder = %(base_dir)s/run
 promise-output-file = %(base_dir)s/monitor-bootstrap-status
 promise-runner = %(promise_run_script)s
 randomsleep = /bin/echo sleep
@@ -102,11 +101,11 @@ partition-folder = %(base_dir)s
     for index in range(1, amount+1):
       promise_file = os.path.join(promise_dir, 'monitor_promise-%s' % index)
       self.writeContent(promise_file, promse_content)
-      os.chmod(promise_file, 0755)
+      os.chmod(promise_file, 0o755)
     for index in range(1, amount+1):
       promise_file = os.path.join(plugin_dir, 'monitor_promise-%s.py' % index)
       self.writeContent(promise_file, promse_content)
-      os.chmod(promise_file, 0644)
+      os.chmod(promise_file, 0o644)
 
   def checkOPML(self, url_list):
     opml_title = "<title>%(root_title)s</title>" % self.monitor_config_dict

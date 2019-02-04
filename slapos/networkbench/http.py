@@ -1,6 +1,6 @@
 import sys
 import pycurl
-from StringIO import StringIO
+from six import BytesIO
 
 def get_curl(buffer, url):
   curl = pycurl.Curl()
@@ -22,7 +22,7 @@ def get_curl(buffer, url):
 
 def request(url, expected_dict):
   
-  buffer = StringIO()
+  buffer = BytesIO()
   curl, result = get_curl(buffer, url)
 
   body = buffer.getvalue()

@@ -25,7 +25,7 @@
 #
 ##############################################################################
 
-import ConfigParser
+from six.moves import configparser
 import argparse
 import collections
 import json
@@ -57,7 +57,7 @@ class AutoSTemp(object):
 
     def __init__(self, value):
         fd, self.__name = tempfile.mkstemp()
-        os.write(fd, value)
+        os.write(fd, value.encode('utf-8'))
         os.close(fd)
 
     @property
@@ -67,7 +67,7 @@ class AutoSTemp(object):
     def __del__(self):
         self.__unlink(self.__name)
 
-from tester import SoftwareReleaseTester
+from .tester import SoftwareReleaseTester
 
 class TestMap(object):
   def __init__(self, test_dict):
@@ -91,7 +91,7 @@ class TestMap(object):
     return set(exclude_list + list(self.ran_test_set))
 
   def getGroupList(self):
-    return self.test_map_dict.keys()
+    return list(self.test_map_dict)
 
   def dropGroup(self, group):
     del self.test_map_dict[group]
@@ -214,7 +214,7 @@ def main():
 
   logger, log_file = getLogger(log, args.verbose)
 
-  configuration = ConfigParser.SafeConfigParser()
+  configuration = configparser.SafeConfigParser()
   configuration.readfp(args.configuration_file)
 
   pidfile = args.pidfile

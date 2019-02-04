@@ -2,20 +2,20 @@
 # vim: set et sts=2:
 # pylint: disable-msg=W0311,C0301,C0103,C0111,W0141,W0142
 
-import ConfigParser
+from six.moves import configparser
 import datetime
 import json
 import logging
-import md5
+import hashlib
 import os
-import sup_process
+from . import sup_process
 import re
 import shutil
 import stat
-import thread
+from six.moves import _thread, range
 import time
-import urllib
-import xmlrpclib
+from six.moves.urllib.request import urlopen
+import six.moves.xmlrpc_client as xmlrpclib
 from xml.dom import minidom
 
 import xml_marshaller
@@ -92,11 +92,11 @@ def updateUserCredential(config, username, password):
 
 
 def getRcode(config):
-  parser = ConfigParser.ConfigParser()
+  parser = configparser.ConfigParser()
   try:
     parser.read(config['knowledge0_cfg'])
     return parser.get('public', 'recovery-code')
-  except (ConfigParser.NoSectionError, IOError) as e:
+  except (configparser.NoSectionError, IOError) as e:
     return None
 
 def getUsernameList(config):
@@ -188,12 +188,12 @@ def updateProxy(config):
     'software_root': config['software_root']
   }
 
-  for i in xrange(0, int(config['partition_amount'])):
+  for i in range(int(config['partition_amount'])):
     partition_reference = '%s%s' % (prefix, i)
     partition_path = os.path.join(config['instance_root'], partition_reference)
     if not os.path.exists(partition_path):
       os.mkdir(partition_path)
-    os.chmod(partition_path, 0750)
+    os.chmod(partition_path, 0o750)
     slap_config['partition_list'].append({
                                            'address_list': [
                                               {
@@ -424,7 +424,7 @@ def getSlapStatus(config):
   except Exception:
     pass
   if partition_list:
-    for i in xrange(0, int(config['partition_amount'])):
+    for i in range(int(config['partition_amount'])):
       slappart_id = '%s%s' % ("slappart", i)
       if not [x[0] for x in partition_list if slappart_id == x[0]]:
         partition_list.append((slappart_id, []))
@@ -461,7 +461,7 @@ def removeInstanceRootDirectory(config):
           fullPath = os.path.join(root, fname)
           if not os.access(fullPath, os.W_OK):
             # Some directories may be read-only, preventing to remove files in it
-            os.chmod(fullPath, 0744)
+            os.chmod(fullPath, 0o744)
       shutil.rmtree(instance_directory)
 
 def removeCurrentInstance(config):
@@ -589,7 +589,7 @@ def newSoftware(folder, config, session):
       software = "https://lab.nexedi.com/nexedi/slapos/raw/master/software/lamp-template/software.cfg"
       softwareContent = ""
       try:
-        softwareContent = urllib.urlopen(software).read()
+        softwareContent = urlopen(software).read()
       except:
         #Software.cfg and instance.cfg content will be empty
         pass
@@ -775,7 +775,7 @@ def md5sum(file):
     return False
   try:
     fh = open(file, 'rb')
-    m = md5.md5()
+    m = hashlib.md5()
     while True:
       data = fh.read(8192)
       if not data:
@@ -828,7 +828,7 @@ def readParameters(path):
             sub_obj[str(subnode.getAttribute('id'))] = subnode.childNodes[0].data  # .decode('utf-8').decode('utf-8')
             obj[str(elt.tagName)] = sub_obj
       return obj
-    except Exception, e:
+    except Exception as e:
       return str(e)
   else:
     return "No such file or directory: %s" % path
@@ -932,7 +932,7 @@ def setupDefaultSR(config):
   if not os.path.exists(project) and config['default_sr'] != '':
     configNewSR(config, config['default_sr'])
   if config['auto_deploy']:
-    thread.start_new_thread(buildAndRun, (config,))
+    _thread.start_new_thread(buildAndRun, (config,))
 
 
 def setMiniShellHistory(config, command):

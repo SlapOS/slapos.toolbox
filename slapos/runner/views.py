@@ -7,9 +7,9 @@ import json
 import os
 import shutil
 import subprocess
-import sup_process
-import thread
-import urllib
+from . import sup_process
+from six.moves import _thread
+from six.moves.urllib.parse import unquote
 
 from flask import (Flask, request, redirect, url_for, render_template,
                    g, flash, jsonify, session, abort, send_file)
@@ -160,7 +160,7 @@ def removeSoftware():
 
 
 def runSoftwareProfile():
-  thread.start_new_thread(runSlapgridUntilSuccess, (app.config, "software"))
+  _thread.start_new_thread(runSlapgridUntilSuccess, (app.config, "software"))
   return jsonify(result=True)
 
 
@@ -224,7 +224,7 @@ def removeInstance():
 def runInstanceProfile():
   if not os.path.exists(app.config['instance_root']):
     os.mkdir(app.config['instance_root'])
-  thread.start_new_thread(runSlapgridUntilSuccess, (app.config, "instance"))
+  _thread.start_new_thread(runSlapgridUntilSuccess, (app.config, "instance"))
   return jsonify(result=True)
 
 
@@ -284,7 +284,7 @@ def cloneRepository():
   try:
     cloneRepo(request.form['repo'], path, request.form['user'], request.form['email'])
     return jsonify(code=1, result="")
-  except GitCommandError, e:
+  except GitCommandError as e:
     return jsonify(code=0, result=safeResult(str(e)))
 
 
@@ -315,7 +315,7 @@ def getProjectStatus():
     try:
       result, branch, isdirty = gitStatus(path)
       return jsonify(code=1, result=result, branch=branch, dirty=isdirty)
-    except GitCommandError, e:
+    except GitCommandError as e:
       return jsonify(code=0, result=safeResult(str(e)))
   else:
     return jsonify(code=0, result="Can not read folder: Permission Denied")
@@ -405,7 +405,7 @@ def changeBranch():
       else:
         json = "This is already your active branch for this project"
         return jsonify(code=1, result=json)
-    except GitCommandError, e:
+    except GitCommandError as e:
       return jsonify(code=0, result=safeResult(str(e)))
   else:
     return jsonify(code=0, result="Can not read folder: Permission Denied")
@@ -423,7 +423,7 @@ def newBranch():
         return jsonify(code=1, result="")
       else:
         return jsonify(code=0, result="Failed to checkout to branch %s.")
-    except GitCommandError, e:
+    except GitCommandError as e:
       return jsonify(code=0, result=safeResult(str(e)))
   else:
     return jsonify(code=0, result="Can not read folder: Permission Denied")
@@ -629,7 +629,7 @@ def updateAccount():
 
   try:
     updateGitConfig(app.config['default_repository_path'], name, email)
-  except GitCommandError, e:
+  except GitCommandError as e:
     return jsonify(code=0, result=str(e))
   git_user_file = os.path.join(app.config['etc_dir'], '.git_user')
   with codecs.open(git_user_file, 'w', encoding='utf-8') as gfile:
@@ -675,7 +675,7 @@ def fileBrowser():
     dir = request.form['dir'].encode('utf-8')
     newfilename = request.form.get('newfilename', '').encode('utf-8')
     files = request.form.get('files', '').encode('utf-8')
-    if not request.form.has_key('opt') or not request.form['opt']:
+    if 'opt' not in request.form or not request.form['opt']:
       opt = 1
     else:
       opt = int(request.form['opt'])
@@ -742,9 +742,9 @@ def fileBrowser():
 
 def editFile():
   return render_template('editFile.html', workDir='workspace',
-    profile=urllib.unquote(request.args.get('profile', '')),
+    profile=unquote(request.args.get('profile', '')),
     projectList=listFolder(app.config, 'workspace'),
-    filename=urllib.unquote(request.args.get('filename', '')))
+    filename=unquote(request.args.get('filename', '')))
 
 def shell():
   return render_template('shell.html')

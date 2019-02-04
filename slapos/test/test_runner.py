@@ -3,7 +3,7 @@ import os
 import string
 import random
 import supervisor
-import thread
+from six.moves import _thread
 import unittest
 
 
@@ -35,7 +35,7 @@ class TestRunnerBackEnd(unittest.TestCase):
     open(supervisord_config_file, 'w').write("""
     """)
     supervisord = supervisor.supervisord.Supervisord('-c', supervisord_config_file)
-    thread.start_new_thread()
+    _thread.start_new_thread()
 
   def test_UserCanLoginAndUpdateCredentials(self):
     """

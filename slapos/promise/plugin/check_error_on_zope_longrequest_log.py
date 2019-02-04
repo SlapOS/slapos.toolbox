@@ -1,4 +1,4 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 import time
@@ -9,10 +9,8 @@ import re
 
 r = re.compile("^([0-9]+\-[0-9]+\-[0-9]+ [0-9]+\:[0-9]+\:[0-9]+)(\,[0-9]+) - ([A-z]+) (.*)$")
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
-
   def __init__(self, config):
     GenericPromise.__init__(self, config)
     self.setPeriodicity(minute=10)
@@ -30,7 +28,7 @@ class RunPromise(GenericPromise):
     with open(log_file) as f:
       f.seek(0, 2)
       block_end_byte = f.tell()
-      f.seek(-min(block_end_byte, 4096*10), 1)
+      f.seek(block_end_byte - min(block_end_byte, 4096*10), 0)
       data = f.read()
       for line in reversed(data.splitlines()):
         m = r.match(line)

@@ -1,4 +1,4 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
@@ -12,9 +12,8 @@ import psutil
 
 from slapos.collect.db import Database
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
 
   def __init__(self, config):
     GenericPromise.__init__(self, config)
@@ -29,12 +28,12 @@ class RunPromise(GenericPromise):
       database.connect()
       where_query = "time between '%s:00' and '%s:30' and partition='%s'" % (time, time, disk_partition)
       query_result = database.select("disk", date, "free", where=where_query)
-      result = zip(*query_result)
-      if not result or not result[0][0]:
+      result = query_result.fetchone()
+      if not result or not result[0]:
         self.logger.info("No result from collector database: disk check skipped")
         return 0
-      disk_free = result[0][0]
-    except sqlite3.OperationalError, e:
+      disk_free = result[0]
+    except sqlite3.OperationalError as e:
       # if database is still locked after timeout expiration (another process is using it)
       # we print warning message and try the promise at next run until max warn count
       locked_message = "database is locked"

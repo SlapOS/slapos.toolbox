@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import re
 import time
 import sys
@@ -5,7 +7,7 @@ import gzip
 import argparse
 import os
 
-r = re.compile("^(\[[^\]]+\]) (\[[^\]]+\]) (.*)$")
+r = re.compile(b"^(\[[^\]]+\]) (\[[^\]]+\]) (.*)$")
 
 def test(log_file, maximum_delay):
   error_amount = 0
@@ -17,7 +19,7 @@ def test(log_file, maximum_delay):
     # file don't exist, nothing to check
     return "OK"
 
-  with open(log_file) as f:
+  with open(log_file, "rb") as f:
 
     f.seek(0, 2)
     block_end_byte = f.tell()
@@ -31,10 +33,10 @@ def test(log_file, maximum_delay):
       dt, level, msg = m.groups()
       try:
         try:
-          t = time.strptime(dt[1:-1], "%a %b %d %H:%M:%S %Y")
+          t = time.strptime(dt[1:-1].decode('utf-8'), "%a %b %d %H:%M:%S %Y")
         except ValueError:
           # Fail to parser for the first time, try a different output.
-          t = time.strptime(dt[1:-1], "%a %b %d %H:%M:%S.%f %Y")
+          t = time.strptime(dt[1:-1].decode('utf-8'), "%a %b %d %H:%M:%S.%f %Y")
       except ValueError:
           # Probably it fail to parse
           if parsing_failure < 3:
@@ -48,15 +50,15 @@ def test(log_file, maximum_delay):
         # no result in the latest hour
         break
 
-      if level != "[error]":
+      if level != b"[error]":
         continue
 
       # Classify the types of errors
-      if "(113)No route to host" in msg:
+      if b"(113)No route to host" in msg:
         no_route_error += 1
-      elif "(101)Network is unreachable" in msg:
+      elif b"(101)Network is unreachable" in msg:
         network_is_unreacheable += 1
-      elif "(110)Connection timed out" in msg:
+      elif b"(110)Connection timed out" in msg:
         timeout += 1
 
       error_amount += 1
@@ -76,7 +78,7 @@ def main():
 
   result = test(args.log_file, args.maximum_delay)
 
-  print result
+  print(result)
   if result != "OK":
     sys.exit(1)
 

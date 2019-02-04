@@ -80,10 +80,8 @@ class ResourceCollect:
       table="sqlite_master",
       columns='name',
       where="type='table' AND name='%s'" % name)
-    table_exists_result = zip(*check_result_cursor)
-    if not len(table_exists_result) or table_exists_result[0][0] is None:
-      return False
-    return True
+    r = check_result_cursor.fetchone()
+    return r and r[0] is not None
 
   def getPartitionCPULoadAverage(self, partition_id, date_scope):
     return self.consumption_utils.getPartitionCPULoadAverage(partition_id, date_scope)
@@ -159,38 +157,35 @@ class ResourceCollect:
     query_result = self.db.select('user', date_scope, colums, 
                                   where="partition='%s' and (time between '%s' and '%s') %s" % 
                                   (partition_id, min_time, max_time, where))
-    result_list = zip(*query_result)
+    result = query_result.fetchone()
 
-    process_dict = memory_dict = io_dict = {}
-    if len(result_list):
-      result = result_list
-      process_dict = {'total_process': result[0][0],
-        'cpu_percent': round((result[1][0] or 0), 2),
-        'cpu_time': round((result[2][0] or 0)/(60.0), 2),
-        'cpu_num_threads': round((result[3][0] or 0), 2),
-        'date': '%s %s' % (date_scope, min_time)
-      }
-      memory_dict = {'memory_percent': round((result[4][0] or 0), 2),
-        'memory_rss': round((result[5][0] or 0)/(1024*1024.0), 2),
-        'date': '%s %s' % (date_scope, min_time)
-      }
-      io_dict = {'io_rw_counter': round((result[6][0] or 0), 2),
-        'io_cycles_counter': round((result[7][0] or 0), 2),
-        'disk_used': 0,
-        'date': '%s %s' % (date_scope, min_time)
-      }
-      if self.has_table('folder'):
-        disk_result_cursor = self.db.select(
-          "folder", date_scope,
-          columns="SUM(disk_used)", 
-          where="partition='%s' and (time between '%s' and '%s') %s" % (
-            partition_id, min_time, max_time, where
-          )
+    process_dict = {'total_process': result[0],
+      'cpu_percent': round((result[1] or 0), 2),
+      'cpu_time': round((result[2] or 0)/(60.0), 2),
+      'cpu_num_threads': round((result[3] or 0), 2),
+      'date': '%s %s' % (date_scope, min_time)
+    }
+    memory_dict = {'memory_percent': round((result[4] or 0), 2),
+      'memory_rss': round((result[5] or 0)/(1024*1024.0), 2),
+      'date': '%s %s' % (date_scope, min_time)
+    }
+    io_dict = {'io_rw_counter': round((result[6] or 0), 2),
+      'io_cycles_counter': round((result[7] or 0), 2),
+      'disk_used': 0,
+      'date': '%s %s' % (date_scope, min_time)
+    }
+    if self.has_table('folder'):
+      disk_result_cursor = self.db.select(
+        "folder", date_scope,
+        columns="SUM(disk_used)",
+        where="partition='%s' and (time between '%s' and '%s') %s" % (
+          partition_id, min_time, max_time, where
         )
-    
-        disk_used_sum = zip(*disk_result_cursor)
-        if len(disk_used_sum) and disk_used_sum[0][0] is not None:
-          io_dict['disk_used'] = round(disk_used_sum[0][0]/1024.0, 2)
+      )
+
+      disk_used_sum, = disk_result_cursor.fetchone()
+      if disk_used_sum is not None:
+        io_dict['disk_used'] = round(disk_used_sum/1024.0, 2)
     self.db.close()
     return (process_dict, memory_dict, io_dict)
 
@@ -252,7 +247,7 @@ def main():
   status_file = os.path.join(parser.output_folder, 'monitor_resource.status.json')
 
   if not os.path.exists(parser.collector_db):
-    print "Collector database not found..."
+    print("Collector database not found...")
     initProcessDataFile(process_file)
     initMemoryDataFile(mem_file)
     initIODataFile(io_file)

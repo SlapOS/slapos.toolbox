@@ -8,6 +8,8 @@ a file modification date is greater than the start date of the
 process.
 """
 
+from __future__ import print_function
+
 import sys
 import os
 import errno
@@ -29,10 +31,10 @@ def moduleIsModifiedSince(top, since, followlinks=False):
       if ext in ignored_extension_set:
         continue
       if since < os.stat(os.path.join(root, name)).st_mtime:
-        print "%s was modified since the process started." % \
-                                                       os.path.join(root, name)
-        print "Process Time %s < Last modidified file %s" % (time.ctime(since),
-                        time.ctime(os.stat(os.path.join(root, name)).st_mtime))
+        print("%s was modified since the process started." % \
+                                                       os.path.join(root, name))
+        print("Process Time %s < Last modidified file %s" % (time.ctime(since),
+                        time.ctime(os.stat(os.path.join(root, name)).st_mtime)))
         return True
   return False
 
@@ -41,7 +43,7 @@ def isProcessOlderThanDependencySet(pid, python_path_list, kill=False):
   start_time = process.create_time()
   if any(moduleIsModifiedSince(product_path, start_time) for product_path in python_path_list):
     if kill:
-      print "Terminating process %s with pid %s" % (process.name(), pid)
+      print("Terminating process %s with pid %s" % (process.name(), pid))
       process.terminate()
     return True
   return False

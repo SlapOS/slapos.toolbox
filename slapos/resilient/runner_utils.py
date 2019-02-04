@@ -7,6 +7,9 @@ import sys
 from contextlib import contextmanager
 from hashlib import sha256
 from zc.buildout.configparser import parse
+from slapos.util import bytes2str, str2bytes
+
+import six
 
 
 @contextmanager
@@ -63,7 +66,7 @@ def getExcludePathList(path):
           if e.errno != errno.ENOENT:
             raise
         else:
-          for section in installed.itervalues():
+          for section in six.itervalues(installed):
             append_relative(section.get(
               '__buildout_installed__', '').splitlines())
 
@@ -126,7 +129,7 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
 
     if signature_process:
       (output, error_output) = signature_process.communicate(
-        '\0'.join([os.path.join(dirpath, filename) for filename in filename_list])
+        str2bytes('\0'.join([os.path.join(dirpath, filename) for filename in filename_list]))
       )
 
       if signature_process.returncode != 0:
@@ -140,7 +143,7 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
 
       # We have to rstrip as most programs return an empty line
       # at the end of their output
-      signature_list.extend(output.strip('\n').split('\n'))
+      signature_list.extend(bytes2str(output).strip('\n').split('\n'))
     else:
       signature_list.extend(
         getSha256Sum([

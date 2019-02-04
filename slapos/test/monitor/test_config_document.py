@@ -78,7 +78,7 @@ echo "htpasswd $@" > %s/monitor-htpasswd
     self.writeContent(self.monitor_https_cors, '{% set allow_domain = "|".join(domain.replace(".", "\.").split()) -%}\n'
                                                'SetEnvIf Origin "^http(s)?://(.+\.)?({{ allow_domain }})$" ORIGIN_DOMAIN=$0\n'
                                                'Header always set Access-Control-Allow-Origin "%{ORIGIN_DOMAIN}e" env=ORIGIN_DOMAIN')
-    os.chmod(self.httpd_passwd_bin, 0755)
+    os.chmod(self.httpd_passwd_bin, 0o755)
 
   def tearDown(self):
     if os.path.exists(self.base_dir):
@@ -106,7 +106,7 @@ echo "htpasswd $@" > %s/monitor-htpasswd
 
     for config in config_json:
       if config["key"]:
-        self.assertTrue(config_parameter_json.has_key(config["key"]))
+        self.assertIn(config["key"], config_parameter_json)
         parameter = config_parameter_json[config["key"]]
       else:
         continue
