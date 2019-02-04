@@ -1,14 +1,12 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
 import requests
 
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
-
   def __init__(self, config):
     GenericPromise.__init__(self, config)
     # SR can set custom periodicity
@@ -47,7 +45,7 @@ class RunPromise(GenericPromise):
       result = requests.get(
         url, verify=verify, allow_redirects=True, timeout=timeout, cert=cert)
     except requests.exceptions.SSLError as e:
-      if 'certificate verify failed' in str(e.message):
+      if 'certificate verify failed' in str(e):
         self.logger.error(
           "ERROR SSL verify failed while accessing %r" % (url,))
       else:
@@ -58,7 +56,7 @@ class RunPromise(GenericPromise):
       self.logger.error(
         "ERROR connection not possible while accessing %r" % (url, ))
       return
-    except Exception, e:
+    except Exception as e:
       self.logger.error("ERROR: %s" % (e,))
       return
 

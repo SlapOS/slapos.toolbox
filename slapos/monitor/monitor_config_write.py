@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import sys
 import os
 import re
@@ -38,11 +40,11 @@ class MonitorConfigWrite(object):
   def _fileWrite(self, file_path, content):
     try:
       with open(file_path, 'w') as wf:
-        print file_path, content
+        print(file_path, content)
         wf.write(content.strip())
         return True
-    except OSError, e:
-      print "ERROR while writing changes to %s.\n %s" % (file_path, str(e))
+    except OSError as e:
+      print("ERROR while writing changes to %s.\n %s" % (file_path, e))
       return False
 
   def _htpasswdWrite(self, htpasswd_bin,  parameter_dict, value):
@@ -55,7 +57,7 @@ class MonitorConfigWrite(object):
     )
     result = process.communicate()[0]
     if process.returncode != 0:
-      print result
+      print(result)
       return False
     with open(parameter_dict['file'], 'w') as pfile:
       pfile.write(value)
@@ -76,31 +78,31 @@ class MonitorConfigWrite(object):
               or (cors_domain == "" and os.stat(httpd_cors_file).st_size == 0)):
               # Skip if cors file is not empty
               return True
-      except OSError, e:
-        print "Failed to open file at %s. \n%s" % (old_httpd_cors_file, str(e))
+      except OSError as e:
+        print("Failed to open file at %s. \n%s" % (old_httpd_cors_file, e))
     try:
       with open(self.monitor_https_cors, 'r') as cors_template:
         template = jinja2.Template(cors_template.read())
         rendered_string = template.render(domain=cors_domain)
       with open(httpd_cors_file, 'w') as file:
         file.write(rendered_string)
-    except OSError, e:
-      print "ERROR while writing CORS changes to %s.\n %s" % (httpd_cors_file, str(e))
+    except OSError as e:
+      print("ERROR while writing CORS changes to %s.\n %s" % (httpd_cors_file, e))
       return False
 
     # Save current cors domain list
     try:
       with open(old_httpd_cors_file, 'w') as cors_file:
         cors_file.write(cors_domain)
-    except OSError, e:
-      print "Failed to open file at %s. \n%s" % (old_httpd_cors_file, str(e))
+    except OSError as e:
+      print("Failed to open file at %s. \n%s" % (old_httpd_cors_file, e))
       return False
 
     # Restart httpd process
     try:
       subprocess.call(httpd_gracefull_bin)
-    except OSError, e:
-      print "Failed to execute command %s.\n %s" % (httpd_gracefull_bin, str(e))
+    except OSError as e:
+      print("Failed to execute command %s.\n %s" % (httpd_gracefull_bin, e))
       return False
     return True
 
@@ -122,7 +124,7 @@ class MonitorConfigWrite(object):
       with open(self.config_json_file) as tmpfile:
         new_parameter_list = json.loads(tmpfile.read())
     except ValueError:
-      print "Error: Couldn't parse json file %s" % self.config_json_file
+      print("Error: Couldn't parse json file %s" % self.config_json_file)
 
     with open(parameter_config_file) as tmpfile:
       description_dict = json.loads(tmpfile.read())
@@ -156,8 +158,8 @@ class MonitorConfigWrite(object):
           for parameter in new_parameter_list:
             if parameter['key']:
               pfile.write('%s = %s\n' % (parameter['key'], parameter['value']))
-      except OSError, e:
-        print "Error failed to create file %s" % self.output_cfg_file
+      except OSError as e:
+        print("Error failed to create file %s" % self.output_cfg_file)
         pass
 
     return result_dict
@@ -190,8 +192,8 @@ def main():
       if status and os.path.exists(parameter_tmp_file):
         try:
           os.unlink(config_file)
-        except OSError, e:
-          print "ERROR cannot remove file: %s" % parameter_tmp_file
+        except OSError as e:
+          print("ERROR cannot remove file: %s" % parameter_tmp_file)
         else:
           os.rename(parameter_tmp_file, config_file)
     if run_counter == max_runn:

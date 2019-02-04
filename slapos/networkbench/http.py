@@ -1,6 +1,7 @@
 import sys
 import pycurl
-from StringIO import StringIO
+from io import BytesIO
+from slapos.util import bytes2str
 
 def get_curl(buffer, url):
   curl = pycurl.Curl()
@@ -22,7 +23,7 @@ def get_curl(buffer, url):
 
 def request(url, expected_dict):
   
-  buffer = StringIO()
+  buffer = BytesIO()
   curl, result = get_curl(buffer, url)
 
   body = buffer.getvalue()
@@ -43,7 +44,7 @@ def request(url, expected_dict):
 
   expected_text = expected_dict.get("expected_text", None)
   if expected_text is not None and \
-      str(expected_text) not in str(body):
+      str(expected_text) not in bytes2str(body):
     result = "UNEXPECTED (%s not in page content)" % (expected_text)
 
   curl.close()

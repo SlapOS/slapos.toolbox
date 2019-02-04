@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import requests
 import re
 import signal
@@ -56,11 +58,11 @@ def watchServerStatus(pid_dict, server_status, timeout):
     if process.cmdline()[0].endswith("/httpd"):
       _pid_dict.setdefault(i, time.time() + timeout)
       if _pid_dict[i] < time.time():
-        print "Sending signal -%s to %s" % (signal.SIGKILL, i)
+        print("Sending signal -%s to %s" % (signal.SIGKILL, i))
         try:
           process.kill()
         except psutil.NoSuchProcess:
-          print "Process is not there anymore"
+          print("Process is not there anymore")
           continue
 
   return _pid_dict

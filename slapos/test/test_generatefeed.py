@@ -7,6 +7,7 @@ import shutil
 import tempfile
 import time
 import unittest
+import six
 
 from slapos.generatefeed import generateFeed
 
@@ -120,8 +121,8 @@ class TestGenerateFeed(unittest.TestCase):
     for i in range(5-3, 5): # older items (from 1 to 2) have been deleted
       expected_remaining_item_list.append('%s.item' % i)
 
-    self.assertItemsEqual(remaining_status_item_list,
-                          expected_remaining_item_list)
+    six.assertCountEqual(self, remaining_status_item_list,
+                         expected_remaining_item_list)
 
 if __name__ == '__main__':
   unittest.main()

@@ -44,7 +44,7 @@ class MonitorGlobalTest(unittest.TestCase):
       pkg_resources.resource_string(
         'slapos.monitor',
         'doc/monitor_instance.schema.json')
-    self.monitor_instance_schema = json.loads(monitor_schema_string)
+    self.monitor_instance_schema = json.loads(monitor_schema_string.decode('utf-8'))
 
 
     self.monitor_config_dict = dict(
@@ -91,7 +91,6 @@ monitor-url-list = %(url_list)s
 collector-db = 
 base-url = %(base_url)s
 title = %(title)s
-service-pid-folder = %(base_dir)s/run
 promise-output-file = %(base_dir)s/monitor-bootstrap-status
 promise-runner = %(promise_run_script)s
 randomsleep = /bin/echo sleep
@@ -132,7 +131,7 @@ exit %(code)s
 """ % result_dict
     promise_path = os.path.join(self.etc_dir, 'promise', name)
     self.writeContent(promise_path, content)
-    os.chmod(promise_path, 0755)
+    os.chmod(promise_path, 0o755)
     return promise_path
 
   def getPromiseParser(self):
@@ -230,7 +229,7 @@ exit %(code)s
 }"""
 
     with open(os.path.join(self.private_dir, 'monitor.global.json')) as r:
-      result = json.loads(r.read().decode("utf-8"))
+      result = json.load(r)
       result.pop("date")
       self.assertEqual(result,
         json.loads(expected_result))
@@ -248,7 +247,7 @@ exit %(code)s
     expected_result_dict["state"] = {'error': 0, 'success': 4}
     instance_result_dict = None
     with open(os.path.join(self.private_dir, 'monitor.global.json')) as r:
-      instance_result_dict = json.loads(r.read().decode("utf-8"))
+      instance_result_dict = json.load(r)
       result = instance_result_dict.copy()
       result.pop("date")
       self.assertEqual(result,

@@ -10,20 +10,23 @@
 # or it will NOT work
 #############################################
 
+from __future__ import print_function
+
 import argparse
 import base64
-import ConfigParser
+from six.moves.configparser import SafeConfigParser
 import datetime
 import hashlib
 import json
 import os
 import shutil
-import sup_process
-from StringIO import StringIO
+from . import sup_process
+from io import StringIO
 import ssl
 import time
 import unittest
-import urllib2
+from six.moves.urllib.request import Request, urlopen
+import six
 
 from slapos.runner.utils import (getProfilePath,
                                  getSession, isInstanceRunning,
@@ -125,7 +128,7 @@ class SlaprunnerTestCase(unittest.TestCase):
       partition_id=cls.partition_id
     )
     cls.parameter_dict = cls.partition.getConnectionParameterDict()
-    for attribute, value in cls.parameter_dict.iteritems():
+    for attribute, value in six.iteritems(cls.parameter_dict):
       setattr(cls, attribute.replace('-', '_'), value)
 
     #create slaprunner configuration
@@ -188,7 +191,7 @@ class SlaprunnerTestCase(unittest.TestCase):
       shutil.rmtree(self.app.config['software_link'])
 
   def updateConfigParameter(self, parameter, value):
-    config_parser = ConfigParser.SafeConfigParser()
+    config_parser = SafeConfigParser()
     config_parser.read(os.getenv('RUNNER_CONFIG'))
     for section in config_parser.sections():
       if config_parser.has_option(section, parameter):
@@ -256,11 +259,11 @@ setuptools = 33.1.1
     open(template, "w").write(content)
 
   def assertCanLoginWith(self, username, password):
-    request = urllib2.Request(self.backend_url)
+    request = Request(self.backend_url)
     base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
     request.add_header("Authorization", "Basic %s" % base64string)
     ssl_context = ssl._create_unverified_context()
-    result = urllib2.urlopen(request, context=ssl_context)
+    result = urlopen(request, context=ssl_context)
     self.assertEqual(result.getcode(), 200)
 
   def test_updateAccount(self):
@@ -606,7 +609,7 @@ setuptools = 33.1.1
 class PrintStringIO(StringIO):
   def write(self, data):
     StringIO.write(self, data)
-    print data
+    print(data)
 
 def main():
   """
