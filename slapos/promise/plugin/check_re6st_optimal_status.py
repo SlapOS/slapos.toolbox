@@ -14,6 +14,8 @@ class RunPromise(GenericPromise):
     # set periodicity to run the promise twice per day
     self.custom_frequency = int(self.getConfig('frequency', 720))
     self.setPeriodicity(self.custom_frequency)
+    # Skip test check on this promise
+    self.setTestLess()
 
   def sense(self):
     """
@@ -64,6 +66,3 @@ class RunPromise(GenericPromise):
   def anomaly(self):
     # only check the result of the two latest sense call
     return self._test(result_count=2, failure_amount=2, latest_minute=self.custom_frequency*3)
-
-  def test(self):
-    return TestResult(message="")
