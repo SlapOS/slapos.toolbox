@@ -76,7 +76,7 @@ class RunPromise(GenericPromise):
           timeout += 1
         error_amount += 1
     if error_amount:
-      self.logger.error("ERROR=%s (NOROUTE=%s, UNREACHABLENET=%s, TIMEOUT=%s)" % (
+      self.logger.error("ERROR=%s (NOROUTE=%s, UNREACHEABLE=%s, TIMEOUT=%s)" % (
         error_amount, no_route_error, network_is_unreacheable, timeout))
     else:
       self.logger.info("OK")

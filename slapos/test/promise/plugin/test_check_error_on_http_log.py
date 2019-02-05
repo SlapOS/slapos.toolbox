@@ -123,7 +123,7 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR=2 (NOTROUTE=2, UNREACHEABLENET=0, TIMEOUT=0)")
+    self.assertEqual(result['result']['message'], "ERROR=2 (NOTROUTE=2, UNREACHEABLE=0, TIMEOUT=0)")
 
     content = self.base_content % {
       'log_file': self.base_path + "/SOFTINST-0_apache_error_log",
@@ -139,7 +139,7 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR=1 (NOTROUTE=1, UNREACHEABLENET=0, TIMEOUT=0)")
+    self.assertEqual(result['result']['message'], "ERROR=1 (NOTROUTE=1, UNREACHEABLE=0, TIMEOUT=0)")
 
   def test_error_timeout(self):
     self.base_path = "/".join(data.__file__.split("/")[:-1])
@@ -155,7 +155,7 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR=4 (NOTROUTE=0, UNREACHEABLENET=0, TIMEOUT=4)")
+    self.assertEqual(result['result']['message'], "ERROR=4 (NOTROUTE=0, UNREACHEABLE=0, TIMEOUT=4)")
 
     content = self.base_content % {
       'log_file': self.base_path + "/SOFTINST-0_timeout_error_log",
@@ -171,7 +171,7 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR=2 (NOTROUTE=0, UNREACHEABLENET=0, TIMEOUT=2)")
+    self.assertEqual(result['result']['message'], "ERROR=2 (NOTROUTE=0, UNREACHEABLE=0, TIMEOUT=2)")
 
   def test_error_unreacheabler(self):
     self.base_path = "/".join(data.__file__.split("/")[:-1])
@@ -187,7 +187,7 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR=11 (NOTROUTE=0, UNREACHEABLENET=11, TIMEOUT=0)")
+    self.assertEqual(result['result']['message'], "ERROR=11 (NOTROUTE=0, UNREACHEABLE=11, TIMEOUT=0)")
 
     content = self.base_content % {
       'log_file': self.base_path + "/SOFTINST-0_unreachable_error_log",
@@ -203,7 +203,7 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR=11 (NOTROUTE=0, UNREACHEABLENET=11, TIMEOUT=0)")
+    self.assertEqual(result['result']['message'], "ERROR=11 (NOTROUTE=0, UNREACHEABLE=11, TIMEOUT=0)")
 
 if __name__ == '__main__':
   unittest.main()

@@ -35,4 +35,4 @@ class RunPromise(GenericPromise):
       self.logger.error("%s" % message)
 
   def anomaly(self):
-    return self._test()
+    return self._anomaly(result_count=1, failure_amount=1)
