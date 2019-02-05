@@ -675,10 +675,8 @@ def fileBrowser():
     dir = request.form['dir'].encode('utf-8')
     newfilename = request.form.get('newfilename', '').encode('utf-8')
     files = request.form.get('files', '').encode('utf-8')
-    if 'opt' not in request.form or not request.form['opt']:
-      opt = 1
-    else:
-      opt = int(request.form['opt'])
+    opt = request.form.get('opt')
+    opt = int(opt) if opt else 1
   else:
     opt = int(request.args.get('opt'))
 

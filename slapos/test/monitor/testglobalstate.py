@@ -229,7 +229,7 @@ exit %(code)s
 }"""
 
     with open(os.path.join(self.private_dir, 'monitor.global.json')) as r:
-      result = json.loads(r.read())
+      result = json.load(r)
       result.pop("date")
       self.assertEqual(result,
         json.loads(expected_result))
@@ -247,7 +247,7 @@ exit %(code)s
     expected_result_dict["state"] = {'error': 0, 'success': 4}
     instance_result_dict = None
     with open(os.path.join(self.private_dir, 'monitor.global.json')) as r:
-      instance_result_dict = json.loads(r.read())
+      instance_result_dict = json.load(r)
       result = instance_result_dict.copy()
       result.pop("date")
       self.assertEqual(result,
