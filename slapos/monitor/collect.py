@@ -27,6 +27,8 @@
 #
 ##############################################################################
 
+from __future__ import division
+
 import sqlite3
 import os
 import pwd
@@ -87,10 +89,10 @@ class ResourceCollect:
     return self.consumption_utils.getPartitionCPULoadAverage(partition_id, date_scope)
 
   def getPartitionUsedMemoryAverage(self, partition_id, date_scope):
-    return self.consumption_utils.getPartitionUsedMemoryAverage(partition_id, date_scope)/(1024*1024.0)
+    return self.consumption_utils.getPartitionUsedMemoryAverage(partition_id, date_scope)/(1024*1024)
 
   def getPartitionDiskUsedAverage(self, partition_id, date_scope):
-    return self.consumption_utils.getPartitionDiskUsedAverage(partition_id, date_scope)/1024.0
+    return self.consumption_utils.getPartitionDiskUsedAverage(partition_id, date_scope)/1024
 
   def getPartitionConsumption(self, partition_id, where="", date_scope=None, min_time=None, max_time=None):
     """
@@ -121,10 +123,10 @@ class ResourceCollect:
       resource_dict = {
         'pid': result[6],
         'cpu_percent': round(result[1]/count, 2),
-        'cpu_time': round((result[2] or 0)/(60.0), 2),
+        'cpu_time': round((result[2] or 0)/(60), 2),
         'cpu_num_threads': round(result[3]/count, 2),
         'memory_percent': round(result[4]/count, 2),
-        'memory_rss': round((result[5] or 0)/(1024*1024.0), 2),
+        'memory_rss': round((result[5] or 0)/(1024*1024), 2),
         'io_rw_counter': round(result[7]/count, 2),
         'io_cycles_counter': round(result[8]/count, 2)
       }
@@ -161,12 +163,12 @@ class ResourceCollect:
 
     process_dict = {'total_process': result[0],
       'cpu_percent': round((result[1] or 0), 2),
-      'cpu_time': round((result[2] or 0)/(60.0), 2),
+      'cpu_time': round((result[2] or 0)/(60), 2),
       'cpu_num_threads': round((result[3] or 0), 2),
       'date': '%s %s' % (date_scope, min_time)
     }
     memory_dict = {'memory_percent': round((result[4] or 0), 2),
-      'memory_rss': round((result[5] or 0)/(1024*1024.0), 2),
+      'memory_rss': round((result[5] or 0)/(1024*1024), 2),
       'date': '%s %s' % (date_scope, min_time)
     }
     io_dict = {'io_rw_counter': round((result[6] or 0), 2),
@@ -185,7 +187,7 @@ class ResourceCollect:
 
       disk_used_sum, = disk_result_cursor.fetchone()
       if disk_used_sum is not None:
-        io_dict['disk_used'] = round(disk_used_sum/1024.0, 2)
+        io_dict['disk_used'] = round(disk_used_sum/1024, 2)
     self.db.close()
     return (process_dict, memory_dict, io_dict)
 
