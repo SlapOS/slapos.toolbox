@@ -13,7 +13,7 @@ import random
 import pycurl
 import argparse
 import json
-from six import StringIO
+from io import StringIO
 from .ping import ping, ping6
 from .dnsbench import resolve
 from .http import get_curl, request

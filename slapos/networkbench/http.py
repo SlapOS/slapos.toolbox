@@ -1,6 +1,6 @@
 import sys
 import pycurl
-from six import BytesIO
+from io import BytesIO
 
 def get_curl(buffer, url):
   curl = pycurl.Curl()
