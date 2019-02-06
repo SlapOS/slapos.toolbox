@@ -7,7 +7,7 @@ import os
 import sys
 import re
 
-r = re.compile("^([0-9]+\-[0-9]+\-[0-9]+ [0-9]+\:[0-9]+\:[0-9]+)(\,[0-9]+) - ([A-z]+) (.*)$")
+r = re.compile(b"^([0-9]+\-[0-9]+\-[0-9]+ [0-9]+\:[0-9]+\:[0-9]+)(\,[0-9]+) - ([A-z]+) (.*)$")
 
 @implementer(interface.IPromise)
 class RunPromise(GenericPromise):
@@ -25,10 +25,10 @@ class RunPromise(GenericPromise):
       self.logger.info("log file does not exist: log check skipped")
       return 0
     
-    with open(log_file) as f:
+    with open(log_file, "rb") as f:
       f.seek(0, 2)
       block_end_byte = f.tell()
-      f.seek(block_end_byte - min(block_end_byte, 4096*10), 0)
+      f.seek(-min(block_end_byte, 4096*10), 1)
       data = f.read()
       for line in reversed(data.splitlines()):
         m = r.match(line)
@@ -36,7 +36,7 @@ class RunPromise(GenericPromise):
           continue
         dt, _, level, msg = m.groups()
         try:
-          t = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
+          t = time.strptime(dt.decode('utf-8'), "%Y-%m-%d %H:%M:%S")
         except ValueError:
           continue
         if maximum_delay and (time.time()-time.mktime(t)) > maximum_delay:
