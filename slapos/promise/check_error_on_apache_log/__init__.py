@@ -7,7 +7,7 @@ import gzip
 import argparse
 import os
 
-r = re.compile(b"^(\[[^\]]+\]) (\[[^\]]+\]) (.*)$")
+r = re.compile(rb"^(\[[^\]]+\]) (\[[^\]]+\]) (.*)$")
 
 def test(log_file, maximum_delay):
   error_amount = 0

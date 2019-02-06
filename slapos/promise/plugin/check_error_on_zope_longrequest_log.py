@@ -7,7 +7,7 @@ import os
 import sys
 import re
 
-r = re.compile(b"^([0-9]+\-[0-9]+\-[0-9]+ [0-9]+\:[0-9]+\:[0-9]+)(\,[0-9]+) - ([A-z]+) (.*)$")
+r = re.compile(rb"^([0-9]+\-[0-9]+\-[0-9]+ [0-9]+\:[0-9]+\:[0-9]+)(\,[0-9]+) - ([A-z]+) (.*)$")
 
 @implementer(interface.IPromise)
 class RunPromise(GenericPromise):
