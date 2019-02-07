@@ -159,7 +159,8 @@ class TestAutoSTemp(unittest.TestCase):
         removes it when deleted.
     """
     f = AutoSTemp("foo")
-    self.assertEqual(open(f.name, "r").read(), "foo")
+    with open(f.name, "r") as file:
+      self.assertEqual(file.read(), "foo")
     fname = f.name
     self.assertTrue(os.path.isfile(fname))
     del f

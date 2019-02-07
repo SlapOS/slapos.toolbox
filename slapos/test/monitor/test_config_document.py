@@ -101,8 +101,10 @@ echo "htpasswd $@" > %s/monitor-htpasswd
 
   def check_config(self):
     config_parameter = os.path.join(self.config_dir, 'config.parameters.json')
-    config_parameter_json = json.load(open(config_parameter))
-    config_json = json.load(open(self.config_path))
+    with open(config_parameter) as f:
+      config_parameter_json = json.load(f)
+    with open(self.config_path) as f:
+      config_json = json.load(f)
 
     for config in config_json:
       if config["key"]:
@@ -112,20 +114,24 @@ echo "htpasswd $@" > %s/monitor-htpasswd
         continue
       if config["key"] == 'from-file':
         self.assertTrue(os.path.exists(parameter['file']))
-        self.assertEqual(config["value"], open(parameter['file']).read())
+        with open(parameter['file']) as f:
+          self.assertEqual(config["value"], f.read())
       elif config["key"] == 'httpd-password':
         http_passwd = "%s/monitor-htpasswd" % self.base_dir
         #XXX where \n bellow come from ?
         command = 'htpasswd -cb %s admin %s%s' % (http_passwd, config["value"], '\n')
         self.assertTrue(os.path.exists(parameter['file']))
         self.assertTrue(os.path.exists(http_passwd))
-        self.assertEqual(config["value"], open(parameter['file']).read())
-        self.assertEqual(open(http_passwd).read(), command)
+        with open(parameter['file']) as f:
+          self.assertEqual(config["value"], f.read())
+        with open(http_passwd) as f:
+          self.assertEqual(f.read(), command)
       elif config["key"] == 'cors-domain':
         cors_file = "%s/test-httpd-cors.cfg" % self.base_dir
         self.assertTrue(os.path.exists(cors_file))
         cors_string = self.generate_cors_string(config["value"].split())
-        self.assertEqual(cors_string, open(cors_file).read())
+        with open(cors_file) as f:
+          self.assertEqual(cors_string, f.read())
 
   def check_cfg_config(self, config_list):
     cfg_output = os.path.join(self.config_dir, 'config.cfg')

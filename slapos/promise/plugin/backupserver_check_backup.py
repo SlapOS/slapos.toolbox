@@ -51,20 +51,21 @@ class RunPromise(GenericPromise):
     # First, parse the log file
     backup_started = False
     backup_ended = False
-    for line in open(status, 'r'):
-      m = re.match(r"(.*), (.*), (.*), backup (.*)$", line)
-      if m:
-        if m.group(4) == "running":
-          backup_started = True
-          backup_start = parse(m.group(1))
-        elif m.group(4) == "failed":
-          backup_ended = True
-          backup_failed = True
-          backup_end = parse(m.group(1))
-        elif m.group(4) == "success":
-          backup_ended = True
-          backup_failed = False
-          backup_end = parse(m.group(1))
+    with open(status, 'r') as f:
+      for line in f:
+        m = re.match(r"(.*), (.*), (.*), backup (.*)$", line)
+        if m:
+          if m.group(4) == "running":
+            backup_started = True
+            backup_start = parse(m.group(1))
+          elif m.group(4) == "failed":
+            backup_ended = True
+            backup_failed = True
+            backup_end = parse(m.group(1))
+          elif m.group(4) == "success":
+            backup_ended = True
+            backup_failed = False
+            backup_end = parse(m.group(1))
 
     # Then check result
     if backup_ended and backup_failed:

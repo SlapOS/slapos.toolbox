@@ -150,7 +150,8 @@ class RunPromise(GenericPromise):
     result_file = os.path.join(self.output_dir, 'my_promise.status.json')
     os.system('cat %s' % result_file)
     self.assertTrue(os.path.exists(result_file))
-    my_result = json.load(open(result_file))
+    with open(result_file) as f:
+      my_result = json.load(f)
     my_result['result'].pop('date')
     self.assertTrue(my_result.pop(u'execution-time'))
     expected_result = {
@@ -164,7 +165,8 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'my_second_promise.status.json')
     self.assertTrue(os.path.exists(result_file))
-    second_result = json.load(open(result_file))
+    with open(result_file) as f:
+      second_result = json.load(f)
     second_result['result'].pop('date')
 
     self.assertTrue(second_result.pop(u'execution-time'))
@@ -185,7 +187,8 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'my_promise.status.json')
     self.assertTrue(os.path.exists(result_file))
-    my_result = json.load(open(result_file))
+    with open(result_file) as f:
+      my_result = json.load(f)
     my_result['result'].pop('date')
 
     self.assertTrue(my_result.pop(u'execution-time'))
@@ -206,7 +209,8 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'my_promise.status.json')
     self.assertTrue(os.path.exists(result_file))
-    my_result = json.load(open(result_file))
+    with open(result_file) as f:
+      my_result = json.load(f)
     my_result['result'].pop('date')
 
     self.assertTrue(my_result.pop(u'execution-time'))
@@ -225,7 +229,8 @@ class RunPromise(GenericPromise):
     promise_runner2 = MonitorPromiseLauncher(parser)
     promise_runner2.start()
 
-    my_result = json.load(open(result_file))
+    with open(result_file) as f:
+      my_result = json.load(f)
     my_result['result'].pop('date')
 
     self.assertTrue(my_result.pop(u'execution-time'))
@@ -286,7 +291,8 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.load(open(result_file))
+    with open(result_file) as f:
+      result1 = json.load(f)
     start_date = datetime.strptime(result1['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
 
     expected_result = {
@@ -301,7 +307,8 @@ class RunPromise(GenericPromise):
     parser = self.getPromiseParser(force=True)
     promise_runner = MonitorPromiseLauncher(parser)
     promise_runner.start()
-    result2 = json.load(open(result_file))
+    with open(result_file) as f:
+      result2 = json.load(f)
     start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
     self.assertTrue(result2.pop(u'execution-time'))
     self.assertEqual(expected_result, result2)
@@ -318,7 +325,8 @@ class RunPromise(GenericPromise):
     result2_file = os.path.join(self.output_dir, 'promise_2.status.json')
     self.assertTrue(os.path.exists(result_file))
     self.assertTrue(os.path.exists(result2_file))
-    result1 = json.load(open(result_file))
+    with open(result_file) as f:
+      result1 = json.load(f)
     start_date = datetime.strptime(result1['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
 
     self.assertTrue(result1.pop(u'execution-time'))
@@ -352,7 +360,8 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.load(open(result_file))
+    with open(result_file) as f:
+      result1 = json.load(f)
     result1['result'].pop('date')
     self.assertTrue(result1.pop(u'execution-time'))
     expected_result = {
@@ -367,7 +376,8 @@ class RunPromise(GenericPromise):
     # second run
     promise_runner = MonitorPromiseLauncher(parser)
     promise_runner.start()
-    result2 = json.load(open(result_file))
+    with open(result_file) as f:
+      result2 = json.load(f)
     result2['result'].pop('date')
     self.assertTrue(result2.pop(u'execution-time'))
     self.assertEqual(expected_result, result2)
@@ -380,7 +390,8 @@ class RunPromise(GenericPromise):
 
     result_file = os.path.join(self.output_dir, 'promise_1.status.json')
     self.assertTrue(os.path.exists(result_file))
-    result1 = json.load(open(result_file))
+    with open(result_file) as f:
+      result1 = json.load(f)
     result1['result'].pop('date')
     self.assertTrue(result1.pop(u'execution-time'))
     expected_result = {
@@ -401,7 +412,8 @@ class RunPromise(GenericPromise):
     promise_runner = MonitorPromiseLauncher(parser)
     promise_runner.start()
 
-    result2 = json.load(open(result_file))
+    with open(result_file) as f:
+      result2 = json.load(f)
     result2['result'].pop('date')
     self.assertTrue(result2.pop(u'execution-time'))
     self.assertEqual(expected_result, result2)

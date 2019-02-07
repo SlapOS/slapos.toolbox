@@ -43,7 +43,8 @@ html_escape_table = {
 
 def getBuildAndRunParams(config):
   json_file = os.path.join(config['etc_dir'], 'config.json')
-  json_params = json.load(open(json_file))
+  with open(json_file) as f:
+    json_params = json.load(f)
   return json_params
 
 
@@ -52,7 +53,8 @@ def saveBuildAndRunParams(config, params):
   Works like that because this function do not care
   about how you got the parameters"""
   json_file = os.path.join(config['etc_dir'], 'config.json')
-  open(json_file, "w").write(json.dumps(params))
+  with open(json_file, "w") as f:
+    f.write(json.dumps(params))
 
 
 def html_escape(text):
@@ -899,7 +901,8 @@ def runSlapgridUntilSuccess(config, step):
   else:
     return -1
   counter_file = os.path.join(config['runner_workdir'], '.turn-left')
-  open(counter_file, 'w+').write(str(max_tries))
+  with open(counter_file, 'w+') as f:
+    f.write(str(max_tries))
   counter = max_tries
   slapgrid = True
   # XXX-Nico runSoftwareWithLock can return 0 or False (0==False)
@@ -909,9 +912,11 @@ def runSlapgridUntilSuccess(config, step):
     # slapgrid == 0 because EXIT_SUCCESS == 0
     if slapgrid == 0:
       break
-    times_left = int(open(counter_file).read()) - 1
+    with open(counter_file) as f:
+      times_left = int(f.read()) - 1
     if times_left > 0 :
-      open(counter_file, 'w+').write(str(times_left))
+      with open(counter_file, 'w+') as f:
+        f.write(str(times_left))
       counter = times_left
     else :
       counter = 0
