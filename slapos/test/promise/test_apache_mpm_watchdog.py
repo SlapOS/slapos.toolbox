@@ -87,7 +87,7 @@ class TestApacheMPMWatchdog(unittest.TestCase):
     self.assertEqual(None,
         getServerStatus("http://localhost/", 
                            "user", "password"))
-    self.assertNotEquals(None,
+    self.assertNotEqual(None,
         getServerStatus("https://www.erp5.com/", None, None))
 
 
