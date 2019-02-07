@@ -1,3 +1,8 @@
+0.86 (2019-02-06)
+=================
+
+ * promise: migrates old promises used in caddy-frontend SR to new format
+
 0.85 (2019-01-09)
 =================
 

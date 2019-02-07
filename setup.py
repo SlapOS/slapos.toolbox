@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import glob
 import os
 
-version = '0.85'
+version = '0.86'
 name = 'slapos.toolbox'
 long_description = open("README.rst").read() + "\n"
 
@@ -57,17 +57,15 @@ setup(name=name,
         'requests',
         'jsonschema',
         'zc.buildout',
+        'pycurl',
       ] + additional_install_requires,
       extras_require = {
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
         'zodbpack': ['ZODB3'], # needed to play with ZODB
         'flask_auth' : ["Flask-Auth"],
-        'networkbench' : ['pycurl'],
-        'check_web_page_http_cache_hit' : ['pycurl'], # needed for check_web_page_http_cache_hit module
       },
       tests_require = [
         'mock',
-        'pycurl'
       ],
       zip_safe=False, # proxy depends on Flask, which has issues with
                       # accessing templates
@@ -78,10 +76,8 @@ setup(name=name,
           'check-computer-memory = slapos.promise.check_computer_memory:main',
           'check-web-page-http-cache-hit = slapos.promise.check_web_page_http_cache_hit:main',
           'check-feed-as-promise = slapos.checkfeedaspromise:main',
-          'check-error-on-apache-log = slapos.promise.check_error_on_apache_log:main',
           'check-apachedex-result = slapos.promise.check_apachedex_result:main',
           'check-slow-queries-digest-result = slapos.promise.check_slow_queries_digest_result:main',
-          'check-re6st-optimal-status = slapos.promise.check_re6st_optimal_status:main',
           'clouddestroy = slapos.cloudmgr.destroy:main',
           'cloudgetprivatekey = slapos.cloudmgr.getprivatekey:main',
           'cloudgetpubliciplist = slapos.cloudmgr.getpubliciplist:main',
@@ -94,7 +90,6 @@ setup(name=name,
           'htpasswd = slapos.htpasswd:main',
           'is-local-tcp-port-opened = slapos.promise.is_local_tcp_port_opened:main',
           'is-process-older-than-dependency-set = slapos.promise.is_process_older_than_dependency_set:main',
-          'is-icmp-packet-lost = slapos.promise.is_icmp_packet_lost:main',
           'killpidfromfile = slapos.systool:killpidfromfile', # BBB
           'monitor.bootstrap = slapos.monitor.monitor:main',
           'monitor.collect = slapos.monitor.collect:main',
