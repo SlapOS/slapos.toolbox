@@ -13,7 +13,7 @@ import re
 import pycurl
 
 from email.message import Message
-from io import StringIO
+from io import BytesIO
 from six.moves import html_parser as HTMLParser
 
 begins_by_known_protocol_re = re.compile("^https?://")
@@ -63,8 +63,8 @@ def checkWebpageHttpCacheHit(url_list, resolve_list=[], cookie_jar_path=None):
     parsed_url_dict.add(url)
     print("Checking cache hit for " + url)
     c = pycurl.Curl()
-    response_headers = StringIO()
-    output = StringIO()
+    response_headers = BytesIO()
+    output = BytesIO()
     c.setopt(c.URL, url)
     c.setopt(c.RESOLVE, resolve_list)
     c.setopt(c.WRITEFUNCTION, output.write)
