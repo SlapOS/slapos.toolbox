@@ -13,10 +13,8 @@ import re
 import pycurl
 
 from email.message import Message
-from six.moves import (
-  cStringIO as StringIO,
-  html_parser as HTMLParser,
-)
+from io import StringIO
+from six.moves import html_parser as HTMLParser
 
 begins_by_known_protocol_re = re.compile("^https?://")
 get_protocol_re = re.compile("^([a-z]+)://")
