@@ -76,8 +76,9 @@ def checkWebpageHttpCacheHit(url_list, resolve_list=[], cookie_jar_path=None):
       response_headers.truncate(0)
       output.truncate(0)
       c.perform()
-      if str(c.getinfo(pycurl.HTTP_CODE))[0:1] != "2":
-        if c.getinfo(pycurl.HTTP_CODE) >= 400:
+      code = c.getinfo(pycurl.HTTP_CODE)
+      if not (200 <= code < 300):
+        if code >= 400:
           report_line_list.append("Status code %s received for %s" % (c.getinfo(pycurl.HTTP_CODE), url))
         else:
           print("Status code %s not handled" % c.getinfo(pycurl.HTTP_CODE))
