@@ -14,7 +14,7 @@ import pycurl
 
 from email.message import Message
 from io import BytesIO
-from six.moves import html_parser as HTMLParser
+from six.moves.html_parser import HTMLParser
 
 begins_by_known_protocol_re = re.compile("^https?://")
 get_protocol_re = re.compile("^([a-z]+)://")
