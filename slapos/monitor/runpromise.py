@@ -156,15 +156,15 @@ class MonitorPromiseLauncher(object):
     )
 
     self.logger.info("Checking promises...")
+    exit_code = 0
     try:
       promise_launcher.run()
     except PromiseError, e:
-      #self.logger.exception(e)
       # error was already logged
-      pass
+      exit_code = 1
     os.remove(self.config.pid_path)
     self.logger.info("Finished promises.")
-
+    return exit_code
 
 def main():
   arg_parser = getArgumentParser()
