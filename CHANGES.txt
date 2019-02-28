@@ -1,3 +1,9 @@
+0.87 (2019-02-28)
+=================
+
+ * promise check_port_listening: port parameter should be int or str, unicode is not accepted
+ * monitor.runpromise: exit with non zero code if a promise has failed
+
 0.86 (2019-02-06)
 =================
 
