@@ -215,6 +215,7 @@ def supervisordStatus():
 
 
 def removeInstance():
+  logger.warning("User clicked on 'Destroy All Services'. Removing all instances...")
   result = removeCurrentInstance(app.config)
   if isinstance(result, str):
     flash(result)

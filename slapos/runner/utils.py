@@ -562,6 +562,7 @@ def configNewSR(config, projectpath):
   if folder:
     sup_process.stopProcess(config, 'slapgrid-cp')
     sup_process.stopProcess(config, 'slapgrid-sr')
+    logger.warning("User opened a new SR. Removing all instances...")
     removeCurrentInstance(config)
     open(os.path.join(config['etc_dir'], ".project"), 'w').write(projectpath)
     return True
@@ -600,6 +601,7 @@ def newSoftware(folder, config, session):
       removeProxyDb(config)
       startProxy(config)
       #Stop runngin process and remove existing instance
+      logger.warning("User created a new SR. Removing all instances...")
       removeCurrentInstance(config)
       session['title'] = getProjectTitle(config)
       code = 1
@@ -678,6 +680,7 @@ def removeSoftwareByName(config, md5, folder_name):
     return (0, "Software installation or instantiation in progress, cannot remove")
 
   if getSoftwareReleaseName(config) == folder_name:
+    logger.warning("User removed the SR currently used. Removing all instances...")
     removeCurrentInstance(config)
 
   result = removeSoftwareRootDirectory(config, md5, folder_name)
