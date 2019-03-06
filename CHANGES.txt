@@ -1,3 +1,9 @@
+0.88 (2019-03-06)
+=================
+
+ * runner: add logging when we remove all instances inside a webrunner.
+ * runner: cleanup: do not use list as a variable
+
 0.87 (2019-02-28)
 =================
 
