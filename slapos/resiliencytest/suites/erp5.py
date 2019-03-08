@@ -76,6 +76,12 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     self.logger.info('Retrieved erp5 password is:\n%s' % password)
     return password
 
+  def _getSlaprunnerServiceInformationList(self):
+    result = self._connectToSlaprunner(
+      resource='/inspectInstance',
+    )
+    return json.loads(result)
+
   def _editHAProxyconfiguration(self):
     """
     XXX pure hack.
@@ -85,20 +91,31 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     """
     self.logger.info('Editing HAProxy configuration...')
 
+    service_information_list = self._getSlaprunnerServiceInformationList()
+    # We expect only one service haproxy
+    haproxy_service, = [
+        x['service_name'] for x in service_information_list
+        if 'haproxy' in x['service_name']
+    ]
+    haproxy_slappart = haproxy_service.split(':', 1)[0]
+
     result = self._connectToSlaprunner(
         resource='/getFileContent',
-        data='file=runner_workdir%2Finstance%2Fslappart7%2Fetc%2Fhaproxy.cfg'
+        data='file=runner_workdir%2Finstance%2F{slappart}%2Fetc%2Fhaproxy.cfg'.format(slappart=haproxy_slappart)
     )
     file_content = json.loads(result)['result']
     file_content = file_content.replace('var/run/haproxy.sock', 'ha.sock')
     self._connectToSlaprunner(
         resource='/saveFileContent',
-        data='file=runner_workdir%%2Finstance%%2Fslappart7%%2Fetc%%2Fhaproxy.cfg&content=%s' % urllib.quote(file_content)
+        data='file=runner_workdir%%2Finstance%%2F%s%%2Fetc%%2Fhaproxy.cfg&content=%s' % (
+            haproxy_slappart,
+            urllib.quote(file_content),
+        )
     )
 
     # Restart HAProxy
     self._connectToSlaprunner(
-        resource='/startStopProccess/name/slappart7:*/cmd/RESTART'
+        resource='/startStopProccess/name/%s:*/cmd/RESTART' % haproxy_slappart
     )
 
 
