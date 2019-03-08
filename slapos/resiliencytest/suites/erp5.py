@@ -62,9 +62,9 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     but connection parameter of what is inside of webrunner.
     """
     data = self._connectToSlaprunner(
-        resource='getConnectionParameter/slappart7'
+        resource='getConnectionParameter/slappart0'
     )
-    url = json.loads(json.loads(data)['_'])['default-v6']
+    url = json.loads(json.loads(data)['_'])['family-default-v6']
     self.logger.info('Retrieved erp5 url is:\n%s' % url)
     return url
 
