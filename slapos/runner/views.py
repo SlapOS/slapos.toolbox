@@ -181,6 +181,14 @@ def inspectInstance():
   else:
     file_path = ''
     supervisor = []
+  if "application/json" in request.accept_mimetypes.best:
+    result_list = []
+    for service in supervisor:
+      result_list.append({
+        'service_name': service[0],
+        'status': service[1],
+      })
+    return jsonify(result_list)
   return render_template('instanceInspect.html',
                          file_path=file_path,
                          supervisor=supervisor,
