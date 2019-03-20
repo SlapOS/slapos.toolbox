@@ -1,3 +1,12 @@
+0.89 (2019-03-20)
+=================
+
+ * promise.plugin: Support ATS with traffic_ctl
+ * resiliencytest: remove some slapparts hardcoded in test code
+                   get ERP5 connection paramater from slappart0
+ * runner: API-fy inspectInstance
+ * promise.plugin: fix test ipv6_is_faster failing when ping outside is not possible
+
 0.88 (2019-03-06)
 =================
 
