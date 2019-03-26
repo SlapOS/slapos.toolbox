@@ -94,13 +94,11 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
     )
 
 
-def backupFilesWereModifiedDuringExport(export_start_date):
+def getBackupFilesModifiedDuringExportList(export_start_date):
   export_time = time.time() - export_start_date
-  return bool(
-    subprocess.check_output((
+  return subprocess.check_output((
       'find', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
-    ))
-  )
+    )).split()
 
 
 def runExport():
@@ -147,8 +145,10 @@ def runExport():
 
   # Check that export didn't happen during backup of instances
   with CwdContextManager(os.path.join(runner_working_path, 'instance')):
-    if backupFilesWereModifiedDuringExport(export_start_date):
-      print("ERROR: Some backups are not consistent, exporter should be re-run."
-            " Let's sleep %s minutes, to let the backup end..." % args.backup_wait_time)
+    modified_file_list = getBackupFilesModifiedDuringExportList(export_start_date)
+    if len(modified_file_list):
+      print("ERROR: Files were modified since the backup started, exporter should be re-run."
+            " Let's sleep %s minutes, to let the backup end. Modified files:\n%s" % (
+              args.backup_wait_time, '\n'.join(modified_file_list)))
       time.sleep(args.backup_wait_time * 60)
       sys.exit(1)
