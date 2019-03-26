@@ -138,7 +138,7 @@ class TestRunnerExporter(unittest.TestCase):
       )
     self.assertEqual(check_output_mock.call_count, 1)
     check_output_mock.assert_any_call(
-      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', 'config.json', '.parameters.xml', '.project', 'backup/runner/etc/']
+      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', 'config.json', '.project', '.parameters.xml', 'backup/runner/etc/']
     )
 
 
@@ -195,11 +195,20 @@ class TestRunnerExporter(unittest.TestCase):
 49b74873d57ff0307b7c9364e2fe2a3876d8722fbe7ce3a6f1438d47647a86f4  ./etc/.project
 7d793037a0760186574b0282f2f435e7  ./runner/instance/slappart1/data""")
 
-  def test_backupFilesWereModifiedDuringExport(self):
+  def test_getBackupFilesModifiedDuringExportList(self):
     self._setUpFakeInstanceFolder()
     with runner_exporter.CwdContextManager('instance'):
-      self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport(time.time() - 5))
+      self.assertEqual(
+        runner_exporter.getBackupFilesModifiedDuringExportList(time.time() - 5),
+        ['./slappart0/srv/backup/data.dat']
+      )
       time.sleep(2)
-      self.assertFalse(runner_exporter.backupFilesWereModifiedDuringExport(time.time() - 1))
+      self.assertEqual(
+        runner_exporter.getBackupFilesModifiedDuringExportList(time.time() - 1),
+        []
+      )
       self._createFile('slappart1/srv/backup/bakckup.data', 'my backup')
-      self.assertTrue(runner_exporter.backupFilesWereModifiedDuringExport(time.time() - 1))
+      self.assertEqual(
+        runner_exporter.getBackupFilesModifiedDuringExportList(time.time() - 1),
+        ['./slappart1/srv/backup/bakckup.data']
+      )
