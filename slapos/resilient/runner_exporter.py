@@ -146,7 +146,7 @@ def runExport():
   time.sleep(10)
 
   # Check that export didn't happen during backup of instances
-  with CwdContextManager(backup_runner_path):
+  with CwdContextManager(os.path.join(runner_working_path, 'instance')):
     if backupFilesWereModifiedDuringExport(export_start_date):
       print("ERROR: Some backups are not consistent, exporter should be re-run."
             " Let's sleep %s minutes, to let the backup end..." % args.backup_wait_time)
