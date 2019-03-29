@@ -28,7 +28,7 @@ def parseArgumentList():
   return parser.parse_args()
 
 
-def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
+def rsync(rsync_binary, source, destination, exclude_list=None, extra_args=None, dry=False):
   arg_list = [
     rsync_binary,
     '-rlptgov',
@@ -38,10 +38,12 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
     '--delete',
     '--delete-excluded'
   ]
+  if isinstance(exclude_list, list):
+    arg_list.extend(["--exclude={}".format(x) for x in sorted(exclude_list)])
   if isinstance(extra_args, list):
     arg_list.extend(extra_args)
   if isinstance(source, list):
-    arg_list.extend(source)
+    arg_list.extend(sorted(source))
   else:
     arg_list.append(source)
   arg_list.append(destination)
@@ -89,7 +91,7 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
   if file_list:
     rsync(
       config.rsync_binary, file_list, backup_path,
-      ["--exclude={}".format(x) for x in exclude_list],
+      exclude_list=exclude_list,
       dry=config.dry
     )
 
