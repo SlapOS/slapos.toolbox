@@ -124,9 +124,12 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
         )
         break
 
+    # remove broken symlink from list of files
+    good_filename_list = filter(os.path.isfile, [os.path.join(dirpath, filename) for filename in filename_list])
+
     if signature_process:
       (output, error_output) = signature_process.communicate(
-        '\0'.join([os.path.join(dirpath, filename) for filename in filename_list])
+        '\0'.join(good_filename_list)
       )
 
       if signature_process.returncode != 0:
@@ -143,10 +146,7 @@ def writeSignatureFile(slappart_signature_method_dict, runner_working_path, sign
       signature_list.extend(output.strip('\n').split('\n'))
     else:
       signature_list.extend(
-        getSha256Sum([
-          os.path.join(dirpath, filename)
-          for filename in filename_list
-        ])
+        getSha256Sum(good_filename_list)
       )
 
   # Write the signatures in file
