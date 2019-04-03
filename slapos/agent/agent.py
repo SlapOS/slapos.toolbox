@@ -70,6 +70,9 @@ class AutoSTemp(object):
 from tester import SoftwareReleaseTester
 
 class TestMap(object):
+  # tell pytest to skip this class (even if name starts with Test)
+  __test__ = False
+
   def __init__(self, test_dict):
     self.ran_test_set = set()
     self.test_map_dict = collections.OrderedDict()
