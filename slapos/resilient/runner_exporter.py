@@ -96,12 +96,41 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
     )
 
 
-def getBackupFilesModifiedDuringExportList(export_start_date):
+def getBackupFilesModifiedDuringExportList(config, export_start_date):
   export_time = time.time() - export_start_date
-  return subprocess.check_output((
-      'find', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
-    )).split()
+  # find all files that were modified during export
+  modified_files = subprocess.check_output((
+      'find', 'instance', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
+    ))
+  if not modified_files:
+    return ()
 
+  # filter those modified files through rsync --exclude getExcludePathList.
+  # Indeed, some modified files may be listed in getExcludePathList and in this
+  # case, we won't copy them to PBS so it's not really important if they are
+  # modified.
+  rsync_arg_list = [
+    config.rsync_binary,
+    '-n',
+    '--out-format=%n',
+    '--files-from=-',
+    '--relative',
+    '--no-implied-dirs'
+  ]
+  rsync_arg_list += map("--exclude={}".format, getExcludePathList(os.getcwd()))
+  rsync_arg_list += '.', 'unexisting_dir_or_file_just_to_have_the_output'
+  process = subprocess.Popen(rsync_arg_list, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  output = process.communicate(modified_files)[0]
+  retcode = process.poll()
+  if retcode:
+      raise CalledProcessError(retcode, rsync_arg_list[0], output=output)
+
+  important_modified_file_list = output.splitlines()
+  not_important_modified_file_set = set(modified_files.splitlines()).difference(important_modified_file_list)
+  if not_important_modified_file_set:
+    print("WARNING: The following files in srv/backup were modified since the exporter started (srv/backup should contain almost static files):", *sorted(not_important_modified_file_set), sep='\n')
+
+  return important_modified_file_list
 
 def runExport():
   export_start_date = int(time.time())
@@ -146,11 +175,11 @@ def runExport():
   time.sleep(10)
 
   # Check that export didn't happen during backup of instances
-  with CwdContextManager(os.path.join(runner_working_path, 'instance')):
-    modified_file_list = getBackupFilesModifiedDuringExportList(export_start_date)
+  with CwdContextManager(runner_working_path):
+    modified_file_list = getBackupFilesModifiedDuringExportList(args, export_start_date)
     if len(modified_file_list):
-      print("ERROR: Files were modified since the backup started, exporter should be re-run."
-            " Let's sleep %s minutes, to let the backup end. Modified files:\n%s" % (
+      print("ERROR: The following files in srv/backup were modified since the exporter started. Since they must be backup, exporter should be re-run."
+            " Let's sleep %s minutes, to let the backup end.\n%s" % (
               args.backup_wait_time, '\n'.join(modified_file_list)))
       time.sleep(args.backup_wait_time * 60)
       sys.exit(1)
