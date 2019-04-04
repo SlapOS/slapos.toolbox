@@ -40,7 +40,15 @@ __buildout_signature__ = MarkupSafe-1.0-py2.7-linux-x86_64.egg Jinja2-2.10-py2.7
 recipe = slapos.recipe.template:jinja2
 rendered = /some/prefix/slappart18/test/srv/exporter.exclude
 template = inline:
-        srv/backup/**"""
+        srv/backup/*.log
+
+[exclude1]
+__buildout_installed__ = {cwd}/instance/slappart1/srv/exporter.exclude
+__buildout_signature__ = MarkupSafe-1.0-py2.7-linux-x86_64.egg Jinja2-2.10-py2.7.egg zc.buildout-2.12.2-py2.7.egg slapos.recipe.template-4.3-py2.7.egg setuptools-40.4.3-py2.7.egg
+recipe = slapos.recipe.template:jinja2
+rendered = /some/prefix/slappart18/test/srv/exporter.exclude
+template = inline:
+        srv/backup/log/**"""
 
 
 class Config():
@@ -79,20 +87,31 @@ class TestRunnerExporter(unittest.TestCase):
     os.makedirs('instance/slappart0/srv/backup')
 
     os.makedirs('instance/slappart1/etc')
-    os.makedirs('instance/slappart1/srv/backup')
+    os.makedirs('instance/slappart1/srv/backup/log')
 
     self._createFile('instance/slappart0/.installed.cfg',
                      tested_instance_cfg.format(cwd=os.getcwd()))
 
     self._createFile('instance/slappart0/srv/backup/data.dat',
                      'all my fortune lays on this secret !')
+    self._createFile('instance/slappart0/srv/backup/data.log',
+                     'this log is not so important !')
     self._createFile('instance/slappart0/srv/exporter.exclude',
-                     'srv/backup/**')
+                     'srv/backup/*.log')
 
     self._createFile('instance/slappart0/etc/config.json')
     self._createFile('instance/slappart0/etc/.parameters.xml')
     self._createFile('instance/slappart0/etc/.project',
                      'workspace/slapos-dev/software/erp5')
+
+    self._createFile('instance/slappart1/srv/backup/data.dat',
+                     'This is important data also !')
+    self._createFile('instance/slappart1/srv/backup/log/log1',
+                     'First log')
+    self._createFile('instance/slappart1/srv/backup/log/log2',
+                     'Second log')
+    self._createFile('instance/slappart1/srv/exporter.exclude',
+                     'srv/backup/log/**')
 
     self._createExecutableFile(
       'instance/slappart1/srv/.backup_identity_script',
@@ -120,8 +139,10 @@ class TestRunnerExporter(unittest.TestCase):
         '.installed*.cfg',
         'instance/slappart0/etc/nicolas.txt',
         'instance/slappart0/etc/rafael.txt',
-        'instance/slappart0/srv/backup/**',
+        'instance/slappart0/srv/backup/*.log',
         'instance/slappart0/srv/exporter.exclude',
+        'instance/slappart1/srv/backup/log/**',
+        'instance/slappart1/srv/exporter.exclude',
       ]
     )
 
@@ -155,7 +176,7 @@ class TestRunnerExporter(unittest.TestCase):
 
     self.assertEqual(check_output_mock.call_count, 1)
     check_output_mock.assert_any_call(
-      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '--exclude=*.pid', '--exclude=*.sock', '--exclude=*.socket', '--exclude=.installed*.cfg', '--exclude=instance/slappart0/etc/nicolas.txt', '--exclude=instance/slappart0/etc/rafael.txt', '--exclude=instance/slappart0/srv/backup/**', '--exclude=instance/slappart0/srv/exporter.exclude', 'instance', 'project', 'proxy.db', 'public', 'backup/runner/runner']
+      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '--exclude=*.pid', '--exclude=*.sock', '--exclude=*.socket', '--exclude=.installed*.cfg', '--exclude=instance/slappart0/etc/nicolas.txt', '--exclude=instance/slappart0/etc/rafael.txt', '--exclude=instance/slappart0/srv/backup/*.log', '--exclude=instance/slappart0/srv/exporter.exclude', '--exclude=instance/slappart1/srv/backup/log/**', '--exclude=instance/slappart1/srv/exporter.exclude', 'instance', 'project', 'proxy.db', 'public', 'backup/runner/runner']
     )
 
   def test_getSlappartSignatureMethodDict(self):
@@ -204,18 +225,21 @@ class TestRunnerExporter(unittest.TestCase):
 
   def test_getBackupFilesModifiedDuringExportList(self):
     self._setUpFakeInstanceFolder()
-    with runner_exporter.CwdContextManager('instance'):
+    config = Config()
+    config.rsync_binary = 'rsync'
+    with runner_exporter.CwdContextManager('.'):
       self.assertEqual(
-        runner_exporter.getBackupFilesModifiedDuringExportList(time.time() - 5),
-        ['./slappart0/srv/backup/data.dat']
+        runner_exporter.getBackupFilesModifiedDuringExportList(config, time.time() - 5),
+        ['instance/slappart0/srv/backup/data.dat',
+         'instance/slappart1/srv/backup/data.dat']
       )
       time.sleep(2)
       self.assertEqual(
-        runner_exporter.getBackupFilesModifiedDuringExportList(time.time() - 1),
+        runner_exporter.getBackupFilesModifiedDuringExportList(config, time.time() - 1),
         []
       )
-      self._createFile('slappart1/srv/backup/bakckup.data', 'my backup')
+      self._createFile('instance/slappart1/srv/backup/bakckup.data', 'my backup')
       self.assertEqual(
-        runner_exporter.getBackupFilesModifiedDuringExportList(time.time() - 1),
-        ['./slappart1/srv/backup/bakckup.data']
+        runner_exporter.getBackupFilesModifiedDuringExportList(config, time.time() - 1),
+        ['instance/slappart1/srv/backup/bakckup.data']
       )

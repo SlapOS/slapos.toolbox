@@ -96,12 +96,27 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
     )
 
 
-def getBackupFilesModifiedDuringExportList(export_start_date):
+def getBackupFilesModifiedDuringExportList(config, export_start_date):
   export_time = time.time() - export_start_date
-  return subprocess.check_output((
-      'find', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
-    )).split()
-
+  # find all files that were modified during export
+  find_process = subprocess.Popen((
+      'find', 'instance', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
+    ), stdout=subprocess.PIPE)
+  # filter those files through rsync --exclude to see if they would have been transfered anyway
+  rsync_arg_list = [
+    config.rsync_binary,
+    '-n',
+    '--out-format=%n',
+    '--files-from=-',
+    '--relative',
+    '--no-implied-dirs'
+  ]
+  rsync_arg_list.extend(["--exclude={}".format(x) for x in getExcludePathList(os.getcwd())])
+  rsync_arg_list.append('.')
+  rsync_arg_list.append('unexisting_dir_or_file_just_to_have_the_output')
+  result = subprocess.check_output(rsync_arg_list, stdin=find_process.stdout).split()
+  find_process.wait()
+  return result
 
 def runExport():
   export_start_date = int(time.time())
@@ -146,8 +161,8 @@ def runExport():
   time.sleep(10)
 
   # Check that export didn't happen during backup of instances
-  with CwdContextManager(os.path.join(runner_working_path, 'instance')):
-    modified_file_list = getBackupFilesModifiedDuringExportList(export_start_date)
+  with CwdContextManager(runner_working_path):
+    modified_file_list = getBackupFilesModifiedDuringExportList(args, export_start_date)
     if len(modified_file_list):
       print("ERROR: Files were modified since the backup started, exporter should be re-run."
             " Let's sleep %s minutes, to let the backup end. Modified files:\n%s" % (
