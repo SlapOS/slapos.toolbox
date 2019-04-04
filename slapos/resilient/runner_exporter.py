@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import time
+import fnmatch
 
 from datetime import datetime
 from .runner_utils import *
@@ -95,13 +96,31 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
       dry=config.dry
     )
 
+def isFilepathMatching(filepath, pattern_list):
+  for pattern in pattern_list:
+    if fnmatch.fnmatch(filepath, pattern):
+      return True
+  return False
 
-def getBackupFilesModifiedDuringExportList(export_start_date):
+def getBackupFilesModifiedDuringExportList(config, export_start_date):
   export_time = time.time() - export_start_date
-  return subprocess.check_output((
-      'find', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
-    )).split()
+  # find all files that were modified during export
+  modified_files = subprocess.check_output((
+      'find', 'instance', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
+    )).splitlines()
+  if not modified_files:
+    return ()
 
+  # filter those modified files through getExcludePathList.
+  # Indeed, some modified files may be listed in getExcludePathList and in this
+  # case, we won't copy them to PBS so it's not really important if they are
+  # modified.
+  exclude_file_list = getExcludePathList(os.getcwd())
+  not_important_modified_file_list = filter(lambda f: isFilepathMatching(f, exclude_file_list), modified_files)
+  if not_important_modified_file_set:
+    print("WARNING: The following files in srv/backup were modified since the exporter started (srv/backup should contain almost static files):", *sorted(not_important_modified_file_set), sep='\n')
+
+  return set(modified_files).difference(not_important_modified_file_list)
 
 def runExport():
   export_start_date = int(time.time())
@@ -146,11 +165,11 @@ def runExport():
   time.sleep(10)
 
   # Check that export didn't happen during backup of instances
-  with CwdContextManager(os.path.join(runner_working_path, 'instance')):
-    modified_file_list = getBackupFilesModifiedDuringExportList(export_start_date)
+  with CwdContextManager(runner_working_path):
+    modified_file_list = getBackupFilesModifiedDuringExportList(args, export_start_date)
     if len(modified_file_list):
-      print("ERROR: Files were modified since the backup started, exporter should be re-run."
-            " Let's sleep %s minutes, to let the backup end. Modified files:\n%s" % (
+      print("ERROR: The following files in srv/backup were modified since the exporter started. Since they must be backup, exporter should be re-run."
+            " Let's sleep %s minutes, to let the backup end.\n%s" % (
               args.backup_wait_time, '\n'.join(modified_file_list)))
       time.sleep(args.backup_wait_time * 60)
       sys.exit(1)
