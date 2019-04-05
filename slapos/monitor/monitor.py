@@ -287,7 +287,7 @@ class Monitoring(object):
                                   'outline_title': 'Monitoring RSS Feed list',
                                   'root_title': escape(self.root_title)}
 
-    opml_content += OPML_OUTLINE_FEED % {'title': self.title,
+    opml_content += OPML_OUTLINE_FEED % {'title': escape(self.title),
         'html_url': self.public_url + '/feed',
         'xml_url': self.public_url + '/feed',
         'global_url': "%s/private/" % self.webdav_url}
