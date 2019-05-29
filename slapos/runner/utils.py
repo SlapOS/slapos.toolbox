@@ -354,15 +354,14 @@ def config_SR_folder(config):
   md5sum = md5digest(profile)
   link_to_folder(name, md5sum)
   # check other links
-  # XXX-Marco do not shadow 'list'
-  list = []
+  software_link_list = []
   for path in os.listdir(config['software_link']):
     cfg_path = os.path.join(config['software_link'], path, config_name)
     if os.path.exists(cfg_path):
       cfg = open(cfg_path).read().split("#")
       if len(cfg) != 2:
         continue  # there is a broken config file
-      list.append(cfg[1])
+      software_link_list.append(cfg[1])
   if os.path.exists(config['software_root']):
     folder_list = os.listdir(config['software_root'])
   else:
@@ -370,14 +369,14 @@ def config_SR_folder(config):
   if not folder_list:
     return
   for folder in folder_list:
-    if folder in list:
+    if folder in software_link_list:
       continue  # this folder is already registered
     else:
       link_to_folder(folder, folder)
 
 def loadSoftwareRList(config):
   """Return list (of dict) of Software Release from symbolik SR folder"""
-  list = []
+  sr_list = []
   config_name = 'slaprunner.config'
   for path in os.listdir(config['software_link']):
     cfg_path = os.path.join(config['software_link'], path, config_name)
@@ -385,8 +384,8 @@ def loadSoftwareRList(config):
       cfg = open(cfg_path).read().split("#")
       if len(cfg) != 2:
         continue  # there is a broken config file
-      list.append(dict(md5=cfg[1], path=cfg[0], title=path))
-  return list
+      sr_list.append(dict(md5=cfg[1], path=cfg[0], title=path))
+  return sr_list
 
 
 def isInstanceRunning(config):
@@ -565,6 +564,7 @@ def configNewSR(config, projectpath):
   if folder:
     sup_process.stopProcess(config, 'slapgrid-cp')
     sup_process.stopProcess(config, 'slapgrid-sr')
+    logger.warning("User opened a new SR. Removing all instances...")
     removeCurrentInstance(config)
     open(os.path.join(config['etc_dir'], ".project"), 'w').write(projectpath)
     return True
@@ -603,6 +603,7 @@ def newSoftware(folder, config, session):
       removeProxyDb(config)
       startProxy(config)
       #Stop runngin process and remove existing instance
+      logger.warning("User created a new SR. Removing all instances...")
       removeCurrentInstance(config)
       session['title'] = getProjectTitle(config)
       code = 1
@@ -681,6 +682,7 @@ def removeSoftwareByName(config, md5, folder_name):
     return (0, "Software installation or instantiation in progress, cannot remove")
 
   if getSoftwareReleaseName(config) == folder_name:
+    logger.warning("User removed the SR currently used. Removing all instances...")
     removeCurrentInstance(config)
 
   result = removeSoftwareRootDirectory(config, md5, folder_name)

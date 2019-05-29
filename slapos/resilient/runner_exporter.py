@@ -28,7 +28,7 @@ def parseArgumentList():
   return parser.parse_args()
 
 
-def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
+def rsync(rsync_binary, source, destination, exclude_list=None, extra_args=None, dry=False):
   arg_list = [
     rsync_binary,
     '-rlptgov',
@@ -38,10 +38,12 @@ def rsync(rsync_binary, source, destination, extra_args=None, dry=False):
     '--delete',
     '--delete-excluded'
   ]
+  if isinstance(exclude_list, list):
+    arg_list.extend(["--exclude={}".format(x) for x in sorted(exclude_list)])
   if isinstance(extra_args, list):
     arg_list.extend(extra_args)
   if isinstance(source, list):
-    arg_list.extend(source)
+    arg_list.extend(sorted(source))
   else:
     arg_list.append(source)
   arg_list.append(destination)
@@ -91,19 +93,46 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
   if file_list:
     rsync(
       config.rsync_binary, file_list, backup_path,
-      ["--exclude={}".format(x) for x in exclude_list],
+      exclude_list=exclude_list,
       dry=config.dry
     )
 
 
-def backupFilesWereModifiedDuringExport(export_start_date):
+def getBackupFilesModifiedDuringExportList(config, export_start_date):
   export_time = time.time() - export_start_date
-  return bool(
-    subprocess.check_output((
-      'find', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
+  # find all files that were modified during export
+  modified_files = subprocess.check_output((
+      'find', 'instance', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
     ))
-  )
+  if not modified_files:
+    return ()
 
+  # filter those modified files through rsync --exclude getExcludePathList.
+  # Indeed, some modified files may be listed in getExcludePathList and in this
+  # case, we won't copy them to PBS so it's not really important if they are
+  # modified.
+  rsync_arg_list = [
+    config.rsync_binary,
+    '-n',
+    '--out-format=%n',
+    '--files-from=-',
+    '--relative',
+    '--no-implied-dirs'
+  ]
+  rsync_arg_list += map("--exclude={}".format, getExcludePathList(os.getcwd()))
+  rsync_arg_list += '.', 'unexisting_dir_or_file_just_to_have_the_output'
+  process = subprocess.Popen(rsync_arg_list, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  output = process.communicate(modified_files)[0]
+  retcode = process.poll()
+  if retcode:
+      raise CalledProcessError(retcode, rsync_arg_list[0], output=output)
+
+  important_modified_file_list = output.splitlines()
+  not_important_modified_file_set = set(modified_files.splitlines()).difference(important_modified_file_list)
+  if not_important_modified_file_set:
+    print("WARNING: The following files in srv/backup were modified since the exporter started (srv/backup should contain almost static files):", *sorted(not_important_modified_file_set), sep='\n')
+
+  return important_modified_file_list
 
 def runExport():
   export_start_date = int(time.time())
@@ -148,9 +177,11 @@ def runExport():
   time.sleep(10)
 
   # Check that export didn't happen during backup of instances
-  with CwdContextManager(backup_runner_path):
-    if backupFilesWereModifiedDuringExport(export_start_date):
-      print("ERROR: Some backups are not consistent, exporter should be re-run."
-            " Let's sleep %s minutes, to let the backup end..." % args.backup_wait_time)
+  with CwdContextManager(runner_working_path):
+    modified_file_list = getBackupFilesModifiedDuringExportList(args, export_start_date)
+    if len(modified_file_list):
+      print("ERROR: The following files in srv/backup were modified since the exporter started. Since they must be backup, exporter should be re-run."
+            " Let's sleep %s minutes, to let the backup end.\n%s" % (
+              args.backup_wait_time, '\n'.join(modified_file_list)))
       time.sleep(args.backup_wait_time * 60)
       sys.exit(1)

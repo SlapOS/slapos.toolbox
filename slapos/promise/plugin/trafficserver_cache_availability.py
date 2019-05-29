@@ -17,10 +17,20 @@ class RunPromise(GenericPromise):
     """
       Check trafficserver cache availability
     """
-    traffic_line = self.getConfig('wrapper-path')
+    wrapper = self.getConfig('wrapper-path')
+
+    if 'traffic_line' in wrapper:
+      args = [wrapper, '-r',  'proxy.node.cache.percent_free']
+      message = "Cache not available, availability: %s"
+    elif 'traffic_ctl' in wrapper:
+      args = [wrapper, 'metric', 'get', 'proxy.process.cache.percent_full']
+      message = "Cache not available, occupation: %s"
+    else:
+      self.logger.error("Wrapper %r not supported." % (wrapper,))
+      return
 
     process = subprocess.Popen(
-        [traffic_line, '-r',  'proxy.node.cache.percent_free'],
+        args,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     )
@@ -28,7 +38,7 @@ class RunPromise(GenericPromise):
     if process.returncode == 0:
       self.logger.info("OK")
     else:
-      self.logger.error("Cache not available, availability: %s" % result)
+      self.logger.error(message % (result,))
 
   def anomaly(self):
     """

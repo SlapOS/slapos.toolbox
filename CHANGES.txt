@@ -1,3 +1,34 @@
+0.91 (2019-03-28)
+=================
+
+ * runner: fixed the exporter script
+
+0.90 (2019-03-20)
+=================
+
+ * fixed wrong upload
+
+0.89 (2019-03-20)
+=================
+
+ * promise.plugin: Support ATS with traffic_ctl
+ * resiliencytest: remove some slapparts hardcoded in test code
+                   get ERP5 connection paramater from slappart0
+ * runner: API-fy inspectInstance
+ * promise.plugin: fix test ipv6_is_faster failing when ping outside is not possible
+
+0.88 (2019-03-06)
+=================
+
+ * runner: add logging when we remove all instances inside a webrunner.
+ * runner: cleanup: do not use list as a variable
+
+0.87 (2019-02-28)
+=================
+
+ * promise check_port_listening: port parameter should be int or str, unicode is not accepted
+ * monitor.runpromise: exit with non zero code if a promise has failed
+
 0.86 (2019-02-06)
 =================
 

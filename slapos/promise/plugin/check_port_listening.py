@@ -19,7 +19,8 @@ class RunPromise(GenericPromise):
       Simply test if we can connect to specified host:port.
     """
     hostname = self.getConfig('hostname')
-    port = self.getConfig('port')
+    # if type of port should be int or str, unicode is not accepted.
+    port = int(self.getConfig('port'))
 
     addr = (hostname , port)
     # in case of any error, we call "logger.error"

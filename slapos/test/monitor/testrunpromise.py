@@ -159,6 +159,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
     self.assertEqual(expected_result, my_result)
@@ -175,6 +176,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s/my_second_promise.py' % self.promise_dir,
     }
     self.assertEqual(expected_result, second_result)
@@ -197,6 +199,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': True, u'message': u'failed', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
     self.assertEqual(expected_result, my_result)
@@ -219,6 +222,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': True, u'message': u'failed', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
     self.assertEqual(expected_result, my_result)
@@ -239,6 +243,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
     self.assertEqual(expected_result, my_result)
@@ -300,6 +305,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s' % promise,
     }
 
@@ -335,6 +341,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s' % promise,
     }
     self.assertEqual(expected_result, result1)
@@ -348,6 +355,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s' % promise2,
     }
     self.assertEqual(expected_result, result2)
@@ -369,6 +377,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': True, u'message': u'failed', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s' % promise,
     }
     self.assertEqual(expected_result, result1)
@@ -399,6 +408,7 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
+      u'execution-time': 0.05,
       u'path': u'%s' % promise,
     }
     self.assertEqual(expected_result, result1)

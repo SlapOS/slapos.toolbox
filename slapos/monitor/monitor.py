@@ -16,6 +16,7 @@ import ssl
 import glob
 import socket
 from datetime import datetime
+from xml.sax.saxutils import escape
 
 from slapos.util import bytes2str
 
@@ -289,9 +290,9 @@ class Monitoring(object):
     opml_content = OPML_START % {'creation_date': creation_date,
                                   'modification_date': modification_date,
                                   'outline_title': 'Monitoring RSS Feed list',
-                                  'root_title': self.root_title}
+                                  'root_title': escape(self.root_title)}
 
-    opml_content += OPML_OUTLINE_FEED % {'title': self.title,
+    opml_content += OPML_OUTLINE_FEED % {'title': escape(self.title),
         'html_url': self.public_url + '/feed',
         'xml_url': self.public_url + '/feed',
         'global_url': "%s/private/" % self.webdav_url}
