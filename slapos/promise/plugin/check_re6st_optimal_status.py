@@ -1,14 +1,12 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise, TestResult
 import re
 import time
 from slapos.networkbench.ping import ping, ping6
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
-
   def __init__(self, config):
     GenericPromise.__init__(self, config)
     # set periodicity to run the promise twice per day
