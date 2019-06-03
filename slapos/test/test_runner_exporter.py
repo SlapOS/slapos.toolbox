@@ -231,9 +231,9 @@ class TestRunnerExporter(unittest.TestCase):
 
     self.assertEqual(
       runner_exporter.getBackupFilesModifiedDuringExportList(config, time.time() - 5),
-      ['instance/slappart0/srv/backup/data.dat',
-       'instance/slappart0/srv/backup/important_logs/this_is_a.log',
-       'instance/slappart1/srv/backup/data.dat']
+      [b'instance/slappart0/srv/backup/data.dat',
+       b'instance/slappart0/srv/backup/important_logs/this_is_a.log',
+       b'instance/slappart1/srv/backup/data.dat']
     )
     time.sleep(2)
     self.assertFalse(
@@ -242,5 +242,5 @@ class TestRunnerExporter(unittest.TestCase):
     self._createFile('instance/slappart1/srv/backup/bakckup.data', 'my backup')
     self.assertEqual(
       runner_exporter.getBackupFilesModifiedDuringExportList(config, time.time() - 1),
-      ['instance/slappart1/srv/backup/bakckup.data']
+      [b'instance/slappart1/srv/backup/bakckup.data']
     )
