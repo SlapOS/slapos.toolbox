@@ -23,18 +23,21 @@ class RunPromise(GenericPromise):
       the endpoint SSL certificate.
     """
     url = self.getConfig('url')
-    verify = self.getConfig('ssl-proxy-verify').lower() == 'true'
+    verify = self.getConfig('ssl-proxy-verify', '').lower() == 'true'
     verify_cert = self.getConfig('ssl-proxy-ca-crt-file')
     timeout = int(self.getConfig('timeout', '5'))
 
     if verify and len(verify_cert):
       verify = verify_cert
     try:
+      print url
       requests.get(url, verify=verify, timeout=timeout, allow_redirects=False)
+    except requests.ConnectionError as e:
+      self.logger.error(
+        "ERROR connection not possible while accessing url {}".format(url))
     except Exception as e:
       self.logger.error(
-        "ERROR {} while accessing url {} with verify {} and verify_cert {} "
-        "with timeout {}".format(e, url, verify, verify_cert, timeout))
+        "ERROR '{}' while accessing url {}".format(e, url))
     else:
       self.logger.info("url {} OK".format(url))
 
