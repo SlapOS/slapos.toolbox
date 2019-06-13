@@ -25,9 +25,12 @@ class RunPromise(GenericPromise):
     ca_cert_file = self.getConfig('ca-cert-file')
     cert_file = self.getConfig('cert-file')
     key_file = self.getConfig('key-file')
+    verify = int(self.getConfig('verify', 0))
 
     if ca_cert_file:
       verify = ca_cert_file
+    elif verify:
+      verify = True
     else:
       verify = False
 
@@ -39,6 +42,14 @@ class RunPromise(GenericPromise):
     try:
       result = requests.get(
         url, verify=verify, allow_redirects=True, timeout=timeout, cert=cert)
+    except requests.exceptions.SSLError as e:
+      if 'certificate verify failed' in str(e.message):
+        self.logger.error(
+          "ERROR SSL verify failed while accessing %r" % (url,))
+      else:
+        self.logger.error(
+          "ERROR Unknown SSL error %r while accessing %r" % (e, url))
+      return
     except requests.ConnectionError as e:
       self.logger.error(
         "ERROR connection not possible while accessing %r" % (url, ))
