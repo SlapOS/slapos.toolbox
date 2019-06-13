@@ -25,12 +25,51 @@
 #
 ##############################################################################
 
-from slapos.test.promise.plugin import TestPromisePluginMixin
 from slapos.grid.promise import PromiseError
+from slapos.test.promise.plugin import TestPromisePluginMixin
+
+import BaseHTTPServer
+import json
+import multiprocessing
+import time
 import unittest
+
+SLAPOS_TEST_IPV4 = '127.0.0.1'
+SLAPOS_TEST_IPV4_PORT = 57965
+HTTPS_ENDPOINT = "http://%s:%s/" % (SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT)
+
+
+class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+  def do_GET(self):
+    timeout = int(self.headers.dict.get('timeout', '0'))
+    time.sleep(timeout)
+    response = int(self.path.split('/')[-1])
+    self.send_response(response)
+
+    self.send_header("Content-type", "application/json")
+    self.end_headers()
+    response = {
+      'Path': self.path,
+    }
+    self.wfile.write(json.dumps(response, indent=2))
 
 
 class TestCheckUrlAvailable(TestPromisePluginMixin):
+
+  @classmethod
+  def setUpClass(cls):
+    server = BaseHTTPServer.HTTPServer(
+      (SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT),
+      TestHandler)
+
+    cls.server_process = multiprocessing.Process(
+      target=server.serve_forever)
+    cls.server_process.start()
+
+  @classmethod
+  def tearDownClass(cls):
+    cls.server_process.terminate()
+    cls.server_process.join()
 
   def setUp(self):
     TestPromisePluginMixin.setUp(self)
@@ -98,6 +137,58 @@ extra_config_dict = {
       result['result']['message'],
       "ERROR connection not possible while accessing "
       "'https://localhost:56789/site'"
+    )
+
+  def test_check_200(self):
+    url = HTTPS_ENDPOINT + '200'
+    content = content = self.base_content % {
+      'url': url,
+      'timeout': 10,
+      'check_secure': 0
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is available" % (url,)
+    )
+
+  def test_check_401(self):
+    url = HTTPS_ENDPOINT + '401'
+    content = content = self.base_content % {
+      'url': url,
+      'timeout': 10,
+      'check_secure': 0
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is not available (returned 401, expected 200)." % (url,)
+    )
+
+  def test_check_401_secure(self):
+    url = HTTPS_ENDPOINT + '401'
+    content = content = self.base_content % {
+      'url': url,
+      'timeout': 10,
+      'check_secure': 1
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is protected (returned 401)." % (url,)
     )
 
 

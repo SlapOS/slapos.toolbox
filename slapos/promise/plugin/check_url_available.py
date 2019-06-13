@@ -46,18 +46,18 @@ class RunPromise(GenericPromise):
       return
 
     http_code = result.status_code
-    check_secure = self.getConfig('check-secure')
+    check_secure = int(self.getConfig('check-secure', 0))
     
     if http_code == 0:
       self.logger.error("%s is not available (server not reachable)." % url)
-    elif http_code == 401 and check_secure == "1":
-      self.logger.info("%s is protected (returned %s)." % (url, http_code))
+    elif http_code == 401 and check_secure == 1:
+      self.logger.info("%r is protected (returned %s)." % (url, http_code))
 
     elif http_code != expected_http_code:
-      self.logger.error("%s is not available (returned %s, expected %s)." % (
+      self.logger.error("%r is not available (returned %s, expected %s)." % (
         url, http_code, expected_http_code))
     else:
-      self.logger.info("%s: URL is available" % http_code)
+      self.logger.info("%r is available" % (url,))
 
   def anomaly(self):
     return self._test(result_count=3, failure_amount=3)
