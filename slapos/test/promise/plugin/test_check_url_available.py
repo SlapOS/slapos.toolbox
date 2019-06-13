@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2018 Vifib SARL and Contributors. All Rights Reserved.
+# Copyright (c) 2019 Vifib SARL and Contributors. All Rights Reserved.
 #
 # WARNING: This program as such is intended to be used by professional
 # programmers who take the whole responsibility of assessing all potential
@@ -27,7 +27,8 @@
 
 from slapos.test.promise.plugin import TestPromisePluginMixin
 from slapos.grid.promise import PromiseError
-import os
+import unittest
+
 
 class TestCheckUrlAvailable(TestPromisePluginMixin):
 
@@ -59,7 +60,10 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR: Invalid URL u'https://': No host supplied")
+    self.assertEqual(
+      result['result']['message'],
+      "ERROR: Invalid URL u'https://': No host supplied"
+    )
 
   def test_check_url_malformed(self):
     content = self.base_content % {
@@ -73,7 +77,10 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR: Invalid URL '': No schema supplied. Perhaps you meant http://?")
+    self.assertEqual(
+      result['result']['message'],
+      "ERROR: Invalid URL '': No schema supplied. Perhaps you meant http://?"
+    )
 
   def test_check_url_site_off(self):
     content = content = self.base_content % {
@@ -87,7 +94,12 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "ERROR connection not possible while accessing 'https://localhost:56789/site'")
+    self.assertEqual(
+      result['result']['message'],
+      "ERROR connection not possible while accessing "
+      "'https://localhost:56789/site'"
+    )
+
 
 if __name__ == '__main__':
   unittest.main()
