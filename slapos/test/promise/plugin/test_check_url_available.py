@@ -39,12 +39,13 @@ import datetime
 import ipaddress
 import json
 import multiprocessing
+import os
 import ssl
 import tempfile
 import time
 import unittest
 
-SLAPOS_TEST_IPV4 = '127.0.0.1'
+SLAPOS_TEST_IPV4 = os.environ.get('SLAPOS_TEST_IPV4', '127.0.0.1')
 SLAPOS_TEST_IPV4_PORT = 57965
 HTTPS_ENDPOINT = "https://%s:%s/" % (SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT)
 
