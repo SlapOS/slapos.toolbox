@@ -1,3 +1,16 @@
+0.93 (2019-06-13)
+=================
+
+ * promise.plugin: enhance and improve check_url_available
+ * monitor: catch timeout rise by ssl.SSLError
+
+0.92 (2019-04-10)
+=================
+
+ * runner: more robust exporter script (don't check excluded files, support broken symlinks)
+ * runner: give more information when exporter script fails
+ * monitor: escape title in OPML
+
 0.91 (2019-03-28)
 =================
 
