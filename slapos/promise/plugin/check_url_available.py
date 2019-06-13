@@ -1,8 +1,9 @@
 from zope import interface as zope_interface
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
-import os
+
 import requests
+
 
 class RunPromise(GenericPromise):
 
@@ -36,7 +37,8 @@ class RunPromise(GenericPromise):
       cert = None
 
     try:
-      result = requests.get(url, verify=verify, allow_redirects=True, timeout=timeout, cert=cert)
+      result = requests.get(
+        url, verify=verify, allow_redirects=True, timeout=timeout, cert=cert)
     except requests.ConnectionError as e:
       self.logger.error(
         "ERROR connection not possible while accessing %r" % (url, ))
@@ -47,7 +49,7 @@ class RunPromise(GenericPromise):
 
     http_code = result.status_code
     check_secure = int(self.getConfig('check-secure', 0))
-    
+
     if http_code == 0:
       self.logger.error("%s is not available (server not reachable)." % url)
     elif http_code == 401 and check_secure == 1:
