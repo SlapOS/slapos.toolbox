@@ -41,9 +41,16 @@ HTTPS_ENDPOINT = "http://%s:%s/" % (SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT)
 
 class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def do_GET(self):
-    timeout = int(self.headers.dict.get('timeout', '0'))
+    path = self.path.split('/')[-1]
+    if '_' in path:
+      response, timeout = path.split('_')
+      response = int(response)
+      timeout = int(timeout)
+    else:
+      timeout = 0
+      response = int(path)
+
     time.sleep(timeout)
-    response = int(self.path.split('/')[-1])
     self.send_response(response)
 
     self.send_header("Content-type", "application/json")
@@ -54,8 +61,7 @@ class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.wfile.write(json.dumps(response, indent=2))
 
 
-class TestCheckUrlAvailable(TestPromisePluginMixin):
-
+class CheckUrlAvailableMixin(TestPromisePluginMixin):
   @classmethod
   def setUpClass(cls):
     server = BaseHTTPServer.HTTPServer(
@@ -98,6 +104,9 @@ extra_config_dict = {
 
   def tearDown(self):
     TestPromisePluginMixin.tearDown(self)
+
+
+class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_url_bad(self):
     content = self.base_content % {
@@ -244,6 +253,27 @@ extra_config_dict = {
     self.assertEqual(
       result['result']['message'],
       "%r is available" % (url,)
+    )
+
+
+class TestCheckUrlAvailableTimeout(CheckUrlAvailableMixin):
+  def test_check_200_timeout(self):
+    url = HTTPS_ENDPOINT + '200_5'
+    content = self.base_content % {
+      'url': url,
+      'timeout': 1,
+      'check_secure': 0,
+      'ignore_code': 0,
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(
+      result['result']['message'],
+      "Error: Promise timed out after 0.5 seconds",
     )
 
 
