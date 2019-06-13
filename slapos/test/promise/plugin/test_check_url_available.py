@@ -85,6 +85,17 @@ extra_config_dict = {
 }
 """
 
+    self.base_content_http_code = """from slapos.promise.plugin.check_url_available import RunPromise
+
+extra_config_dict = {
+  'url': '%(url)s',
+  'timeout': %(timeout)s,
+  'check-secure': %(check_secure)s,
+  'ignore-code': %(ignore_code)s,
+  'http_code': %(http_code)s
+}
+"""
+
   def tearDown(self):
     TestPromisePluginMixin.tearDown(self)
 
@@ -214,6 +225,25 @@ extra_config_dict = {
     self.assertEqual(
       result['result']['message'],
       "%r is protected (returned 401)." % (url,)
+    )
+
+  def test_check_512_http_code(self):
+    url = HTTPS_ENDPOINT + '512'
+    content = content = self.base_content_http_code % {
+      'url': url,
+      'timeout': 10,
+      'check_secure': 0,
+      'ignore_code': 0,
+      'http_code': 512,
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is available" % (url,)
     )
 
 
