@@ -59,7 +59,7 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "3: Bad URL")
+    self.assertEqual(result['result']['message'], "ERROR: Invalid URL u'https://': No host supplied")
 
   def test_check_url_malformed(self):
     content = self.base_content % {
@@ -73,7 +73,7 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "3: <url> malformed")
+    self.assertEqual(result['result']['message'], "ERROR: Invalid URL '': No schema supplied. Perhaps you meant http://?")
 
   def test_check_url_site_off(self):
     content = content = self.base_content % {
@@ -87,7 +87,7 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "7: Failed to connect to localhost port 56789: Connection refused")
+    self.assertEqual(result['result']['message'], "ERROR connection not possible while accessing 'https://localhost:56789/site'")
 
 if __name__ == '__main__':
   unittest.main()

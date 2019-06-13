@@ -2,7 +2,7 @@ from zope import interface as zope_interface
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 import os
-import pycurl
+import requests
 
 class RunPromise(GenericPromise):
 
@@ -21,33 +21,32 @@ class RunPromise(GenericPromise):
     url = self.getConfig('url')
     timeout = int(self.getConfig('timeout', 20))
     expected_http_code = int(self.getConfig('http_code', '200'))
-    curl = pycurl.Curl()
-    curl.setopt(pycurl.URL, url)
-    curl.setopt(pycurl.TIMEOUT, timeout)
-    curl.setopt(pycurl.FOLLOWLOCATION, True)
-    curl.setopt(pycurl.SSL_VERIFYPEER, False)
-    curl.setopt(pycurl.SSL_VERIFYHOST, False)
-    curl.setopt(pycurl.WRITEFUNCTION, lambda x: None)
-
     ca_cert_file = self.getConfig('ca-cert-file')
     cert_file = self.getConfig('cert-file')
     key_file = self.getConfig('key-file')
-    if key_file and cert_file and ca_cert_file:
-      # set certificate configuration
-      curl.setopt(curl.CAINFO, ca_cert_file)
-      curl.setopt(curl.SSLCERT, cert_file)
-      curl.setopt(curl.SSLKEY, key_file)
+
+    if ca_cert_file:
+      verify = ca_cert_file
+    else:
+      verify = False
+
+    if key_file and cert_file:
+      cert = (cert_file, key_file)
+    else:
+      cert = None
 
     try:
-      curl.perform()
-    except pycurl.error, e:
-      code, message = e
-      self.logger.error("%s: %s" % (code, message))
+      result = requests.get(url, verify=verify, allow_redirects=True, timeout=timeout, cert=cert)
+    except requests.ConnectionError as e:
+      self.logger.error(
+        "ERROR connection not possible while accessing %r" % (url, ))
+      return
+    except Exception, e:
+      self.logger.error("ERROR: %s" % (e,))
       return
 
-    http_code = curl.getinfo(pycurl.HTTP_CODE)
+    http_code = result.status_code
     check_secure = self.getConfig('check-secure')
-    curl.close()
     
     if http_code == 0:
       self.logger.error("%s is not available (server not reachable)." % url)
