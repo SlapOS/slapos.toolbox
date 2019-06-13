@@ -11,7 +11,7 @@ class RunPromise(GenericPromise):
 
   def __init__(self, config):
     GenericPromise.__init__(self, config)
-    self.setPeriodicity(minute=20)
+    self.setPeriodicity(float(self.getConfig('frequency', 20)))
 
   def sense(self):
     """
