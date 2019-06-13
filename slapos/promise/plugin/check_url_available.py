@@ -49,13 +49,11 @@ class RunPromise(GenericPromise):
 
     http_code = result.status_code
     check_secure = int(self.getConfig('check-secure', 0))
+    ignore_code = int(self.getConfig('ignore-code', 0))
 
-    if http_code == 0:
-      self.logger.error("%s is not available (server not reachable)." % url)
-    elif http_code == 401 and check_secure == 1:
+    if http_code == 401 and check_secure == 1:
       self.logger.info("%r is protected (returned %s)." % (url, http_code))
-
-    elif http_code != expected_http_code:
+    elif not ignore_code and http_code != expected_http_code:
       self.logger.error("%r is not available (returned %s, expected %s)." % (
         url, http_code, expected_http_code))
     else:

@@ -81,6 +81,7 @@ extra_config_dict = {
   'url': '%(url)s',
   'timeout': %(timeout)s,
   'check-secure': %(check_secure)s,
+  'ignore-code': %(ignore_code)s,
 }
 """
 
@@ -91,7 +92,8 @@ extra_config_dict = {
     content = self.base_content % {
       'url': 'https://',
       'timeout': 10,
-      'check_secure': 0
+      'check_secure': 0,
+      'ignore_code': 0,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -108,7 +110,8 @@ extra_config_dict = {
     content = self.base_content % {
       'url': '',
       'timeout': 10,
-      'check_secure': 0
+      'check_secure': 0,
+      'ignore_code': 0,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -125,7 +128,8 @@ extra_config_dict = {
     content = content = self.base_content % {
       'url': 'https://localhost:56789/site',
       'timeout': 10,
-      'check_secure': 0
+      'check_secure': 0,
+      'ignore_code': 0,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -144,7 +148,8 @@ extra_config_dict = {
     content = content = self.base_content % {
       'url': url,
       'timeout': 10,
-      'check_secure': 0
+      'check_secure': 0,
+      'ignore_code': 0,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -161,7 +166,8 @@ extra_config_dict = {
     content = content = self.base_content % {
       'url': url,
       'timeout': 10,
-      'check_secure': 0
+      'check_secure': 0,
+      'ignore_code': 0,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -174,12 +180,31 @@ extra_config_dict = {
       "%r is not available (returned 401, expected 200)." % (url,)
     )
 
-  def test_check_401_secure(self):
+  def test_check_401_ignore_code(self):
     url = HTTPS_ENDPOINT + '401'
     content = content = self.base_content % {
       'url': url,
       'timeout': 10,
-      'check_secure': 1
+      'check_secure': 0,
+      'ignore_code': 1,
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is available" % (url,)
+    )
+
+  def test_check_401_check_secure(self):
+    url = HTTPS_ENDPOINT + '401'
+    content = content = self.base_content % {
+      'url': url,
+      'timeout': 10,
+      'check_secure': 1,
+      'ignore_code': 0,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
