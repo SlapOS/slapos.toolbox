@@ -136,7 +136,7 @@ extra_config_dict = {
     )
 
   def test_check_url_site_off(self):
-    content = content = self.base_content % {
+    content = self.base_content % {
       'url': 'https://localhost:56789/site',
       'timeout': 10,
       'check_secure': 0,
@@ -156,7 +156,7 @@ extra_config_dict = {
 
   def test_check_200(self):
     url = HTTPS_ENDPOINT + '200'
-    content = content = self.base_content % {
+    content = self.base_content % {
       'url': url,
       'timeout': 10,
       'check_secure': 0,
@@ -174,7 +174,7 @@ extra_config_dict = {
 
   def test_check_401(self):
     url = HTTPS_ENDPOINT + '401'
-    content = content = self.base_content % {
+    content = self.base_content % {
       'url': url,
       'timeout': 10,
       'check_secure': 0,
@@ -193,7 +193,7 @@ extra_config_dict = {
 
   def test_check_401_ignore_code(self):
     url = HTTPS_ENDPOINT + '401'
-    content = content = self.base_content % {
+    content = self.base_content % {
       'url': url,
       'timeout': 10,
       'check_secure': 0,
@@ -211,7 +211,7 @@ extra_config_dict = {
 
   def test_check_401_check_secure(self):
     url = HTTPS_ENDPOINT + '401'
-    content = content = self.base_content % {
+    content = self.base_content % {
       'url': url,
       'timeout': 10,
       'check_secure': 1,
@@ -229,7 +229,7 @@ extra_config_dict = {
 
   def test_check_512_http_code(self):
     url = HTTPS_ENDPOINT + '512'
-    content = content = self.base_content_http_code % {
+    content = self.base_content_http_code % {
       'url': url,
       'timeout': 10,
       'check_secure': 0,
