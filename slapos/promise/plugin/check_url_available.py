@@ -20,7 +20,11 @@ class RunPromise(GenericPromise):
     """
 
     url = self.getConfig('url')
-    timeout = int(self.getConfig('timeout', 20))
+    # make default time a max of 5 seconds, a bit smaller than promise-timeout
+    # and in the same time at least 1 second
+    default_timeout = max(
+      1, min(5, int(self.getConfig('promise-timeout', 20)) - 1))
+    timeout = int(self.getConfig('timeout', default_timeout))
     expected_http_code = int(self.getConfig('http_code', '200'))
     ca_cert_file = self.getConfig('ca-cert-file')
     cert_file = self.getConfig('cert-file')
