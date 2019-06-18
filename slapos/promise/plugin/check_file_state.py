@@ -21,6 +21,7 @@ class RunPromise(GenericPromise):
 
     filename = self.getConfig('filename')
     state = self.getConfig('state')
+    url = self.getConfig('url').strip()
 
     try:
       result = open(filename).read()
@@ -30,8 +31,10 @@ class RunPromise(GenericPromise):
       return
 
     if state == 'empty' and result != '':
-      self.logger.error(
-          "ERROR %r not empty, content:\n%s" % (filename, result))
+      message_list = ['ERROR %r not empty' % (filename,)]
+      if url:
+        message_list.append(', content available in %s' % (url,))
+      self.logger.error(''.join(message_list))
     elif state == 'not-empty' and result == '':
       self.logger.error(
           "ERROR %r empty" % (filename,))
