@@ -1,3 +1,9 @@
+0.94 (2019-06-19)
+=================
+
+ * implement promise.plugin.check_file_state
+ * promise.plugin.check_url_available: set good default timeout
+
 0.93 (2019-06-13)
 =================
 
