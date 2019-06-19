@@ -375,7 +375,7 @@ class QemuQMPWrapper(object):
         if resend:
           result = self._send(command_dict)
       except QmpCommandError as e:
-        print("ERROR: ", str(e))
+        print("ERROR: ", e)
         print("%s\nRetry remove %r in few seconds..." % (result, dev_id))
         resend = True
       else:
