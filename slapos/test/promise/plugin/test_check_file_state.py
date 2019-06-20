@@ -68,18 +68,13 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    if six.PY3:
-      self.assertEqual(
-        result['result']['message'],
-        "ERROR IsADirectoryError(21, 'Is a directory') "
-        "during opening and reading file %r" % (filename,)
-      )
-    else:
-      self.assertEqual(
-        result['result']['message'],
-        "ERROR IOError(21, 'Is a directory') "
-        "during opening and reading file %r" % (filename,)
-      )
+    self.assertEqual(
+      result['result']['message'],
+      "ERROR %s(21, 'Is a directory') "
+      "during opening and reading file %r" % (
+        "IsADirectoryError" if six.PY3 else "IOError",
+        filename)
+    )
 
   def test_check_file_not_exists(self):
     filename = os.path.join(self.tempdir, 'test.file')
@@ -94,18 +89,13 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    if six.PY3:
-      self.assertEqual(
-        result['result']['message'],
-        "ERROR FileNotFoundError(2, 'No such file or directory') "
-        "during opening and reading file %r" % (filename,)
-      )
-    else:
-      self.assertEqual(
-        result['result']['message'],
-        "ERROR IOError(2, 'No such file or directory') "
-        "during opening and reading file %r" % (filename,)
-      )
+    self.assertEqual(
+      result['result']['message'],
+      "ERROR %s(2, 'No such file or directory') "
+      "during opening and reading file %r" % (
+        "FileNotFoundError" if six.PY3 else "IOError",
+        filename)
+    )
 
   def test_check_file_empty(self):
     filename = os.path.join(self.tempdir, 'test.file')

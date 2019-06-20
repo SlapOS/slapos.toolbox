@@ -275,16 +275,11 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    if six.PY3:
-      self.assertEqual(
-        result['result']['message'],
-        "ERROR: Invalid URL 'https://': No host supplied"
-      )
-    else:
-      self.assertEqual(
-        result['result']['message'],
-        "ERROR: Invalid URL u'https://': No host supplied"
-      )
+    self.assertEqual(
+      result['result']['message'],
+      "ERROR: Invalid URL %s'https://': No host supplied" %
+        ('' if six.PY3 else 'u')
+    )
 
   def test_check_url_malformed(self):
     content = self.base_content % {
