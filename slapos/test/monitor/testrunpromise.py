@@ -174,9 +174,9 @@ class RunPromise(GenericPromise):
       u'result': {
         u'failed': False, u'message': u'success', u'type': u'Test Result'
         },
-      u'execution-time': 0.05,
       u'path': u'%s/my_second_promise.py' % self.promise_dir,
     }
+    self.assertIsNotNone(second_result.pop(u'execution-time', None))
     self.assertEqual(expected_result, second_result)
 
   def test_promise_generic_failed(self):

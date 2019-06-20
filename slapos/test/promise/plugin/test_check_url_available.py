@@ -197,8 +197,9 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
   def tearDownClass(cls):
     cls.server_process.terminate()
     cls.server_process.join()
-    # In Py3, the server socket does not seem to be automatically closed.
-    cls.server_process._target.__self__.socket.close()
+    if six.PY3:
+      # In Py3, the server socket does not seem to be automatically closed.
+      cls.server_process._target.__self__.socket.close()
     for p in [
       cls.test_server_certificate_file.name,
       cls.test_server_ca_certificate_file.name,
