@@ -215,10 +215,10 @@ class Monitoring(object):
         response = urllib2.urlopen(url, context=context, timeout=timeout)
       else:
         response = urllib2.urlopen(url, timeout=timeout)
-    except urllib2.HTTPError:
-      print "ERROR: Failed to get Monitor configuration file at %s " % url
-    except (socket.timeout, ssl.SSLError) as e:
-      print "ERROR: Timeout with %r while downloading monitor config at %s " % (e, url)
+    except socket.timeout:
+      print "ERROR: Timeout while downloading monitor config at %s " % url
+    except Exception as e:
+      print "ERROR: Failed to get Monitor configuration file at %s (%s)" % (url, e)
     else:
       try:
         monitor_dict = json.loads(response.read())
