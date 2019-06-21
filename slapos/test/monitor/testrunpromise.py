@@ -339,7 +339,8 @@ class RunPromise(GenericPromise):
     self.assertIsNotNone(result1.pop(u'execution-time', None))
     self.assertEqual(expected_result, result1)
 
-    result2 = json.load(open(result2_file))
+    with open(result2_file) as f:
+      result2 = json.load(f)
     start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
 
     expected_result = {

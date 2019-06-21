@@ -250,7 +250,7 @@ partition-folder = %(base_dir)s
     instance_config = os.path.join(instance.config_folder, '.jio_documents', 'config.json')
     self.assertTrue(os.path.exists(instance_config))
     with open(instance_config) as f:
-      config_content = json.loads(f.read())
+      config_content = json.load(f)
     self.assertEqual(len(config_content), 4)
     key_list = ['', 'sample', 'monitor-password', 'cors-domain']
     for parameter in config_content:
