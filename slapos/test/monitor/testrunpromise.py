@@ -160,7 +160,7 @@ class RunPromise(GenericPromise):
         },
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
-    self.assertIsNotNone(my_result.pop('execution-time', None))
+    self.assertTrue(my_result.pop('execution-time'))
     self.assertEqual(expected_result, my_result)
 
     result_file = os.path.join(self.output_dir, 'my_second_promise.status.json')
@@ -176,7 +176,7 @@ class RunPromise(GenericPromise):
         },
       u'path': u'%s/my_second_promise.py' % self.promise_dir,
     }
-    self.assertIsNotNone(second_result.pop('execution-time', None))
+    self.assertTrue(second_result.pop('execution-time'))
     self.assertEqual(expected_result, second_result)
 
   def test_promise_generic_failed(self):
@@ -198,7 +198,7 @@ class RunPromise(GenericPromise):
         },
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
-    self.assertIsNotNone(my_result.pop('execution-time', None))
+    self.assertTrue(my_result.pop('execution-time'))
     self.assertEqual(expected_result, my_result)
 
   def test_promise_generic_status_change(self):
@@ -220,7 +220,7 @@ class RunPromise(GenericPromise):
         },
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
-    self.assertIsNotNone(my_result.pop('execution-time', None))
+    self.assertTrue(my_result.pop('execution-time'))
     self.assertEqual(expected_result, my_result)
 
     os.system('rm %s/*.pyc' % self.promise_dir)
@@ -240,7 +240,7 @@ class RunPromise(GenericPromise):
         },
       u'path': u'%s/my_promise.py' % self.promise_dir,
     }
-    self.assertIsNotNone(my_result.pop('execution-time', None))
+    self.assertTrue(my_result.pop('execution-time'))
     self.assertEqual(expected_result, my_result)
 
   def test_promise_generic_periodicity(self):
@@ -310,7 +310,7 @@ class RunPromise(GenericPromise):
     with open(result_file) as f:
       result2 = json.load(f)
     start_date2 = datetime.strptime(result2['result'].pop('date'), '%Y-%m-%dT%H:%M:%S+0000')
-    self.assertIsNotNone(result2.pop('execution-time', None))
+    self.assertTrue(result2.pop('execution-time'))
     self.assertEqual(expected_result, result2)
 
   def test_promise_two_folder(self):
@@ -336,7 +336,7 @@ class RunPromise(GenericPromise):
         },
       u'path': u'%s' % promise,
     }
-    self.assertIsNotNone(result1.pop('execution-time', None))
+    self.assertTrue(result1.pop('execution-time'))
     self.assertEqual(expected_result, result1)
 
     with open(result2_file) as f:
@@ -350,7 +350,7 @@ class RunPromise(GenericPromise):
         },
       u'path': u'%s' % promise2,
     }
-    self.assertIsNotNone(result2.pop('execution-time', None))
+    self.assertTrue(result2.pop('execution-time'))
     self.assertEqual(expected_result, result2)
 
   def test_promise_NOK(self):
@@ -371,7 +371,7 @@ class RunPromise(GenericPromise):
         },
       u'path': u'%s' % promise,
     }
-    self.assertIsNotNone(result1.pop('execution-time', None))
+    self.assertTrue(result1.pop('execution-time'))
     self.assertEqual(expected_result, result1)
 
     # second run
@@ -380,7 +380,7 @@ class RunPromise(GenericPromise):
     with open(result_file) as f:
       result2 = json.load(f)
     result2['result'].pop('date')
-    self.assertIsNotNone(result2.pop('execution-time', None))
+    self.assertTrue(result2.pop('execution-time'))
     self.assertEqual(expected_result, result2)
 
   def test_promise_mixed(self):
@@ -401,7 +401,7 @@ class RunPromise(GenericPromise):
         },
       u'path': u'%s' % promise,
     }
-    self.assertIsNotNone(result1.pop('execution-time', None))
+    self.assertTrue(result1.pop('execution-time'))
     self.assertEqual(expected_result, result1)
 
     # second run with failure
@@ -416,6 +416,6 @@ class RunPromise(GenericPromise):
     with open(result_file) as f:
       result2 = json.load(f)
     result2['result'].pop('date')
-    self.assertIsNotNone(result2.pop('execution-time', None))
+    self.assertTrue(result2.pop('execution-time'))
     self.assertEqual(expected_result, result2)
 
