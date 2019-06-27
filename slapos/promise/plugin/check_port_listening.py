@@ -30,9 +30,9 @@ class RunPromise(GenericPromise):
     #    self.logger.info("port connection OK")
     try:
       socket.create_connection(addr).close()
-    except (socket.herror, socket.gaierror), e:
+    except (socket.herror, socket.gaierror) as e:
       self.logger.error("ERROR hostname/port ({}) is not correct: {}".format(addr, e))
-    except (socket.error, socket.timeout), e:
+    except (socket.error, socket.timeout) as e:
       self.logger.error("ERROR while connecting to {}: {}".format(addr, e))
     else:
       self.logger.info("port connection OK ({})".format(addr))

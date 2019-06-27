@@ -144,7 +144,7 @@ def serve(config):
       result = cloneRepo(repo_url, repository_path)
       if branch_name:
         switchBranch(repository_path, branch_name)
-  except GitCommandError, e:
+  except GitCommandError as e:
     app.logger.warning('Error while cloning default repository: %s' % str(e))
     traceback.print_exc()
   # Start slapproxy here when runner is starting

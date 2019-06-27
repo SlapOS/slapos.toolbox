@@ -59,7 +59,7 @@ def install(key, secret, service, image_id, size_id, location_id,
       keypair = driver.ex_create_keypair(unique_keyname)
       ssh_key = keypair['keyMaterial']
       argument_list['ex_keyname'] = unique_keyname
-    except Exception, e:
+    except Exception as e:
       # XX-Cedric : what to do here?
       if e.args[0].find("InvalidKeyPair.Duplicate") == -1:
         # XXX-Cedric : our unique key was not so unique...Do something
@@ -82,7 +82,7 @@ def install(key, secret, service, image_id, size_id, location_id,
   if 'EC2' in service:
     try:
       driver.ex_create_security_group(security_group, security_group)
-    except Exception, e:
+    except Exception as e:
       if e.args[0].find("InvalidPermission.Duplicate") == -1:
         pass #It's okay, don't worry.
     driver.ex_authorize_security_group_permissive(security_group)
