@@ -8,7 +8,7 @@ from datetime import datetime
 class RunPromise(GenericPromise):
 
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     self.setPeriodicity(minute=1)
 
   def sense(self):

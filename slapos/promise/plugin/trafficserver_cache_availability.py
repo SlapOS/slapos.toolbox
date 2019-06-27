@@ -1,4 +1,4 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
@@ -7,12 +7,10 @@ try:
 except ImportError:
   import subprocess
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
-
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     self.setPeriodicity(minute=int(self.getConfig('frequency', 5)))
 
   def sense(self):
@@ -31,16 +29,17 @@ class RunPromise(GenericPromise):
       self.logger.error("Wrapper %r not supported." % (wrapper,))
       return
 
-    process = subprocess.Popen(
+    try:
+      subprocess.subprocess.check_output(
         args,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-    )
-    result = process.communicate()[0].strip()
-    if process.returncode == 0:
-      self.logger.info("OK")
+      )
+    except subprocess.CalledProcessError as e:
+      self.logger.error(message, result if str is bytes else
+                                 result.decode('utf-8', 'replace'))
     else:
-      self.logger.error(message % (result,))
+      self.logger.info("OK")
 
   def anomaly(self):
     """

@@ -1,16 +1,14 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
 import socket
 import sys
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
-
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     # check port is listening at least every 2 minutes
     self.setPeriodicity(minute=2)
 
@@ -30,9 +28,9 @@ class RunPromise(GenericPromise):
     #    self.logger.info("port connection OK")
     try:
       socket.create_connection(addr).close()
-    except (socket.herror, socket.gaierror), e:
+    except (socket.herror, socket.gaierror) as e:
       self.logger.error("ERROR hostname/port ({}) is not correct: {}".format(addr, e))
-    except (socket.error, socket.timeout), e:
+    except (socket.error, socket.timeout) as e:
       self.logger.error("ERROR while connecting to {}: {}".format(addr, e))
     else:
       self.logger.info("port connection OK ({})".format(addr))
