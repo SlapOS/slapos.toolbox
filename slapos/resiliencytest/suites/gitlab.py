@@ -167,7 +167,7 @@ class GitlabTestSuite(SlaprunnerTestSuite):
     while loop < 3:
       try:
         self._connectToGitlab(url=self.backend_url)
-      except Exception, e:
+      except Exception as e:
         if loop == 2:
           raise
         self.logger.warning(str(e))

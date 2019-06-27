@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import argparse
 import csv
 import datetime
@@ -79,7 +80,7 @@ def main():
   saveStatus('STARTED')
 
   if args.max_run <= 0:
-    print "--max-run argument takes a strictely positive number as argument"
+    print("--max-run argument takes a strictely positive number as argument")
     sys.exit(-1)
 
   while args.max_run > 0:
@@ -108,7 +109,7 @@ def main():
             content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
         ))
 
-  print content
+  print(content)
 
   # Write feed safely
   error_message = ""
@@ -128,7 +129,7 @@ def main():
         'slapos:%s' % uuid.uuid4(),
       ])
     os.rename(temp_file, args.logfile[0])
-  except Exception, e:
+  except Exception as e:
     error_message = "ERROR ON WRITING FEED - %s" % str(e)
   finally:
     try:
@@ -143,7 +144,7 @@ def main():
   if exit_code != 0:
     sys.exit(exit_code)
 
-  print 'Fetching %s feed...' % args.feed_url[0]
+  print('Fetching %s feed...' % args.feed_url[0])
 
   feed = urllib2.urlopen(args.feed_url[0])
   body = feed.read()

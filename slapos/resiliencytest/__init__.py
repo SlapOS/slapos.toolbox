@@ -26,6 +26,7 @@
 #
 ##############################################################################
 
+from __future__ import print_function
 import argparse
 import json
 import importlib
@@ -228,7 +229,7 @@ def runResiliencyTest():
   """
   error_message_set, exit_status = ScalabilityLauncher().run()
   for error_message in error_message_set:
-    print >>sys.stderr, 'ERROR: %s' % error_message
+    print('ERROR: %s' % error_message, file=sys.stderr)
 
   sys.exit(exit_status)
 

@@ -22,7 +22,7 @@ def stop(key, secret, service, node_uuid, ssh_key=None):
     ssh = getSSHConnection(driver, public_ip, ssh_key)
     print('Stopping instance...')
     stdin, stdout, stderr = ssh.exec_command('halt')
-  except SSHException, e:
+  except SSHException as e:
     print('unable to stop')
     raise e
   error_log = stderr.read()
