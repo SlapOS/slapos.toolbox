@@ -93,7 +93,7 @@ from slapos.grid.promise import GenericPromise
 class RunPromise(GenericPromise):
 
  def __init__(self, config):
-   GenericPromise.__init__(self, config)
+   super(RunPromise, self).__init__(config)
    self.setPeriodicity(minute=%(periodicity)s)
 
  def sense(self):

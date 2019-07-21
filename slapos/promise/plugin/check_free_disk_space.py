@@ -16,7 +16,7 @@ from slapos.collect.db import Database
 class RunPromise(GenericPromise):
 
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     # check disk space at least every 3 minutes
     self.setPeriodicity(minute=3)
 

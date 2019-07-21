@@ -1,4 +1,4 @@
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
@@ -7,12 +7,10 @@ try:
 except ImportError:
   import subprocess
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
-
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     self.setPeriodicity(minute=int(self.getConfig('frequency', 5)))
 
   def sense(self):
@@ -23,10 +21,10 @@ class RunPromise(GenericPromise):
 
     if 'traffic_line' in wrapper:
       args = [wrapper, '-r',  'proxy.node.cache.percent_free']
-      message = "Cache not available, availability: %s"
+      message = "Cache not available, availability:"
     elif 'traffic_ctl' in wrapper:
       args = [wrapper, 'metric', 'get', 'proxy.process.cache.percent_full']
-      message = "Cache not available, occupation: %s"
+      message = "Cache not available, occupation:"
     else:
       self.logger.error("Wrapper %r not supported." % (wrapper,))
       return
@@ -40,7 +38,7 @@ class RunPromise(GenericPromise):
     if process.returncode == 0:
       self.logger.info("OK")
     else:
-      self.logger.error(message % (result,))
+      self.logger.error(message, result)
 
   def anomaly(self):
     """
