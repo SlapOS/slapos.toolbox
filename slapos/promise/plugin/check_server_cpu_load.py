@@ -9,7 +9,7 @@ import os
 class RunPromise(GenericPromise):
 
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     # test load every 3 minutes
     self.setPeriodicity(minute=3)
 
@@ -24,7 +24,8 @@ class RunPromise(GenericPromise):
     max_load = core_count * tolerance
     if long_load > max_load:
       # display top statistics
-      top_result = subprocess.check_output(['top', '-n', '1', '-b'])
+      top_result = subprocess.check_output(['top', '-n', '1', '-b'],
+                                           universal_newlines=True)
       message = "CPU load is high: %s %s %s\n\n" % (load, load5, long_load)
       i = 0
       result_list = top_result.split('\n')

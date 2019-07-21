@@ -72,8 +72,8 @@ def subprocess_capture(p, log, log_prefix, get_output=True):
     stdout_thread.join()
   if p.stderr:
     stderr_thread.join()
-  return (p.stdout and ''.join(stdout),
-          p.stderr and ''.join(stderr))
+  return (p.stdout and b''.join(stdout),
+          p.stderr and b''.join(stderr))
 
 class EqueueServer(socketserver.ThreadingUnixStreamServer):
 

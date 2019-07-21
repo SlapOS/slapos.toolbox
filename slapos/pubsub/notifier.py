@@ -80,8 +80,7 @@ def main():
   saveStatus('STARTED')
 
   if args.max_run <= 0:
-    print("--max-run argument takes a strictely positive number as argument")
-    sys.exit(-1)
+    parser.error("--max-run argument takes a strictly positive number as argument")
 
   while args.max_run > 0:
     try:
