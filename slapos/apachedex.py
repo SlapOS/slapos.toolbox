@@ -100,7 +100,6 @@ def main():
   process_handler = subprocess.Popen(argument_list,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE,
-                                     universal_newlines=True,
                                      )
 
   stdout, stderr = process_handler.communicate()
