@@ -214,7 +214,8 @@ class ResiliencyTestSuite(object):
         if 'monitor' in promise:
           continue
         try:
-          process = subprocess.check_output(os.path.join(promise_directory, promise))
+          process = subprocess.check_output(os.path.join(promise_directory, promise),
+                                            stderr=subprocess.STDOUT, shell=True)
         except subprocess.CalledProcessError as e:
           self.logger.error('ERROR : promise "%s" failed with output :\n%s', promise, e.output)
           return False
