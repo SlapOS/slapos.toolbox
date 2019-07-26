@@ -72,8 +72,8 @@ def subprocess_capture(p, log, log_prefix, get_output=True):
     stdout_thread.join()
   if p.stderr:
     stderr_thread.join()
-  return (p.stdout and b''.join(stdout),
-          p.stderr and b''.join(stderr))
+  return (p.stdout and ''.join(stdout),
+          p.stderr and ''.join(stderr))
 
 class EqueueServer(socketserver.ThreadingUnixStreamServer):
 
@@ -131,7 +131,7 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
       try:
         sys.stdout.flush()
         p = subprocess.Popen(cmd_list, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+                             stderr=subprocess.PIPE, universal_newlines=True)
         subprocess_capture(p, self.logger.info, '', True)
         if p.returncode == 0:
           self.logger.info("%s finished successfully.", cmd_readable)
