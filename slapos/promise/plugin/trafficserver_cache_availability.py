@@ -21,10 +21,10 @@ class RunPromise(GenericPromise):
 
     if 'traffic_line' in wrapper:
       args = [wrapper, '-r',  'proxy.node.cache.percent_free']
-      message = "Cache not available, availability:"
+      message = "Cache not available, availability: %s"
     elif 'traffic_ctl' in wrapper:
       args = [wrapper, 'metric', 'get', 'proxy.process.cache.percent_full']
-      message = "Cache not available, occupation:"
+      message = "Cache not available, occupation: %s"
     else:
       self.logger.error("Wrapper %r not supported." % (wrapper,))
       return
