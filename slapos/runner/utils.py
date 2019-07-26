@@ -744,7 +744,7 @@ def readFileFrom(f, lastPosition, limit=20000):
   # XXX-Marco do now shadow 'bytes'
   bytes = f.tell()
   block = -1
-  data = ""
+  data = b""
   length = bytes
   truncated = False  # True if a part of log data has been truncated
   if (lastPosition <= 0 and length > limit) or (length - lastPosition > limit):

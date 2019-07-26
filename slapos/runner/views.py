@@ -505,7 +505,7 @@ def slapgridResult():
   if request.form['log'] in ['software', 'instance']:
     log_file = request.form['log'] + "_log"
     if os.path.exists(app.config[log_file]):
-      log_result = readFileFrom(open(app.config[log_file]),
+      log_result = readFileFrom(open(app.config[log_file], 'rb'),
                                 int(request.form['position']))
   build_result = getSlapgridResult(app.config, 'software')
   run_result = getSlapgridResult(app.config, 'instance')
