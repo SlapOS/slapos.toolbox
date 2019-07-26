@@ -445,7 +445,7 @@ def svcStopAll(config):
   try:
     return Popen([config['slapos'], 'node', 'supervisorctl', '--cfg', config['configuration_file_path'],
                   'stop', 'all']).communicate()[0]
-  except:
+  except Exception:
     pass
 
 def svcStartAll(config):
@@ -453,7 +453,7 @@ def svcStartAll(config):
   try:
     return Popen([config['slapos'], 'node', 'supervisorctl', '--cfg', config['configuration_file_path'],
                   'start', 'all']).communicate()[0]
-  except:
+  except Exception:
     pass
 
 def removeInstanceRootDirectory(config):
@@ -601,7 +601,7 @@ def newSoftware(folder, config, session):
       softwareContent = ""
       try:
         softwareContent = urlopen(software).read()
-      except:
+      except Exception:
         #Software.cfg and instance.cfg content will be empty
         pass
       with open(os.path.join(folderPath, config['software_profile']), 'w') as f:
@@ -799,7 +799,7 @@ def md5sum(file):
           break
         m.update(data)
       return m.hexdigest()
-  except:
+  except Exception:
     return False
 
 

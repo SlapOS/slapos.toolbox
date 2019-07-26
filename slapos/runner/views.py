@@ -259,7 +259,7 @@ def getFileLog():
       with open(file_path) as f:
         content = f.read()
     return jsonify(code=1, result=html_escape(content))
-  except:
+  except Exception:
     return jsonify(code=0, result="Warning: Log file doesn't exist yet or empty log!!")
 
 
@@ -717,7 +717,7 @@ def fileBrowser():
                 filename)
       try:
         return send_file(result, attachment_filename=filename, as_attachment=True)
-      except:
+      except Exception:
         abort(404)
     elif opt == 9:
       result = file_request.readFile(dir, filename, False)

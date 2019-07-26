@@ -172,7 +172,7 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
 
     try:
       request.send(command)
-    except:
+    except Exception:
       self.logger.warning("Couldn't respond to %r", request.fileno())
     self.close_request(request)
     self._runCommandIfNeeded(command, timestamp)

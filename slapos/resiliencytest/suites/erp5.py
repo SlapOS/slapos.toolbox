@@ -213,7 +213,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
       try:
         if "erp5" == self._getCreatedERP5SiteId():
           break
-      except:
+      except Exception:
         self.logger.info("Fail to connect to erp5.... wait a bit longer")
         pass
 
