@@ -29,16 +29,17 @@ class RunPromise(GenericPromise):
       self.logger.error("Wrapper %r not supported." % (wrapper,))
       return
 
-    process = subprocess.Popen(
+    try:
+      subprocess.subprocess.check_output(
         args,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-    )
-    result = process.communicate()[0].strip()
-    if process.returncode == 0:
-      self.logger.info("OK")
+      )
+    except subprocess.CalledProcessError as e:
+      self.logger.error(message, result if str is bytes else
+                                 result.decode('utf-8', 'replace'))
     else:
-      self.logger.error(message, result)
+      self.logger.info("OK")
 
   def anomaly(self):
     """
