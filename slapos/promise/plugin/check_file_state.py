@@ -22,7 +22,8 @@ class RunPromise(GenericPromise):
     url = self.getConfig('url').strip()
 
     try:
-      result = open(filename).read()
+      with open(filename) as f:
+        result = f.read()
     except Exception as e:
       self.logger.error(
         "ERROR %r during opening and reading file %r" % (e, filename))

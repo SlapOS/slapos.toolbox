@@ -37,10 +37,8 @@ setup(name=name,
         'Flask', # needed by servers
         'atomize', # needed by pubsub
         'feedparser', # needed by pubsub
-        'apache_libcloud>=0.4.0', # needed by cloudmgr
         'lockfile', # used by equeue
         'lxml', # needed for xml parsing
-        'paramiko', # needed by cloudmgr
         'psutil', # needed for playing with processes in portable way
         'setuptools', # namespaces
         'slapos.core', # as it provides library for slap
@@ -79,13 +77,6 @@ setup(name=name,
           'check-feed-as-promise = slapos.checkfeedaspromise:main',
           'check-apachedex-result = slapos.promise.check_apachedex_result:main',
           'check-slow-queries-digest-result = slapos.promise.check_slow_queries_digest_result:main',
-          'clouddestroy = slapos.cloudmgr.destroy:main',
-          'cloudgetprivatekey = slapos.cloudmgr.getprivatekey:main',
-          'cloudgetpubliciplist = slapos.cloudmgr.getpubliciplist:main',
-          'cloudlist = slapos.cloudmgr.list:main',
-          'cloudmgr = slapos.cloudmgr.cloudmgr:main',
-          'cloudstart = slapos.cloudmgr.start:main',
-          'cloudstop = slapos.cloudmgr.stop:main',
           'equeue = slapos.equeue:main',
           'generatefeed = slapos.generatefeed:main',
           'htpasswd = slapos.htpasswd:main',
