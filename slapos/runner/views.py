@@ -251,7 +251,7 @@ def getFileLog():
     file_path = realpath(app.config, logfile)
   try:
     if not os.path.exists(file_path):
-      raise IOError
+      raise IOError("%s does not exist" % file_path)
     if not isText(file_path):
       content = "Can not open binary file, please select a text file!"
     with open(file_path) as f:
@@ -260,8 +260,8 @@ def getFileLog():
       else:
         content = f.read()
     return jsonify(code=1, result=html_escape(content))
-  except Exception:
-    return jsonify(code=0, result="Warning: Log file doesn't exist yet or empty log!!")
+  except Exception as e:
+    return jsonify(code=0, result="Warning: Log file doesn't exist yet or empty log!!\n%s" % e)
 
 
 def stopAllPartition():
