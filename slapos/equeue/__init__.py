@@ -42,12 +42,10 @@ from six.moves import socketserver
 import io
 import threading
 
-import six
-
-if six.PY3:
+try:
   logging_levels = logging._nameToLevel
   logging_choices = logging_levels.keys()
-else:
+except AttributeError:
   logging_levels = logging._levelNames
   logging_choices = [i for i in logging_levels
                      if isinstance(i, str)]
