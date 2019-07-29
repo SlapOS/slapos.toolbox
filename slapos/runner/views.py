@@ -254,10 +254,10 @@ def getFileLog():
       raise IOError
     if not isText(file_path):
       content = "Can not open binary file, please select a text file!"
-    if 'truncate' in request.form:
-      content = tail(open(file_path), int(request.form['truncate']))
-    else:
-      with open(file_path) as f:
+    with open(file_path) as f:
+      if 'truncate' in request.form:
+        content = tail(f, int(request.form['truncate']))
+      else:
         content = f.read()
     return jsonify(code=1, result=html_escape(content))
   except Exception:
