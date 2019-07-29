@@ -15,6 +15,7 @@ from flask import (Flask, request, redirect, url_for, render_template,
                    g, flash, jsonify, session, abort, send_file)
 
 import slapos
+from slapos.util import bytes2str
 from slapos.runner.utils import (checkSoftwareFolder, configNewSR, checkUserCredential,
                                  createNewUser, getBuildAndRunParams,
                                  getProfilePath, getSlapgridResult,
@@ -505,8 +506,8 @@ def slapgridResult():
   if request.form['log'] in ['software', 'instance']:
     log_file = request.form['log'] + "_log"
     if os.path.exists(app.config[log_file]):
-      log_result = readFileFrom(open(app.config[log_file], 'rb'),
-                                int(request.form['position']))
+      with open(app.config[log_file], 'rb') as f:
+        log_result = bytes2str(readFileFrom(f, int(request.form['position'])))
   build_result = getSlapgridResult(app.config, 'software')
   run_result = getSlapgridResult(app.config, 'instance')
   software_info = {'state':software_state,

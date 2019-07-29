@@ -766,7 +766,6 @@ def readFileFrom(f, lastPosition, limit=20000):
       data = f.read(BUFSIZ - margin) + data
     bytes -= BUFSIZ
     block -= 1
-  f.close()
   return {
     'content': data,
     'position': length,
