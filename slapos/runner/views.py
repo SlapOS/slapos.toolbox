@@ -261,7 +261,7 @@ def getFileLog():
         content = f.read()
     return jsonify(code=1, result=html_escape(content))
   except Exception:
-    return jsonify(code=0, result="Warning: Log file doesn't exist yet or empty log!!")
+    return jsonify(code=0, result="Warning: Log file doesn't exist yet or empty log!!\n%s\n%s" % (request.form, file_path))
 
 
 def stopAllPartition():
