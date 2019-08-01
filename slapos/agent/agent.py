@@ -345,8 +345,8 @@ def main():
             
             # Select an unused computer to run the test.
             group = test_mapping.getNextGroup(
-              ignore_list = [group for _, _, group in \
-                           running_test_dict.itervalues()])
+              ignore_list = [group for _, _, group in
+                             six.itervalues(running_test_dict)])
     
             # Select a test 
             test_line = test_result.start(
@@ -455,7 +455,7 @@ def main():
               logger.info('Sleeping %is...', to_sleep)
               time.sleep(to_sleep)
             if not test_result.isAlive():
-              for _, tester, computer_id in running_test_dict.itervalues():
+              for _, tester, computer_id in six.itervalues(running_test_dict):
                 tester.teardown()
 
       time.sleep(300)    
