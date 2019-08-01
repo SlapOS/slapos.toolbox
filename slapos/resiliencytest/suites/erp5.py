@@ -34,7 +34,7 @@ import ssl
 import string
 import time
 from six.moves.urllib.parse import quote
-from six.moves.urllib.request import HTTPBasicAuthHandler, HTTPSHandler,
+from six.moves.urllib.request import HTTPBasicAuthHandler, HTTPSHandler, \
                                      build_opener
 
 class NotHttpOkException(Exception):

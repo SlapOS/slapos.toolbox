@@ -106,7 +106,7 @@ class FileBrowser(object):
     realdir = self._realdir(dir)
     folder = os.path.join(realdir, filename)
     if not os.path.exists(folder):
-      os.mkdir(folder, 0744)
+      os.mkdir(folder, 0o744)
       return "{result: '1'}"
     else:
       return "{result: '0'}"

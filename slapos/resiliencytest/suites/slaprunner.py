@@ -36,7 +36,7 @@ import random
 import ssl
 import string
 import time
-from six.moves.urllib.request import HTTPCookieProcessor, HTTPSHandler,
+from six.moves.urllib.request import HTTPCookieProcessor, HTTPSHandler, \
                                      build_opener
 from six.moves.urllib.error import HTTPError
 
