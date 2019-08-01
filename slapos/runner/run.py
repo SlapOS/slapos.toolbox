@@ -2,13 +2,12 @@
 # vim: set et sts=2:
 # pylint: disable-msg=W0311,C0301,C0103,C0111,R0904,R0903
 
-import ConfigParser
+from six.moves import configparser
 import datetime
 import flask
 import logging
 import logging.handlers
 import os
-import urlparse
 from slapos.htpasswd import HtpasswdFile
 from slapos.runner.process import setHandler
 import sys
@@ -36,7 +35,7 @@ class Config:
     self.configuration_file_path = os.path.abspath(os.getenv('RUNNER_CONFIG'))
 
     # Load configuration file
-    configuration_parser = ConfigParser.SafeConfigParser()
+    configuration_parser = configparser.SafeConfigParser()
     configuration_parser.read(self.configuration_file_path)
 
     for section in ("slaprunner", "slapos", "slapproxy", "slapformat",
@@ -152,10 +151,10 @@ def serve(config):
   startProxy(app.config)
   app.logger.info('Running slapgrid...')
   if app.config['auto_deploy_instance'] in TRUE_VALUES:
-    import thread
+    from six.moves import _thread
     # XXX-Nicolas: Hack to be sure that supervisord has started
     # before any communication with it, so that gunicorn doesn't exit
-    thread.start_new_thread(waitForRun, (app.config,))
+    _thread.start_new_thread(waitForRun, (app.config,))
   config.logger.info('Done.')
   app.wsgi_app = ProxyFix(app.wsgi_app)
 
@@ -166,7 +165,7 @@ def waitForRun(config):
 
 
 def getUpdatedParameter(self, var):
-  configuration_parser = ConfigParser.SafeConfigParser()
+  configuration_parser = configparser.SafeConfigParser()
   configuration_file_path = os.path.abspath(os.getenv('RUNNER_CONFIG'))
   configuration_parser.read(configuration_file_path)
 

@@ -29,7 +29,7 @@
 from .resiliencytestsuite import ResiliencyTestSuite
 
 import base64
-import cookielib
+from six.moves import http_cookiejar as cookielib
 import json
 from lxml import etree
 import random

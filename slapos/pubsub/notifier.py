@@ -6,7 +6,7 @@ import argparse
 import csv
 import datetime
 import json
-import httplib
+from six.moves import http_client as httplib
 import os
 import shutil
 import socket
@@ -15,7 +15,7 @@ import sys
 import time
 import traceback
 from six.moves.urllib.request import urlopen
-import urlparse
+from six.moves.urllib.parse import urlparse
 import uuid
 
 def createStatusItem(item_directory, instance_name, callback, date, link, status):
@@ -150,7 +150,7 @@ def main():
 
   some_notification_failed = False
   for notif_url in args.notification_url:
-    notification_url = urlparse.urlparse(notif_url)
+    notification_url = urlparse(notif_url)
 
     notification_port = notification_url.port
     if notification_port is None:
