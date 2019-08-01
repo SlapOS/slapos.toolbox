@@ -96,7 +96,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     # We expect only one service haproxy
     haproxy_service, = [
         x['service_name'] for x in service_information_list
-        if 'haproxy' in x['service_name']
+        if x['service_name'].startswith('haproxy-')
     ]
     haproxy_slappart = haproxy_service.split(':', 1)[0]
 
