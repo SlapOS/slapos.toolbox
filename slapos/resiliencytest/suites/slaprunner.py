@@ -36,8 +36,9 @@ import random
 import ssl
 import string
 import time
-import urllib2
-import urllib
+from six.moves.urllib.request import HTTPCookieProcessor, HTTPSHandler,
+                                     build_opener
+from six.moves.urllib.error import HTTPError
 
 class NotHttpOkException(Exception):
   pass
@@ -52,9 +53,9 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
     cookie_jar = cookielib.CookieJar()
     ssl_context = ssl._create_unverified_context()
 
-    self._opener_director = urllib2.build_opener(
-        urllib2.HTTPCookieProcessor(cookie_jar),
-        urllib2.HTTPSHandler(context=ssl_context)
+    self._opener_director = build_opener(
+        HTTPCookieProcessor(cookie_jar),
+        HTTPSHandler(context=ssl_context)
     )
 
     ResiliencyTestSuite.__init__(self, *args, **kwargs)
@@ -95,7 +96,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
       if result.getcode() is not 200:
         raise NotHttpOkException(result.getcode())
       return result.read()
-    except urllib2.HTTPError:
+    except HTTPError:
       self.logger.error('Error when contacting slaprunner at URL: {}'.format(url))
       raise
 
@@ -164,7 +165,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
       """
       try:
         return self._connectToSlaprunner(resource='isSRReady')
-      except (NotHttpOkException, urllib2.HTTPError) as error:
+      except (NotHttpOkException, HTTPError) as error:
         # The nginx frontend might timeout before software release is finished.
         self.logger.warning('Problem occured when contacting the server: %s' % error)
         return -1
@@ -187,7 +188,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
     self.logger.info('Building the Software Release...')
     try:
       self._connectToSlaprunner(resource='runSoftwareProfile')
-    except (NotHttpOkException, urllib2.HTTPError):
+    except (NotHttpOkException, HTTPError):
       # The nginx frontend might timeout before software release is finished.
       pass
 
@@ -197,7 +198,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
     self.logger.info('Deploying instance...')
     try:
       self._connectToSlaprunner(resource='runInstanceProfile')
-    except (NotHttpOkException, urllib2.HTTPError):
+    except (NotHttpOkException, HTTPError):
       # The nginx frontend might timeout before someftware release is finished.
       pass
     while True:
@@ -219,7 +220,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
       if data['code'] == 0:
         self.logger.warning(data['result'])
 
-    except (NotHttpOkException, urllib2.HTTPError):
+    except (NotHttpOkException, HTTPError):
       # cloning can be very long.
       # XXX: quite dirty way to check.
       while self._connectToSlaprunner('getProjectStatus', data='project=workspace/slapos').find('On branch master') == -1:

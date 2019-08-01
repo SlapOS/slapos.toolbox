@@ -14,7 +14,7 @@ import subprocess
 import sys
 import time
 import traceback
-import urllib2
+from six.moves.urllib.request import urlopen
 import urlparse
 import uuid
 
@@ -145,7 +145,7 @@ def main():
 
   print('Fetching %s feed...' % args.feed_url[0])
 
-  feed = urllib2.urlopen(args.feed_url[0])
+  feed = urlopen(args.feed_url[0])
   body = feed.read()
 
   some_notification_failed = False

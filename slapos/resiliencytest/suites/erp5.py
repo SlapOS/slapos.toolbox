@@ -33,8 +33,9 @@ import random
 import ssl
 import string
 import time
-import urllib
-import urllib2
+from six.moves.urllib.parse import quote
+from six.moves.urllib.request import HTTPBasicAuthHandler, HTTPSHandler,
+                                     build_opener
 
 class NotHttpOkException(Exception):
   pass
@@ -50,7 +51,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     Set inside of slaprunner the instance parameter to use to deploy erp5 instance.
     """
     p = '<?xml version="1.0" encoding="utf-8"?> <instance> <parameter id="_">{"zodb-zeo": {"backup-periodicity": "*:1/4"}, "mariadb": {"backup-periodicity": "*:1/4"}}</parameter> </instance>'
-    parameter = urllib2.quote(p)
+    parameter = quote(p)
     self._connectToSlaprunner(
         resource='saveParameterXml',
         data='software_type=default&parameter=%s' % parameter)
@@ -109,7 +110,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
         resource='/saveFileContent',
         data='file=runner_workdir%%2Finstance%%2F%s%%2Fetc%%2Fhaproxy.cfg&content=%s' % (
             haproxy_slappart,
-            urllib.quote(file_content),
+            quote(file_content),
         )
     )
 
@@ -133,12 +134,12 @@ class ERP5TestSuite(SlaprunnerTestSuite):
   def _connectToERP5(self, url, data=None, password=None):
     if password is None:
       password = self._getERP5Password()
-    auth_handler = urllib2.HTTPBasicAuthHandler()
+    auth_handler = HTTPBasicAuthHandler()
     auth_handler.add_password(realm='Zope', uri=url, user='zope', passwd=password)
     ssl_context = ssl._create_unverified_context()
-    opener_director = urllib2.build_opener(
+    opener_director = build_opener(
         auth_handler,
-        urllib2.HTTPSHandler(context=ssl_context)
+        HTTPSHandler(context=ssl_context)
     )
     self.logger.info('Calling ERP5 url %s' % url)
 
