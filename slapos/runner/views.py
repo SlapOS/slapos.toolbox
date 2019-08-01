@@ -160,7 +160,8 @@ def removeSoftware():
 
 
 def runSoftwareProfile():
-  _thread.start_new_thread(runSlapgridUntilSuccess, (app.config, "software"))
+  _thread.start_new_thread(runSlapgridUntilSuccess,
+    (app.config, "software", True))
   return jsonify(result=True)
 
 
@@ -233,7 +234,8 @@ def removeInstance():
 def runInstanceProfile():
   if not os.path.exists(app.config['instance_root']):
     os.mkdir(app.config['instance_root'])
-  _thread.start_new_thread(runSlapgridUntilSuccess, (app.config, "instance"))
+  _thread.start_new_thread(runSlapgridUntilSuccess,
+    (app.config, "instance", True))
   return jsonify(result=True)
 
 

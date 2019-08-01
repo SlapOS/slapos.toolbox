@@ -892,11 +892,20 @@ def buildAndRun(config):
   runInstanceWithLock(config)
 
 
-def runSlapgridUntilSuccess(config, step):
+def runSlapgridUntilSuccess(config, step, bang=False):
   """Run slapos several times,
   in the maximum of the constant MAX_RUN_~~~~"""
   params = getBuildAndRunParams(config)
   if step == "instance":
+    if bang:
+      # We'd prefer that 'node instance' is invoked with --all but that's
+      # not possible with current design. The alternative is to bang,
+      # assuming that the requested partition is partition 0.
+      slap = slapos.slap.slap()
+      slap.initializeConnection(config['master_url'])
+      partition = slap.registerComputerPartition(
+        config['computer_id'], 'slappart0')
+      partition.bang('manual instantiation')
     max_tries = (params['max_run_instance'] if params['run_instance'] else 0)
     runSlapgridWithLock = runInstanceWithLock
   elif step == "software":
@@ -928,7 +937,7 @@ def runSlapgridUntilSuccess(config, step):
   # run instance only if we are deploying the software release,
   # if it is defined so, and sr is correctly deployed
   if step == "software" and params['run_instance'] and slapgrid == 0:
-    return (max_tries, runSlapgridUntilSuccess(config, "instance"))
+    return (max_tries, runSlapgridUntilSuccess(config, "instance", bang))
   else:
     return max_tries
 
