@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import argparse
 import csv
 import datetime
 import json
-import httplib
+from six.moves import http_client as httplib
 import os
 import shutil
 import socket
@@ -13,8 +14,8 @@ import subprocess
 import sys
 import time
 import traceback
-import urllib2
-import urlparse
+from six.moves.urllib.request import urlopen
+from six.moves.urllib.parse import urlparse
 import uuid
 
 def createStatusItem(item_directory, instance_name, callback, date, link, status):
@@ -79,8 +80,7 @@ def main():
   saveStatus('STARTED')
 
   if args.max_run <= 0:
-    print "--max-run argument takes a strictely positive number as argument"
-    sys.exit(-1)
+    parser.error("--max-run argument takes a strictly positive number as argument")
 
   while args.max_run > 0:
     try:
@@ -108,7 +108,7 @@ def main():
             content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
         ))
 
-  print content
+  print(content)
 
   # Write feed safely
   error_message = ""
@@ -128,7 +128,7 @@ def main():
         'slapos:%s' % uuid.uuid4(),
       ])
     os.rename(temp_file, args.logfile[0])
-  except Exception, e:
+  except Exception as e:
     error_message = "ERROR ON WRITING FEED - %s" % str(e)
   finally:
     try:
@@ -143,14 +143,14 @@ def main():
   if exit_code != 0:
     sys.exit(exit_code)
 
-  print 'Fetching %s feed...' % args.feed_url[0]
+  print('Fetching %s feed...' % args.feed_url[0])
 
-  feed = urllib2.urlopen(args.feed_url[0])
+  feed = urlopen(args.feed_url[0])
   body = feed.read()
 
   some_notification_failed = False
   for notif_url in args.notification_url:
-    notification_url = urlparse.urlparse(notif_url)
+    notification_url = urlparse(notif_url)
 
     notification_port = notification_url.port
     if notification_port is None:

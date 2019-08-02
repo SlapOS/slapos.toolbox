@@ -89,19 +89,19 @@ def setup(arguments):
       time.sleep(3)
       continue
     time.sleep(timeout)
-    if arguments.has_key('delete_target'):
+    if 'delete_target' in arguments:
       delete(arguments)
 
-    if arguments.has_key('source'):
+    if 'source' in arguments:
       rename(arguments)
 
-    if arguments.has_key('script'):
+    if 'script' in arguments:
       run_script(arguments)
 
-    if arguments.has_key('sql_script'):
+    if 'sql_script' in arguments:
       run_sql_script(arguments)
 
-    if arguments.has_key('chmod_target'):
+    if 'chmod_target' in arguments:
       chmod(arguments)
     return
 

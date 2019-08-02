@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import division, print_function
 
 import argparse
 import itertools
@@ -11,6 +11,7 @@ import time
 
 from datetime import datetime
 from .runner_utils import *
+from six.moves import map
 
 os.environ['LC_ALL'] = 'C'
 os.umask(0o77)
@@ -102,7 +103,7 @@ def getBackupFilesModifiedDuringExportList(config, export_start_date):
   export_time = time.time() - export_start_date
   # find all files that were modified during export
   modified_files = subprocess.check_output((
-      'find', 'instance', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
+      'find', 'instance', '-cmin',  str(export_time / 60), '-type', 'f', '-path', '*/srv/backup/*'
     ))
   if not modified_files:
     return ()
@@ -119,7 +120,7 @@ def getBackupFilesModifiedDuringExportList(config, export_start_date):
     '--relative',
     '--no-implied-dirs'
   ]
-  rsync_arg_list += map("--exclude={}".format, getExcludePathList(os.getcwd()))
+  rsync_arg_list += list(map("--exclude={}".format, getExcludePathList(os.getcwd())))
   rsync_arg_list += '.', 'unexisting_dir_or_file_just_to_have_the_output'
   process = subprocess.Popen(rsync_arg_list, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   output = process.communicate(modified_files)[0]

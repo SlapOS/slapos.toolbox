@@ -42,6 +42,14 @@ from six.moves import socketserver
 import io
 import threading
 
+try:
+  logging_levels = logging._nameToLevel
+  logging_choices = logging_levels.keys()
+except AttributeError:
+  logging_levels = logging._levelNames
+  logging_choices = [i for i in logging_levels
+                     if isinstance(i, str)]
+
 # Copied from erp5.util:erp5/util/testnode/ProcessManager.py
 def subprocess_capture(p, log, log_prefix, get_output=True):
   def readerthread(input, output, buffer):
@@ -81,9 +89,9 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
 
   def __init__(self, *args, **kw):
     self.options = kw.pop('equeue_options')
-    super(EqueueServer, self).__init__(self,
-                                       RequestHandlerClass=None,
-                                       *args, **kw)
+    socketserver.ThreadingUnixStreamServer.__init__(self,
+                                                    RequestHandlerClass=None,
+                                                    *args, **kw)
     # Equeue Specific elements
     self.setLogger(self.options.logfile[0], self.options.loglevel[0])
     self.setDB(self.options.database[0])
@@ -99,7 +107,7 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
     self.logger = logging.getLogger("EQueue")
     handler = logging.handlers.WatchedFileHandler(logfile, mode='a')
     # Natively support logrotate
-    level = logging._levelNames.get(loglevel, logging.INFO)
+    level = logging_levels.get(loglevel, logging.INFO)
     self.logger.setLevel(level)
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
@@ -131,7 +139,7 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
       try:
         sys.stdout.flush()
         p = subprocess.Popen(cmd_list, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+                             stderr=subprocess.PIPE, universal_newlines=True)
         subprocess_capture(p, self.logger.info, '', True)
         if p.returncode == 0:
           self.logger.info("%s finished successfully.", cmd_readable)
@@ -172,7 +180,7 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
 
     try:
       request.send(command)
-    except:
+    except Exception:
       self.logger.warning("Couldn't respond to %r", request.fileno())
     self.close_request(request)
     self._runCommandIfNeeded(command, timestamp)
@@ -193,8 +201,7 @@ def main():
                       "calls are stored")
   parser.add_argument('--loglevel', nargs=1,
                       default='INFO',
-                      choices=[i for i in logging._levelNames
-                               if isinstance(i, str)],
+                      choices=logging_choices,
                       required=False)
   parser.add_argument('-l', '--logfile', nargs=1, required=True,
                       help="Path to the log file.")

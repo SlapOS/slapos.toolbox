@@ -34,7 +34,7 @@ import os
 import subprocess
 import sys
 import time
-import urllib2
+from six.moves.urllib.request import urlopen
 
 UNIT_TEST_ERP5TESTNODE = 'UnitTest'
 
@@ -85,13 +85,13 @@ class ResiliencyTestSuite(object):
     takeover_url = root_partition_parameter_dict['takeover-%s-%s-url' % (namebase, target_clone)]
     takeover_password = root_partition_parameter_dict['takeover-%s-%s-password' % (namebase, target_clone)]
     # Connect to takeover web interface
-    takeover_page_content = urllib2.urlopen(takeover_url).read()
+    takeover_page_content = urlopen(takeover_url).read()
     # Wait for importer script to be not running
     while 'Importer script(s) of backup in progress: True' in takeover_page_content:
       time.sleep(10)
-      takeover_page_content = urllib2.urlopen(takeover_url).read()
+      takeover_page_content = urlopen(takeover_url).read()
     # Do takeover
-    takeover_result = urllib2.urlopen('%s?password=%s' % (takeover_url, takeover_password)).read()
+    takeover_result = urlopen('%s?password=%s' % (takeover_url, takeover_password)).read()
     if 'Error' in takeover_result:
       raise Exception('Error while doing takeover: %s' % takeover_result)
 
@@ -214,7 +214,8 @@ class ResiliencyTestSuite(object):
         if 'monitor' in promise:
           continue
         try:
-          process = subprocess.check_output(os.path.join(promise_directory, promise))
+          subprocess.check_output(os.path.join(promise_directory, promise),
+                                  stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
           self.logger.error('ERROR : promise "%s" failed with output :\n%s', promise, e.output)
           return False

@@ -70,7 +70,8 @@ def getSession(config):
   """
   user_path = os.path.join(config['etc_dir'], '.htpasswd')
   if os.path.exists(user_path):
-    return open(user_path).read().split(';')
+    with open(user_path) as f:
+      return f.read().split(';')
 
 def checkUserCredential(config, username, password):
   htpasswdfile = os.path.join(config['etc_dir'], '.htpasswd')
@@ -125,8 +126,8 @@ def getCurrentSoftwareReleaseProfile(config):
   Returns used Software Release profile as a string.
   """
   try:
-    software_folder = open(
-        os.path.join(config['etc_dir'], ".project")).read().rstrip()
+    with open(os.path.join(config['etc_dir'], ".project")) as f:
+        software_folder = f.read().rstrip()
     return realpath(
         config, os.path.join(software_folder, config['software_profile']))
   # XXXX No Comments
@@ -141,9 +142,11 @@ def requestInstance(config, software_type=None):
   software_type_path = os.path.join(config['etc_dir'], ".software_type.xml")
   if software_type:
     # Write it to conf file for later use
-    open(software_type_path, 'w').write(software_type)
+    with open(software_type_path, 'w') as f:
+      f.write(software_type)
   elif os.path.exists(software_type_path):
-    software_type = open(software_type_path).read().rstrip()
+    with open(software_type_path) as f:
+      software_type = f.read().rstrip()
   else:
     software_type = 'default'
 
@@ -261,7 +264,8 @@ def slapgridResultToFile(config, step, returncode, datetime):
   filename = step + "_info.json"
   file = os.path.join(config['runner_workdir'], filename)
   result = {'last_build':datetime, 'success':returncode}
-  open(file, "w").write(json.dumps(result))
+  with open(file, "w") as f:
+    f.write(json.dumps(result))
 
 
 def getSlapgridResult(config, step):
@@ -359,7 +363,8 @@ def config_SR_folder(config):
   for path in os.listdir(config['software_link']):
     cfg_path = os.path.join(config['software_link'], path, config_name)
     if os.path.exists(cfg_path):
-      cfg = open(cfg_path).read().split("#")
+      with open(cfg_path) as f:
+        cfg = f.read().split("#")
       if len(cfg) != 2:
         continue  # there is a broken config file
       software_link_list.append(cfg[1])
@@ -382,7 +387,8 @@ def loadSoftwareRList(config):
   for path in os.listdir(config['software_link']):
     cfg_path = os.path.join(config['software_link'], path, config_name)
     if os.path.exists(cfg_path):
-      cfg = open(cfg_path).read().split("#")
+      with open(cfg_path) as f:
+        cfg = f.read().split("#")
       if len(cfg) != 2:
         continue  # there is a broken config file
       sr_list.append(dict(md5=cfg[1], path=cfg[0], title=path))
@@ -409,7 +415,8 @@ def getProfilePath(projectDir, profile):
   """
   if not os.path.exists(os.path.join(projectDir, ".project")):
     return False
-  projectFolder = open(os.path.join(projectDir, ".project")).read()
+  with open(os.path.join(projectDir, ".project")) as f:
+    projectFolder = f.read()
   return os.path.join(projectFolder, profile)
 
 
@@ -438,7 +445,7 @@ def svcStopAll(config):
   try:
     return Popen([config['slapos'], 'node', 'supervisorctl', '--cfg', config['configuration_file_path'],
                   'stop', 'all']).communicate()[0]
-  except:
+  except Exception:
     pass
 
 def svcStartAll(config):
@@ -446,7 +453,7 @@ def svcStartAll(config):
   try:
     return Popen([config['slapos'], 'node', 'supervisorctl', '--cfg', config['configuration_file_path'],
                   'start', 'all']).communicate()[0]
-  except:
+  except Exception:
     pass
 
 def removeInstanceRootDirectory(config):
@@ -567,7 +574,8 @@ def configNewSR(config, projectpath):
     sup_process.stopProcess(config, 'slapgrid-sr')
     logger.warning("User opened a new SR. Removing all instances...")
     removeCurrentInstance(config)
-    open(os.path.join(config['etc_dir'], ".project"), 'w').write(projectpath)
+    with open(os.path.join(config['etc_dir'], ".project"), 'w') as f:
+      f.write(projectpath)
     return True
   else:
     return False
@@ -593,12 +601,15 @@ def newSoftware(folder, config, session):
       softwareContent = ""
       try:
         softwareContent = urlopen(software).read()
-      except:
+      except Exception:
         #Software.cfg and instance.cfg content will be empty
         pass
-      open(os.path.join(folderPath, config['software_profile']), 'w').write(softwareContent)
-      open(os.path.join(folderPath, config['instance_profile']), 'w').write("")
-      open(os.path.join(basedir, ".project"), 'w').write(folder + "/")
+      with open(os.path.join(folderPath, config['software_profile']), 'w') as f:
+        f.write(softwareContent)
+      with open(os.path.join(folderPath, config['instance_profile']), 'w') as f:
+        f.write("")
+      with open(os.path.join(basedir, ".project"), 'w') as f:
+        f.write(folder + "/")
       #Clean sapproxy Database
       stopProxy(config)
       removeProxyDb(config)
@@ -633,7 +644,8 @@ def getProjectTitle(config):
   if instance_name:
     instance_name = '%s - ' % instance_name
   if os.path.exists(conf):
-    project = open(conf, "r").read().split("/")
+    with open(conf, "r") as f:
+      project = f.read().split("/")
     software = project[-2]
     return '%s%s (%s)' % (instance_name, software, '/'.join(project[:-2]))
   return "%sNo Profile" % instance_name
@@ -643,7 +655,8 @@ def getSoftwareReleaseName(config):
   """Get the name of the current Software Release"""
   sr_profile = os.path.join(config['etc_dir'], ".project")
   if os.path.exists(sr_profile):
-    project = open(sr_profile, "r").read().split("/")
+    with open(sr_profile, "r") as f:
+      project = f.read().split("/")
     software = project[-2]
     return software.replace(' ', '_')
   return None
@@ -731,7 +744,7 @@ def readFileFrom(f, lastPosition, limit=20000):
   # XXX-Marco do now shadow 'bytes'
   bytes = f.tell()
   block = -1
-  data = ""
+  data = b""
   length = bytes
   truncated = False  # True if a part of log data has been truncated
   if (lastPosition <= 0 and length > limit) or (length - lastPosition > limit):
@@ -753,7 +766,6 @@ def readFileFrom(f, lastPosition, limit=20000):
       data = f.read(BUFSIZ - margin) + data
     bytes -= BUFSIZ
     block -= 1
-  f.close()
   return {
     'content': data,
     'position': length,
@@ -761,16 +773,14 @@ def readFileFrom(f, lastPosition, limit=20000):
   }
 
 
+text_range = str2bytes(''.join(map(chr, [7, 8, 9, 10, 12, 13, 27]
+                                        + list(range(0x20, 0x100)))))
 def isText(file):
   """Return True if the mimetype of file is Text"""
-  if not os.path.exists(file):
-    return False
-  text_range = str2bytes(''.join(map(chr, [7, 8, 9, 10, 12, 13, 27]
-                                          + list(range(0x20, 0x100)))))
-  is_binary_string = lambda bytes: bool(bytes.translate(None, text_range))
   try:
-    return not is_binary_string(open(file).read(1024))
-  except:
+    with open(file, 'rb') as f:
+      return not f.read(1024).translate(None, text_range)
+  except Exception:
     return False
 
 
@@ -780,15 +790,15 @@ def md5sum(file):
   if os.path.isdir(file):
     return False
   try:
-    fh = open(file, 'rb')
-    m = hashlib.md5()
-    while True:
-      data = fh.read(8192)
-      if not data:
-        break
-      m.update(data)
-    return m.hexdigest()
-  except:
+    with open(file, 'rb') as fh:
+      m = hashlib.md5()
+      while True:
+        data = fh.read(8192)
+        if not data:
+          break
+        m.update(data)
+      return m.hexdigest()
+  except Exception:
     return False
 
 
@@ -949,10 +959,12 @@ def setMiniShellHistory(config, command):
   command = command + "\n"
   history_file = config['minishell_history_file']
   if os.path.exists(history_file):
-    history = open(history_file, 'r').readlines()
+    with open(history_file, 'r') as f:
+      history = f.readlines()
     if len(history) >= history_max_size:
       del history[0]
   else:
     history = []
   history.append(command)
-  open(history_file, 'w+').write(''.join(history))
+  with open(history_file, 'w+') as f:
+    f.write(''.join(history))

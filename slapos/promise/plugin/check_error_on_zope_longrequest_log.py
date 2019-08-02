@@ -12,7 +12,7 @@ r = re.compile(br"^([0-9]+\-[0-9]+\-[0-9]+ [0-9]+\:[0-9]+\:[0-9]+)(\,[0-9]+) - (
 @implementer(interface.IPromise)
 class RunPromise(GenericPromise):
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     self.setPeriodicity(minute=10)
 
   def sense(self):
