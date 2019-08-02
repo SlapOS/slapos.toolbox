@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 from six.moves import configparser
 import argparse
 from six.moves import dbm_gnu as gdbm
@@ -27,7 +28,7 @@ def main():
     if args.pid is not None:
         pid_filename = args.pid[0]
         if os.path.exists(pid_filename):
-            print >> sys.stderr, "Already running"
+            print("Already running", file=sys.stderr)
             return 127
         with open(pid_filename, 'w') as pid_file:
             pid_file.write(str(os.getpid()))

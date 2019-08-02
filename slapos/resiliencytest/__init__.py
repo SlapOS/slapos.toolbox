@@ -26,6 +26,7 @@
 #
 ##############################################################################
 
+from __future__ import print_function
 import argparse
 import json
 import importlib
@@ -120,7 +121,7 @@ def runTestSuite(test_suite_title, test_suite_arguments, logger):
     parsed_arguments = dict(key.split('=') for key in test_suite_arguments)
     test_suite_module = importFrom(test_suite_title)
     success = test_suite_module.runTestSuite(**parsed_arguments)
-  except:
+  except Exception:
     logger.exception('Impossible to run resiliency test:')
     success = False
   return success
@@ -228,7 +229,7 @@ def runResiliencyTest():
   """
   error_message_set, exit_status = ScalabilityLauncher().run()
   for error_message in error_message_set:
-    print >>sys.stderr, 'ERROR: %s' % error_message
+    print('ERROR: %s' % error_message, file=sys.stderr)
 
   sys.exit(exit_status)
 
@@ -284,7 +285,5 @@ def runUnitTest():
                     test_count=1,
                     error_count=error_count,
                     duration=test_duration)
-  except:
-    raise
   finally:
     os.remove(fname)

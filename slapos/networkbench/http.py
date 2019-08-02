@@ -14,7 +14,7 @@ def get_curl(buffer, url):
   result = "OK"
   try:
     curl.perform()
-  except:
+  except Exception:
     import traceback
     traceback.print_exc(file=sys.stderr)
     sys.stderr.flush()

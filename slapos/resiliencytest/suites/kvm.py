@@ -32,7 +32,7 @@ import logging
 import random
 import string
 import time
-import urllib
+from six.moves.urllib.request import urlopen
 
 logger = logging.getLogger('KVMResiliencyTest')
 
@@ -45,7 +45,7 @@ def fetchKey(ip):
   new_key = None
   for i in range(0, 10):
     try:
-      new_key = urllib.urlopen('http://%s:10080/get' % ip).read().strip()
+      new_key = urlopen('http://%s:10080/get' % ip).read().strip()
       break
     except IOError:
       logger.error('Server in new KVM does not answer.')
@@ -148,7 +148,7 @@ class KVMTestSuite(ResiliencyTestSuite):
     for i in range(0, 60):
       failure = False
       try:
-        connection = urllib.urlopen('http://%s:10080/set?key=%s' % (self.ip, self.key))
+        connection = urlopen('http://%s:10080/set?key=%s' % (self.ip, self.key))
         if connection.getcode() is 200:
           break
         else:

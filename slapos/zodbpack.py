@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ZODB.FileStorage
 import ZODB.serialize
 import argparse
@@ -16,24 +17,24 @@ def run():
 
   point = now - (3600 * 24 * args.days)
 
-  print 'Now is %s' % time.asctime(time.localtime(now))
-  print 'Will pack until %s' % time.asctime(time.localtime(point))
+  print('Now is', time.asctime(time.localtime(now)))
+  print('Will pack until', time.asctime(time.localtime(point)))
   failures = 0
   for f in args.files:
     b = time.time()
-    print 'Trying to pack %r' % f
+    print('Trying to pack %r' % f)
     try:
       pack(point, f)
     except Exception:
-      print 'Failed to pack %r:' % f
+      print('Failed to pack %r:' % f)
       traceback.print_exc()
       failures += 1
-    print 'Finished %s in %.3fs' % (f, time.time() - b)
+    print('Finished %s in %.3fs' % (f, time.time() - b))
   if failures:
-    print 'Failed files: %s' % failures
+    print('Failed files: %s' % failures)
     return failures
   else:
-    print 'All files sucessfully packed.'
+    print('All files sucessfully packed.')
     return 0
 
 def pack(point, f):

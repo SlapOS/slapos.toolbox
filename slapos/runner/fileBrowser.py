@@ -7,7 +7,7 @@ import md5
 import os
 import re
 import shutil
-import urllib
+from six.moves.urllib.parse import unquote
 import zipfile
 import fnmatch
 
@@ -22,7 +22,7 @@ class FileBrowser(object):
     self.config = config
 
   def _realdir(self, dir):
-    realdir = realpath(self.config, urllib.unquote(dir))
+    realdir = realpath(self.config, unquote(dir))
     if not realdir:
       raise NameError('Could not load directory %s: Permission denied' % dir)
     return realdir
@@ -45,7 +45,7 @@ class FileBrowser(object):
     """List elements of directory 'dir' taken"""
     html = 'var gsdirs = [], gsfiles = [];'
 
-    dir = urllib.unquote(dir)
+    dir = unquote(dir)
     # XXX-Marco 'dir' and 'all' should not shadow builtin names
     realdir = realpath(self.config, dir)
     if not realdir:
@@ -74,7 +74,7 @@ class FileBrowser(object):
     return html
 
   def fancylistDirs(self, dir, key, listfiles, all=False):
-    dir = urllib.unquote(dir)
+    dir = unquote(dir)
     realdir = realpath(self.config, dir)
     if not realdir:
       raise NameError('Could not load directory %s: Permission denied' % dir)
@@ -106,7 +106,7 @@ class FileBrowser(object):
     realdir = self._realdir(dir)
     folder = os.path.join(realdir, filename)
     if not os.path.exists(folder):
-      os.mkdir(folder, 0744)
+      os.mkdir(folder, 0o744)
       return "{result: '1'}"
     else:
       return "{result: '0'}"
@@ -125,7 +125,7 @@ class FileBrowser(object):
     """Delete a list of files or directories"""
     # XXX-Marco do not shadow 'dir'
     realdir = self._realdir(dir)
-    lfiles = urllib.unquote(files).split(',,,')
+    lfiles = unquote(files).split(',,,')
     try:
       # XXX-Marco do not shadow 'file'
       for item in lfiles:
@@ -147,7 +147,7 @@ class FileBrowser(object):
   def copyItem(self, dir, files, del_source=False):
     """Copy a list of files or directory to dir"""
     realdir = self._realdir(dir)
-    lfiles = urllib.unquote(files).split(',,,')
+    lfiles = unquote(files).split(',,,')
     try:
       # XXX-Marco do not shadow 'file'
       for file in lfiles:
@@ -174,7 +174,7 @@ class FileBrowser(object):
   def rename(self, dir, filename, newfilename):
     """Rename file or directory to dir/filename"""
     realdir = self._realdir(dir)
-    realfile = realpath(self.config, urllib.unquote(filename))
+    realfile = realpath(self.config, unquote(filename))
     if not realfile:
       raise NameError('Could not load directory %s: Permission denied' % filename)
     tofile = os.path.join(realdir, newfilename)
@@ -208,7 +208,7 @@ class FileBrowser(object):
   def downloadFile(self, dir, filename):
     """Download file dir/filename"""
     realdir = self._realdir(dir)
-    file = os.path.join(realdir, urllib.unquote(filename))
+    file = os.path.join(realdir, unquote(filename))
     if not os.path.exists(file):
       raise NameError('NOT ALLOWED OPERATION : File or directory does not exist %s'
                       % os.path.join(dir, filename))
@@ -255,8 +255,8 @@ class FileBrowser(object):
 
   def readFile(self, dir, filename, truncate=False):
     """Read file dir/filename and return content"""
-    realfile = realpath(self.config, os.path.join(urllib.unquote(dir),
-                        urllib.unquote(filename)))
+    realfile = realpath(self.config, os.path.join(unquote(dir),
+                        unquote(filename)))
     if not realfile:
       raise NameError('Could not load directory %s: Permission denied' % dir)
     if not isText(realfile):

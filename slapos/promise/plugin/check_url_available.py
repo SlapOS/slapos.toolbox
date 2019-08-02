@@ -8,7 +8,7 @@ import requests
 @implementer(interface.IPromise)
 class RunPromise(GenericPromise):
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     # SR can set custom periodicity
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
 
