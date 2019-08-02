@@ -4,6 +4,7 @@ import argparse
 import sys
 import os
 import signal
+from six.moves import map
 
 def killpidfromfile():
   """deprecated: use below kill() instead"""
@@ -50,7 +51,7 @@ def kill():
     parser.error('Unknown signal name %s' % args.signal)
 
   pid = args.pidfile and [int(open(p).read()) for p in args.pidfile]
-  exe = args.exe and map(os.path.realpath, args.exe)
+  exe = args.exe and list(map(os.path.realpath, args.exe))
 
   import psutil
   r = 1

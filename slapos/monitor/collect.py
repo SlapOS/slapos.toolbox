@@ -293,17 +293,17 @@ def main():
 
   if process_result and process_result['total_process'] != 0.0:
     appendToJsonFile(process_file, ", ".join(
-      [str(process_result[key]) for key in label_list if process_result.has_key(key)])
+      str(process_result[key]) for key in label_list if key in process_result)
     )
     resource_status_dict.update(process_result)
   if memory_result and memory_result['memory_rss'] != 0.0:
     appendToJsonFile(mem_file, ", ".join(
-      [str(memory_result[key]) for key in label_list if memory_result.has_key(key)])
+      str(memory_result[key]) for key in label_list if key in memory_result)
     )
     resource_status_dict.update(memory_result)
   if io_result and io_result['io_rw_counter'] != 0.0:
     appendToJsonFile(io_file, ", ".join(
-      [str(io_result[key]) for key in label_list if io_result.has_key(key)])
+      str(io_result[key]) for key in label_list if key in io_result)
     )
     resource_status_dict.update(io_result)
 

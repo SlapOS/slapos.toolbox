@@ -16,7 +16,7 @@ from slapos.collect.db import Database
 class RunPromise(GenericPromise):
 
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     # check disk space at least every 3 minutes
     self.setPeriodicity(minute=3)
 
@@ -131,7 +131,7 @@ class RunPromise(GenericPromise):
               min_free_size = int(min_size_str)*1024*1024
       else:
         with open(disk_threshold_file, 'w') as f:
-          f.write(str(min_free_size/(1024*1024)))
+          f.write(str(min_free_size//(1024*1024)))
 
     if check_date:
       # testing mode

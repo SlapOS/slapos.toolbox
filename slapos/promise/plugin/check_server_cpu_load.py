@@ -9,22 +9,23 @@ import os
 class RunPromise(GenericPromise):
 
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     # test load every 3 minutes
     self.setPeriodicity(minute=3)
 
   def checkCPULoad(self, tolerance=2.2):
 
     # tolerance=1.5 => accept CPU load up to 1.5 =150%
-    uptime_result = subprocess.check_output(['uptime'], universal_newlines=True)
+    uptime_result = subprocess.check_output('uptime', universal_newlines=True)
     line = uptime_result.strip().split(' ')
     load, load5, long_load = line[-3:]
     long_load = float(long_load.replace(',', '.'))
-    core_count = int(subprocess.check_output(['nproc']).strip())
+    core_count = int(subprocess.check_output('nproc').strip())
     max_load = core_count * tolerance
     if long_load > max_load:
       # display top statistics
-      top_result = subprocess.check_output(['top', '-n', '1', '-b'])
+      top_result = subprocess.check_output(('top', '-n', '1', '-b'),
+                                           universal_newlines=True)
       message = "CPU load is high: %s %s %s\n\n" % (load, load5, long_load)
       i = 0
       result_list = top_result.split('\n')

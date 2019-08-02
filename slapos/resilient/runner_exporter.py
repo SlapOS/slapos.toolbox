@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import division, print_function
 
 import argparse
 import itertools
@@ -11,6 +11,7 @@ import time
 
 from datetime import datetime
 from .runner_utils import *
+from six.moves import map
 
 os.environ['LC_ALL'] = 'C'
 os.umask(0o77)
@@ -102,7 +103,7 @@ def getBackupFilesModifiedDuringExportList(config, export_start_date):
   export_time = time.time() - export_start_date
   # find all files that were modified during export
   modified_files = subprocess.check_output((
-      'find', 'instance', '-cmin',  str(export_time / 60.), '-type', 'f', '-path', '*/srv/backup/*'
+      'find', 'instance', '-cmin',  str(export_time / 60), '-type', 'f', '-path', '*/srv/backup/*'
     ))
   if not modified_files:
     return ()

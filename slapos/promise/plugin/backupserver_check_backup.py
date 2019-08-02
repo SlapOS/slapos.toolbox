@@ -16,7 +16,7 @@ from tzlocal import get_localzone
 class RunPromise(GenericPromise):
 
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     # check backup ran OK every 5 minutes
     self.setPeriodicity(minute=5)
 

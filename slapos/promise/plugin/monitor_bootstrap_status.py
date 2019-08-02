@@ -10,7 +10,7 @@ from .util import tail_file
 class RunPromise(GenericPromise):
 
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     self.setPeriodicity(minute=2)
 
   def sense(self):

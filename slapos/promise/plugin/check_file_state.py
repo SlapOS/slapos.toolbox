@@ -6,7 +6,7 @@ from slapos.grid.promise.generic import GenericPromise
 @implementer(interface.IPromise)
 class RunPromise(GenericPromise):
   def __init__(self, config):
-    GenericPromise.__init__(self, config)
+    super(RunPromise, self).__init__(config)
     # SR can set custom periodicity
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
 
@@ -22,7 +22,8 @@ class RunPromise(GenericPromise):
     url = self.getConfig('url').strip()
 
     try:
-      result = open(filename).read()
+      with open(filename) as f:
+        result = f.read()
     except Exception as e:
       self.logger.error(
         "ERROR %r during opening and reading file %r" % (e, filename))

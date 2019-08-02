@@ -15,6 +15,7 @@ from flask import (Flask, request, redirect, url_for, render_template,
                    g, flash, jsonify, session, abort, send_file)
 
 import slapos
+from slapos.util import bytes2str
 from slapos.runner.utils import (checkSoftwareFolder, configNewSR, checkUserCredential,
                                  createNewUser, getBuildAndRunParams,
                                  getProfilePath, getSlapgridResult,
@@ -253,13 +254,13 @@ def getFileLog():
       raise IOError
     if not isText(file_path):
       content = "Can not open binary file, please select a text file!"
-    if 'truncate' in request.form:
-      content = tail(open(file_path), int(request.form['truncate']))
-    else:
-      with open(file_path) as f:
+    with open(file_path) as f:
+      if 'truncate' in request.form:
+        content = tail(f, int(request.form['truncate']))
+      else:
         content = f.read()
     return jsonify(code=1, result=html_escape(content))
-  except:
+  except Exception:
     return jsonify(code=0, result="Warning: Log file doesn't exist yet or empty log!!")
 
 
@@ -505,8 +506,8 @@ def slapgridResult():
   if request.form['log'] in ['software', 'instance']:
     log_file = request.form['log'] + "_log"
     if os.path.exists(app.config[log_file]):
-      log_result = readFileFrom(open(app.config[log_file]),
-                                int(request.form['position']))
+      with open(app.config[log_file], 'rb') as f:
+        log_result = bytes2str(readFileFrom(f, int(request.form['position'])))
   build_result = getSlapgridResult(app.config, 'software')
   run_result = getSlapgridResult(app.config, 'instance')
   software_info = {'state':software_state,
@@ -717,7 +718,7 @@ def fileBrowser():
                 filename)
       try:
         return send_file(result, attachment_filename=filename, as_attachment=True)
-      except:
+      except Exception:
         abort(404)
     elif opt == 9:
       result = file_request.readFile(dir, filename, False)
