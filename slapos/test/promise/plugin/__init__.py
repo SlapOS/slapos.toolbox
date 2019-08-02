@@ -28,11 +28,14 @@ import os, shutil
 import tempfile
 import unittest
 import json
+from .. import data
 from slapos.grid.promise import PromiseLauncher
 from slapos.grid.promise.generic import (PROMISE_RESULT_FOLDER_NAME,
                                          PROMISE_LOG_FOLDER_NAME)
 
 class TestPromisePluginMixin(unittest.TestCase):
+
+  base_path, = data.__path__
 
   def setUp(self):
     self.partition_dir = tempfile.mkdtemp()

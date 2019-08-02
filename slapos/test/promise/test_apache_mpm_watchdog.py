@@ -33,12 +33,11 @@ import psutil
 from slapos.promise.apache_mpm_watchdog import watchServerStatus, \
   loadJSONFile, writeJSONFile, getServerStatus, search_pid_regex
 
-from slapos.test.promise import data
+from . import data
 
 class TestApacheMPMWatchdog(unittest.TestCase):
 
-  def setUp(self):
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
+  base_path, = data.__path__
 
   def text_searchPidRegex(self):
 

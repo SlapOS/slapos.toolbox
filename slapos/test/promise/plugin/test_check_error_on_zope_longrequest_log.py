@@ -27,7 +27,6 @@
 
 from slapos.test.promise.plugin import TestPromisePluginMixin
 import os
-from slapos.test.promise import data
 import time
 from slapos.grid.promise import PromiseError
 
@@ -37,7 +36,6 @@ class TestCheckErrorOnZopeLongrequestLog(TestPromisePluginMixin):
   def setUp(self):
     TestPromisePluginMixin.setUp(self)
     self.promise_name = "check-error-on-zope_longrequest-log.py"
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     self.log_file = self.base_path + "/longrequest_logger_zope.log"
     self.test_log_file = self.base_path + "/SOFTINST-0_longrequest_logger_zope.log"
     self._update_logs()

@@ -32,7 +32,7 @@ import tempfile
 import datetime
 import shutil
 
-from slapos.test.promise import data
+from . import data
 from slapos.promise.check_apachedex_result import checkApachedexResult
 
 apdex_not_found_message = "No result found in the apdex file or the file is corrupted"
@@ -41,6 +41,8 @@ ok_message_formater = "OK - Score: {}%"
 skip_message = "Instance has been just deployed. Skipping check.."
 
 class TestCheckApacheDigestResult(unittest.TestCase):
+
+  base_path, = data.__path__
 
   def _create_file(self, date, with_content):
     content = ''
@@ -59,8 +61,6 @@ class TestCheckApacheDigestResult(unittest.TestCase):
     os.remove(self.base_dir+name)
 
   def setUp(self):
-
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     self.base_dir = "/tmp/ap/"
     if not os.path.exists(self.base_dir):
       os.makedirs(self.base_dir)

@@ -30,15 +30,16 @@ import os
 import sqlite3
 from datetime import datetime
 
-from slapos.test.promise import data
+from . import data
 from slapos.promise.check_user_memory import getMemoryInfo, checkMemoryUsage
 
 no_result_message = "No result found in collector.db."
 
 class TestUserMemory(unittest.TestCase):
 
+  base_path, = data.__path__
+
   def setUp(self):
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     self.status = "ok"
     self.db_file = '/tmp/collector.db'
     self.db_dir = os.path.dirname(self.db_file)

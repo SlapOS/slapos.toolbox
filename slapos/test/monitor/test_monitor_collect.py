@@ -30,13 +30,14 @@ import os
 import sqlite3
 import time
 
-from slapos.test.promise import data
+from ..promise import data
 from slapos.monitor.collect import ResourceCollect
 
 class TestMonitorCollect(unittest.TestCase):
 
+  base_path, = data.__path__
+
   def setUp(self):
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     self.status = "ok"
 
     # populate db
@@ -48,7 +49,6 @@ class TestMonitorCollect(unittest.TestCase):
 
     # inititalise
     self.collector = ResourceCollect('/tmp/')
-    
 
   def test_getPartitionUsedMemoryAverage(self):
     self.assertEqual(1195.492578125,

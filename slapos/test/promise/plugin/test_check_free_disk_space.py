@@ -29,7 +29,6 @@ from slapos.test.promise.plugin import TestPromisePluginMixin
 from slapos.grid.promise import PromiseError
 import os
 import sqlite3
-from slapos.test.promise import data
 from slapos.grid.promise import PromiseError
 
 class TestCheckFreeDiskSpace(TestPromisePluginMixin):
@@ -40,7 +39,6 @@ class TestCheckFreeDiskSpace(TestPromisePluginMixin):
     os.makedirs(log_folder)
 
     self.db_file = '/tmp/collector.db'
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
 
     # populate db
     self.conn = sqlite3.connect(self.db_file)

@@ -32,10 +32,12 @@ import tempfile
 import datetime
 import shutil
 
-from slapos.test.promise import data
+from . import data
 from slapos.promise.check_slow_queries_digest_result import checkMariadbDigestResult
 
 class TestCheckSlowQueriesDigestResult(unittest.TestCase):
+
+  base_path, = data.__path__
 
   def _create_file(self, date, with_content):
     content = ''
@@ -54,8 +56,6 @@ class TestCheckSlowQueriesDigestResult(unittest.TestCase):
     os.remove(self.base_dir+name)
 
   def setUp(self):
-
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     self.base_dir = "/tmp/ap/"
     if not os.path.exists(self.base_dir):
       os.makedirs(self.base_dir)

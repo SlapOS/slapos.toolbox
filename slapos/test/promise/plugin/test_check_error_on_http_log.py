@@ -28,7 +28,6 @@
 from slapos.test.promise.plugin import TestPromisePluginMixin
 import os
 import time
-from slapos.test.promise import data
 from slapos.grid.promise import PromiseError
 
 class TestCheckErrorOnHttpLog(TestPromisePluginMixin):
@@ -61,7 +60,6 @@ class TestCheckErrorOnHttpLog(TestPromisePluginMixin):
     log_folder = os.path.join(self.partition_dir, 'var/log')
     os.makedirs(log_folder)
 
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     self._update_logs()
 
     self.promise_name = "check-error-on-apache-log.py"
@@ -79,7 +77,6 @@ extra_config_dict = {
     TestPromisePluginMixin.tearDown(self)
 
   def test_no_error(self):
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     content = self.base_content % {
       'log_file': self.base_path + "/SOFTINST-0_infoonly_error_log",
       'maximum_delay': 0
@@ -110,7 +107,6 @@ extra_config_dict = {
     self.assertEqual(result['result']['message'], "OK")
 
   def test_error(self):
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     content = self.base_content % {
       'log_file': self.base_path + "/SOFTINST-0_apache_error_log",
       'maximum_delay': 0
@@ -142,7 +138,6 @@ extra_config_dict = {
     self.assertEqual(result['result']['message'], "ERROR=1 (NOROUTE=1, UNREACHABLENET=0, TIMEOUT=0)")
 
   def test_error_timeout(self):
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     content = self.base_content % {
       'log_file': self.base_path + "/SOFTINST-0_timeout_error_log",
       'maximum_delay': 0
@@ -174,7 +169,6 @@ extra_config_dict = {
     self.assertEqual(result['result']['message'], "ERROR=2 (NOROUTE=0, UNREACHABLENET=0, TIMEOUT=2)")
 
   def test_error_unreacheabler(self):
-    self.base_path = "/".join(data.__file__.split("/")[:-1])
     content = self.base_content % {
       'log_file': self.base_path + "/SOFTINST-0_unreachable_error_log",
       'maximum_delay': 0
