@@ -540,7 +540,7 @@ class QemuQMPWrapper(object):
         memory_id_list.append({
         'memdev': mem_dev,
          'id': dimm['data']['id'],
-         'size': dimm['data']['size']/(1024 * 1024),
+         'size': dimm['data']['size']//(1024 * 1024),
        })
     memory_id_list = sorted(memory_id_list, key=itemgetter('id'))
 
@@ -558,7 +558,7 @@ class QemuQMPWrapper(object):
     if (mem_size % slot_size) != 0:
       raise ValueError("Memory size %r is not a multiple of %r" % (mem_size,
         slot_size))
-    if (mem_size / slot_size) > slot_amount:
+    if (mem_size // slot_size) > slot_amount:
       raise ValueError("No enough slots available to add %sMB of RAM" % mem_size)
 
     current_size //= (1024 * 1024)
@@ -616,7 +616,7 @@ class QemuQMPWrapper(object):
     final_mem_size = 0
     for mem in mem_info['hotplugged']:
       final_mem_size += mem['size']
-    final_mem_size = final_mem_size / (1024 * 1024) # get size in MB
+    final_mem_size //= (1024 * 1024) # get size in MB
     if mem_size != final_mem_size:
       raise ValueError("Consistency error: Expected %s MB of hotplugged RAM " \
         "but current RAM size is %s MB" % (mem_size, final_mem_size))

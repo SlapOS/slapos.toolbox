@@ -1,3 +1,5 @@
+from __future__ import division
+
 from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
@@ -81,14 +83,14 @@ class RunPromise(GenericPromise):
     usage_output = ""
     total_inode = stat.f_files
     free_inode = stat.f_ffree
-    usage = round((float(total_inode - free_inode) / total_inode), 4) * 100
+    usage = round(((total_inode - free_inode) / total_inode), 4) * 100
     if usage > max_inode_usage:
       return "Disk Inodes usages is really high: %s%%" % usage
     elif os.path.exists('/tmp'):
       # check if /tmp is mounted on another disk than path
       tmp_stat = os.statvfs('/tmp')
       if tmp_stat.f_blocks != stat.f_blocks:
-        tmp_usage = round((float(tmp_stat.f_files - tmp_stat.f_ffree) / tmp_stat.f_files), 4) * 100
+        tmp_usage = round(((tmp_stat.f_files - tmp_stat.f_ffree) / tmp_stat.f_files), 4) * 100
         if tmp_usage > max_inode_usage:
           return "Disk Inodes usage is high: %s%%" % tmp_usage
     return ""
@@ -160,8 +162,8 @@ class RunPromise(GenericPromise):
         self.logger.info("Disk usage: OK")
       return
 
-    free_space = round(free_space/(1024.0*1024*1024), 2)
-    min_space = round(min_free_size/(1024.0*1024*1024), 2)
+    free_space = round(free_space/(1024*1024*1024), 2)
+    min_space = round(min_free_size/(1024*1024*1024), 2)
     self.logger.error('Free disk space low: remaining %s G (threshold: %s G)' % (
       free_space, min_space))
 
