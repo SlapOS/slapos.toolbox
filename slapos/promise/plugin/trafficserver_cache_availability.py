@@ -30,11 +30,7 @@ class RunPromise(GenericPromise):
       return
 
     try:
-      subprocess.subprocess.check_output(
-        args,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-      )
+      subprocess.check_output(args, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
       result = e.output.strip()
       self.logger.error(message, result if str is bytes else

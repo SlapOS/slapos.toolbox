@@ -7,7 +7,7 @@ Uses:
 - /proc/meminfo
 """
 
-from __future__ import print_function
+from __future__ import division, print_function
 
 import sys
 import sqlite3
@@ -41,8 +41,8 @@ def getMemoryInfo(database, time, date):
   finally:
     database.close()
 
-  memory_info["used_percent"] = memory_info["used"] * 100.0 / memory_info["total"]
-  memory_info["free_percent"] = memory_info["free"] * 100.0 / memory_info["total"]
+  memory_info["used_percent"] = memory_info["used"] * 100 / memory_info["total"]
+  memory_info["free_percent"] = memory_info["free"] * 100 / memory_info["total"]
   return (memory_info, "")
 
 def checkMemoryUsage(database_path, time, date, threshold, key="used", unit="byte"):
