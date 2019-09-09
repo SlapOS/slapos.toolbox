@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import glob
 import os
 
-version = '0.94'
+version = '0.95'
 name = 'slapos.toolbox'
 long_description = open("README.rst").read() + "\n"
 
@@ -10,13 +10,6 @@ for f in sorted(glob.glob(os.path.join('slapos', 'README.*.rst'))):
   long_description += '\n' + open(f).read() + '\n'
 
 long_description += open("CHANGES.txt").read() + "\n"
-
-# Provide a way to install additional requirements
-additional_install_requires = []
-try:
-  import argparse
-except ImportError:
-  additional_install_requires.append('argparse')
 
 setup(name=name,
       version=version,
@@ -33,7 +26,7 @@ setup(name=name,
       maintainer="Nexedi",
       maintainer_email="info@nexedi.com",
       url="https://lab.nexedi.com/nexedi/slapos.toolbox",
-      install_requires=[
+      install_requires=(
         'Flask', # needed by servers
         'atomize', # needed by pubsub
         'feedparser', # needed by pubsub
@@ -56,7 +49,8 @@ setup(name=name,
         'jsonschema',
         'zc.buildout',
         'pycurl',
-      ] + additional_install_requires,
+        'six',
+      ),
       extras_require = {
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
         'zodbpack': ['ZODB3'], # needed to play with ZODB

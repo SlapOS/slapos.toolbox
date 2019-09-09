@@ -1,3 +1,11 @@
+0.95 (2019-09-09)
+=================
+
+* add support for Python 3
+* remove slapos.cloudmgr
+* runner: force instantiation of partitions on manual action
+* promise: add check_neo_health for ERP5/NEO SR
+
 0.94 (2019-06-19)
 =================
 
