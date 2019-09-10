@@ -84,6 +84,9 @@ BACKINGUP; OUT_OF_DATE=1, UP_TO_DATE=3; ltid=03d17cd516db69db (2019-08-02 13:09:
 
   def test_critical(self):
     message = self.runPromise("ERROR: not connected", True)
+    if six.PY3:
+      self.assertEqual(message, "Expecting value: line 1 column 1 (char 0)")
+      return
     self.assertEqual(message, "No JSON object could be decoded")
 
 
