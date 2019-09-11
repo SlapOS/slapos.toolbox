@@ -232,9 +232,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
         resource='setCurrentProject',
         data='path=workspace/slapos/software/%s/' % software_release
     )
-    if json.loads(data)['code'] == 0:
-      self.logger.warning(data['result'])
-      raise IOError(data['result'])
+    assert json.loads(data)['code'] != 0, 'Unexpecting result in call to setCurrentProject: %s' % data
 
   def generateData(self):
     """
