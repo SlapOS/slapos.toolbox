@@ -27,6 +27,7 @@
 
 import mock
 import os
+import six
 from slapos.grid.promise import PromiseError
 from slapos.promise.plugin.check_neo_health import RunPromise
 from . import TestPromisePluginMixin
