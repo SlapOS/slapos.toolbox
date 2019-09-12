@@ -46,11 +46,12 @@ class TestCheckCommandExecute(TestPromisePluginMixin):
     self.fail_command = os.path.join(self.tempdir, 'fail')
     self._createScript(self.fail_command, """#/bin/sh
 echo failure
-echo me
+echo me 1>&2
 exit 1""")
     self.success_command = os.path.join(self.tempdir, 'success')
     self._createScript(self.success_command, """#/bin/sh
 echo success
+echo me 1>&2
 exit 0""")
     self.promise_name = "check-command-execute.py"
 
