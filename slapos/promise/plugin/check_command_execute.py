@@ -22,13 +22,14 @@ class RunPromise(GenericPromise):
     command = self.getConfig('command')
 
     try:
-      process = subprocess.Popen(
+      out = subprocess.check_output(
         command,
         shell=True,
-        stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT)
-      out, _ = process.communicate()
-      status = process.returncode
+      status = 0
+    except subprocess.CalledProcessError as e:
+      out = e.output
+      status = e.returncode
     except Exception as e:
       self.logger.error(
         "ERROR %r during running command %r" % (e, command))
