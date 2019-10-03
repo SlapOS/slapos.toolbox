@@ -322,11 +322,6 @@ def checkFolder():
   return checkSoftwareFolder(request.form['path'], app.config)
 
 
-def setCurrentProject():
-  logger.warn('setCurrentProject is deprecated')
-  return supplySoftwareRelease()
-
-
 def supplySoftwareRelease():
   if request.form['path']:
     sr_absolute_path = realpath(app.config, request.form['path'])
@@ -890,8 +885,6 @@ app.add_url_rule("/getProjectStatus", 'getProjectStatus', getProjectStatus,
                  methods=['POST'])
 app.add_url_rule('/openProject/<method>', 'openProject', openProject,
                  methods=['GET'])
-app.add_url_rule("/setCurrentProject", 'setCurrentProject', setCurrentProject,
-                 methods=['POST'])
 app.add_url_rule("/supplySoftwareRelease", 'supplySoftwareRelease', supplySoftwareRelease,
                  methods=['POST'])
 app.add_url_rule("/checkFolder", 'checkFolder', checkFolder, methods=['POST'])
