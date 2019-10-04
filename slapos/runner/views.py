@@ -17,7 +17,7 @@ from flask import (Flask, request, redirect, url_for, render_template,
 import slapos
 from slapos.util import bytes2str
 import utils
-from slapos.runner.utils import (checkSoftwareFolder, configNewSR, checkUserCredential,
+from slapos.runner.utils import (checkSoftwareFolder, checkUserCredential,
                                  createNewUser, getBuildAndRunParams,
                                  getProfilePath, getSlapgridResult,
                                  html_escape,

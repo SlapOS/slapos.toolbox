@@ -604,18 +604,6 @@ def listFolder(config, path):
   return folderList
 
 
-def configNewSR(config, projectpath):
-  """Configure a Software Release as current Software Release
-
-  Args:
-    config: slaprunner configuration
-    projectpath: path of the directory that contains the software realease to configure
-  Returns:
-    True if all is done well, otherwise return false.
-  """
-  supplySoftwareRelease(config, projectpath)
-
-
 def setCurrentSoftwareRelease(config, relative_project_path):
   with open(os.path.join(config['etc_dir'], ".project"), 'w') as f:
     f.write(relative_project_path)
