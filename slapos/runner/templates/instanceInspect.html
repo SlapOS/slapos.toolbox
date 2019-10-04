@@ -19,7 +19,7 @@
       <li><a href="#tab2">Connection Information</a></li>
       <li><a href="#tab3" id="parameterTab">Parameters</a></li>
       <li><a href="#tab4" id="instancetabfiles">Partitions Content</a></li>
-      <li><a href="#tab5">Monitoring</a></li>
+      <li><a href="#tab5">Software Releases</a></li>
     </ul><!-- //Tab buttons -->
     <div class="tabDetails">
       <div id="tab1" class="tabContents">
@@ -143,14 +143,10 @@
       {%endif%}
         </div><!-- end tab4 -->
       <div id="tab5" class="tabContents">
-        <h2>Monitoring interface</h2>
         <div class="clear"></div>
-        <p>By clicking on the next link, you can access to the monitoring interface of the instance running inside the webrunner.</p>
-        <div class="clear"></div>
-        <p><b>Notice</b> that you have to extend the stack monitor in your software release (as explained <a href="http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/stack/monitor/README.txt?js=1">here</a>) for this weblink to work.
-        <div class="clear"></div>
-        <p><b><a href="{{ g.instance_monitoring_url }}" target="_blank">{{ g.instance_monitoring_url }}</a></b></p>
-        <div class="clear"></div>
+	{% for software_release_uri in software_release_uri_list %}
+	<p>{{ software_release_uri }}</p>
+	{% endfor %}
       </div><!-- end tab5 -->
     </div>
 </div>
