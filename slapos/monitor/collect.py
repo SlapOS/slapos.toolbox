@@ -65,22 +65,6 @@ class ResourceCollect(ConsumptionReportBase):
     # Do not try to created or update tables, access will be refused
     self.db = Database(db_path, create=False, timeout=15)
 
-def appendToJsonFile(file_path, content, stepback=2):
-  with open (file_path, mode="r+") as jfile:
-    jfile.seek(0, 2)
-    position = jfile.tell() - stepback
-    jfile.seek(position)
-    jfile.write('%s}' % ',"{}"]'.format(content))
-
-def initDataFile(data_file, column_list):
-  with open(process_file, 'w') as fdata:
-    data_dict = {
-      "date": time.time(),
-      "data": column_list 
-    }
-    fdata.write(json.dumps(data_dict))
-
-
 def main():
   parser = parseArguments()
   if not os.path.exists(parser.output_folder) and os.path.isdir(parser.output_folder):
@@ -141,15 +125,6 @@ def main():
                   'memory_percent', 'memory_rss', 'io_rw_counter', 'io_cycles_counter',
                   'disk_used']
   resource_status_dict = {}
-  if not os.path.exists(process_file) or os.stat(process_file).st_size == 0:
-    initDataFile(process_file, ["date, total process, CPU percent, CPU time, CPU threads"])
-
-  if not os.path.exists(mem_file) or os.stat(mem_file).st_size == 0:
-    initDataFile(mem_file, ["date, memory used percent, memory used"])
-
-  if not os.path.exists(io_file) or os.stat(io_file).st_size == 0:
-    initDataFile(io_file,  ["date, io rw counter, io cycles counter, disk used"])
-
   if process_result and process_result['total_process'] != 0.0:
     appendToJsonFile(process_file, ", ".join(
       str(process_result[key]) for key in label_list if key in process_result)
