@@ -8,7 +8,7 @@ import json
 import pkg_resources
 
 from slapos.monitor import globalstate
-from slapos.monitor.runpromise import MonitorPromiseLauncher, getArgumentParser
+#from slapos.monitor.runpromise import MonitorPromiseLauncher, getArgumentParser
 from slapos.monitor.monitor import Monitoring
 from jsonschema import validate
 
