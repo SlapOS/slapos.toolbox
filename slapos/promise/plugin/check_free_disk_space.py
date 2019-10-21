@@ -99,7 +99,6 @@ class RunPromise(GenericPromise):
   def sense(self):
     # find if a disk is mounted on the path
     disk_partition = ""
-    disk_threshold_file = self.getConfig('threshold-file')
     db_path = self.getConfig('collectordb')
     check_date = self.getConfig('test-check-date')
     path = os.path.join(self.getPartitionFolder(), "") + "extrafolder"
@@ -117,23 +116,7 @@ class RunPromise(GenericPromise):
       self.logger.error("Couldn't find disk partition")
       return
 
-    min_free_size = 1024*1024*1024*2 # 2G by default
-    if disk_threshold_file is not None:
-      if os.path.exists(disk_threshold_file):
-        with open(disk_threshold_file) as f:
-          min_size_str = f.read().strip()
-          if min_size_str == '0':
-            # disable check
-            self.logger.info("Free disk space check is disabled\n set a number up to 0 to enable!")
-            return
-          if min_size_str.isdigit():
-            value = int(min_size_str)
-            if value >= 200:
-              # Minimum value is 200Mb, it's already low
-              min_free_size = int(min_size_str)*1024*1024
-      else:
-        with open(disk_threshold_file, 'w') as f:
-          f.write(str(min_free_size//(1024*1024)))
+    threshold = float(self.getConfig('threshold', '2'))
 
     if check_date:
       # testing mode
@@ -154,7 +137,7 @@ class RunPromise(GenericPromise):
                                    currenttime)
     if free_space == 0:
       return
-    elif free_space > min_free_size:
+    elif free_space > threshold*1024*1024*1024:
       inode_usage = self.getInodeUsage(self.getPartitionFolder())
       if inode_usage:
         self.logger.error(inode_usage)
@@ -163,9 +146,8 @@ class RunPromise(GenericPromise):
       return
 
     free_space = round(free_space/(1024*1024*1024), 2)
-    min_space = round(min_free_size/(1024*1024*1024), 2)
     self.logger.error('Free disk space low: remaining %s G (threshold: %s G)' % (
-      free_space, min_space))
+      free_space, threshold))
 
   def test(self):
     return self._test(result_count=1, failure_amount=1)
