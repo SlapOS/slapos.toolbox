@@ -54,6 +54,7 @@ class TestCheckFreeDiskSpace(TestPromisePluginMixin):
 extra_config_dict = {
   'collectordb': '%(collectordb)s',
   'test-check-date': '2017-10-02',
+  'threshold-days': '25'
 }
 """ % {'collectordb': self.db_file}
     self.writePromise(self.promise_name, content)
@@ -69,7 +70,8 @@ extra_config_dict = {
 extra_config_dict = {
   'collectordb': '%(collectordb)s',
   'test-check-date': '2017-09-14',
-  'test-check-time': '18:00'
+  'test-check-time': '18:00',
+  'threshold-days': '25'
 }
 """ % {'collectordb': self.db_file}
     self.writePromise(self.promise_name, content)
@@ -87,7 +89,45 @@ extra_config_dict = {
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(result['result']['message'], "Disk usage: OK")
 
+  def test_disk_space_ok_will_full_soon(self):
+    content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
+
+extra_config_dict = {
+  'collectordb': '%(collectordb)s',
+  'test-check-date': '2017-10-02',
+}
+""" % {'collectordb': self.db_file}
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(
+      result['result']['message'],
+      "Disk will become full in 26.46 days (threshold: 30.00 days), checked from 2017-10-02 01:16:01 to 2017-10-02 09:17:01, 0.33 days span\nDisk usage: OK")
+
   def test_disk_space_nok(self):
+    content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
+
+extra_config_dict = {
+  'collectordb': '%(collectordb)s',
+  'test-check-date': '2017-10-02',
+  'threshold': '278',
+  'threshold-days': '25',
+}
+""" % {'collectordb': self.db_file}
+    self.writePromise(self.promise_name, content)
+
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(result['result']['message'],
+      "Free disk space low: remaining 269.1 G (threshold: 278.0 G)")
+
+  def test_disk_space_nok_will_full_soon(self):
     content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
 
 extra_config_dict = {
@@ -103,7 +143,8 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "Free disk space low: remaining 269.1 G (threshold: 278.0 G)")
+    self.assertEqual(result['result']['message'],
+      "Disk will become full in 26.46 days (threshold: 30.00 days), checked from 2017-10-02 01:16:01 to 2017-10-02 09:17:01, 0.33 days span\nFree disk space low: remaining 269.1 G (threshold: 278.0 G)")
 
   def test_check_free_disk_with_unicode_string_path(self):
     # set path unicode
