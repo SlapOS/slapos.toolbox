@@ -22,8 +22,56 @@ class RunPromise(GenericPromise):
     # check disk space at least every 3 minutes
     self.setPeriodicity(minute=3)
 
-  def getFreeSpace(self, disk_partition, database, date, time):
+  def getDaysUntilFull(self, disk_partition, database, date, time, threshold_days):
+    database = Database(database, create=False, timeout=10)
+    try:
+      # fetch free disk space
+      database.connect()
+      result_max = database.select(
+        "disk",
+        date,
+        columns="free*1.0/(used+free) AS percent, max(datetime(date || ' ' || time))",
+        where="time between '%s:00' and '%s:30' and partition='%s'" % (time, time, disk_partition),
+        limit=1,
+      ).fetchone()
+      if not result_max or not result_max[1]:
+        return None
+      result_min = database.select(
+        "disk",
+        columns="free*1.0/(used+free) AS percent, min(datetime(date || ' ' || time))",
+        where="datetime(date || ' ' || time) >= datetime('%s', '-%s days')  and partition='%s'" % (result_max[1], threshold_days, disk_partition,),
+        limit=1,
+      ).fetchone()
+      if not result_min or not result_min[1] or result_min == result_max:
+        return None
+      change = result_max[0] - result_min[0]
+      if change > 0.:
+        return None
+      timep = '%Y-%m-%d %H:%M:%S'
+      timespan = datetime.datetime.strptime(
+        result_max[1], timep) - datetime.datetime.strptime(
+        result_min[1], timep)
+      delta_days = timespan.total_seconds() / (3600.*24)
+      try:
+        return -(1. - result_max[0]) / (change / delta_days)
+      except ZeroDivisionError as e:
+        # no data
+        return None
+    except sqlite3.OperationalError as e:
+      # if database is still locked after timeout expiration (another process is using it)
+      # we print warning message and try the promise at next run until max warn count
+      locked_message = "database is locked"
+      if locked_message in str(e) and \
+          not self.raiseOnDatabaseLocked(locked_message):
+        return None
+      raise
+    finally:
+      try:
+        database.close()
+      except Exception:
+        pass
 
+  def getFreeSpace(self, disk_partition, database, date, time):
     database = Database(database, create=False, timeout=10)
     try:
       # fetch free disk space
@@ -117,6 +165,7 @@ class RunPromise(GenericPromise):
       return
 
     threshold = float(self.getConfig('threshold', '2'))
+    threshold_days = float(self.getConfig('threshold-days', '30'))
 
     if check_date:
       # testing mode
@@ -135,6 +184,12 @@ class RunPromise(GenericPromise):
 
     free_space = self.getFreeSpace(disk_partition, db_path, currentdate,
                                    currenttime)
+    days_until_full = self.getDaysUntilFull(disk_partition, db_path, currentdate, currenttime, threshold_days)
+    if days_until_full is not None:
+      if days_until_full < threshold_days:
+        self.logger.error("Disk will become full in %.2f days (threshold: %.2f days)" % (
+        days_until_full, threshold_days))
+
     if free_space == 0:
       return
     elif free_space > threshold*1024*1024*1024:
