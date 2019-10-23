@@ -48,18 +48,14 @@ class TestCheckFreeDiskSpace(TestPromisePluginMixin):
     self.conn.close()
 
     self.promise_name = "check-free-disk-space.py"
-    self.th_file = os.path.join(self.partition_dir, 'min-disk-value')
-    with open(self.th_file, 'w') as f:
-      f.write('2048')
 
     content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
 
 extra_config_dict = {
   'collectordb': '%(collectordb)s',
-  'threshold-file': '%(th_file)s',
   'test-check-date': '2017-10-02',
 }
-""" % {'collectordb': self.db_file, 'th_file': self.th_file}
+""" % {'collectordb': self.db_file}
     self.writePromise(self.promise_name, content)
 
   def tearDown(self):
@@ -72,11 +68,10 @@ extra_config_dict = {
 
 extra_config_dict = {
   'collectordb': '%(collectordb)s',
-  'threshold-file': '%(th_file)s',
   'test-check-date': '2017-09-14',
   'test-check-time': '18:00'
 }
-""" % {'collectordb': self.db_file, 'th_file': self.th_file}
+""" % {'collectordb': self.db_file}
     self.writePromise(self.promise_name, content)
 
     self.configureLauncher()
@@ -93,14 +88,30 @@ extra_config_dict = {
     self.assertEqual(result['result']['message'], "Disk usage: OK")
 
   def test_disk_space_nok(self):
-    with open(self.th_file, 'w') as f:
-      f.write('298927494144')
+    content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
+
+extra_config_dict = {
+  'collectordb': '%(collectordb)s',
+  'test-check-date': '2017-10-02',
+  'threshold': '278',
+}
+""" % {'collectordb': self.db_file}
+    self.writePromise(self.promise_name, content)
+
     self.configureLauncher()
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "Free disk space low: remaining 269.1 G (threshold: 291921381.0 G)")
+    self.assertEqual(result['result']['message'],
+      "Free disk space low: remaining 269.1 G (threshold: 278.0 G)")
+
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(result['result']['message'], "Free disk space low: remaining 269.1 G (threshold: 278.0 G)")
 
   def test_check_free_disk_with_unicode_string_path(self):
     # set path unicode

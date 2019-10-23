@@ -22,8 +22,36 @@ class RunPromise(GenericPromise):
     # check disk space at least every 3 minutes
     self.setPeriodicity(minute=3)
 
-  def getFreeSpace(self, disk_partition, database, date, time):
 
+
+  def getDiskSize(self, disk_partition, database):
+    database = Database(database, create=False, timeout=10)
+    try:
+      # fetch disk size
+      database.connect()
+      where_query = "partition='%s'" % (disk_partition)
+      order = "datetime(date || ' ' || time) DESC"
+      query_result = database.select("disk", columns="free+used", where=where_query, order=order, limit=1)
+      result = query_result.fetchone()
+      if not result or not result[0]:
+        return None
+      disk_size = result[0]
+    except sqlite3.OperationalError as e:
+      # if database is still locked after timeout expiration (another process is using it)
+      # we print warning message and try the promise at next run until max warn count
+      locked_message = "database is locked"
+      if locked_message in str(e) and \
+          not self.raiseOnDatabaseLocked(locked_message):
+        return None
+      raise
+    finally:
+      try:
+        database.close()
+      except Exception:
+        pass
+    return disk_size
+
+  def getFreeSpace(self, disk_partition, database, date, time):
     database = Database(database, create=False, timeout=10)
     try:
       # fetch free disk space
@@ -99,7 +127,6 @@ class RunPromise(GenericPromise):
   def sense(self):
     # find if a disk is mounted on the path
     disk_partition = ""
-    disk_threshold_file = self.getConfig('threshold-file')
     db_path = self.getConfig('collectordb')
     check_date = self.getConfig('test-check-date')
     path = os.path.join(self.getPartitionFolder(), "") + "extrafolder"
@@ -117,23 +144,8 @@ class RunPromise(GenericPromise):
       self.logger.error("Couldn't find disk partition")
       return
 
-    min_free_size = 1024*1024*1024*2 # 2G by default
-    if disk_threshold_file is not None:
-      if os.path.exists(disk_threshold_file):
-        with open(disk_threshold_file) as f:
-          min_size_str = f.read().strip()
-          if min_size_str == '0':
-            # disable check
-            self.logger.info("Free disk space check is disabled\n set a number up to 0 to enable!")
-            return
-          if min_size_str.isdigit():
-            value = int(min_size_str)
-            if value >= 200:
-              # Minimum value is 200Mb, it's already low
-              min_free_size = int(min_size_str)*1024*1024
-      else:
-        with open(disk_threshold_file, 'w') as f:
-          f.write(str(min_free_size//(1024*1024)))
+    if db_path.endswith("collector.db"):
+      db_path=db_path[:-len("collector.db")]
 
     if check_date:
       # testing mode
@@ -147,14 +159,18 @@ class RunPromise(GenericPromise):
       currenttime = now - datetime.timedelta(minutes=1)
       currenttime = currenttime.time().strftime('%H:%M')
 
-    if db_path.endswith("collector.db"):
-      db_path=db_path[:-len("collector.db")]
+    disk_size = self.getDiskSize(disk_partition, db_path)
+    default_threshold = None
+    if disk_size is not None:
+      default_threshold = round(disk_size/(1024*1024*1024) * 0.05, 2)
+    threshold = float(self.getConfig('threshold', default_threshold) or 2.0)
+    threshold_days = float(self.getConfig('threshold-days', '30'))
 
     free_space = self.getFreeSpace(disk_partition, db_path, currentdate,
                                    currenttime)
     if free_space == 0:
       return
-    elif free_space > min_free_size:
+    elif free_space > threshold*1024*1024*1024:
       inode_usage = self.getInodeUsage(self.getPartitionFolder())
       if inode_usage:
         self.logger.error(inode_usage)
@@ -163,9 +179,8 @@ class RunPromise(GenericPromise):
       return
 
     free_space = round(free_space/(1024*1024*1024), 2)
-    min_space = round(min_free_size/(1024*1024*1024), 2)
     self.logger.error('Free disk space low: remaining %s G (threshold: %s G)' % (
-      free_space, min_space))
+      free_space, threshold))
 
   def test(self):
     return self._test(result_count=1, failure_amount=1)
