@@ -83,7 +83,7 @@ def main():
 
   result, message, error = checkMemoryUsage(
     database_path,
-    datetime.now(),
+    datetime.utcnow(),
     user=args.user,
     threshold=args.threshold,
     unit=args.unit,

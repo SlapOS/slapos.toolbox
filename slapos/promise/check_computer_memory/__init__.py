@@ -81,7 +81,7 @@ def main():
   args = parser.parse_args()
 
   # get last minute
-  now = datetime.datetime.now()
+  now = datetime.datetime.utcnow()
   currentdate = now.strftime('%Y-%m-%d')
   delta = datetime.timedelta(minutes=1)
   currenttime = now - delta

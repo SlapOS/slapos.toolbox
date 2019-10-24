@@ -207,7 +207,7 @@ is assumed constant and used to predict in how many days the disk would become f
       disk_partition = self.getConfig('test-disk-partition', '/dev/sda1')
     else:
       # get last minute
-      now = datetime.datetime.now()
+      now = datetime.datetime.utcnow()
       currentdate = now.strftime('%Y-%m-%d')
       currenttime = now - datetime.timedelta(minutes=1)
       currenttime = currenttime.time().strftime('%H:%M')
