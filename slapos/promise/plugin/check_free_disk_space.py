@@ -59,7 +59,7 @@ is assumed constant and used to predict in how many days the disk would become f
         result_min[1], timep)
       delta_days = timespan.total_seconds() / (3600.*24)
       try:
-        return (-(1. - result_max[0]) / (change / delta_days), result_min[1], result_max[1], delta_days)
+        return (-(1. - result_max[0]) / (change / delta_days), result_min[1], result_min[0], result_max[1], result_max[0], delta_days)
       except ZeroDivisionError as e:
         # no data
         return None
@@ -223,11 +223,11 @@ is assumed constant and used to predict in how many days the disk would become f
                                    currenttime)
     days_until_full_tuple = self.getDaysUntilFull(disk_partition, db_path, currentdate, currenttime, threshold_days/2)
     if days_until_full_tuple is not None:
-      days_until_full, min_date, max_date, day_span = days_until_full_tuple
+      days_until_full, min_date, min_free, max_date, max_free, day_span = days_until_full_tuple
       message = "Disk will become full in %.2f days (threshold: %.2f days), checked from %s to %s, %.2f days span" % (
           days_until_full, threshold_days, min_date, max_date, day_span)
       if days_until_full < threshold_days:
-        self.logger.error(message + ': ERROR')
+        self.logger.error(message + ', free space dropped from %.1f%% to %.1f%%: ERROR' % (min_free*100, max_free*100))
       else:
         self.logger.info(message + ': OK')
 
