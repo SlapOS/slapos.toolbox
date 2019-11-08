@@ -157,11 +157,12 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
     # Handle request
     self.logger.debug("Connection with file descriptor %d", request.fileno())
     request.settimeout(self.options.timeout)
-    request_string = io.StringIO()
-    segment = None
+    request_string = io.BytesIO()
     try:
-      while segment != '':
+      while 1:
         segment = request.recv(1024)
+        if not segment:
+          break
         request_string.write(segment)
     except socket.timeout:
       pass
