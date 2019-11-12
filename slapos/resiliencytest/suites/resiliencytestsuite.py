@@ -189,9 +189,8 @@ class ResiliencyTestSuite(object):
       command = [os.path.join(os.environ['HOME'], 'software_release', 'bin', 'slapos'), 'node', 'instance',
                  '--cfg=%s' % slapos_configuration_file_path,
                  '--pidfile=slapos.pid']
-      subprocess.Popen(command, stdout=devnull, stderr=devnull).wait()
-      subprocess.Popen(command, stdout=devnull, stderr=devnull).wait()
-      subprocess.Popen(command, stdout=devnull, stderr=devnull).wait()
+      for _ in range(5):
+        subprocess.Popen(command, stdout=devnull, stderr=devnull).wait()
 
     success = self.checkDataOnCloneInstance()
 
