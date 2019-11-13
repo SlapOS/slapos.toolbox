@@ -87,7 +87,7 @@ class ResiliencyTestSuite(object):
     # Connect to takeover web interface
     takeover_page_content = urlopen(takeover_url).read()
     # Wait for importer script to be not running
-    while 'Importer script(s) of backup in progress: True' in takeover_page_content:
+    while "<b>Importer script(s) of backup in progress:</b> True" in takeover_page_content:
       time.sleep(10)
       takeover_page_content = urlopen(takeover_url).read()
     # Do takeover
