@@ -80,16 +80,10 @@ class ResiliencyTestSuite(object):
     self.logger.info('Replacing main instance by clone instance %s%s...' % (
         self.namebase, target_clone))
 
-    # Request
     root_partition_parameter_dict = self._getPartitionParameterDict()
     takeover_url = root_partition_parameter_dict['takeover-%s-%s-url' % (namebase, target_clone)]
     takeover_password = root_partition_parameter_dict['takeover-%s-%s-password' % (namebase, target_clone)]
-    # Connect to takeover web interface
-    takeover_page_content = urlopen(takeover_url).read()
-    # Wait for importer script to be not running
-    while "<b>Importer script(s) of backup in progress:</b> True" in takeover_page_content:
-      time.sleep(10)
-      takeover_page_content = urlopen(takeover_url).read()
+
     # Do takeover
     takeover_result = urlopen('%s?password=%s' % (takeover_url, takeover_password)).read()
     if 'Error' in takeover_result:
@@ -156,6 +150,20 @@ class ResiliencyTestSuite(object):
     self.logger.info('New parameter value of instance is %s' % new_parameter_value)
     return new_parameter_value
 
+  def _waitForCloneToBeReadyForTakeover(self, clone):
+    self.logger.info('Wait for Clone %s to be ready for takeover' % clone)
+
+    root_partition_parameter_dict = self._getPartitionParameterDict()
+    takeover_url = root_partition_parameter_dict['takeover-%s-%s-url' % (self.namebase, clone)]
+    takeover_password = root_partition_parameter_dict['takeover-%s-%s-password' % (self.namebase, clone)]
+
+    # Connect to takeover web interface and wait for importer script to be not running
+    takeover_page_content = urlopen(takeover_url).read()
+    while "<b>Importer script(s) of backup in progress:</b> True" in takeover_page_content:
+      time.sleep(10)
+      takeover_page_content = urlopen(takeover_url).read()
+    return
+
   def _testClone(self, clone):
     """
     Private method.
@@ -168,6 +176,8 @@ class ResiliencyTestSuite(object):
           clone
         ))
     time.sleep(self.sleep_time_between_test)
+
+    self._waitForCloneToBeReadyForTakeover(clone)
 
     # Before doing takeover we expect the instances to be in a stable state
     if not self._testPromises():
