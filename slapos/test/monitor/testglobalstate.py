@@ -8,7 +8,6 @@ import json
 import pkg_resources
 
 from slapos.monitor import globalstate
-#from slapos.monitor.runpromise import MonitorPromiseLauncher, getArgumentParser
 from slapos.monitor.monitor import Monitoring
 from jsonschema import validate
 
@@ -18,7 +17,13 @@ class MonitorGlobalTest(unittest.TestCase):
     self.base_dir = tempfile.mkdtemp()
     self.etc_dir = os.path.join(self.base_dir, 'etc')
     self.output_dir = os.path.join(self.base_dir, '.slapgrid/promise/result')
+    self.output_history_dir = os.path.join(self.base_dir, '.slapgrid/promise/history')
+    os.mkdir(os.path.join(self.base_dir, '.slapgrid'))
+    os.mkdir(os.path.join(self.base_dir, '.slapgrid/promise'))
+    os.mkdir(os.path.join(self.base_dir, '.slapgrid/promise/history'))
+    os.mkdir(os.path.join(self.base_dir, '.slapgrid/promise/result'))
     os.mkdir(self.etc_dir)
+
     os.mkdir(os.path.join(self.etc_dir, 'plugin'))
     os.mkdir(os.path.join(self.etc_dir, 'promise'))
     os.mkdir(os.path.join(self.base_dir, 'public'))
@@ -100,7 +105,7 @@ output-folder = %(base_dir)s/public
 legacy-promise-folder = %(etc_dir)s/promise
 promise-folder = %(etc_dir)s/plugin
 partition-folder = %(base_dir)s
-computer-id = COMP-1234
+computer-id = COMP-1
 partition-cert = 
 partition-key = 
 partition-id = slappart0
@@ -120,28 +125,51 @@ ipv4 = 10.0.151.118
       cfg.write(config)
 
   def writePromise(self, name, success=True):
-    if success:
-      result_dict = {'output': 'success', 'code': 0}
-    else:
-      result_dict = {'output': 'error', 'code': 1}
-    content = """#!/bin/sh
+    promise_status = {
+      "result": {
+        "date": "2019-11-14T16:23:22+0000", 
+        "failed": not success, 
+        "message": "OK" if success else "ERROR", 
+        "type": "Test Result"
+       },
+       "path": "%s.py" % os.path.join(self.etc_dir, 'promise', name),
+       "name": "%s.py" % name,
+       "execution-time": 0.1, 
+       "title": name
+    }
+    with open(os.path.join(self.output_dir, "%s.status.json" % name), "w") as p:
+      json.dump(promise_status, p)
 
-echo "%(output)s"
-exit %(code)s
-""" % result_dict
-    promise_path = os.path.join(self.etc_dir, 'promise', name)
-    self.writeContent(promise_path, content)
-    os.chmod(promise_path, 0o755)
-    return promise_path
+  def writeGlobalJson(self, success=0, error=0):
+    global_json = {"status": "ERROR" if error else "OK",
+      "title": "Instance Monitoring", 
+      "data": {
+        "process_state": "monitor_process_resource.status",
+        "io_resource": "monitor_resource_io.data",
+        "state": "monitor_state.data", 
+        "memory_resource": "monitor_resource_memory.data", 
+        "process_resource": "monitor_resource_process.data", 
+        "monitor_process_state": "monitor_resource.status"},
+      "portal_type": "Software Instance",
+      "partition_id": "slappart0",
+      "aggregate_reference": "COMP-1",
+      "state": {
+        "success": success, "error": error},
+      "_links": {},
+      "date": "2019-11-14T16:50:19+0000", 
+      "type": "global"}
 
-  def getPromiseParser(self):
-    pid_path = os.path.join(self.base_dir, 'run', 'monitor-promise.pid')
+    with open(os.path.join(self.base_dir, '.slapgrid/promise/global.json'), "w") as p:
+      json.dump(global_json, p)
 
-    promise_cmd = [
-      '--pid-path',
-      '%s' % pid_path, '-c', self.monitor_config_file]
-    arg_parser = getArgumentParser()
-    return arg_parser.parse_args(promise_cmd)
+    public_json = {
+      "date": "2019-11-14T17:04:05+0000",
+      "status": "ERROR" if error else "OK",
+      "_links": {}
+    }
+
+    with open(os.path.join(self.base_dir, '.slapgrid/promise/public.json'), "w") as p:
+      json.dump(public_json, p)
 
   def test_monitor_instance_state(self):
     self.maxDiff = None
@@ -155,9 +183,7 @@ exit %(code)s
     self.writePromise('promise_2', success=False)
     self.writePromise('promise_3', success=False)
     self.writePromise('promise_4')
-    parser = self.getPromiseParser()
-    promise_runner = MonitorPromiseLauncher(parser)
-    promise_runner.start()
+    self.writeGlobalJson(2, 2)
 
     self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_1.status.json')))
     self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_2.status.json')))
@@ -223,7 +249,7 @@ exit %(code)s
       {"href": "https://sub2.monitor.test.com/share/public"}
     ]
 	},
-	"aggregate_reference": "COMP-1234",
+	"aggregate_reference": "COMP-1",
 	"type": "global",
 	"specialise_title": "Monitor ROOT"
 }"""
@@ -237,9 +263,8 @@ exit %(code)s
     # all promises are OK now
     self.writePromise('promise_2', success=True)
     self.writePromise('promise_3', success=True)
-    # rerun right now
-    promise_runner.config.force = True
-    promise_runner.start()
+    self.writeGlobalJson(4, 0)
+
     globalstate.run(self.monitor_config_file)
 
     expected_result_dict = json.loads(expected_result)
