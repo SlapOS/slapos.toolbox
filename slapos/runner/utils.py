@@ -893,15 +893,18 @@ def readParameters(path):
   else:
     return "No such file or directory: %s" % path
 
-def isSoftwareReleaseCompleted(config):
-  software_name = getSoftwareReleaseName(config)
-  if software_name is None:
-    return False
-  elif os.path.exists(os.path.join(config['runner_workdir'],
-      'softwareLink', software_name, '.completed')):
-    return True
-  else:
-    return False
+def areAllSoftwareReleaseCompleted(config):
+  result_list = []
+  for software_release_uri in self.getAvailableSoftwareReleaseURIList(config):
+    software_release_path = os.path.join(
+      config['software_root'],
+      md5digest(software_release_uri)
+    )
+    if os.path.exists(os.path.join(software_release_path, '.completed')):
+      result_list.append(True)
+    else:
+      resultd_list.append(False)
+    return all(result_list)
 
 def isSoftwareReleaseReady(config):
   """Return 1 if the Software Release has
@@ -913,7 +916,7 @@ def isSoftwareReleaseReady(config):
   if not ( os.path.exists(project) and (auto_run or auto_deploy) ):
     return "0"
   updateInstanceParameter(config)
-  if isSoftwareReleaseCompleted(config):
+  if areAllSoftwareReleaseCompleted(config):
     if auto_run:
       runSlapgridUntilSuccess(config, 'instance')
     return "1"
