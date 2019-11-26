@@ -197,10 +197,8 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     self._setERP5InstanceParameter()
 
     self._buildSoftwareRelease()
-    self._deployInstance()
-    self._deployInstance()
-    self._deployInstance()
-    self._deployInstance()
+    for _ in range(8):
+      self._deployInstance()
 
     self._editHAProxyconfiguration()
 
