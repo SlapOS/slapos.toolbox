@@ -604,6 +604,8 @@ def listFolder(config, path):
 
 
 def setCurrentSoftwareRelease(config, relative_project_path):
+  if relative_project_path.endswith(config['software_profile']):
+    relative_project_path = relative_project_path[:-len(config['software_profile'])]
   with open(os.path.join(config['etc_dir'], ".project"), 'w') as f:
     f.write(relative_project_path)
 

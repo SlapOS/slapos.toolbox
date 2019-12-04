@@ -566,13 +566,11 @@ def saveParameterXml():
   Update instance parameter into a local xml file.
   """
   project = os.path.join(app.config['etc_dir'], ".project")
-  current_software_release = utils.getCurrentSoftwareReleaseProfile(config)
+  current_software_release = utils.getCurrentSoftwareReleaseProfile(app.config)
   if not current_software_release:
     return jsonify(code=0, result="Please first open a Software Release")
   software_release = request.form['software_release']
-  if current_software_release != software_release:
-    utils.setCurrentSoftwareRelease(app.config, software_release)
-
+  utils.setCurrentSoftwareRelease(app.config, software_release)
   content = request.form['parameter'].encode("utf-8")
   param_path = os.path.join(app.config['etc_dir'], ".parameter.xml")
   try:
