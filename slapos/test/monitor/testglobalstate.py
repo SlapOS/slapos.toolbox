@@ -14,6 +14,54 @@ from jsonschema import validate
 
 class MonitorGlobalTest(unittest.TestCase):
 
+  monitor_conf = """[monitor]
+parameter-file-path = %(base_dir)s/knowledge0.cfg
+service-pid-folder = %(base_dir)s/run
+private-folder = %(base_dir)s/private
+public-folder = %(base_dir)s/public
+public-path-list = %(public_path_list)s
+private-path-list = %(private_path_list)s
+crond-folder = %(base_dir)s/cron.d
+logrotate-folder = %(base_dir)s/logrotate.d
+root-title = %(root_title)s
+pid-file =  %(base_dir)s/monitor.pid
+log-folder = %(base_dir)s/log
+log-backup-folder = %(base_dir)s/log-backup
+document-folder = %(base_dir)s/private/documents
+parameter-list = 
+  raw monitor-user admin
+  file sample %(base_dir)s/param
+  htpasswd monitor-password %(base_dir)s/.monitor_pwd admin %(base_dir)s/monitor-htpasswd
+  httpdcors cors-domain %(base_dir)s/test-httpd-cors.cfg /bin/echo
+
+webdav-folder = %(base_dir)s/webdav
+collect-script = %(collect_run_script)s
+statistic-script = %(statistic_script)s
+python = python
+monitor-url-list = %(url_list)s
+collector-db = 
+base-url = %(base_url)s
+title = %(title)s
+promise-output-file = %(base_dir)s/monitor-bootstrap-status
+promise-runner = %(promise_run_script)s
+randomsleep = /bin/echo sleep
+
+[promises]
+output-folder = %(base_dir)s/public
+legacy-promise-folder = %(etc_dir)s/promise
+promise-folder = %(etc_dir)s/plugin
+partition-folder = %(base_dir)s
+computer-id = COMP-1234
+partition-cert = 
+partition-key = 
+partition-id = slappart0
+ipv6 = 2001:34c:1254:df3:89::5df3
+software-release = http://some.url.com/software.cfg
+master-url = http://10.0.151.118:50000
+software-type = default
+ipv4 = 10.0.151.118
+"""
+
   def setUp(self):
     self.base_dir = tempfile.mkdtemp()
     self.etc_dir = os.path.join(self.base_dir, 'etc')
@@ -63,53 +111,6 @@ class MonitorGlobalTest(unittest.TestCase):
       collect_run_script="/bin/echo",
       statistic_script="/bin/echo"
     )
-    self.monitor_conf = """[monitor]
-parameter-file-path = %(base_dir)s/knowledge0.cfg
-service-pid-folder = %(base_dir)s/run
-private-folder = %(base_dir)s/private
-public-folder = %(base_dir)s/public
-public-path-list = %(public_path_list)s
-private-path-list = %(private_path_list)s
-crond-folder = %(base_dir)s/cron.d
-logrotate-folder = %(base_dir)s/logrotate.d
-root-title = %(root_title)s
-pid-file =  %(base_dir)s/monitor.pid
-log-folder = %(base_dir)s/log
-log-backup-folder = %(base_dir)s/log-backup
-document-folder = %(base_dir)s/private/documents
-parameter-list = 
-  raw monitor-user admin
-  file sample %(base_dir)s/param
-  htpasswd monitor-password %(base_dir)s/.monitor_pwd admin %(base_dir)s/monitor-htpasswd
-  httpdcors cors-domain %(base_dir)s/test-httpd-cors.cfg /bin/echo
-
-webdav-folder = %(base_dir)s/webdav
-collect-script = %(collect_run_script)s
-statistic-script = %(statistic_script)s
-python = python
-monitor-url-list = %(url_list)s
-collector-db = 
-base-url = %(base_url)s
-title = %(title)s
-promise-output-file = %(base_dir)s/monitor-bootstrap-status
-promise-runner = %(promise_run_script)s
-randomsleep = /bin/echo sleep
-
-[promises]
-output-folder = %(base_dir)s/public
-legacy-promise-folder = %(etc_dir)s/promise
-promise-folder = %(etc_dir)s/plugin
-partition-folder = %(base_dir)s
-computer-id = COMP-1234
-partition-cert = 
-partition-key = 
-partition-id = slappart0
-ipv6 = 2001:34c:1254:df3:89::5df3
-software-release = http://some.url.com/software.cfg
-master-url = http://10.0.151.118:50000
-software-type = default
-ipv4 = 10.0.151.118
-"""
 
   def tearDown(self):
     if os.path.exists(self.base_dir):
@@ -256,3 +257,51 @@ exit %(code)s
     # validate returned json result
     validate(instance_result_dict, self.monitor_instance_schema)
 
+
+class MonitorGlobalTestWithoutLegacyPromiseFolder(MonitorGlobalTest):
+  monitor_conf = """[monitor]
+parameter-file-path = %(base_dir)s/knowledge0.cfg
+service-pid-folder = %(base_dir)s/run
+private-folder = %(base_dir)s/private
+public-folder = %(base_dir)s/public
+public-path-list = %(public_path_list)s
+private-path-list = %(private_path_list)s
+crond-folder = %(base_dir)s/cron.d
+logrotate-folder = %(base_dir)s/logrotate.d
+root-title = %(root_title)s
+pid-file =  %(base_dir)s/monitor.pid
+log-folder = %(base_dir)s/log
+log-backup-folder = %(base_dir)s/log-backup
+document-folder = %(base_dir)s/private/documents
+parameter-list = 
+  raw monitor-user admin
+  file sample %(base_dir)s/param
+  htpasswd monitor-password %(base_dir)s/.monitor_pwd admin %(base_dir)s/monitor-htpasswd
+  httpdcors cors-domain %(base_dir)s/test-httpd-cors.cfg /bin/echo
+
+webdav-folder = %(base_dir)s/webdav
+collect-script = %(collect_run_script)s
+statistic-script = %(statistic_script)s
+python = python
+monitor-url-list = %(url_list)s
+collector-db = 
+base-url = %(base_url)s
+title = %(title)s
+promise-output-file = %(base_dir)s/monitor-bootstrap-status
+promise-runner = %(promise_run_script)s
+randomsleep = /bin/echo sleep
+
+[promises]
+output-folder = %(base_dir)s/public
+promise-folder = %(etc_dir)s/plugin
+partition-folder = %(base_dir)s
+computer-id = COMP-1234
+partition-cert = 
+partition-key = 
+partition-id = slappart0
+ipv6 = 2001:34c:1254:df3:89::5df3
+software-release = http://some.url.com/software.cfg
+master-url = http://10.0.151.118:50000
+software-type = default
+ipv4 = 10.0.151.118
+"""
