@@ -28,6 +28,7 @@ from slapos.runner.process import Popen
 from passlib.apache import HtpasswdFile
 import slapos.slap
 from slapos.grid.utils import md5digest
+from slapos.slap.exception import NotFoundError
 from slapos.util import str2bytes
 
 logger = logging.getLogger('slaprunner')
