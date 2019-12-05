@@ -95,7 +95,10 @@ class Monitoring(object):
     self.pid_file = config.get("monitor", "pid-file")
     self.promise_output_file = config.get("monitor", "promise-output-file")
     self.promise_folder = config.get("promises", 'promise-folder')
-    self.legacy_promise_folder = config.get("promises", 'legacy-promise-folder')
+    if config.has_option("promises", 'legacy-promise-folder'):
+      self.legacy_promise_folder = config.get("promises", 'legacy-promise-folder')
+    else:
+      self.legacy_promise_folder = None
     self.promise_output = config.get("promises", 'output-folder')
 
     self.config_folder = os.path.join(self.private_folder, 'config')
@@ -326,7 +329,10 @@ class Monitoring(object):
         print("failed to remove file %s." % file, e)
 
     # cleanup result of promises that was removed
-    promise_list = os.listdir(self.legacy_promise_folder)
+    if self.legacy_promise_folder is not None:
+      promise_list = os.listdir(self.legacy_promise_folder)
+    else:
+      promise_list = []
     for name in os.listdir(self.promise_folder):
       if name.startswith('__init__'):
         continue

@@ -10,42 +10,7 @@ from slapos.monitor.monitor import Monitoring
 
 class MonitorBootstrapTest(unittest.TestCase):
 
-  def setUp(self):
-    self.base_dir = tempfile.mkdtemp()
-    os.mkdir(os.path.join(self.base_dir, 'plugin'))
-    os.mkdir(os.path.join(self.base_dir, 'promise'))
-    os.mkdir(os.path.join(self.base_dir, 'public'))
-    os.mkdir(os.path.join(self.base_dir, 'private'))
-    os.mkdir(os.path.join(self.base_dir, 'cron.d'))
-    os.mkdir(os.path.join(self.base_dir, 'log'))
-    os.mkdir(os.path.join(self.base_dir, 'log-backup'))
-    os.mkdir(os.path.join(self.base_dir, 'logrotate.d'))
-    os.mkdir(os.path.join(self.base_dir, 'monitor-report'))
-    os.mkdir(os.path.join(self.base_dir, 'webdav'))
-    os.mkdir(os.path.join(self.base_dir, 'run'))
-    os.mkdir(os.path.join(self.base_dir, 'private/documents'))
-    self.writeContent(os.path.join(self.base_dir, 'param'), '12345')
-    self.writeContent(os.path.join(self.base_dir, '.monitor_pwd'), 'bcuandjy')
-    self.writeContent(os.path.join(self.base_dir, 'test-httpd-cors.cfg'), '')
-    self.writeContent(os.path.join(self.base_dir, 'monitor-htpasswd'), '12345')
-    self.monitor_config_file = os.path.join(self.base_dir, 'monitor.conf')
-
-    self.monitor_config_dict = dict(
-      monitor_conf=self.monitor_config_file,
-      base_dir=self.base_dir,
-      root_title="Monitor ROOT",
-      title="Monitor",
-      url_list="",
-      base_url="https://monitor.test.com",
-      promise_runner_pid=os.path.join(self.base_dir, 'run', 'monitor-promises.pid'),
-      public_folder=os.path.join(self.base_dir, 'public'),
-      public_path_list="",
-      private_path_list="",
-      promise_run_script="/bin/echo",
-      collect_run_script="/bin/echo",
-      statistic_script="/bin/echo"
-    )
-    self.monitor_conf = """[monitor]
+  monitor_conf = """[monitor]
 parameter-file-path = %(base_dir)s/knowledge0.cfg
 service-pid-folder = %(base_dir)s/run
 private-folder = %(base_dir)s/private
@@ -83,6 +48,41 @@ legacy-promise-folder = %(base_dir)s/promise
 promise-folder = %(base_dir)s/plugin
 partition-folder = %(base_dir)s
 """
+  def setUp(self):
+    self.base_dir = tempfile.mkdtemp()
+    os.mkdir(os.path.join(self.base_dir, 'plugin'))
+    os.mkdir(os.path.join(self.base_dir, 'promise'))
+    os.mkdir(os.path.join(self.base_dir, 'public'))
+    os.mkdir(os.path.join(self.base_dir, 'private'))
+    os.mkdir(os.path.join(self.base_dir, 'cron.d'))
+    os.mkdir(os.path.join(self.base_dir, 'log'))
+    os.mkdir(os.path.join(self.base_dir, 'log-backup'))
+    os.mkdir(os.path.join(self.base_dir, 'logrotate.d'))
+    os.mkdir(os.path.join(self.base_dir, 'monitor-report'))
+    os.mkdir(os.path.join(self.base_dir, 'webdav'))
+    os.mkdir(os.path.join(self.base_dir, 'run'))
+    os.mkdir(os.path.join(self.base_dir, 'private/documents'))
+    self.writeContent(os.path.join(self.base_dir, 'param'), '12345')
+    self.writeContent(os.path.join(self.base_dir, '.monitor_pwd'), 'bcuandjy')
+    self.writeContent(os.path.join(self.base_dir, 'test-httpd-cors.cfg'), '')
+    self.writeContent(os.path.join(self.base_dir, 'monitor-htpasswd'), '12345')
+    self.monitor_config_file = os.path.join(self.base_dir, 'monitor.conf')
+
+    self.monitor_config_dict = dict(
+      monitor_conf=self.monitor_config_file,
+      base_dir=self.base_dir,
+      root_title="Monitor ROOT",
+      title="Monitor",
+      url_list="",
+      base_url="https://monitor.test.com",
+      promise_runner_pid=os.path.join(self.base_dir, 'run', 'monitor-promises.pid'),
+      public_folder=os.path.join(self.base_dir, 'public'),
+      public_path_list="",
+      private_path_list="",
+      promise_run_script="/bin/echo",
+      collect_run_script="/bin/echo",
+      statistic_script="/bin/echo"
+    )
 
     self.opml_outline = """<outline text="%(title)s" title="%(title)s" type="rss" version="RSS" htmlUrl="%(base_url)s/public/feed" xmlUrl="%(base_url)s/public/feed" url="%(base_url)s/share/private/" />"""
 
@@ -280,3 +280,41 @@ partition-folder = %(base_dir)s
     self.assertEqual(key_list, [])
 
 
+class MonitorBootstrapTestWithoutLegacyPromiseFolder(MonitorBootstrapTest):
+  monitor_conf = """[monitor]
+parameter-file-path = %(base_dir)s/knowledge0.cfg
+service-pid-folder = %(base_dir)s/run
+private-folder = %(base_dir)s/private
+public-folder = %(base_dir)s/public
+public-path-list = %(public_path_list)s
+private-path-list = %(private_path_list)s
+crond-folder = %(base_dir)s/cron.d
+logrotate-folder = %(base_dir)s/logrotate.d
+root-title = %(root_title)s
+pid-file =  %(base_dir)s/monitor.pid
+log-folder = %(base_dir)s/log
+log-backup-folder = %(base_dir)s/log-backup
+document-folder = %(base_dir)s/private/documents
+parameter-list = 
+  raw monitor-user admin
+  file sample %(base_dir)s/param
+  htpasswd monitor-password %(base_dir)s/.monitor_pwd admin %(base_dir)s/monitor-htpasswd
+  httpdcors cors-domain %(base_dir)s/test-httpd-cors.cfg /bin/echo
+
+webdav-folder = %(base_dir)s/webdav
+collect-script = %(collect_run_script)s
+statistic-script = %(statistic_script)s
+python = python
+monitor-url-list = %(url_list)s
+collector-db = 
+base-url = %(base_url)s
+title = %(title)s
+promise-output-file = %(base_dir)s/monitor-bootstrap-status
+promise-runner = %(promise_run_script)s
+randomsleep = /bin/echo sleep
+
+[promises]
+output-folder = %(base_dir)s/public
+promise-folder = %(base_dir)s/plugin
+partition-folder = %(base_dir)s
+"""
