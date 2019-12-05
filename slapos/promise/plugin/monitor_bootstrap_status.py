@@ -16,7 +16,7 @@ class RunPromise(GenericPromise):
   def sense(self):
     process_pid_file = self.getConfig('process-pid-file')
     if not os.path.exists(process_pid_file):
-      self.logger.info("Bootstrap didn't run!")
+      self.logger.error("Bootstrap didn't run!")
       return
 
     with open(process_pid_file) as f:

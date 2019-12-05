@@ -65,9 +65,10 @@ extra_config_dict = {
 
   def test_monitor_bootstrap_no_run(self):
     self.configureLauncher()
-    self.launcher.run()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(result['result']['failed'], True)
     self.assertEqual(result['result']['message'], "Bootstrap didn't run!")
 
   def test_monitor_bootstrap_ok(self):
