@@ -218,6 +218,30 @@ def supplySoftwareRelease(config, sr_path):
   if not getCurrentUsedSoftwareReleaseProfile(config):
     setCurrentSoftwareRelease(config, sr_path)
 
+def destroySoftwareRelease(config, uri):
+  available_sr_list = getAvailableSoftwareReleaseURIList(config)
+  for available_sr in available_sr_list:
+    if os.path.realpath(available_sr) == os.path.realpath(uri):
+      real_uri = available_sr
+      break
+  else:
+    return False
+  slap = slapos.slap.slap()
+  slap.initializeConnection(config['master_url'])
+  try:
+    software_release, = [
+      x for x in slap.registerComputer(config['computer_id']).getSoftwareReleaseList()
+      if x.getURI() == real_uri
+    ]
+  except ValueError:
+    return False
+  slap.registerSupply().supply(
+    real_uri,
+    computer_guid=config['computer_id'],
+    state='destroyed',
+  )
+  return True
+
 
 def updateProxy(config):
   """
@@ -867,7 +891,7 @@ def relativepath(config, path):
     'runner_workdir',
   )
   for virtual_path in virtual_path_list:
-    if path.startswith(config[virtual_path]):
+    if os.path.realpath(path).startswith(os.path.realpath(config[virtual_path])):
       return path.replace(os.path.realpath(config[virtual_path]), virtual_path)
   return ''
 
