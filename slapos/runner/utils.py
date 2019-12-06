@@ -895,18 +895,18 @@ def readParameters(path):
   else:
     return "No such file or directory: %s" % path
 
+def isSoftwareReleaseCompleted(config, software_release_uri):
+  software_release_path = os.path.join(
+    config['software_root'],
+    md5digest(software_release_uri)
+  )
+  return os.path.exists(os.path.join(software_release_path, '.completed'))
+
 def areAllSoftwareReleaseCompleted(config):
   result_list = []
   for software_release_uri in self.getAvailableSoftwareReleaseURIList(config):
-    software_release_path = os.path.join(
-      config['software_root'],
-      md5digest(software_release_uri)
-    )
-    if os.path.exists(os.path.join(software_release_path, '.completed')):
-      result_list.append(True)
-    else:
-      resultd_list.append(False)
-    return all(result_list)
+    result_list.append(isSoftwareReleaseReady(config, software_release_uri))
+  return all(result_list)
 
 def isSoftwareReleaseReady(config):
   """Return 1 if the Software Release has
