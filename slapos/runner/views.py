@@ -185,9 +185,19 @@ def inspectInstance():
     file_path = ''
     supervisor = []
   current_sr = utils.relativepath(app.config, utils.getCurrentSoftwareReleaseProfile(app.config))
-  available_sr_list = [utils.relativepath(app.config, x) for x in utils.getAvailableSoftwareReleaseURIList(app.config)]
+  available_sr_uri_list = utils.getAvailableSoftwareReleaseURIList(app.config)
+  available_sr_list = [
+    utils.relativepath(app.config, x)
+    for x in available_sr_uri_list
+  ]
+  built_available_sr_list = [
+    utils.relativepath(app.config, x)
+    for x in available_sr_uri_list
+    if utils.isSoftwareReleaseCompleted(app.config, x)
+  ]
   if current_sr in available_sr_list:
     available_sr_list.remove(current_sr)
+    built_available_sr_list.remove(current_sr)
   if "application/json" in request.accept_mimetypes.best:
     result_list = []
     for service in supervisor:
@@ -203,6 +213,7 @@ def inspectInstance():
     slap_status=getSlapStatus(app.config),
     partition_amount=app.config['partition_amount'],
     current_software_release_uri=current_sr,
+    built_available_sr_list=built_available_sr_list,
     software_release_uri_list=available_sr_list
   )
 

@@ -98,7 +98,7 @@
         <h2 class='title'>Software Release of main instance</h2>
         <select style="margin-top:5px;" name="software_release", id="software_release">
           <option value="{{ current_software_release_uri }}">{{ current_software_release_uri }}</option>
-          {% for sr_uri in software_release_uri_list %}
+          {% for sr_uri in built_available_sr_list %}
           <option value="{{ sr_uri }}">{{ sr_uri }}</option>
           {% endfor %}
         </select>
