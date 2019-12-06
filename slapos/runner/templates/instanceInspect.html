@@ -144,9 +144,29 @@
         </div><!-- end tab4 -->
       <div id="tab5" class="tabContents">
         <div class="clear"></div>
+	<h2>List of unused Software Releases</h2>
+    <p></p>
+    <p>Request here the deletion of Software Releases.</p>
+    <p>A Software Release won't be deleted from disk until Build&amp;Run is executed. If you requested a Software Release removal by mistake, and Build&amp;Run didn't run yet, it is still possible to request it again.</p>
+    <div class="clear"></div>
+    <table width="100%">
+      <tr>
+        <th>Software Release URI</th><th>Ask Deletion</th>
+      </tr>
 	{% for software_release_uri in software_release_uri_list %}
-	<p>{{ software_release_uri }}</p>
+      <tr>
+        <td>
+          {{ software_release_uri }}
+        </td>
+        <td>
+	      <form action="/destroySoftwareRelease" method="POST">
+                <input type="hidden" name="uri" value="{{ software_release_uri }}" />
+                <input type="submit" class="button" title="Remove this software" value="Remove" />
+	      </form>
+        </td>
+	  </tr>
 	{% endfor %}
+    </table>
       </div><!-- end tab5 -->
     </div>
 </div>

@@ -831,6 +831,15 @@ def getMiniShellHistory():
   return json.dumps(history)
 
 
+def destroySoftwareRelease():
+  software_release_uri = request.form.get('uri', 'tamere')
+  if utils.destroySoftwareRelease(app.config, realpath(app.config, software_release_uri)):
+    flash('Software Release deleted.')
+  else:
+    flash('Error: Software Release not found')
+  return redirect(url_for('inspectInstance'))
+
+
 #Setup List of URLs
 app.add_url_rule('/', 'home', home)
 app.add_url_rule('/browseWorkspace', 'browseWorkspace', browseWorkspace)
@@ -920,3 +929,4 @@ app.add_url_rule('/addUser', 'addUser', addUser, methods=['POST'])
 app.add_url_rule('/getSlapgridParameters', 'getSlapgridParameters', getSlapgridParameters, methods=['GET'])
 app.add_url_rule('/runCommand', 'runCommand', runCommand, methods=['POST'])
 app.add_url_rule("/getMiniShellHistory", 'getMiniShellHistory', getMiniShellHistory, methods=['GET'])
+app.add_url_rule("/destroySoftwareRelease", "destroySoftwareRelease", destroySoftwareRelease, methods=['POST'])
