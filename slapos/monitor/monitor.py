@@ -354,9 +354,6 @@ class Monitoring(object):
 
   def bootstrapMonitor(self):
 
-    if os.path.exists(self.promise_output_file):
-      os.unlink(self.promise_output_file)
-
     # save pid of current process into file
     with open(self.pid_file, 'w') as pid_file:
       pid_file.write(str(os.getpid()))
@@ -378,6 +375,9 @@ class Monitoring(object):
       with open(self.promise_output_file, 'w') as promise_file:
         promise_file.write("")
       print("SUCCESS: bootstrap is OK")
+    elif os.path.exists(self.promise_output_file):
+      os.unlink(self.promise_output_file)
+
 
     return 0
 
