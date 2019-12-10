@@ -301,7 +301,7 @@ class Monitoring(object):
         'global_url': "%s/private/" % self.webdav_url}
     for feed_url in feed_url_list:
       opml_content += OPML_OUTLINE_FEED % {
-        'title': self.getMonitorTitleFromUrl(feed_url + "/share/public/"),
+        'title': self.getMonitorTitleFromUrl(feed_url + "/public"),
         'html_url': feed_url + '/public/feed',
         'xml_url': feed_url + '/public/feed',
         'global_url': "%s/share/private/" % feed_url}
