@@ -1,3 +1,9 @@
+0.101 (2019-12-12)
+==================
+
+* monitor: the monitor.global.json is under /public directory not /share/public
+* promise: Add check_surykatka_json promise
+
 0.100 (2019-12-10)
 ==================
 
