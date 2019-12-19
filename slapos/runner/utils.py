@@ -122,15 +122,19 @@ def createNewUser(config, name, passwd):
     return False
   return True
 
-
-def getAvailableSoftwareReleaseURIList(config):
+def _getSoftwareReleaseList(config):
   slap = slapos.slap.slap()
   slap.initializeConnection(config['master_url'])
+  return slap.registerComputer(config['computer_id']).getSoftwareReleaseList()
+
+def getAvailableSoftwareReleaseURIList(config):
   return [
-    x.getURI() for x in \
-    slap.registerComputer(config['computer_id']).getSoftwareReleaseList()
+    x.getURI() for x in _getSoftwareReleaseList(config)
+    if x._requested_state == "available"
   ]
 
+def getAllSoftwareReleaseURIList(config):
+  return [x.getURI() for x in _getSoftwareReleaseList(config)]
 
 def getCurrentSoftwareReleaseProfile(config):
   """
@@ -219,7 +223,7 @@ def supplySoftwareRelease(config, sr_path):
     setCurrentSoftwareRelease(config, sr_path)
 
 def destroySoftwareRelease(config, uri):
-  available_sr_list = getAvailableSoftwareReleaseURIList(config)
+  available_sr_list = getAllSoftwareReleaseURIList(config)
   for available_sr in available_sr_list:
     if os.path.realpath(available_sr) == os.path.realpath(uri):
       real_uri = available_sr
@@ -928,7 +932,7 @@ def isSoftwareReleaseCompleted(config, software_release_uri):
 
 def areAllSoftwareReleaseCompleted(config):
   result_list = []
-  for software_release_uri in self.getAvailableSoftwareReleaseURIList(config):
+  for software_release_uri in getAvailableSoftwareReleaseURIList(config):
     result_list.append(isSoftwareReleaseReady(config, software_release_uri))
   return all(result_list)
 
