@@ -197,6 +197,7 @@ def inspectInstance():
   ]
   if current_sr in available_sr_list:
     available_sr_list.remove(current_sr)
+  if current_sr in built_available_sr_list:
     built_available_sr_list.remove(current_sr)
   if "application/json" in request.accept_mimetypes.best:
     result_list = []
