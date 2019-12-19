@@ -100,7 +100,7 @@ function getRunningState() {
             position: logReadingPosition,
             log: (openedlogpage !== "") ? currentProcess : ""
         },
-        jqxhr = $.post(url, param, function (data) {
+        jqxhr = $.get(url, param, function (data) {
             running = data.result;
             if (data.instance.state) {
                 currentProcess = processTypes.instance;

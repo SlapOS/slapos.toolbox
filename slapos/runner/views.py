@@ -876,7 +876,7 @@ app.add_url_rule('/getSoftwareType', 'getSoftwareType',
                  getSoftwareType, methods=['GET'])
 app.add_url_rule("/stopSlapgrid", 'stopSlapgrid', stopSlapgrid, methods=['POST'])
 app.add_url_rule("/slapgridResult", 'slapgridResult',
-                 slapgridResult, methods=['POST'])
+                 slapgridResult, methods=['GET'])
 app.add_url_rule("/getmd5sum", 'getmd5sum', getmd5sum, methods=['POST'])
 app.add_url_rule("/checkFileType", 'checkFileType', checkFileType,
                  methods=['POST'])
