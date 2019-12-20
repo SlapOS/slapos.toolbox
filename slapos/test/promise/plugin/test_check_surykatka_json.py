@@ -382,6 +382,65 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "15:11:12 -0000"
     )
 
+  def _test_bad_code_explanation(self, status_code, explanation):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '301',
+        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
+      }
+    )
+    self.writeSurykatkaJson("""{
+    "http_query": [
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "127.0.0.1",
+            "status_code": %s,
+            "url": "https://www.erp5.com/"
+        }
+    ],
+    "ssl_certificate": [
+        {
+            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+            "hostname": "www.erp5.com",
+            "ip": "127.0.0.1",
+            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+        },
+        {
+            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+            "hostname": "www.erp5.com",
+            "ip": "127.0.0.2",
+            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+        }
+    ]
+}
+""" % status_code)
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "http_query: Problem with https://www.erp5.com/ : IP 127.0.0.1 got "
+      "status code %s instead of 301 ssl_certificate: Certificate for "
+      "https://www.erp5.com/ will expire on Mon, 13 Jul 2020 12:00:00 "
+      "-0000, which is more than 15 days, UTC now is Fri, 27 Dec 2019 "
+      "15:11:12 -0000" % explanation
+    )
+
+  def test_bad_code_explanation_520(self):
+    self._test_bad_code_explanation(520, '520 (Too many redirects)')
+
+  def test_bad_code_explanation_523(self):
+    self._test_bad_code_explanation(523, '523 (Connection error)')
+
+  def test_bad_code_explanation_524(self):
+    self._test_bad_code_explanation(524, '524 (Connection timeout)')
+
+  def test_bad_code_explanation_526(self):
+    self._test_bad_code_explanation(526, '526 (SSL Error)')
+
   def test_bad_ip(self):
     self.writeSurykatkaPromise(
       {
