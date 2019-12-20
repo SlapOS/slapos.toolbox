@@ -11,6 +11,14 @@ import time
 
 @implementer(interface.IPromise)
 class RunPromise(GenericPromise):
+  EXTENDED_STATUS_CODE_MAPPING = {
+    '520': 'Too many redirects',
+    '523': 'Connection error',
+    '524': 'Connection timeout',
+    '526': 'SSL Error',
+
+  }
+
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
     # Set frequency compatible to default surykatka interval - 2 minutes
@@ -70,10 +78,18 @@ class RunPromise(GenericPromise):
       return
     error_list = []
     for entry in entry_list:
-      if str(entry['status_code']) != str(status_code):
+      entry_status_code = str(entry['status_code'])
+      if entry_status_code != status_code:
+        status_code_explanation = self.EXTENDED_STATUS_CODE_MAPPING.get(
+          entry_status_code)
+        if status_code_explanation:
+          status_code_explanation = '%s (%s)' % (
+            entry_status_code, status_code_explanation)
+        else:
+          status_code_explanation = entry_status_code
         error_list.append(
           'IP %s got status code %s instead of %s' % (
-            entry['ip'], entry['status_code'], status_code))
+            entry['ip'], status_code_explanation, status_code))
     db_ip_list = [q['ip'] for q in entry_list]
     if len(ip_list):
       if set(ip_list) != set(db_ip_list):
