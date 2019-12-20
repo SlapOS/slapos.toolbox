@@ -325,7 +325,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/: "
+      "http_query: Problem with https://www.erp5.com/ : "
       "IP 127.0.0.1 got status code 302 instead of 301"
     )
 
@@ -367,7 +367,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/: "
+      "http_query: Problem with https://www.erp5.com/ : "
       "expected IPs 127.0.0.1 127.0.0.2 differes from got 127.0.0.1 127.0.0.4"
     )
 
@@ -409,7 +409,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/: "
+      "http_query: Problem with https://www.erp5.com/ : "
       "IP 127.0.0.1 got status code 302 instead of 301, "
       "expected IPs 127.0.0.1 127.0.0.2 differes from got "
       "127.0.0.1 127.0.0.4"

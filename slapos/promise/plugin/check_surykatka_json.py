@@ -66,7 +66,7 @@ class RunPromise(GenericPromise):
 
     entry_list = [q for q in self.surykatka_json[key] if q['url'] == url]
     if len(entry_list) == 0:
-      logError('No data for %r', url)
+      logError('No data for %s', url)
       return
     error_list = []
     for entry in entry_list:
@@ -81,7 +81,7 @@ class RunPromise(GenericPromise):
           'expected IPs %s differes from got %s' % (
             ' '.join(ip_list), ' '.join(db_ip_list)))
     if len(error_list):
-      logError('Problem with %s: ' % (url,) + ', '.join(error_list))
+      logError('Problem with %s : ' % (url,) + ', '.join(error_list))
       return
     if len(ip_list) > 0:
       self.logger.info(
