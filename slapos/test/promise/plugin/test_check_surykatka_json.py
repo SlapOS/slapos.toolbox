@@ -214,7 +214,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'https://www.erp5.com/',
         'status-code': '302',
-        'ip-list': '127.0.0.1 127.0.0.2'
+        'ip-list': '127.0.0.1 127.0.0.2',
+        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson("""{
@@ -237,6 +238,20 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "status_code": 200,
             "url": "https://www.erp5.org/"
         }
+    ],
+    "ssl_certificate": [
+        {
+            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+            "hostname": "www.erp5.com",
+            "ip": "127.0.0.1",
+            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+        },
+        {
+            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+            "hostname": "www.erp5.com",
+            "ip": "127.0.0.2",
+            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+        }
     ]
 }
 """)
@@ -245,7 +260,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
       "http_query: https://www.erp5.com/ replied correctly with "
-      "status code 302 on ip list 127.0.0.1 127.0.0.2"
+      "status code 302 on ip list 127.0.0.1 127.0.0.2 ssl_certificate: "
+      "Certificate for https://www.erp5.com/ will expire on Mon, 13 Jul "
+      "2020 12:00:00 -0000, which is more than 15 days, UTC now is "
+      "2019-12-27 15:11:12"
     )
 
   def test_no_ip_list(self):
