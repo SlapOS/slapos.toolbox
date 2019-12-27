@@ -7,6 +7,7 @@ import email.utils
 import json
 import os
 import time
+import urlparse
 
 
 @implementer(interface.IPromise)
@@ -66,8 +67,67 @@ class RunPromise(GenericPromise):
       '%s: Last bot status from %s ok, UTC now is %s' %
       (key, last_bot_datetime, self.utcnow))
 
+  def senseSslCertificate(self):
+    key = 'ssl_certificate'
+
+    def appendError(msg, *args):
+      self.appendError(key + ': ' + msg % args)
+
+    url = self.getConfig('url')
+    parsed_url = urlparse.urlparse(url)
+    if parsed_url.scheme == 'https':
+      hostname = parsed_url.netloc
+      ssl_check = True
+      certificate_expiration_days = self.getConfig(
+        'certificate-expiration-days', '15')
+      try:
+        certificate_expiration_days = int(certificate_expiration_days)
+      except ValueError:
+        certificate_expiration_days = None
+    else:
+      ssl_check = False
+      certificate_expiration_days = None
+    if ssl_check is None:
+      return
+    if certificate_expiration_days is None:
+      appendError(
+        'certificate-expiration-days %r is incorrect',
+        self.getConfig('certificate-expiration-days'))
+      return
+    if not hostname:
+      appendError('url %r is incorrect', url)
+      return
+    if key not in self.surykatka_json:
+      appendError(
+        'No data for %s . If the error persist, please update surykatka.', url)
+      return
+    entry_list = [
+      q for q in self.surykatka_json[key] if q['hostname'] == hostname]
+    if len(entry_list) == 0:
+      appendError('No data for %s', url)
+      return
+    for entry in entry_list:
+      timetuple = email.utils.parsedate(entry['not_after'])
+      certificate_expiration_time = datetime.datetime.fromtimestamp(
+        time.mktime(timetuple))
+      if certificate_expiration_time - datetime.timedelta(
+        days=certificate_expiration_days) < self.utcnow:
+        appendError(
+          'Certificate for %s will expire on %s, which is less than %s days, '
+          'UTC now is %s',
+          url, entry['not_after'], certificate_expiration_days, self.utcnow_string)
+        return
+      else:
+        self.appendInfo(
+          '%s: Certificate for %s will expire on %s, which is more than %s '
+          'days, UTC now is %s' %
+          (key, url, entry['not_after'], certificate_expiration_days,
+           self.utcnow_string))
+        return
+
   def senseHttpQuery(self):
     key = 'http_query'
+    error_list = []
 
     def logError(msg, *args):
       self.appendError(key + ': ' + msg % args)
@@ -116,8 +176,10 @@ class RunPromise(GenericPromise):
     if test_utcnow:
       self.utcnow = datetime.datetime.fromtimestamp(
         time.mktime(email.utils.parsedate(test_utcnow)))
+      self.utcnow_string = test_utcnow
     else:
       self.utcnow = datetime.datetime.utcnow()
+      self.utcnow_string = email.utils.formatdate(time.mktime(self.utcnow.timetuple()))
 
     self.json_file = self.getConfig('json-file', '')
     if not os.path.exists(self.json_file):
@@ -134,6 +196,7 @@ class RunPromise(GenericPromise):
             self.senseBotStatus()
           elif report == 'http_query':
             self.senseHttpQuery()
+            self.senseSslCertificate()
           else:
             self.appendError("Report %r is not supported" % report)
     self.emitLog()
