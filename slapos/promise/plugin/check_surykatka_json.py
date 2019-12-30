@@ -52,20 +52,21 @@ class RunPromise(GenericPromise):
       return
     timetuple = email.utils.parsedate(bot_status['date'])
     last_bot_datetime = datetime.datetime.fromtimestamp(time.mktime(timetuple))
+    last_bot_datetime_string = email.utils.formatdate(time.mktime(timetuple))
     delta = self.utcnow - last_bot_datetime
     # sanity check
     if delta < datetime.timedelta(minutes=0):
       logError('Last bot datetime %s is in future, UTC now %s',
-               last_bot_datetime, self.utcnow)
+               last_bot_datetime_string, self.utcnow_string)
       return
     if delta > datetime.timedelta(minutes=15):
       logError('Last bot datetime %s is more than 15 minutes old, UTC now %s',
-               last_bot_datetime, self.utcnow)
+               last_bot_datetime_string, self.utcnow_string)
       return
 
     self.appendInfo(
       '%s: Last bot status from %s ok, UTC now is %s' %
-      (key, last_bot_datetime, self.utcnow))
+      (key, last_bot_datetime_string, self.utcnow_string))
 
   def senseSslCertificate(self):
     key = 'ssl_certificate'
@@ -115,7 +116,8 @@ class RunPromise(GenericPromise):
         appendError(
           'Certificate for %s will expire on %s, which is less than %s days, '
           'UTC now is %s',
-          url, entry['not_after'], certificate_expiration_days, self.utcnow_string)
+          url, entry['not_after'], certificate_expiration_days,
+          self.utcnow_string)
         return
       else:
         self.appendInfo(
@@ -179,7 +181,8 @@ class RunPromise(GenericPromise):
       self.utcnow_string = test_utcnow
     else:
       self.utcnow = datetime.datetime.utcnow()
-      self.utcnow_string = email.utils.formatdate(time.mktime(self.utcnow.timetuple()))
+      self.utcnow_string = email.utils.formatdate(time.mktime(
+        self.utcnow.timetuple()))
 
     self.json_file = self.getConfig('json-file', '')
     if not os.path.exists(self.json_file):

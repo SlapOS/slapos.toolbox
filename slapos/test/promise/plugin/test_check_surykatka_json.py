@@ -114,8 +114,8 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "bot_status: Last bot status from 2222-12-13 09:10:11 ok, "
-      "UTC now is 2222-12-13 09:11:12"
+      "bot_status: Last bot status from Fri, 13 Dec 2222 08:10:11 -0000 "
+      "ok, UTC now is Wed, 13 Dec 2222 09:11:12 -0000"
     )
 
   def test_bot_status_future(self):
@@ -140,8 +140,8 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "bot_status: Last bot datetime 2223-12-13 09:10:11 is in "
-      "future, UTC now 2222-12-13 09:11:12"
+      "bot_status: Last bot datetime Sat, 13 Dec 2223 08:10:11 -0000 is "
+      "in future, UTC now Wed, 13 Dec 2222 09:11:12 -0000"
     )
 
   def test_bot_status_old(self):
@@ -166,8 +166,8 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "bot_status: Last bot datetime 2223-12-13 09:10:11 is "
-      "more than 15 minutes old, UTC now 2223-12-13 09:26:12"
+      "bot_status: Last bot datetime Sat, 13 Dec 2223 08:10:11 -0000 is "
+      "more than 15 minutes old, UTC now Wed, 13 Dec 2223 09:26:12 -0000"
     )
 
   def test_not_bot_status(self):
