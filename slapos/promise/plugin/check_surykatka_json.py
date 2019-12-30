@@ -52,20 +52,21 @@ class RunPromise(GenericPromise):
       return
     timetuple = email.utils.parsedate(bot_status['date'])
     last_bot_datetime = datetime.datetime.fromtimestamp(time.mktime(timetuple))
+    last_bot_datetime_string = email.utils.formatdate(time.mktime(timetuple))
     delta = self.utcnow - last_bot_datetime
     # sanity check
     if delta < datetime.timedelta(minutes=0):
       logError('Last bot datetime %s is in future, UTC now %s',
-               last_bot_datetime, self.utcnow)
+               last_bot_datetime_string, self.utcnow_string)
       return
     if delta > datetime.timedelta(minutes=15):
       logError('Last bot datetime %s is more than 15 minutes old, UTC now %s',
-               last_bot_datetime, self.utcnow)
+               last_bot_datetime_string, self.utcnow_string)
       return
 
     self.appendInfo(
       '%s: Last bot status from %s ok, UTC now is %s' %
-      (key, last_bot_datetime, self.utcnow))
+      (key, last_bot_datetime_string, self.utcnow_string))
 
   def senseSslCertificate(self):
     key = 'ssl_certificate'
