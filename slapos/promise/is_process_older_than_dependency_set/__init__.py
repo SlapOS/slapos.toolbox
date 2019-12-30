@@ -33,7 +33,7 @@ def moduleIsModifiedSince(top, since, followlinks=False):
       if since < os.stat(os.path.join(root, name)).st_mtime:
         print("%s was modified since the process started." %
                                                        os.path.join(root, name))
-        print("Process Time %s < Last modidified file %s" % (time.ctime(since),
+        print("Process Time %s < Last modified file %s" % (time.ctime(since),
                         time.ctime(os.stat(os.path.join(root, name)).st_mtime)))
         return True
   return False
