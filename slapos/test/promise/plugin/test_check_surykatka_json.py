@@ -375,7 +375,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/: IP 127.0.0.1 got "
+      "http_query: Problem with https://www.erp5.com/ : IP 127.0.0.1 got "
       "status code 302 instead of 301 ssl_certificate: Certificate for "
       "https://www.erp5.com/ will expire on Mon, 13 Jul 2020 12:00:00 "
       "-0000, which is more than 15 days, UTC now is Fri, 27 Dec 2019 "
@@ -435,7 +435,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/: expected IPs "
+      "http_query: Problem with https://www.erp5.com/ : expected IPs "
       "127.0.0.1 127.0.0.2 differes from got 127.0.0.1 127.0.0.4 "
       "ssl_certificate: Certificate for https://www.erp5.com/ will expire "
       "on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 days, "
@@ -495,7 +495,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/: IP 127.0.0.1 got "
+      "http_query: Problem with https://www.erp5.com/ : IP 127.0.0.1 got "
       "status code 302 instead of 301, expected IPs 127.0.0.1 127.0.0.2 "
       "differes from got 127.0.0.1 127.0.0.4 ssl_certificate: Certificate "
       "for https://www.erp5.com/ will expire on Mon, 13 Jul 2020 12:00:00 "
