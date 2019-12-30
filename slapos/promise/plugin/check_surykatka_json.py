@@ -15,12 +15,28 @@ class RunPromise(GenericPromise):
     super(RunPromise, self).__init__(config)
     # Set frequency compatible to default surykatka interval - 2 minutes
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
+    self.error_list = []
+    self.info_list = []
+
+  def appendError(self, message):
+    self.error_list.append(message)
+
+  def appendInfo(self, message):
+    self.info_list.append(message)
+
+  def emitLog(self):
+   if len(self.error_list) > 0:
+     emit = self.logger.error
+   else:
+     emit = self.logger.info
+
+   emit(' '.join(self.error_list + self.info_list))
 
   def senseBotStatus(self):
     key = 'bot_status'
 
     def logError(msg, *args):
-      self.logger.error(key + ': ' + msg, *args)
+      self.appendError(key + ': ' + msg % args)
 
     if key not in self.surykatka_json:
       logError("%r not in %r", key, self.json_file)
@@ -46,15 +62,15 @@ class RunPromise(GenericPromise):
                last_bot_datetime, self.utcnow)
       return
 
-    self.logger.info(
-      '%s: Last bot status from %s ok, UTC now is %s',
-      key, last_bot_datetime, self.utcnow)
+    self.appendInfo(
+      '%s: Last bot status from %s ok, UTC now is %s' %
+      (key, last_bot_datetime, self.utcnow))
 
   def senseHttpQuery(self):
     key = 'http_query'
 
     def logError(msg, *args):
-      self.logger.error(key + ': ' + msg, *args)
+      self.appendError(key + ': ' + msg % args)
 
     if key not in self.surykatka_json:
       logError("%r not in %r", key, self.json_file)
@@ -84,13 +100,13 @@ class RunPromise(GenericPromise):
       logError('Problem with %s: ' % (url,) + ', '.join(error_list))
       return
     if len(ip_list) > 0:
-      self.logger.info(
-        '%s: %s replied correctly with status code %s on ip list %s',
-        key, url, status_code, ' '.join(ip_list))
+      self.appendInfo(
+        '%s: %s replied correctly with status code %s on ip list %s' %
+        (key, url, status_code, ' '.join(ip_list)))
     else:
-      self.logger.info(
-        '%s: %s replied correctly with status code %s',
-        key, url, status_code)
+      self.appendInfo(
+        '%s: %s replied correctly with status code %s' %
+        (key, url, status_code))
 
   def sense(self):
     """
@@ -105,23 +121,22 @@ class RunPromise(GenericPromise):
 
     self.json_file = self.getConfig('json-file', '')
     if not os.path.exists(self.json_file):
-      self.logger.error('File %r does not exists', self.json_file)
-      return
-    with open(self.json_file) as fh:
-      try:
-        self.surykatka_json = json.load(fh)
-      except Exception:
-        self.logger.error("Problem loading JSON from %r", self.json_file)
-        return
-
-    report = self.getConfig('report')
-    if report == 'bot_status':
-      return self.senseBotStatus()
-    elif report == 'http_query':
-      return self.senseHttpQuery()
+      self.appendError('File %r does not exists' % self.json_file)
     else:
-      self.logger.error("Report %r is not supported", report)
-      return
+      with open(self.json_file) as fh:
+        try:
+          self.surykatka_json = json.load(fh)
+        except Exception:
+          self.appendError("Problem loading JSON from %r" % self.json_file)
+        else:
+          report = self.getConfig('report')
+          if report == 'bot_status':
+            self.senseBotStatus()
+          elif report == 'http_query':
+            self.senseHttpQuery()
+          else:
+            self.appendError("Report %r is not supported" % report)
+    self.emitLog()
 
   def anomaly(self):
     return self._test(result_count=3, failure_amount=3)
