@@ -1,3 +1,8 @@
+0.102 (2019-12-31)
+==================
+
+* promise: Support SSL checks in check_surykatka_json
+
 0.101 (2019-12-12)
 ==================
 
