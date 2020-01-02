@@ -266,6 +266,50 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "Fri, 27 Dec 2019 15:11:12 -0000"
     )
 
+  def test_http(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'http://www.erp5.com/',
+        'status-code': '302',
+        'ip-list': '127.0.0.1 127.0.0.2',
+        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
+      }
+    )
+    self.writeSurykatkaJson("""{
+    "http_query": [
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "127.0.0.1",
+            "status_code": 302,
+            "url": "http://www.erp5.com/"
+        },
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "127.0.0.2",
+            "status_code": 302,
+            "url": "http://www.erp5.com/"
+        },
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "176.31.129.213",
+            "status_code": 200,
+            "url": "http://www.erp5.org/"
+        }
+    ],
+    "ssl_certificate": [
+    ]
+}
+""")
+    self.configureLauncher()
+    self.launcher.run()
+    self.assertPassedMessage(
+      self.getPromiseResult(self.promise_name),
+      "http_query: http://www.erp5.com/ replied correctly with "
+      "status code 302 on ip list 127.0.0.1 127.0.0.2"
+    )
+
   def test_no_ip_list(self):
     self.writeSurykatkaPromise(
       {

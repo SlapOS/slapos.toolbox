@@ -99,7 +99,7 @@ class RunPromise(GenericPromise):
     else:
       ssl_check = False
       certificate_expiration_days = None
-    if ssl_check is None:
+    if not ssl_check:
       return
     if certificate_expiration_days is None:
       appendError(
