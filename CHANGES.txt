@@ -1,3 +1,8 @@
+0.103 (2020-01-02)
+==================
+
+* promise: Fix check_surykatka_json for http-only checks
+
 0.102 (2019-12-31)
 ==================
 
