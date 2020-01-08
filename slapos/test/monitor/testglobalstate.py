@@ -166,8 +166,22 @@ exit %(code)s
     self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_4.status.json')))
 
     os.symlink(self.output_dir, '%s/public/promise' % self.base_dir)
+    # create files for cleanup
+    must_stay_public = os.path.join(self.public_dir, 'must_stay')
+    must_unlink_public = os.path.join(self.public_dir, 'must_unlink.history.json')
+    for f in [must_stay_public, must_unlink_public]:
+      with open(f, 'w') as fh:
+        fh.write('data')
     # generate instance state files
+    document_list_file = os.path.join(self.public_dir, '_document_list')
+    with open(document_list_file, 'a+') as fh:
+      fh.write('must_unlink.history')
+
     globalstate.run(self.monitor_config_file)
+    with open(document_list_file) as fh:
+      self.assertNotIn('must_unlink.history', fh.read())
+    self.assertTrue(os.path.exists(must_stay_public))
+    self.assertFalse(os.path.exists(must_unlink_public))
     self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'feed')))
     self.assertTrue(os.path.exists(os.path.join(self.public_dir, 'monitor.global.json')))
     self.assertTrue(os.path.exists(os.path.join(self.private_dir, 'monitor.global.json')))
