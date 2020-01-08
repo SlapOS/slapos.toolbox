@@ -100,10 +100,10 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
     private_url, feed_url):
   feed_output = os.path.join(public_folder, 'feed')
   # search for all status files
-  file_list = filter(
+  file_list = list(filter(
     os.path.isfile,
     glob.glob("%s/promise/*.status.json" % public_folder)
-  )
+  ))
 
   promises_status_file = os.path.join(private_folder, '_promise_status')
   previous_state_dict = {}
@@ -122,6 +122,21 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
         previous_state_dict = json.loads(f.read())
       except ValueError:
         pass
+
+  # clean up stale history files
+  expected_history_json_name_list = [
+    os.path.basename(q).replace('status.json', 'history.json') for q in file_list]
+  cleanup_history_json_path_list = []
+  for history_json_name in [q for q in os.listdir(public_folder) if q.endswith('history.json')]:
+    if history_json_name not in expected_history_json_name_list:
+      cleanup_history_json_path_list.append(os.path.join(public_folder, history_json_name))
+  for cleanup_path in cleanup_history_json_path_list:
+    try:
+      os.unlink(cleanup_path)
+    except Exception:
+      print('ERROR: Failed to remove stale %s' % (cleanup_path,))
+    else:
+      print('OK: Removed stale %s' % (cleanup_path,))
 
   for file in file_list:
     try:
