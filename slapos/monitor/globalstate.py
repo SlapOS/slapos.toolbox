@@ -100,10 +100,10 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
     private_url, feed_url):
   feed_output = os.path.join(public_folder, 'feed')
   # search for all status files
-  file_list = filter(
+  file_list = list(filter(
     os.path.isfile,
     glob.glob("%s/promise/*.status.json" % public_folder)
-  )
+  ))
 
   promises_status_file = os.path.join(private_folder, '_promise_status')
   previous_state_dict = {}
