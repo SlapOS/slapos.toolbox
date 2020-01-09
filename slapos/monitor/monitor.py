@@ -4,6 +4,10 @@
 from __future__ import print_function
 
 import sys
+try:
+  import errno
+except ImportError:
+  from os import errno
 import os
 import stat
 import json
@@ -53,7 +57,7 @@ def mkdirAll(path):
   try:
     os.makedirs(path)
   except OSError as e:
-    if e.errno == os.errno.EEXIST and os.path.isdir(path):
+    if e.errno == errno.EEXIST and os.path.isdir(path):
       pass
     else: raise
 
@@ -67,7 +71,7 @@ def createSymlink(source, destination):
   try:
     os.symlink(source, destination)
   except OSError as e:
-    if e.errno != os.errno.EEXIST:
+    if e.errno != errno.EEXIST:
       raise
 
 class Monitoring(object):
@@ -201,7 +205,7 @@ class Monitoring(object):
             mkdirAll(dirname)  # could also raise OSError
             os.symlink(path, os.path.join(dirname, os.path.basename(path)))
           except OSError as e:
-            if e.errno != os.errno.EEXIST:
+            if e.errno != errno.EEXIST:
               raise
 
   def getMonitorTitleFromUrl(self, monitor_url):
