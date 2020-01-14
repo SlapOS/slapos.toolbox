@@ -214,8 +214,12 @@ def supplySoftwareRelease(config, sr_path):
   updateProxy(config)
   slap = slapos.slap.slap()
   slap.initializeConnection(config['master_url'])
+
+  software_release_path = os.path.join(realpath(config, sr_path), config['software_profile'])
+  logger.info('Supplying new Software Release : %s' % software_release_path)
+
   slap.registerSupply().supply(
-    os.path.join(realpath(config, sr_path), config['software_profile']),
+    software_release_path,
     computer_guid=config['computer_id'],
   )
   # Don't replace .project if there is a running instance
