@@ -335,7 +335,7 @@ def checkFolder():
 
 
 def supplySoftwareRelease():
-  if request.form['path']:
+  if request.form.get('path'):
     sr_absolute_path = realpath(app.config, request.form['path'])
     sr_absolute_path = sr_absolute_path and os.path.join(sr_absolute_path, 'software.cfg') # XXX: find where this one was added before
     if os.path.exists(sr_absolute_path):
