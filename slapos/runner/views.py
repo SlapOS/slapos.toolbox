@@ -507,11 +507,11 @@ def slapgridResult():
     'position': 0,
     'truncated': False
   }
-  if request.form.get('log') in ['software', 'instance']:
-    log_file = request.form['log'] + "_log"
+  if request.args.get('log') in ['software', 'instance']:
+    log_file = request.args['log'] + "_log"
     if os.path.exists(app.config[log_file]):
       with open(app.config[log_file], 'rb') as f:
-        log_result = bytes2str(readFileFrom(f, int(request.form['position'])))
+        log_result = bytes2str(readFileFrom(f, int(request.args['position'])))
   build_result = getSlapgridResult(app.config, 'software')
   run_result = getSlapgridResult(app.config, 'instance')
   software_info = {'state':software_state,
