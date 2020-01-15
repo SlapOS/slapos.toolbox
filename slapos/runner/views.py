@@ -29,7 +29,7 @@ from slapos.runner.utils import (checkSoftwareFolder, checkUserCredential,
                                  loadSoftwareRList, md5sum, newSoftware,
                                  readFileFrom, readParameters, realpath,
                                  removeCurrentInstance,
-                                 removeSoftwareByName, runSlapgridUntilSuccess,
+                                 runSlapgridUntilSuccess,
                                  saveBuildAndRunParams,
                                  setMiniShellHistory,
                                  stopProxy,
@@ -141,24 +141,6 @@ def editSoftwareProfile():
     flash('Error: can not open profile, please select your project first')
   return render_template('updateSoftwareProfile.html', workDir='workspace',
       profile=profile, projectList=listFolder(app.config, 'workspace'))
-
-
-def inspectSoftware():
-  return render_template('runResult.html', softwareRoot='software_link/',
-                         softwares=loadSoftwareRList(app.config))
-
-
-#remove content of compiled software release
-def removeSoftware():
-  if isSoftwareRunning(app.config) or isInstanceRunning(app.config):
-    flash('Software installation or instantiation in progress, cannot remove')
-  elif os.path.exists(app.config['software_root']):
-    svcStopAll(app.config)
-    shutil.rmtree(app.config['software_root'])
-    for link in os.listdir(app.config['software_link']):
-      os.remove(os.path.join(app.config['software_link'], link))
-    flash('Software removed')
-  return redirect(url_for('inspectSoftware'))
 
 
 def runSoftwareProfile():
@@ -400,12 +382,6 @@ def removeFile():
     return jsonify(code=1, result="")
   except Exception as e:
     return jsonify(code=0, result=str(e))
-
-
-def removeSoftwareDir():
-    status, message = removeSoftwareByName(app.config, request.form['md5'],
-      request.form['title'])
-    return jsonify(code=status, result=message)
 
 
 #read file and return content to ajax
@@ -846,8 +822,6 @@ app.add_url_rule('/', 'home', home)
 app.add_url_rule('/browseWorkspace', 'browseWorkspace', browseWorkspace)
 app.add_url_rule('/editSoftwareProfile', 'editSoftwareProfile',
                 editSoftwareProfile)
-app.add_url_rule('/inspectSoftware', 'inspectSoftware', inspectSoftware)
-app.add_url_rule('/removeSoftware', 'removeSoftware', removeSoftware)
 app.add_url_rule('/runSoftwareProfile', 'runSoftwareProfile',
                  runSoftwareProfile, methods=['GET', 'POST'])
 app.add_url_rule('/editInstanceProfile', 'editInstanceProfile',
@@ -892,8 +866,6 @@ app.add_url_rule("/getProjectDiff", 'getProjectDiff', getProjectDiff,
 app.add_url_rule("/newBranch", 'newBranch', newBranch, methods=['POST'])
 app.add_url_rule("/changeBranch", 'changeBranch', changeBranch, methods=['POST'])
 app.add_url_rule("/saveFileContent", 'saveFileContent', saveFileContent,
-                 methods=['POST'])
-app.add_url_rule("/removeSoftwareDir", 'removeSoftwareDir', removeSoftwareDir,
                  methods=['POST'])
 app.add_url_rule("/getFileContent", 'getFileContent', getFileContent,
                  methods=['POST'])
