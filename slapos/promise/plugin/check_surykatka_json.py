@@ -7,10 +7,7 @@ import email.utils
 import json
 import os
 import time
-try:
-  from urlparse import urlparse
-except ImportError:
-  from urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse
 
 
 @implementer(interface.IPromise)
