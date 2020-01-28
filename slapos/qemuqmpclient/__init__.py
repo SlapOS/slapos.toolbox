@@ -36,6 +36,7 @@ import time
 import errno
 import psutil
 from operator import itemgetter
+from slapos.util import str2bytes
 
 def parseArgument():
   """
@@ -168,15 +169,14 @@ class QemuQMPWrapper(object):
       return response
 
   def _send(self, message, retry=0, sleep=0.5):
-    self.socket.sendall(json.dumps(message))
-    response = self._readResponse()
-    for i in range(0, retry):
+    for i in range(retry + 1):
+      self.socket.sendall(str2bytes(json.dumps(message)))
+      response = self._readResponse()
       if response is not None:
         break
-      print("Retrying send command after %s second(s)..." % sleep)
-      time.sleep(sleep)
-      self.socket.sendall(json.dumps(message))
-      response = self._readResponse()
+      if i < retry:
+        print("Retrying send command after %s second(s)..." % sleep)
+        time.sleep(sleep)
     return response
 
   def _getVMStatus(self):
