@@ -3,7 +3,7 @@
 # pylint: disable-msg=W0311,C0301,C0103,C0111
 
 import datetime
-import md5
+import hashlib
 import os
 import re
 import shutil
@@ -13,6 +13,7 @@ import fnmatch
 
 import werkzeug
 from slapos.runner.utils import realpath, tail, isText
+from slapos.util import str2bytes
 
 
 class FileBrowser(object):
@@ -59,7 +60,7 @@ class FileBrowser(object):
       realfile = os.path.join(realdir, f)
       mdate = datetime.datetime.fromtimestamp(os.path.getmtime(realfile)
                                               ).strftime("%Y-%d-%m %I:%M")
-      md5sum = md5.md5(realfile).hexdigest()
+      md5sum = hashlib.md5(str2bytes(realfile)).hexdigest()
       if not os.path.isdir(realfile):
         size = os.path.getsize(realfile)
         regex = re.compile("(^.*)\.(.*)", re.VERBOSE)
