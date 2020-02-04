@@ -102,9 +102,10 @@ def synchroniseRunnerWorkingDirectory(config, backup_path):
 def getBackupFilesModifiedDuringExportList(config, export_start_date):
   export_time = time.time() - export_start_date
   # find all files that were modified during export
-  modified_files = subprocess.check_output((
-      'find', 'instance', '-cmin',  str(export_time / 60), '-type', 'f', '-path', '*/srv/backup/*'
-    ))
+  find_arg_list = ['find']
+  find_arg_list += glob.glob("instance/*/srv/backup")
+  find_arg_list += '-cmin',  str(export_time / 60), '-type', 'f'
+  modified_files = subprocess.check_output(find_arg_list)
   if not modified_files:
     return ()
 
