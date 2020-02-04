@@ -103,7 +103,7 @@ def getBackupFilesModifiedDuringExportList(config, export_start_date):
   export_time = time.time() - export_start_date
   # find all files that were modified during export
   modified_files = subprocess.check_output((
-      'find', 'instance', '-cmin',  str(export_time / 60), '-type', 'f', '-path', '*/srv/backup/*'
+      'find', 'instance', '-type', 'd', '!', '-perm', '-u+r,g+r,o+r', '-prune', '-o', '-cmin',  str(export_time / 60), '-type', 'f', '-path', '*/srv/backup/*'
     ))
   if not modified_files:
     return ()
