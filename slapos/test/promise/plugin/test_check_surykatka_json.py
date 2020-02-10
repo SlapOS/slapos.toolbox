@@ -51,7 +51,7 @@ class TestCheckSurykatkaJSON(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "File '' does not exists")
+      "ERROR File '' does not exists")
 
   def test_not_existing_file(self):
     self.writeSurykatkaPromise({'json-file': self.json_file})
@@ -60,7 +60,7 @@ class TestCheckSurykatkaJSON(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "File '%s' does not exists" % (self.json_file,))
+      "ERROR File '%s' does not exists" % (self.json_file,))
 
   def test_empty_file(self):
     self.writeSurykatkaPromise({'json-file': self.json_file})
@@ -70,7 +70,7 @@ class TestCheckSurykatkaJSON(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "Problem loading JSON from '%s'" % (self.json_file,))
+      "ERROR loading JSON from '%s'" % (self.json_file,))
 
 
 class TestCheckSurykatkaJSONUnknownReport(CheckSurykatkaJSONMixin):
@@ -89,7 +89,7 @@ class TestCheckSurykatkaJSONUnknownReport(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "Report 'NOT_EXISTING_ENTRY' is not supported")
+      "ERROR Report 'NOT_EXISTING_ENTRY' is not supported")
 
 
 class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
@@ -114,8 +114,8 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "bot_status: Last bot status from Fri, 13 Dec 2222 08:10:11 -0000 "
-      "ok, UTC now is Wed, 13 Dec 2222 09:11:12 -0000"
+      "bot_status: OK Last bot status from Fri, 13 Dec 2222 08:10:11 -0000, "
+      "UTC now is Wed, 13 Dec 2222 09:11:12 -0000"
     )
 
   def test_bot_status_future(self):
@@ -140,7 +140,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "bot_status: Last bot datetime Sat, 13 Dec 2223 08:10:11 -0000 is "
+      "bot_status: ERROR Last bot datetime Sat, 13 Dec 2223 08:10:11 -0000 is "
       "in future, UTC now Wed, 13 Dec 2222 09:11:12 -0000"
     )
 
@@ -166,7 +166,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "bot_status: Last bot datetime Sat, 13 Dec 2223 08:10:11 -0000 is "
+      "bot_status: ERROR Last bot datetime Sat, 13 Dec 2223 08:10:11 -0000 is "
       "more than 15 minutes old, UTC now Wed, 13 Dec 2223 09:26:12 -0000"
     )
 
@@ -185,7 +185,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "bot_status: 'bot_status' not in '%s'" % (self.json_file,))
+      "bot_status: ERROR 'bot_status' not in '%s'" % (self.json_file,))
 
   def test_empty_bot_status(self):
     self.writeSurykatkaPromise(
@@ -203,7 +203,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "bot_status: 'bot_status' empty in '%s'" % (self.json_file,))
+      "bot_status: ERROR 'bot_status' empty in '%s'" % (self.json_file,))
 
 
 class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
@@ -259,9 +259,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: https://www.erp5.com/ replied correctly with "
+      "http_query: OK https://www.erp5.com/ replied correctly with "
       "status code 302 on ip list 127.0.0.1 127.0.0.2 ssl_certificate: "
-      "Certificate for https://www.erp5.com/ will expire on Mon, 13 Jul "
+      "OK Certificate for https://www.erp5.com/ will expire on Mon, 13 Jul "
       "2020 12:00:00 -0000, which is more than 15 days, UTC now is "
       "Fri, 27 Dec 2019 15:11:12 -0000"
     )
@@ -306,7 +306,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: http://www.erp5.com/ replied correctly with "
+      "http_query: OK http://www.erp5.com/ replied correctly with "
       "status code 302 on ip list 127.0.0.1 127.0.0.2"
     )
 
@@ -361,9 +361,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: https://www.erp5.com/ replied correctly with status "
-      "code 302 ssl_certificate: Certificate for https://www.erp5.com/ will "
-      "expire on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 "
+      "http_query: OK https://www.erp5.com/ replied correctly with status "
+      "code 302 ssl_certificate: OK Certificate for https://www.erp5.com/ "
+      "will expire on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 "
       "days, UTC now is Fri, 27 Dec 2019 15:11:12 -0000"
     )
 
@@ -402,8 +402,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: No data for https://www.erp5.com/ ssl_certificate: "
-      "Certificate for https://www.erp5.com/ will expire on Mon, 13 Jul "
+      "http_query: ERROR No data for https://www.erp5.com/ ssl_certificate: "
+      "OK Certificate for https://www.erp5.com/ will expire on Mon, 13 Jul "
       "2020 12:00:00 -0000, which is more than 15 days, UTC now is "
       "Fri, 27 Dec 2019 15:11:12 -0000"
     )
@@ -449,8 +449,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "ssl_certificate: No data for https://www.erp5.com/ http_query: "
-      "https://www.erp5.com/ replied correctly with "
+      "ssl_certificate: ERROR No data for https://www.erp5.com/ http_query: "
+      "OK https://www.erp5.com/ replied correctly with "
       "status code 302 on ip list 127.0.0.1 127.0.0.2"
     )
 
@@ -493,9 +493,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "ssl_certificate: No data for https://www.erp5.com/ . If the error "
-      "persist, please update surykatka. http_query: https://www.erp5.com/ "
-      "replied correctly with status code 302 on ip list 127.0.0.1 127.0.0.2"
+      "ssl_certificate: ERROR No data for https://www.erp5.com/ . If the "
+      "error persist, please update surykatka. http_query: OK "
+      "https://www.erp5.com/ replied correctly with status code 302 on ip "
+      "list 127.0.0.1 127.0.0.2"
     )
 
   def test_bad_code(self):
@@ -550,8 +551,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/ : IP 127.0.0.1 got "
-      "status code 302 instead of 301 ssl_certificate: Certificate for "
+      "http_query: ERROR https://www.erp5.com/ : IP 127.0.0.1 got "
+      "status code 302 instead of 301 ssl_certificate: OK Certificate for "
       "https://www.erp5.com/ will expire on Mon, 13 Jul 2020 12:00:00 "
       "-0000, which is more than 15 days, UTC now is Fri, 27 Dec 2019 "
       "15:11:12 -0000"
@@ -597,8 +598,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/ : IP 127.0.0.1 got "
-      "status code %s instead of 301 ssl_certificate: Certificate for "
+      "http_query: ERROR https://www.erp5.com/ : IP 127.0.0.1 got "
+      "status code %s instead of 301 ssl_certificate: OK Certificate for "
       "https://www.erp5.com/ will expire on Mon, 13 Jul 2020 12:00:00 "
       "-0000, which is more than 15 days, UTC now is Fri, 27 Dec 2019 "
       "15:11:12 -0000" % explanation
@@ -669,9 +670,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/ : expected IPs "
+      "http_query: ERROR https://www.erp5.com/ : expected IPs "
       "127.0.0.1 127.0.0.2 differes from got 127.0.0.1 127.0.0.4 "
-      "ssl_certificate: Certificate for https://www.erp5.com/ will expire "
+      "ssl_certificate: OK Certificate for https://www.erp5.com/ will expire "
       "on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 days, "
       "UTC now is Fri, 27 Dec 2019 15:11:12 -0000"
     )
@@ -729,9 +730,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: Problem with https://www.erp5.com/ : IP 127.0.0.1 got "
+      "http_query: ERROR https://www.erp5.com/ : IP 127.0.0.1 got "
       "status code 302 instead of 301, expected IPs 127.0.0.1 127.0.0.2 "
-      "differes from got 127.0.0.1 127.0.0.4 ssl_certificate: Certificate "
+      "differes from got 127.0.0.1 127.0.0.4 ssl_certificate: OK Certificate "
       "for https://www.erp5.com/ will expire on Mon, 13 Jul 2020 12:00:00 "
       "-0000, which is more than 15 days, UTC now is Fri, 27 Dec 2019 "
       "15:11:12 -0000"
