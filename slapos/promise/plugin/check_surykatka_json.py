@@ -138,7 +138,7 @@ class RunPromise(GenericPromise):
 
   def senseHttpQuery(self):
     key = 'http_query'
-    error_list = []
+    error = False
 
     def appendError(msg, *args):
       self.appendErrorMessage(key + ': ERROR ' + msg % args)
@@ -155,7 +155,6 @@ class RunPromise(GenericPromise):
     if len(entry_list) == 0:
       appendError('No data for %s', url)
       return
-    error_list = []
     for entry in entry_list:
       entry_status_code = str(entry['status_code'])
       if entry_status_code != status_code:
@@ -166,17 +165,18 @@ class RunPromise(GenericPromise):
             entry_status_code, status_code_explanation)
         else:
           status_code_explanation = entry_status_code
-        error_list.append(
-          'IP %s got status code %s instead of %s' % (
-            entry['ip'], status_code_explanation, status_code))
+        appendError(
+          '%s : IP %s got status code %s instead of %s' % (
+            url, entry['ip'], status_code_explanation, status_code))
+        error = True
     db_ip_list = [q['ip'] for q in entry_list]
     if len(ip_list):
       if set(ip_list) != set(db_ip_list):
-        error_list.append(
-          'expected IPs %s differes from got %s' % (
-            ' '.join(ip_list), ' '.join(db_ip_list)))
-    if len(error_list):
-      appendError('%s : ' % (url,) + ', '.join(error_list))
+        appendError(
+          '%s : expected IPs %s differes from got %s' % (
+            url, ' '.join(ip_list), ' '.join(db_ip_list)))
+        error = True
+    if error:
       return
     if len(ip_list) > 0:
       self.appendInfoMessage(
@@ -186,6 +186,40 @@ class RunPromise(GenericPromise):
       self.appendInfoMessage(
         '%s: OK %s replied correctly with status code %s' %
         (key, url, status_code))
+
+  def senseElapsedTime(self):
+    key = 'elapsed_time'
+    surykatka_key = 'http_query'
+
+    def appendError(msg, *args):
+      self.appendErrorMessage(key + ': ERROR ' + msg % args)
+
+    if surykatka_key not in self.surykatka_json:
+      appendError("%r not in %r", surykatka_key, self.json_file)
+      return
+
+    url = self.getConfig('url')
+    maximum_elapsed_time = self.getConfig('maximum-elapsed-time')
+
+    entry_list = [
+      q for q in self.surykatka_json[surykatka_key] if q['url'] == url]
+    if len(entry_list) == 0:
+      appendError('No data for %s', url)
+      return
+    for entry in entry_list:
+      if maximum_elapsed_time:
+        if 'total_seconds' in entry:
+          maximum_elapsed_time = float(maximum_elapsed_time)
+          if entry['total_seconds'] > maximum_elapsed_time:
+            appendError(
+              '%s : IP %s replied in %.2fs which is longer than '
+              'maximum %.2fs' %
+              (url, entry['ip'], entry['total_seconds'], maximum_elapsed_time))
+          else:
+            self.appendInfoMessage(
+              '%s: OK %s : IP %s replied in %.2fs which is shorter than '
+              'maximum %.2fs' % (key, url, entry['ip'],
+                                 entry['total_seconds'], maximum_elapsed_time))
 
   def sense(self):
     """
@@ -218,6 +252,7 @@ class RunPromise(GenericPromise):
           elif report == 'http_query':
             self.senseHttpQuery()
             self.senseSslCertificate()
+            self.senseElapsedTime()
           else:
             self.appendErrorMessage(
               "ERROR Report %r is not supported" % report)
