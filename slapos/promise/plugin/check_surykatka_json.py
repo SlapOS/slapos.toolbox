@@ -122,23 +122,26 @@ class RunPromise(GenericPromise):
       return
     for entry in entry_list:
       timetuple = email.utils.parsedate(entry['not_after'])
-      certificate_expiration_time = datetime.datetime.fromtimestamp(
-        time.mktime(timetuple))
-      if certificate_expiration_time - datetime.timedelta(
-        days=certificate_expiration_days) < self.utcnow:
-        appendError(
-          'Certificate will expire on %s, which is less than %s days, '
-          'UTC now is %s',
-          entry['not_after'], certificate_expiration_days,
-          self.utcnow_string)
-        return
+      if timetuple is None:
+        appendError('No certificate information for %s' % (entry['ip']))
       else:
-        self.appendInfoMessage(
-          '%s: OK Certificate will expire on %s, which is more than %s '
-          'days, UTC now is %s' %
-          (key, entry['not_after'], certificate_expiration_days,
-           self.utcnow_string))
-        return
+        certificate_expiration_time = datetime.datetime.fromtimestamp(
+          time.mktime(timetuple))
+        if certificate_expiration_time - datetime.timedelta(
+          days=certificate_expiration_days) < self.utcnow:
+          appendError(
+            'Certificate on %s will expire on %s, which is less than %s days, '
+            'UTC now is %s',
+            entry['ip'], entry['not_after'], certificate_expiration_days,
+            self.utcnow_string)
+          return
+        else:
+          self.appendInfoMessage(
+            '%s: OK Certificate on %s will expire on %s, which is more than '
+            '%s days, UTC now is %s' %
+            (key, entry['ip'], entry['not_after'], certificate_expiration_days,
+             self.utcnow_string))
+          return
 
   def senseHttpQuery(self):
     key = 'http_query'
