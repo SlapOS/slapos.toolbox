@@ -39,7 +39,11 @@ class RunPromise(GenericPromise):
    else:
      emit = self.logger.info
 
-   emit(' '.join(self.error_list + self.info_list))
+   message_list = self.error_list + self.info_list
+   url = self.getConfig('url')
+   if url:
+     message_list.insert(0, '%s :' % (url,))
+   emit(' '.join(message_list))
 
   def senseBotStatus(self):
     key = 'bot_status'
@@ -105,16 +109,16 @@ class RunPromise(GenericPromise):
         self.getConfig('certificate-expiration-days'))
       return
     if not hostname:
-      appendError('url %r is incorrect', url)
+      appendError('url is incorrect')
       return
     if key not in self.surykatka_json:
       appendError(
-        'No data for %s . If the error persist, please update surykatka.', url)
+        'No key %r. If the error persist, please update surykatka.' % (key,))
       return
     entry_list = [
       q for q in self.surykatka_json[key] if q['hostname'] == hostname]
     if len(entry_list) == 0:
-      appendError('No data for %s', url)
+      appendError('No data')
       return
     for entry in entry_list:
       timetuple = email.utils.parsedate(entry['not_after'])
@@ -123,16 +127,16 @@ class RunPromise(GenericPromise):
       if certificate_expiration_time - datetime.timedelta(
         days=certificate_expiration_days) < self.utcnow:
         appendError(
-          'Certificate for %s will expire on %s, which is less than %s days, '
+          'Certificate will expire on %s, which is less than %s days, '
           'UTC now is %s',
-          url, entry['not_after'], certificate_expiration_days,
+          entry['not_after'], certificate_expiration_days,
           self.utcnow_string)
         return
       else:
         self.appendInfoMessage(
-          '%s: OK Certificate for %s will expire on %s, which is more than %s '
+          '%s: OK Certificate will expire on %s, which is more than %s '
           'days, UTC now is %s' %
-          (key, url, entry['not_after'], certificate_expiration_days,
+          (key, entry['not_after'], certificate_expiration_days,
            self.utcnow_string))
         return
 
@@ -153,7 +157,7 @@ class RunPromise(GenericPromise):
 
     entry_list = [q for q in self.surykatka_json[key] if q['url'] == url]
     if len(entry_list) == 0:
-      appendError('No data for %s', url)
+      appendError('No data')
       return
     for entry in entry_list:
       entry_status_code = str(entry['status_code'])
@@ -166,26 +170,24 @@ class RunPromise(GenericPromise):
         else:
           status_code_explanation = entry_status_code
         appendError(
-          '%s : IP %s got status code %s instead of %s' % (
-            url, entry['ip'], status_code_explanation, status_code))
+          'IP %s got status code %s instead of %s' % (
+            entry['ip'], status_code_explanation, status_code))
         error = True
     db_ip_list = [q['ip'] for q in entry_list]
     if len(ip_list):
       if set(ip_list) != set(db_ip_list):
         appendError(
-          '%s : expected IPs %s differes from got %s' % (
-            url, ' '.join(ip_list), ' '.join(db_ip_list)))
+          'expected IPs %s differes from got %s' % (
+            ' '.join(ip_list), ' '.join(db_ip_list)))
         error = True
     if error:
       return
     if len(ip_list) > 0:
-      self.appendInfoMessage(
-        '%s: OK %s replied correctly with status code %s on ip list %s' %
-        (key, url, status_code, ' '.join(ip_list)))
+      self.appendInfoMessage('%s: OK status code %s on IPs %s' % (
+        key, status_code, ' '.join(ip_list)))
     else:
-      self.appendInfoMessage(
-        '%s: OK %s replied correctly with status code %s' %
-        (key, url, status_code))
+      self.appendInfoMessage('%s: OK with status code %s' % (
+        key, status_code))
 
   def senseElapsedTime(self):
     key = 'elapsed_time'
@@ -195,7 +197,9 @@ class RunPromise(GenericPromise):
       self.appendErrorMessage(key + ': ERROR ' + msg % args)
 
     if surykatka_key not in self.surykatka_json:
-      appendError("%r not in %r", surykatka_key, self.json_file)
+      appendError(
+        'No key %r. If the error persist, please update surykatka.' % (
+          surykatka_key,))
       return
 
     url = self.getConfig('url')
@@ -204,7 +208,7 @@ class RunPromise(GenericPromise):
     entry_list = [
       q for q in self.surykatka_json[surykatka_key] if q['url'] == url]
     if len(entry_list) == 0:
-      appendError('No data for %s', url)
+      appendError('No data')
       return
     for entry in entry_list:
       if maximum_elapsed_time:
@@ -212,13 +216,13 @@ class RunPromise(GenericPromise):
           maximum_elapsed_time = float(maximum_elapsed_time)
           if entry['total_seconds'] > maximum_elapsed_time:
             appendError(
-              '%s : IP %s replied in %.2fs which is longer than '
+              'IP %s replied in %.2fs which is longer than '
               'maximum %.2fs' %
-              (url, entry['ip'], entry['total_seconds'], maximum_elapsed_time))
+              (entry['ip'], entry['total_seconds'], maximum_elapsed_time))
           else:
             self.appendInfoMessage(
-              '%s: OK %s : IP %s replied in %.2fs which is shorter than '
-              'maximum %.2fs' % (key, url, entry['ip'],
+              '%s: OK IP %s replied in %.2fs which is shorter than '
+              'maximum %.2fs' % (key, entry['ip'],
                                  entry['total_seconds'], maximum_elapsed_time))
 
   def sense(self):

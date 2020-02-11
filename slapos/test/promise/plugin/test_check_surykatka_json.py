@@ -259,11 +259,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: OK https://www.erp5.com/ replied correctly with "
-      "status code 302 on ip list 127.0.0.1 127.0.0.2 ssl_certificate: "
-      "OK Certificate for https://www.erp5.com/ will expire on Mon, 13 Jul "
-      "2020 12:00:00 -0000, which is more than 15 days, UTC now is "
-      "Fri, 27 Dec 2019 15:11:12 -0000"
+      "https://www.erp5.com/ : http_query: OK status code 302 on IPs "
+      "127.0.0.1 127.0.0.2 ssl_certificate: OK Certificate will expire on "
+      "Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 days, UTC now "
+      "is Fri, 27 Dec 2019 15:11:12 -0000"
     )
 
   def test_maximum_elapsed_time(self):
@@ -322,14 +321,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: OK https://www.erp5.com/ replied correctly with status "
-      "code 302 on ip list 127.0.0.1 127.0.0.2 ssl_certificate: OK "
-      "Certificate for https://www.erp5.com/ will expire on Mon, 13 Jul 2020 "
-      "12:00:00 -0000, which is more than 15 days, UTC now is Fri, 27 Dec "
-      "2019 15:11:12 -0000 elapsed_time: OK https://www.erp5.com/ : IP "
-      "127.0.0.1 replied in 4.00s which is shorter than maximum 5.00s "
-      "elapsed_time: OK https://www.erp5.com/ : IP 127.0.0.2 replied in "
-      "4.00s which is shorter than maximum 5.00s"
+      "https://www.erp5.com/ : http_query: OK status code 302 on IPs "
+      "127.0.0.1 127.0.0.2 ssl_certificate: OK Certificate will expire on "
+      "Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 days, UTC now "
+      "is Fri, 27 Dec 2019 15:11:12 -0000 elapsed_time: OK IP 127.0.0.1 "
+      "replied in 4.00s which is shorter than maximum 5.00s elapsed_time: OK "
+      "IP 127.0.0.2 replied in 4.00s which is shorter than maximum 5.00s"
     )
 
   def test_maximum_elapsed_time_too_long(self):
@@ -389,14 +386,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "elapsed_time: ERROR https://www.erp5.com/ : IP 127.0.0.1 replied in "
-      "6.00s which is longer than maximum 5.00s http_query: OK "
-      "https://www.erp5.com/ replied correctly with status code 302 on ip "
-      "list 127.0.0.1 127.0.0.2 ssl_certificate: OK Certificate for "
-      "https://www.erp5.com/ will expire on Mon, 13 Jul 2020 12:00:00 -0000, "
-      "which is more than 15 days, UTC now is Fri, 27 Dec 2019 15:11:12 "
-      "-0000 elapsed_time: OK https://www.erp5.com/ : IP 127.0.0.2 replied "
-      "in 4.00s which is shorter than maximum 5.00s"
+      "https://www.erp5.com/ : elapsed_time: ERROR IP 127.0.0.1 replied in "
+      "6.00s which is longer than maximum 5.00s http_query: OK status code "
+      "302 on IPs 127.0.0.1 127.0.0.2 ssl_certificate: OK Certificate will "
+      "expire on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 "
+      "days, UTC now is Fri, 27 Dec 2019 15:11:12 -0000 elapsed_time: OK IP "
+      "127.0.0.2 replied in 4.00s which is shorter than maximum 5.00s"
     )
 
   def test_maximum_elapsed_time_no_total_seconds(self):
@@ -452,11 +447,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: OK https://www.erp5.com/ replied correctly with status "
-      "code 302 on ip list 127.0.0.1 127.0.0.2 ssl_certificate: OK "
-      "Certificate for https://www.erp5.com/ will expire on Mon, 13 Jul "
-      "2020 12:00:00 -0000, which is more than 15 days, UTC now is Fri, 27 "
-      "Dec 2019 15:11:12 -0000"
+      "https://www.erp5.com/ : http_query: OK status code 302 on IPs "
+      "127.0.0.1 127.0.0.2 ssl_certificate: OK Certificate will expire on "
+      "Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 days, UTC now "
+      "is Fri, 27 Dec 2019 15:11:12 -0000"
     )
 
   def test_http(self):
@@ -499,8 +493,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: OK http://www.erp5.com/ replied correctly with "
-      "status code 302 on ip list 127.0.0.1 127.0.0.2"
+      "http://www.erp5.com/ : http_query: OK status code 302 on IPs 127.0.0.1 "
+      "127.0.0.2"
     )
 
   def test_no_ip_list(self):
@@ -554,10 +548,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: OK https://www.erp5.com/ replied correctly with status "
-      "code 302 ssl_certificate: OK Certificate for https://www.erp5.com/ "
-      "will expire on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 "
-      "days, UTC now is Fri, 27 Dec 2019 15:11:12 -0000"
+      "https://www.erp5.com/ : http_query: OK with status code 302 "
+      "ssl_certificate: OK Certificate will expire on Mon, 13 Jul 2020 "
+      "12:00:00 -0000, which is more than 15 days, UTC now is Fri, 27 Dec "
+      "2019 15:11:12 -0000"
     )
 
   def test_no_http_query_data(self):
@@ -595,11 +589,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: ERROR No data for https://www.erp5.com/ elapsed_time: "
-      "ERROR No data for https://www.erp5.com/ ssl_certificate: OK "
-      "Certificate for https://www.erp5.com/ will expire on Mon, 13 Jul 2020 "
-      "12:00:00 -0000, which is more than 15 days, UTC now is Fri, 27 Dec "
-      "2019 15:11:12 -0000"
+      "https://www.erp5.com/ : http_query: ERROR No data elapsed_time: ERROR "
+      "No data ssl_certificate: OK Certificate will expire on Mon, 13 Jul "
+      "2020 12:00:00 -0000, which is more than 15 days, UTC now is Fri, 27 "
+      "Dec 2019 15:11:12 -0000"
     )
 
   def test_no_ssl_certificate_data(self):
@@ -643,9 +636,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "ssl_certificate: ERROR No data for https://www.erp5.com/ http_query: "
-      "OK https://www.erp5.com/ replied correctly with "
-      "status code 302 on ip list 127.0.0.1 127.0.0.2"
+      "https://www.erp5.com/ : ssl_certificate: ERROR No data http_query: "
+      "OK status code 302 on IPs 127.0.0.1 127.0.0.2"
     )
 
   def test_no_ssl_certificate(self):
@@ -687,10 +679,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "ssl_certificate: ERROR No data for https://www.erp5.com/ . If the "
-      "error persist, please update surykatka. http_query: OK "
-      "https://www.erp5.com/ replied correctly with status code 302 on ip "
-      "list 127.0.0.1 127.0.0.2"
+      "https://www.erp5.com/ : ssl_certificate: ERROR No key "
+      "'ssl_certificate'. If the error persist, please update surykatka. "
+      "http_query: OK status code 302 on IPs 127.0.0.1 127.0.0.2"
     )
 
   def test_bad_code(self):
@@ -745,11 +736,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: ERROR https://www.erp5.com/ : IP 127.0.0.1 got "
-      "status code 302 instead of 301 ssl_certificate: OK Certificate for "
-      "https://www.erp5.com/ will expire on Mon, 13 Jul 2020 12:00:00 "
-      "-0000, which is more than 15 days, UTC now is Fri, 27 Dec 2019 "
-      "15:11:12 -0000"
+      "https://www.erp5.com/ : http_query: ERROR IP 127.0.0.1 got status code "
+      "302 instead of 301 ssl_certificate: OK Certificate will expire on Mon, "
+      "13 Jul 2020 12:00:00 -0000, which is more than 15 days, UTC now is "
+      "Fri, 27 Dec 2019 15:11:12 -0000"
     )
 
   def _test_bad_code_explanation(self, status_code, explanation):
@@ -792,11 +782,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: ERROR https://www.erp5.com/ : IP 127.0.0.1 got "
-      "status code %s instead of 301 ssl_certificate: OK Certificate for "
-      "https://www.erp5.com/ will expire on Mon, 13 Jul 2020 12:00:00 "
-      "-0000, which is more than 15 days, UTC now is Fri, 27 Dec 2019 "
-      "15:11:12 -0000" % explanation
+      "https://www.erp5.com/ : http_query: ERROR IP 127.0.0.1 got status code "
+      "%s instead of 301 ssl_certificate: OK Certificate will expire on Mon, "
+      "13 Jul 2020 12:00:00 -0000, which is more than 15 days, UTC now is "
+      "Fri, 27 Dec 2019 15:11:12 -0000" % (explanation,)
     )
 
   def test_bad_code_explanation_520(self):
@@ -864,11 +853,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: ERROR https://www.erp5.com/ : expected IPs "
-      "127.0.0.1 127.0.0.2 differes from got 127.0.0.1 127.0.0.4 "
-      "ssl_certificate: OK Certificate for https://www.erp5.com/ will expire "
-      "on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 days, "
-      "UTC now is Fri, 27 Dec 2019 15:11:12 -0000"
+      "https://www.erp5.com/ : http_query: ERROR expected IPs 127.0.0.1 "
+      "127.0.0.2 differes from got 127.0.0.1 127.0.0.4 ssl_certificate: OK "
+      "Certificate will expire on Mon, 13 Jul 2020 12:00:00 -0000, which is "
+      "more than 15 days, UTC now is Fri, 27 Dec 2019 15:11:12 -0000"
     )
 
   def test_bad_ip_status_code(self):
@@ -924,10 +912,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "http_query: ERROR https://www.erp5.com/ : IP 127.0.0.1 got status "
-      "code 302 instead of 301 http_query: ERROR https://www.erp5.com/ : "
-      "expected IPs 127.0.0.1 127.0.0.2 differes from got 127.0.0.1 "
-      "127.0.0.4 ssl_certificate: OK Certificate for https://www.erp5.com/ "
+      "https://www.erp5.com/ : http_query: ERROR IP 127.0.0.1 got status code "
+      "302 instead of 301 http_query: ERROR expected IPs 127.0.0.1 127.0.0.2 "
+      "differes from got 127.0.0.1 127.0.0.4 ssl_certificate: OK Certificate "
       "will expire on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 "
       "days, UTC now is Fri, 27 Dec 2019 15:11:12 -0000"
     )
