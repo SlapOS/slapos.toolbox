@@ -214,7 +214,9 @@ class RunPromise(GenericPromise):
       if maximum_elapsed_time:
         if 'total_seconds' in entry:
           maximum_elapsed_time = float(maximum_elapsed_time)
-          if entry['total_seconds'] > maximum_elapsed_time:
+          if entry['total_seconds'] == 0.:
+            appendError('IP %s failed to reply' % (entry['ip']))
+          elif entry['total_seconds'] > maximum_elapsed_time:
             appendError(
               'IP %s replied in %.2fs which is longer than '
               'maximum %.2fs' %
