@@ -65,7 +65,9 @@ class RunPromise(GenericPromise):
       return
     bot_status = bot_status_list[0]
     if bot_status.get('text') != 'loop':
-      appendError("No type loop detected in %r", self.json_file)
+      appendError(
+        "bot_status is %r instead of 'loop' in %r",
+        bot_status.get('text'), self.json_file)
       return
     timetuple = email.utils.parsedate(bot_status['date'])
     last_bot_datetime = datetime.datetime.fromtimestamp(time.mktime(timetuple))
