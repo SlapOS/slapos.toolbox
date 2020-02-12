@@ -46,7 +46,7 @@ class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
 class TestCheckSurykatkaJSON(CheckSurykatkaJSONMixin):
   def test_no_config(self):
     self.writeSurykatkaPromise()
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -55,7 +55,7 @@ class TestCheckSurykatkaJSON(CheckSurykatkaJSONMixin):
 
   def test_not_existing_file(self):
     self.writeSurykatkaPromise({'json-file': self.json_file})
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -65,7 +65,7 @@ class TestCheckSurykatkaJSON(CheckSurykatkaJSONMixin):
   def test_empty_file(self):
     self.writeSurykatkaPromise({'json-file': self.json_file})
     self.writeSurykatkaJson('')
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -84,7 +84,7 @@ class TestCheckSurykatkaJSONUnknownReport(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson("""{
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -110,7 +110,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
@@ -135,7 +135,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -161,7 +161,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -180,7 +180,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson("""{
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -198,7 +198,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
   "bot_status": []
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -255,7 +255,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
@@ -317,7 +317,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
@@ -382,7 +382,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -444,7 +444,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
@@ -490,7 +490,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
@@ -545,7 +545,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
@@ -585,7 +585,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -632,7 +632,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -675,7 +675,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -732,7 +732,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -778,7 +778,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """ % status_code)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -849,7 +849,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -909,7 +909,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
@@ -963,7 +963,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     ]
 }
 """)
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
     self.assertFailedMessage(
