@@ -29,6 +29,8 @@ class RunPromise(GenericPromise):
     self.result_count = self.failure_amount
     self.error_list = []
     self.info_list = []
+    # Make promise test-less, as it's result is not important for instantiation
+    self.setTestLess()
 
   def appendErrorMessage(self, message):
     self.error_list.append(message)
