@@ -24,13 +24,18 @@ class RunPromise(GenericPromise):
     super(RunPromise, self).__init__(config)
     # Set frequency compatible to default surykatka interval - 2 minutes
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
+    self.failure_amount = int(
+      self.getConfig('failure-amount', self.getConfig('failure_amount', 1)))
+    self.result_count = self.failure_amount
     self.error_list = []
     self.info_list = []
+    # Make promise test-less, as it's result is not important for instantiation
+    self.setTestLess()
 
-  def appendError(self, message):
+  def appendErrorMessage(self, message):
     self.error_list.append(message)
 
-  def appendInfo(self, message):
+  def appendInfoMessage(self, message):
     self.info_list.append(message)
 
   def emitLog(self):
@@ -39,24 +44,30 @@ class RunPromise(GenericPromise):
    else:
      emit = self.logger.info
 
-   emit(' '.join(self.error_list + self.info_list))
+   message_list = self.error_list + self.info_list
+   url = self.getConfig('url')
+   if url:
+     message_list.insert(0, '%s :' % (url,))
+   emit(' '.join(message_list))
 
   def senseBotStatus(self):
     key = 'bot_status'
 
-    def logError(msg, *args):
-      self.appendError(key + ': ' + msg % args)
+    def appendError(msg, *args):
+      self.appendErrorMessage(key + ': ERROR ' + msg % args)
 
     if key not in self.surykatka_json:
-      logError("%r not in %r", key, self.json_file)
+      appendError("%r not in %r", key, self.json_file)
       return
     bot_status_list = self.surykatka_json[key]
     if len(bot_status_list) == 0:
-      logError("%r empty in %r", key, self.json_file)
+      appendError("%r empty in %r", key, self.json_file)
       return
     bot_status = bot_status_list[0]
     if bot_status.get('text') != 'loop':
-      logError("No type loop detected in %r", self.json_file)
+      appendError(
+        "bot_status is %r instead of 'loop' in %r",
+        str(bot_status.get('text')), self.json_file)
       return
     timetuple = email.utils.parsedate(bot_status['date'])
     last_bot_datetime = datetime.datetime.fromtimestamp(time.mktime(timetuple))
@@ -64,23 +75,24 @@ class RunPromise(GenericPromise):
     delta = self.utcnow - last_bot_datetime
     # sanity check
     if delta < datetime.timedelta(minutes=0):
-      logError('Last bot datetime %s is in future, UTC now %s',
-               last_bot_datetime_string, self.utcnow_string)
+      appendError('Last bot datetime %s is in future, UTC now %s',
+                  last_bot_datetime_string, self.utcnow_string)
       return
     if delta > datetime.timedelta(minutes=15):
-      logError('Last bot datetime %s is more than 15 minutes old, UTC now %s',
-               last_bot_datetime_string, self.utcnow_string)
+      appendError(
+        'Last bot datetime %s is more than 15 minutes old, UTC now %s',
+        last_bot_datetime_string, self.utcnow_string)
       return
 
-    self.appendInfo(
-      '%s: Last bot status from %s ok, UTC now is %s' %
+    self.appendInfoMessage(
+      '%s: OK Last bot status from %s, UTC now is %s' %
       (key, last_bot_datetime_string, self.utcnow_string))
 
   def senseSslCertificate(self):
     key = 'ssl_certificate'
 
     def appendError(msg, *args):
-      self.appendError(key + ': ' + msg % args)
+      self.appendErrorMessage(key + ': ERROR ' + msg % args)
 
     url = self.getConfig('url')
     parsed_url = urlparse(url)
@@ -104,46 +116,49 @@ class RunPromise(GenericPromise):
         self.getConfig('certificate-expiration-days'))
       return
     if not hostname:
-      appendError('url %r is incorrect', url)
+      appendError('url is incorrect')
       return
     if key not in self.surykatka_json:
       appendError(
-        'No data for %s . If the error persist, please update surykatka.', url)
+        'No key %r. If the error persist, please update surykatka.' % (key,))
       return
     entry_list = [
       q for q in self.surykatka_json[key] if q['hostname'] == hostname]
     if len(entry_list) == 0:
-      appendError('No data for %s', url)
+      appendError('No data')
       return
     for entry in entry_list:
       timetuple = email.utils.parsedate(entry['not_after'])
-      certificate_expiration_time = datetime.datetime.fromtimestamp(
-        time.mktime(timetuple))
-      if certificate_expiration_time - datetime.timedelta(
-        days=certificate_expiration_days) < self.utcnow:
-        appendError(
-          'Certificate for %s will expire on %s, which is less than %s days, '
-          'UTC now is %s',
-          url, entry['not_after'], certificate_expiration_days,
-          self.utcnow_string)
-        return
+      if timetuple is None:
+        appendError('No certificate information for %s' % (entry['ip']))
       else:
-        self.appendInfo(
-          '%s: Certificate for %s will expire on %s, which is more than %s '
-          'days, UTC now is %s' %
-          (key, url, entry['not_after'], certificate_expiration_days,
-           self.utcnow_string))
-        return
+        certificate_expiration_time = datetime.datetime.fromtimestamp(
+          time.mktime(timetuple))
+        if certificate_expiration_time - datetime.timedelta(
+          days=certificate_expiration_days) < self.utcnow:
+          appendError(
+            'Certificate on %s will expire on %s, which is less than %s days, '
+            'UTC now is %s',
+            entry['ip'], entry['not_after'], certificate_expiration_days,
+            self.utcnow_string)
+          return
+        else:
+          self.appendInfoMessage(
+            '%s: OK Certificate on %s will expire on %s, which is more than '
+            '%s days, UTC now is %s' %
+            (key, entry['ip'], entry['not_after'], certificate_expiration_days,
+             self.utcnow_string))
+          return
 
   def senseHttpQuery(self):
     key = 'http_query'
-    error_list = []
+    error = False
 
-    def logError(msg, *args):
-      self.appendError(key + ': ' + msg % args)
+    def appendError(msg, *args):
+      self.appendErrorMessage(key + ': ERROR ' + msg % args)
 
     if key not in self.surykatka_json:
-      logError("%r not in %r", key, self.json_file)
+      appendError("%r not in %r", key, self.json_file)
       return
 
     url = self.getConfig('url')
@@ -152,9 +167,8 @@ class RunPromise(GenericPromise):
 
     entry_list = [q for q in self.surykatka_json[key] if q['url'] == url]
     if len(entry_list) == 0:
-      logError('No data for %s', url)
+      appendError('No data')
       return
-    error_list = []
     for entry in entry_list:
       entry_status_code = str(entry['status_code'])
       if entry_status_code != status_code:
@@ -165,26 +179,63 @@ class RunPromise(GenericPromise):
             entry_status_code, status_code_explanation)
         else:
           status_code_explanation = entry_status_code
-        error_list.append(
+        appendError(
           'IP %s got status code %s instead of %s' % (
             entry['ip'], status_code_explanation, status_code))
+        error = True
     db_ip_list = [q['ip'] for q in entry_list]
     if len(ip_list):
       if set(ip_list) != set(db_ip_list):
-        error_list.append(
+        appendError(
           'expected IPs %s differes from got %s' % (
             ' '.join(ip_list), ' '.join(db_ip_list)))
-    if len(error_list):
-      logError('Problem with %s : ' % (url,) + ', '.join(error_list))
+        error = True
+    if error:
       return
     if len(ip_list) > 0:
-      self.appendInfo(
-        '%s: %s replied correctly with status code %s on ip list %s' %
-        (key, url, status_code, ' '.join(ip_list)))
+      self.appendInfoMessage('%s: OK status code %s on IPs %s' % (
+        key, status_code, ' '.join(ip_list)))
     else:
-      self.appendInfo(
-        '%s: %s replied correctly with status code %s' %
-        (key, url, status_code))
+      self.appendInfoMessage('%s: OK with status code %s' % (
+        key, status_code))
+
+  def senseElapsedTime(self):
+    key = 'elapsed_time'
+    surykatka_key = 'http_query'
+
+    def appendError(msg, *args):
+      self.appendErrorMessage(key + ': ERROR ' + msg % args)
+
+    if surykatka_key not in self.surykatka_json:
+      appendError(
+        'No key %r. If the error persist, please update surykatka.' % (
+          surykatka_key,))
+      return
+
+    url = self.getConfig('url')
+    maximum_elapsed_time = self.getConfig('maximum-elapsed-time')
+
+    entry_list = [
+      q for q in self.surykatka_json[surykatka_key] if q['url'] == url]
+    if len(entry_list) == 0:
+      appendError('No data')
+      return
+    for entry in entry_list:
+      if maximum_elapsed_time:
+        if 'total_seconds' in entry:
+          maximum_elapsed_time = float(maximum_elapsed_time)
+          if entry['total_seconds'] == 0.:
+            appendError('IP %s failed to reply' % (entry['ip']))
+          elif entry['total_seconds'] > maximum_elapsed_time:
+            appendError(
+              'IP %s replied in %.2fs which is longer than '
+              'maximum %.2fs' %
+              (entry['ip'], entry['total_seconds'], maximum_elapsed_time))
+          else:
+            self.appendInfoMessage(
+              '%s: OK IP %s replied in %.2fs which is shorter than '
+              'maximum %.2fs' % (key, entry['ip'],
+                                 entry['total_seconds'], maximum_elapsed_time))
 
   def sense(self):
     """
@@ -202,13 +253,14 @@ class RunPromise(GenericPromise):
 
     self.json_file = self.getConfig('json-file', '')
     if not os.path.exists(self.json_file):
-      self.appendError('File %r does not exists' % self.json_file)
+      self.appendErrorMessage('ERROR File %r does not exists' % self.json_file)
     else:
       with open(self.json_file) as fh:
         try:
           self.surykatka_json = json.load(fh)
         except Exception:
-          self.appendError("Problem loading JSON from %r" % self.json_file)
+          self.appendErrorMessage(
+            "ERROR loading JSON from %r" % self.json_file)
         else:
           report = self.getConfig('report')
           if report == 'bot_status':
@@ -216,9 +268,12 @@ class RunPromise(GenericPromise):
           elif report == 'http_query':
             self.senseHttpQuery()
             self.senseSslCertificate()
+            self.senseElapsedTime()
           else:
-            self.appendError("Report %r is not supported" % report)
+            self.appendErrorMessage(
+              "ERROR Report %r is not supported" % report)
     self.emitLog()
 
   def anomaly(self):
-    return self._test(result_count=3, failure_amount=3)
+    return self._test(
+      result_count=self.result_count, failure_amount=self.failure_amount)
