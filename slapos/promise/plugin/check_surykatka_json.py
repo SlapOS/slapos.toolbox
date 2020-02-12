@@ -269,5 +269,8 @@ class RunPromise(GenericPromise):
               "ERROR Report %r is not supported" % report)
     self.emitLog()
 
-  def anomaly(self):
+  def test(self):
     return self._test(result_count=self.result_count, failure_amount=self.failure_amount)
+
+  def anomaly(self):
+    return self._anomaly(result_count=self.result_count, failure_amount=self.failure_amount)
