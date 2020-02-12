@@ -24,7 +24,7 @@ class RunPromise(GenericPromise):
     super(RunPromise, self).__init__(config)
     # Set frequency compatible to default surykatka interval - 2 minutes
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
-    self.failure_amount = int(self.getConfig('failure_amount', 3))
+    self.failure_amount = int(self.getConfig('failure_amount', 1))
     self.result_count = self.failure_amount
     self.error_list = []
     self.info_list = []
