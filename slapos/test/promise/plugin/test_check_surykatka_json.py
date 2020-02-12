@@ -118,6 +118,32 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       "UTC now is Wed, 13 Dec 2222 09:11:12 -0000"
     )
 
+  def test_no_loop(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'bot_status',
+        'json-file': self.json_file,
+        'test-utcnow': 'Wed, 13 Dec 2222 09:11:12 -0000'
+      }
+    )
+    self.writeSurykatkaJson("""{
+    "bot_status": [
+        {
+            "date": "Wed, 13 Dec 2222 09:10:11 -0000",
+            "text": "error"
+        }
+    ]
+}
+""")
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "bot_status: ERROR bot_status is 'error' instead of 'loop' in '%s'" % (
+        self.json_file,)
+    )
+
   def test_bot_status_future(self):
     self.writeSurykatkaPromise(
       {
