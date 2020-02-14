@@ -75,18 +75,18 @@ class RunPromise(GenericPromise):
     delta = self.utcnow - last_bot_datetime
     # sanity check
     if delta < datetime.timedelta(minutes=0):
-      appendError('Last bot datetime %s is in future, UTC now %s',
-                  last_bot_datetime_string, self.utcnow_string)
+      appendError('Last bot datetime %s is in future',
+                  last_bot_datetime_string,)
       return
     if delta > datetime.timedelta(minutes=15):
       appendError(
-        'Last bot datetime %s is more than 15 minutes old, UTC now %s',
-        last_bot_datetime_string, self.utcnow_string)
+        'Last bot datetime %s is more than 15 minutes old',
+        last_bot_datetime_string,)
       return
 
     self.appendInfoMessage(
-      '%s: OK Last bot status from %s, UTC now is %s' %
-      (key, last_bot_datetime_string, self.utcnow_string))
+      '%s: OK Last bot status from %s' %
+      (key, last_bot_datetime_string,))
 
   def senseSslCertificate(self):
     key = 'ssl_certificate'
@@ -137,17 +137,15 @@ class RunPromise(GenericPromise):
         if certificate_expiration_time - datetime.timedelta(
           days=certificate_expiration_days) < self.utcnow:
           appendError(
-            'Certificate on %s will expire on %s, which is less than %s days, '
-            'UTC now is %s',
-            entry['ip'], entry['not_after'], certificate_expiration_days,
-            self.utcnow_string)
+            'Certificate on %s will expire on %s, which is less than %s days' %
+            entry['ip'], entry['not_after'], certificate_expiration_days)
           return
         else:
           self.appendInfoMessage(
             '%s: OK Certificate on %s will expire on %s, which is more than '
-            '%s days, UTC now is %s' %
-            (key, entry['ip'], entry['not_after'], certificate_expiration_days,
-             self.utcnow_string))
+            '%s days' % (
+              key, entry['ip'], entry['not_after'],
+              certificate_expiration_days))
           return
 
   def senseHttpQuery(self):
@@ -245,11 +243,8 @@ class RunPromise(GenericPromise):
     if test_utcnow:
       self.utcnow = datetime.datetime.fromtimestamp(
         time.mktime(email.utils.parsedate(test_utcnow)))
-      self.utcnow_string = test_utcnow
     else:
       self.utcnow = datetime.datetime.utcnow()
-      self.utcnow_string = email.utils.formatdate(time.mktime(
-        self.utcnow.timetuple()))
 
     self.json_file = self.getConfig('json-file', '')
     if not os.path.exists(self.json_file):
