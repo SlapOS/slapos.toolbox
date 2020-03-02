@@ -50,6 +50,7 @@ setup(name=name,
         'zc.buildout',
         'pycurl',
         'six',
+        'cryptography',
       ),
       extras_require = {
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
