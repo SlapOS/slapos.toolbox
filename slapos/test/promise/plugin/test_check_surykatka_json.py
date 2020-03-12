@@ -575,6 +575,163 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "Jul 2020 12:00:00 -0000, which is more than 15 days"
     )
 
+  def test_good_certificate_2_day(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '302',
+        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000',
+        'certificate-expiration-days': '2'
+      }
+    )
+    self.writeSurykatkaJson("""{
+    "http_query": [
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "127.0.0.1",
+            "status_code": 302,
+            "url": "https://www.erp5.com/"
+        }
+    ],
+    "ssl_certificate": [
+        {
+            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+            "hostname": "www.erp5.com",
+            "ip": "127.0.0.1",
+            "not_after": "Sun, 30 Dec 2019 12:00:00 -0000"
+        }
+    ]
+}
+""")
+    self.configureLauncher(enable_anomaly=True)
+    self.launcher.run()
+    self.assertPassedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : http_query: OK with status code 302 "
+      "ssl_certificate: OK Certificate on 127.0.0.1 will expire on Sun, 30 "
+      "Dec 2019 12:00:00 -0000, which is more than 2 days"
+    )
+
+  def test_expired_certificate_2_day(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '302',
+        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000',
+        'certificate-expiration-days': '2'
+      }
+    )
+    self.writeSurykatkaJson("""{
+    "http_query": [
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "127.0.0.1",
+            "status_code": 302,
+            "url": "https://www.erp5.com/"
+        }
+    ],
+    "ssl_certificate": [
+        {
+            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+            "hostname": "www.erp5.com",
+            "ip": "127.0.0.1",
+            "not_after": "Sat, 28 Dec 2019 12:00:00 -0000"
+        }
+    ]
+}
+""")
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : ssl_certificate: ERROR Certificate on "
+      "127.0.0.1 will expire on Sat, 28 Dec 2019 12:00:00 -0000, which is "
+      "less than 2 days http_query: OK with status code 302"
+    )
+
+  def test_expired_certificate(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '302',
+        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
+      }
+    )
+    self.writeSurykatkaJson("""{
+    "http_query": [
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "127.0.0.1",
+            "status_code": 302,
+            "url": "https://www.erp5.com/"
+        }
+    ],
+    "ssl_certificate": [
+        {
+            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+            "hostname": "www.erp5.com",
+            "ip": "127.0.0.1",
+            "not_after": "Sat, 28 Dec 2019 12:00:00 -0000"
+        }
+    ]
+}
+""")
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : ssl_certificate: ERROR Certificate on "
+      "127.0.0.1 will expire on Sat, 28 Dec 2019 12:00:00 -0000, which is "
+      "less than 15 days http_query: OK with status code 302"
+    )
+
+  def test_expired_certificate_before_today(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '302',
+        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
+      }
+    )
+    self.writeSurykatkaJson("""{
+    "http_query": [
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "127.0.0.1",
+            "status_code": 302,
+            "url": "https://www.erp5.com/"
+        }
+    ],
+    "ssl_certificate": [
+        {
+            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+            "hostname": "www.erp5.com",
+            "ip": "127.0.0.1",
+            "not_after": "Thu, 26 Dec 2019 12:00:00 -0000"
+        }
+    ]
+}
+""")
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : ssl_certificate: ERROR Certificate on "
+      "127.0.0.1 will expire on Thu, 26 Dec 2019 12:00:00 -0000, which is "
+      "less than 15 days http_query: OK with status code 302"
+    )
+
   def test_no_http_query_data(self):
     self.writeSurykatkaPromise(
       {

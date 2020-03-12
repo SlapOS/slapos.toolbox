@@ -137,7 +137,7 @@ class RunPromise(GenericPromise):
         if certificate_expiration_time - datetime.timedelta(
           days=certificate_expiration_days) < self.utcnow:
           appendError(
-            'Certificate on %s will expire on %s, which is less than %s days' %
+            'Certificate on %s will expire on %s, which is less than %s days',
             entry['ip'], entry['not_after'], certificate_expiration_days)
           return
         else:
