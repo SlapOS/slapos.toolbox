@@ -1,3 +1,8 @@
+0.109 (2020-03-12)
+==================
+
+* promise: Fix certificate expiration reporting in check_surykatka_json
+
 0.108 (2020-03-02)
 ==================
 
