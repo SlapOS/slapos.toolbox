@@ -1,6 +1,5 @@
 BEGIN TRANSACTION;
 CREATE TABLE disk (partition text, used text, free text, mountpoint text,  date text, time text, reported integer NULL DEFAULT 0);
-INSERT INTO "disk" VALUES('/dev/sda1','157210666368','290958396032','/','2017-10-02','01:16:01',1);
 INSERT INTO "disk" VALUES('/dev/sda1','159220666368','288948396032','/','2017-10-02','09:17:01',1);
 INSERT INTO "disk" VALUES('/dev/sda1','159237537792','288931524608','/','2017-10-02','09:18:01',1);
 INSERT INTO "disk" VALUES('/dev/sda1','159238090752','288930971648','/','2017-10-02','09:19:02',1);
