@@ -106,7 +106,7 @@ extra_config_dict = {
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "Disk will become full in 26.46 days (threshold: 30.00 days), checked from 2017-10-02 01:16:01 to 2017-10-02 09:17:01, 0.33 days span, free space dropped from 64.9% to 64.5%: ERROR\nDisk usage: OK")
+      "Disk will become full in 26.46 days (threshold: 30.00 days), checked from 2017-10-02 01:16:01 to 2017-10-02 09:17:01, 0.33 days span: ERROR\nDisk usage: OK")
 
   def test_disk_space_nok(self):
     content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
@@ -145,7 +145,7 @@ extra_config_dict = {
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(result['result']['message'],
-      "Disk will become full in 26.46 days (threshold: 30.00 days), checked from 2017-10-02 01:16:01 to 2017-10-02 09:17:01, 0.33 days span, free space dropped from 64.9% to 64.5%: ERROR\nFree disk space low: remaining 269.1 G (threshold: 278.0 G)")
+      "Disk will become full in 26.46 days (threshold: 30.00 days), checked from 2017-10-02 01:16:01 to 2017-10-02 09:17:01, 0.33 days span: ERROR\nFree disk space low: remaining 269.1 G (threshold: 278.0 G)")
 
   def test_check_free_disk_with_unicode_string_path(self):
     # set path unicode
