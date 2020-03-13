@@ -59,7 +59,7 @@ is assumed constant and used to predict in how many days the disk would become f
         result_min[1], timep)
       delta_days = timespan.total_seconds() / (3600.*24)
       try:
-        return (-result_max[0] / (change / delta_days), result_min[1], result_min[0], result_max[1], result_max[0], delta_days)
+        return (-(1. - result_max[0]) / (change / delta_days), result_min[1], result_min[0], result_max[1], result_max[0], delta_days)
       except ZeroDivisionError as e:
         # no data
         return None
