@@ -352,10 +352,8 @@ def config_SR_folder(config):
         cf.write(current_project + '#' + folder)
 
   # First create the link for current project
-  with open(os.path.join(config['etc_dir'], ".project")) as f:
-    current_project = f.read().strip().rstrip('/')
   profile = getCurrentSoftwareReleaseProfile(config)
-  name = current_project.split('/')[-1]
+  name = getSoftwareReleaseName(config)
   md5sum = md5digest(profile)
   link_to_folder(name, md5sum)
   # check other links
@@ -656,7 +654,9 @@ def getSoftwareReleaseName(config):
   sr_profile = os.path.join(config['etc_dir'], ".project")
   if os.path.exists(sr_profile):
     with open(sr_profile, "r") as f:
-      project = f.read().split("/")
+      project = f.read().strip().rstrip().split("/")
+    # we always use the suffix workspace, so this is the intention
+    # behind this method, get the checkout.
     software = project[-2]
     return software.replace(' ', '_')
   return None
@@ -853,8 +853,8 @@ def isSoftwareReleaseCompleted(config):
   software_name = getSoftwareReleaseName(config)
   if software_name is None:
     return False
-  elif os.path.exists(os.path.join(config['runner_workdir'],
-      'softwareLink', software_name, '.completed')):
+  elif os.path.exists(os.path.join(config['software_link'],
+      software_name, '.completed')):
     return True
   else:
     return False
