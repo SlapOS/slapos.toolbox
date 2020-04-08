@@ -937,7 +937,7 @@ def isSoftwareReleaseCompleted(config, software_release_uri):
 def areAllSoftwareReleaseCompleted(config):
   result_list = []
   for software_release_uri in getAvailableSoftwareReleaseURIList(config):
-    result_list.append(isSoftwareReleaseReady(config, software_release_uri))
+    result_list.append(isSoftwareReleaseCompleted(config, software_release_uri))
   return all(result_list)
 
 def isSoftwareReleaseReady(config):
