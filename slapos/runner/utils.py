@@ -338,14 +338,6 @@ def isSoftwareRunning(config):
   return sup_process.isRunning(config, 'slapgrid-sr')
 
 
-def slapgridResultToFile(config, step, returncode, datetime):
-  filename = step + "_info.json"
-  file = os.path.join(config['runner_workdir'], filename)
-  result = {'last_build':datetime, 'success':returncode}
-  with open(file, "w") as f:
-    json.dump(result, f)
-
-
 def getSlapgridResult(config, step):
   filename = step + "_info.json"
   file = os.path.join(config['runner_workdir'], filename)
@@ -355,11 +347,6 @@ def getSlapgridResult(config, step):
     result = {'last_build': 0, 'success':-1}
   return result
 
-
-def waitProcess(config, process, step):
-  process.wait()
-  date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-  slapgridResultToFile(config, step, process.returncode, date)
 
 def runSlapgridWithLock(config, step, process_name, lock=False):
   """
