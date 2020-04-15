@@ -341,10 +341,16 @@ def isSoftwareRunning(config):
 def getSlapgridResult(config, step):
   filename = step + "_info.json"
   file = os.path.join(config['runner_workdir'], filename)
+  result = {'last_build': 0, 'success':-1}
   if os.path.exists(file):
-    result = json.loads(open(file, "r").read())
-  else:
-    result = {'last_build': 0, 'success':-1}
+    try:
+      with open(file, "r") as f:
+        result = json.loads(f.read())
+    except ValueError:
+      # It seems this call can fail with
+      # ValueError("No JSON object could be decoded")
+      # Probably the file is being written at the same time ?
+      pass
   return result
 
 
