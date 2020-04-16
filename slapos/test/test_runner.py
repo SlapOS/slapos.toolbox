@@ -208,7 +208,7 @@ class TestRunnerBackEnd(unittest.TestCase):
 
     # First tests that if the current instance doesn't extend the Software
     # Release to delete, the instance isn't deleted
-    runner_utils.open = mock.mock_open(read_data="/workspace/software/another/")
+    runner_utils.open = mock.mock_open(read_data="/workspace/my_project/software/another/")
     runner_utils.removeSoftwareByName(config, '1234567890', 'my_software_name')
 
     self.assertFalse(mock_removeCurrentInstance.called)
@@ -218,7 +218,7 @@ class TestRunnerBackEnd(unittest.TestCase):
     # be removed
     mock_removeSoftwareRootDirectory.reset_mock()
 
-    runner_utils.open = mock.mock_open(read_data="/workspace/software/my_software_name/")
+    runner_utils.open = mock.mock_open(read_data="/workspace/my_project/software/my_software_name/")
     runner_utils.removeSoftwareByName(config, '1234567890', 'my_software_name')
 
     self.assertTrue(mock_removeCurrentInstance.called)
