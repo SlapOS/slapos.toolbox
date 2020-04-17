@@ -117,6 +117,7 @@ def serve(config):
   app.config.update(
     software_log=config.software_root.rstrip('/') + '.log',
     instance_log=config.instance_root.rstrip('/') + '.log',
+    format_log=config.instance_root.rstrip('/') + '.log',
     workspace=workdir,
     software_link=software_link,
     instance_profile='instance.cfg',
