@@ -324,13 +324,6 @@ def stopProxy(config):
   return sup_process.stopProcess(config, "slapproxy")
 
 
-def removeProxyDb(config):
-  """Remove Slapproxy database, this is used to initialize proxy for example when
-    configuring new Software Release"""
-  if os.path.exists(config['database_uri']):
-    os.unlink(config['database_uri'])
-
-
 def isSoftwareRunning(config):
   """
     Return True if slapos is still running and false if slapos if not
@@ -548,11 +541,6 @@ def removeCurrentInstance(config):
 
   # Stop all processes
   svcStopAll(config)
-  if stopProxy(config):
-    removeProxyDb(config)
-    startProxy(config)
-  else:
-    return "Something went wrong when trying to stop slapproxy."
 
   # Remove Instance directory and data related to the instance
   try:
@@ -664,11 +652,7 @@ def newSoftware(folder, config, session):
         pass
       with open(os.path.join(basedir, ".project"), 'w') as f:
         f.write(folder + "/")
-      #Clean sapproxy Database
-      stopProxy(config)
-      removeProxyDb(config)
-      startProxy(config)
-      #Stop runngin process and remove existing instance
+      #Stop running process and remove existing instance
       logger.warning("User created a new SR. Removing all instances...")
       removeCurrentInstance(config)
       session['title'] = getProjectTitle(config)
