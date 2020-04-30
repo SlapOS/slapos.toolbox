@@ -176,44 +176,12 @@ def updateProxy(config):
   Send current Software Release to Slapproxy for compilation and deployment.
   """
   startProxy(config)
-  if not os.path.exists(config['instance_root']):
-    os.mkdir(config['instance_root'])
   slap = slapos.slap.slap()
   profile = getCurrentSoftwareReleaseProfile(config)
-
   slap.initializeConnection(config['master_url'])
   slap.registerSupply().supply(profile, computer_guid=config['computer_id'])
-  computer = slap.registerComputer(config['computer_id'])
-  prefix = 'slappart'
-  slap_config = {
-    'address': config['ipv4_address'],
-    'instance_root': config['instance_root'],
-    'netmask': '255.255.255.255',
-    'partition_list': [],
-    'reference': config['computer_id'],
-    'software_root': config['software_root']
-  }
-
-  for i in range(int(config['partition_amount'])):
-    partition_reference = '%s%s' % (prefix, i)
-    partition_path = os.path.join(config['instance_root'], partition_reference)
-    if not os.path.exists(partition_path):
-      os.mkdir(partition_path)
-    os.chmod(partition_path, 0o750)
-    slap_config['partition_list'].append({
-                                           'address_list': [
-                                              {
-                                                'addr': config['ipv4_address'],
-                                                'netmask': '255.255.255.255'
-                                              }, {
-                                                'addr': config['ipv6_address'],
-                                                'netmask': 'ffff:ffff:ffff::'
-                                              },
-                                           ],
-                                           'path': partition_path,
-                                           'reference': partition_reference,
-                                           'tap': {'name': partition_reference}})
-  computer.updateConfiguration(xml_marshaller.xml_marshaller.dumps(slap_config))
+  
+  runFormatWithLock(config, lock=True)
   return True
 
 
@@ -293,19 +261,18 @@ def runSlapgridWithLock(config, step, process_name, lock=False):
   if sup_process.isRunning(config, process_name):
     return 1
 
-  root_folder = config["%s_root" % step]
   log_file = config["%s_log" % step]
-
-  if not os.path.exists(root_folder):
-    os.mkdir(root_folder)
 
   # XXX Hackish and unreliable
   if os.path.exists(log_file):
     os.remove(log_file)
-  if not updateProxy(config):
+
+  if step != "format" and  not updateProxy(config):
     return 1
+
   if step == 'instance' and not requestInstance(config):
     return 1
+
   try:
     sup_process.runProcess(config, process_name)
     if lock:
@@ -313,7 +280,7 @@ def runSlapgridWithLock(config, step, process_name, lock=False):
     #Saves the current compile software for re-use
     if step == 'software':
       config_SR_folder(config)
-    return sup_process.returnCode(config, process_name)
+    return  sup_process.returnCode(config, process_name)
   except xmlrpclib.Fault:
     return 1
 
@@ -332,6 +299,14 @@ def runInstanceWithLock(config, lock=False):
     deployment is done.
   """
   return runSlapgridWithLock(config, 'instance', 'slapgrid-cp', lock)
+
+
+def runFormatWithLock(config, lock=False):
+  """
+    Use Slapgrid to deploy current Software Release and wait until
+    deployment is done.
+  """
+  return runSlapgridWithLock(config, 'format', 'slapformat', lock)
 
 
 def config_SR_folder(config):
