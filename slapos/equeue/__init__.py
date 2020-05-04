@@ -93,10 +93,10 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
                                                     RequestHandlerClass=None,
                                                     *args, **kw)
     # Equeue Specific elements
-    self.setLogger(self.options.logfile[0], self.options.loglevel[0])
-    self.setDB(self.options.database[0])
+    self.setLogger(self.options.logfile, self.options.loglevel)
+    self.setDB(self.options.database)
     if getattr(self.options, 'takeover_triggered_file_path', None):
-      self.takeover_triggered_file_path = self.options.takeover_triggered_file_path[0]
+      self.takeover_triggered_file_path = self.options.takeover_triggered_file_path
     # Lock to only have one command running at the time
     self.thread_lock = threading.Lock()
     # Lockfile is used by other commands to know if an import is ongoing.
@@ -197,20 +197,20 @@ def remove_existing_file(path):
 def main():
   parser = argparse.ArgumentParser(
     description="Run a single threaded execution queue.")
-  parser.add_argument('--database', nargs=1, required=True,
+  parser.add_argument('--database', required=True,
                       help="Path to the database where the last "
                       "calls are stored")
-  parser.add_argument('--loglevel', nargs=1,
+  parser.add_argument('--loglevel',
                       default='INFO',
                       choices=logging_choices,
                       required=False)
-  parser.add_argument('-l', '--logfile', nargs=1, required=True,
+  parser.add_argument('-l', '--logfile', required=True,
                       help="Path to the log file.")
-  parser.add_argument('-t', '--timeout', nargs=1, required=False,
+  parser.add_argument('-t', '--timeout', required=False,
                       dest='timeout', type=int, default=3)
   parser.add_argument('--lockfile',
                       help="Path to the lock file created when a command is run")
-  parser.add_argument('--takeover-triggered-file-path', nargs=1, required=False,
+  parser.add_argument('--takeover-triggered-file-path', required=False,
                       help="Path to the file created by takeover script to state that it has been triggered.")
   parser.add_argument('socket', help="Path to the unix socket")
 

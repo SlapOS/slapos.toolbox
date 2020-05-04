@@ -10,10 +10,10 @@ from slapos.equeue import EqueueServer
 
 class Options:
   def __init__(self, logfile, loglevel, database, takeover_triggered_file_path, lockfile, timeout):
-    self.logfile = [logfile]
-    self.loglevel = [loglevel]
-    self.database = [database]
-    self.takeover_triggered_file_path = [takeover_triggered_file_path]
+    self.logfile = logfile
+    self.loglevel = loglevel
+    self.database = database
+    self.takeover_triggered_file_path = takeover_triggered_file_path
     self.lockfile = lockfile
     self.timeout = timeout
 
@@ -59,7 +59,7 @@ class TestEqueue(unittest.TestCase):
     server_process = multiprocessing.Process(target=self.equeue_server.serve_forever)
     server_process.start()
 
-    self.assertTrue(os.path.exists(self.options.database[0]))
+    self.assertTrue(os.path.exists(self.options.database))
     self.assertTrue(os.path.exists(self.socket))
 
     # Prepare 2 requests, the first one including a delay.
@@ -95,7 +95,7 @@ class TestEqueue(unittest.TestCase):
     server_process = multiprocessing.Process(target=self.equeue_server.serve_forever)
     server_process.start()
 
-    self.assertTrue(os.path.exists(self.options.database[0]))
+    self.assertTrue(os.path.exists(self.options.database))
     self.assertTrue(os.path.exists(self.socket))
 
     # Run 2 times the same command (bash), but with different
@@ -130,7 +130,7 @@ class TestEqueue(unittest.TestCase):
     server_process = multiprocessing.Process(target=self.equeue_server.serve_forever)
     server_process.start()
 
-    self.assertTrue(os.path.exists(self.options.database[0]))
+    self.assertTrue(os.path.exists(self.options.database))
     self.assertTrue(os.path.exists(self.socket))
 
     # Create takeover file
