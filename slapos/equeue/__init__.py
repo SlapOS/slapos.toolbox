@@ -182,7 +182,7 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
     try:
       request.send(command)
     except Exception:
-      self.logger.warning("Couldn't respond to %r", request.fileno())
+      self.logger.warning("Couldn't respond to %r", request.fileno(), exc_info=True)
     self.close_request(request)
     self._runCommandIfNeeded(command, timestamp)
 # Well the following function is made for schrodinger's files,
