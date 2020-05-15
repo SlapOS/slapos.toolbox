@@ -180,7 +180,7 @@ class EqueueServer(socketserver.ThreadingUnixStreamServer):
                           "was %r", request.fileno(), request_string.getvalue())
 
     try:
-      request.send(command)
+      request.send(command.encode())
     except Exception:
       self.logger.warning("Couldn't respond to %r", request.fileno(), exc_info=True)
     self.close_request(request)
