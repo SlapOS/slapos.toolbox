@@ -22,20 +22,20 @@ class TestEqueue(unittest.TestCase):
   def setUp(self):
     cwd = os.getcwd()
     (
-      self.logfile,
       self.database,
       self.takeover_triggered_file_path,
       self.lockfile,
       self.socket,
       self.testfile,
-    ) = self.file_list = map(os.path.join, (
-      'equeue.log',
+    ) = self.file_list = [
       'equeue.db',
       'takeover.txt',
       'equeue.lock',
       'equeue.sock',
       'testfile.txt',
-    ))
+    ]
+    # Do not delete log files, as it may contain interesting information for debugging
+    self.logfile = 'equeue.log'
     self.options = Options(
       logfile=self.logfile,
       loglevel='INFO',
@@ -58,6 +58,7 @@ class TestEqueue(unittest.TestCase):
     self.equeue_server = EqueueServer(self.socket, equeue_options=self.options)
     server_process = multiprocessing.Process(target=self.equeue_server.serve_forever)
     server_process.start()
+    self.addCleanup(server_process.terminate)
 
     self.assertTrue(os.path.exists(self.options.database))
     self.assertTrue(os.path.exists(self.socket))
@@ -88,12 +89,12 @@ class TestEqueue(unittest.TestCase):
     with open(self.testfile, 'r') as fd:
       self.assertEqual(fd.read(), '2\n')
 
-    server_process.terminate()
 
   def test_doNotRunACommandIfItHasAlreadyRun(self):
     self.equeue_server = EqueueServer(self.socket, equeue_options=self.options)
     server_process = multiprocessing.Process(target=self.equeue_server.serve_forever)
     server_process.start()
+    self.addCleanup(server_process.terminate)
 
     self.assertTrue(os.path.exists(self.options.database))
     self.assertTrue(os.path.exists(self.socket))
@@ -123,12 +124,12 @@ class TestEqueue(unittest.TestCase):
     with open(self.testfile, 'r') as fd:
       self.assertEqual(fd.read(), '1\n')
 
-    server_process.terminate()
 
   def test_doNothingIfTakeoverHasBeenTriggered(self):
     self.equeue_server = EqueueServer(self.socket, equeue_options=self.options)
     server_process = multiprocessing.Process(target=self.equeue_server.serve_forever)
     server_process.start()
+    self.addCleanup(server_process.terminate)
 
     self.assertTrue(os.path.exists(self.options.database))
     self.assertTrue(os.path.exists(self.socket))
@@ -152,5 +153,3 @@ class TestEqueue(unittest.TestCase):
     time.sleep(2)
 
     self.assertFalse(os.path.exists(self.testfile))
-
-    server_process.terminate()
