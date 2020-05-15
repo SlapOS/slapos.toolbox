@@ -78,9 +78,9 @@ class TestEqueue(unittest.TestCase):
     for request in (request_1, request_2):
       equeue_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
       equeue_socket.connect(self.socket)
-      equeue_socket.send(json.dumps(request))
+      equeue_socket.send(json.dumps(request).encode())
       result = equeue_socket.recv(1024)
-      self.assertEqual(result, request['command'])
+      self.assertEqual(result.decode(), request['command'])
       equeue_socket.close()
 
     # Wait for the 1st command to finish
@@ -113,9 +113,9 @@ class TestEqueue(unittest.TestCase):
     for request in (request_1, request_2):
       equeue_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
       equeue_socket.connect(self.socket)
-      equeue_socket.send(json.dumps(request))
+      equeue_socket.send(json.dumps(request).encode())
       result = equeue_socket.recv(1024)
-      self.assertEqual(result, request['command'])
+      self.assertEqual(result.decode(), request['command'])
       equeue_socket.close()
 
     # Give a bit of time for command to run
@@ -144,9 +144,9 @@ class TestEqueue(unittest.TestCase):
     }
     equeue_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     equeue_socket.connect(self.socket)
-    equeue_socket.send(json.dumps(request))
+    equeue_socket.send(json.dumps(request).encode())
     result = equeue_socket.recv(1024)
-    self.assertEqual(result, request['command'])
+    self.assertEqual(result.decode(), request['command'])
     equeue_socket.close()
 
     # Give a bit of time for command to run
