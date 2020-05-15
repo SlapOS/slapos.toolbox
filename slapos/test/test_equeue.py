@@ -79,7 +79,7 @@ class TestEqueue(unittest.TestCase):
       equeue_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
       equeue_socket.connect(self.socket)
       equeue_socket.send(json.dumps(request).encode())
-      result = equeue_socket.recv(1024)
+      result = equeue_socket.recv(len(request['command']))
       self.assertEqual(result.decode(), request['command'])
       equeue_socket.close()
 
@@ -114,7 +114,7 @@ class TestEqueue(unittest.TestCase):
       equeue_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
       equeue_socket.connect(self.socket)
       equeue_socket.send(json.dumps(request).encode())
-      result = equeue_socket.recv(1024)
+      result = equeue_socket.recv(len(request['command']))
       self.assertEqual(result.decode(), request['command'])
       equeue_socket.close()
 
@@ -145,7 +145,7 @@ class TestEqueue(unittest.TestCase):
     equeue_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     equeue_socket.connect(self.socket)
     equeue_socket.send(json.dumps(request).encode())
-    result = equeue_socket.recv(1024)
+    result = equeue_socket.recv(len(request['command']))
     self.assertEqual(result.decode(), request['command'])
     equeue_socket.close()
 
