@@ -40,6 +40,7 @@ setup(name=name,
         'croniter', # needed to know cron schedule
         'pytz', # needed to manipulate timezone
         'tzlocal', # needed to manipulate timezone
+        'setuptools_scm', # needed for jsonschema
         'passlib',
         'netifaces',
         'erp5.util',
