@@ -22,60 +22,7 @@ class RunPromise(GenericPromise):
     # check disk space at least every 3 minutes
     self.setPeriodicity(minute=3)
 
-  def getDaysUntilFull(self, disk_partition, database, date, time, day_range):
-    """Returns estimation of days until the disk_partition would become full
 
-It uses date and time in order to find current disk free percentage, then rewinds
-day_range back in history and calculates average speed of losing free space, which
-is assumed constant and used to predict in how many days the disk would become full.
-"""
-    database = Database(database, create=False, timeout=10)
-    try:
-      # fetch free disk space
-      database.connect()
-      result_max = database.select(
-        "disk",
-        date,
-        columns="free*1.0/(used+free) AS percent, max(datetime(date || ' ' || time))",
-        where="time between '%s:00' and '%s:30' and partition='%s'" % (time, time, disk_partition),
-        limit=1,
-      ).fetchone()
-      if not result_max or not result_max[1]:
-        return None
-      result_min = database.select(
-        "disk",
-        columns="free*1.0/(used+free) AS percent, min(datetime(date || ' ' || time))",
-        where="datetime(date || ' ' || time) >= datetime('%s', '-%s days')  and partition='%s'" % (result_max[1], day_range, disk_partition,),
-        limit=1,
-      ).fetchone()
-      if not result_min or not result_min[1] or result_min == result_max:
-        return None
-      change = result_max[0] - result_min[0]
-      if change > 0.:
-        return None
-      timep = '%Y-%m-%d %H:%M:%S'
-      timespan = datetime.datetime.strptime(
-        result_max[1], timep) - datetime.datetime.strptime(
-        result_min[1], timep)
-      delta_days = timespan.total_seconds() / (3600.*24)
-      try:
-        return (-result_max[0] / (change / delta_days), result_min[1], result_min[0], result_max[1], result_max[0], delta_days)
-      except ZeroDivisionError as e:
-        # no data
-        return None
-    except sqlite3.OperationalError as e:
-      # if database is still locked after timeout expiration (another process is using it)
-      # we print warning message and try the promise at next run until max warn count
-      locked_message = "database is locked"
-      if locked_message in str(e) and \
-          not self.raiseOnDatabaseLocked(locked_message):
-        return None
-      raise
-    finally:
-      try:
-        database.close()
-      except Exception:
-        pass
 
   def getDiskSize(self, disk_partition, database):
     database = Database(database, create=False, timeout=10)
@@ -221,16 +168,6 @@ is assumed constant and used to predict in how many days the disk would become f
 
     free_space = self.getFreeSpace(disk_partition, db_path, currentdate,
                                    currenttime)
-    days_until_full_tuple = self.getDaysUntilFull(disk_partition, db_path, currentdate, currenttime, threshold_days/2)
-    if days_until_full_tuple is not None:
-      days_until_full, min_date, min_free, max_date, max_free, day_span = days_until_full_tuple
-      message = "Disk will become full in %.2f days (threshold: %.2f days), checked from %s to %s, %.2f days span" % (
-          days_until_full, threshold_days, min_date, max_date, day_span)
-      if days_until_full < threshold_days:
-        self.logger.error(message + ', free space dropped from %.1f%% to %.1f%%: ERROR' % (min_free*100, max_free*100))
-      else:
-        self.logger.info(message + ': OK')
-
     if free_space == 0:
       return
     elif free_space > threshold*1024*1024*1024:
