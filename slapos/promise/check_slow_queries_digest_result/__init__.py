@@ -71,8 +71,8 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--ptdigest_path", required=True)
   parser.add_argument("--status_file", required=True)
-  parser.add_argument("--max_queries_threshold", required=True)
-  parser.add_argument("--slowest_query_threshold", required=True)
+  parser.add_argument("--max_queries_threshold", required=True, type=float)
+  parser.add_argument("--slowest_query_threshold", required=True, type=float)
   args = parser.parse_args()
 
   status, message = checkMariadbDigestResult(args.ptdigest_path, args.status_file,
