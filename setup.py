@@ -42,6 +42,7 @@ setup(name=name,
         'croniter', # needed to know cron schedule
         'pytz', # needed to manipulate timezone
         'tzlocal', # needed to manipulate timezone
+        'backports.lzma',
         'passlib',
         'netifaces',
         'erp5.util',

@@ -31,6 +31,7 @@ import time
 import tempfile
 import datetime
 import shutil
+from backports import lzma
 
 from . import data
 from slapos.promise.check_slow_queries_digest_result import checkMariadbDigestResult
@@ -45,14 +46,14 @@ class TestCheckSlowQueriesDigestResult(unittest.TestCase):
       with open(self.base_path + "/ptdigest.html") as f:
         content = f.read()
 
-    name = date.strftime('slowquery_digest.txt-%Y-%m-%d')
+    name = date.strftime('slowquery_digest.txt-%Y-%m-%d.xz')
     oldtime = time.mktime(date.timetuple()) + 2000
-    with open( self.base_dir+name, 'a') as the_file:
+    with lzma.open( self.base_dir+name, 'at') as the_file:
       the_file.write(content)
     os.utime(self.base_dir+name, ( oldtime , oldtime ))
     
   def _remove_file(self, date):
-    name = date.strftime('slowquery_digest.txt-%Y-%m-%d')
+    name = date.strftime('slowquery_digest.txt-%Y-%m-%d.xz')
     os.remove(self.base_dir+name)
 
   def setUp(self):
