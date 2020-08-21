@@ -11,6 +11,8 @@ for f in sorted(glob.glob(os.path.join('slapos', 'README.*.rst'))):
 
 long_description += open("CHANGES.txt").read() + "\n"
 
+test_require = ['mock', 'cryptography',]
+
 setup(name=name,
       version=version,
       description="SlapOS toolbox.",
@@ -56,11 +58,9 @@ setup(name=name,
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
         'zodbpack': ['ZODB3'], # needed to play with ZODB
         'flask_auth' : ["Flask-Auth"],
+        'test': test_require,
       },
-      tests_require = [
-        'mock',
-        'cryptography',
-      ],
+      tests_require=test_require,
       zip_safe=False, # proxy depends on Flask, which has issues with
                       # accessing templates
       entry_points={
