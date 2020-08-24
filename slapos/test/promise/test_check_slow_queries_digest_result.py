@@ -44,7 +44,7 @@ class TestCheckSlowQueriesDigestResult(unittest.TestCase):
   def _create_file(self, date, with_content):
     content = ''
     if with_content:
-      with codecs.open(self.base_path + "/ptdigest.html", encoding='utf-8') as f:
+      with codecs.open(os.path.join(self.base_path, "ptdigest.txt"), encoding='utf-8') as f:
         content = f.read()
 
     name = date.strftime('slowquery_digest.txt-%Y-%m-%d.xz')
