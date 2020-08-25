@@ -13,6 +13,7 @@ import sys
 import time
 import datetime
 import argparse
+from backports import lzma
 
 def checkMariadbDigestResult(mariadbdex_path, mariadbdex_report_status_file,
                              max_query_threshold, slowest_query_threshold):
@@ -28,8 +29,8 @@ def checkMariadbDigestResult(mariadbdex_path, mariadbdex_report_status_file,
         return 0, "Instance has been just deployed. Skipping check.."
   else:
     for date in today_or_yesterday:
-      if mariadbdex_file == date.strftime('slowquery_digest.txt-%Y-%m-%d'):
-        with open(os.path.join(mariadbdex_path, mariadbdex_file)) as f:
+      if mariadbdex_file == date.strftime('slowquery_digest.txt-%Y-%m-%d.xz'):
+        with lzma.open(os.path.join(mariadbdex_path, mariadbdex_file), 'rt') as f:
           content = f.read()
         if content:
           # XXX: if not a lot of usage, skip this
@@ -70,8 +71,8 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--ptdigest_path", required=True)
   parser.add_argument("--status_file", required=True)
-  parser.add_argument("--max_queries_threshold", required=True)
-  parser.add_argument("--slowest_query_threshold", required=True)
+  parser.add_argument("--max_queries_threshold", required=True, type=float)
+  parser.add_argument("--slowest_query_threshold", required=True, type=float)
   args = parser.parse_args()
 
   status, message = checkMariadbDigestResult(args.ptdigest_path, args.status_file,
