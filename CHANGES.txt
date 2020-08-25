@@ -1,3 +1,9 @@
+0.110 (2020-08-25)
+==================
+
+* promise: Fix argument parsing in check_slow_queries_digest_result
+* promise: Make check_slow_queries_digest_result use .xz compressed reports, which introduces a dependency to ``lzma.backports``
+
 0.109 (2020-03-12)
 ==================
 
