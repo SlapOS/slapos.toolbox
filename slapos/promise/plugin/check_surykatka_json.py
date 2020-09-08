@@ -162,6 +162,7 @@ class RunPromise(GenericPromise):
     url = self.getConfig('url')
     status_code = self.getConfig('status-code')
     ip_list = self.getConfig('ip-list', '').split()
+    http_header_dict = json.loads(self.getConfig('http-header-dict', '{}'))
 
     entry_list = [q for q in self.surykatka_json[key] if q['url'] == url]
     if len(entry_list) == 0:
@@ -181,6 +182,11 @@ class RunPromise(GenericPromise):
           'IP %s got status code %s instead of %s' % (
             entry['ip'], status_code_explanation, status_code))
         error = True
+      if http_header_dict and http_header_dict != entry['http_header_dict']:
+        appendError(
+          'HTTP Header dict was %r instead of %r' % (
+            entry['http_header_dict'], http_header_dict))
+        error = True
     db_ip_list = [q['ip'] for q in entry_list]
     if len(ip_list):
       if set(ip_list) != set(db_ip_list):
@@ -191,6 +197,8 @@ class RunPromise(GenericPromise):
     if error:
       return
     info_message = '%s: OK with status code %s' % (key, status_code)
+    if http_header_dict:
+      info_message += ' and HTTP Header dict %s' % (http_header_dict)
     if len(ip_list) > 0:
       info_message += ' on IPs %s' % (' '.join(ip_list))
     self.appendInfoMessage(info_message)
