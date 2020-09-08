@@ -519,6 +519,74 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "127.0.0.2"
     )
 
+  def test_http_with_header_dict(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'http://www.erp5.com/',
+        'status-code': '200',
+        'http-header-dict-json': '{"Vary": "Accept-Encoding", "Cache-Control": "max-age=300, public"}',
+        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
+      }
+    )
+    self.writeSurykatkaJson("""{
+    "http_query": [
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "176.31.129.213",
+            "http_header_dict": {"Vary": "Accept-Encoding", "Cache-Control": "max-age=300, public"},
+            "status_code": 200,
+            "url": "http://www.erp5.org/"
+        }
+    ],
+    "ssl_certificate": [
+    ]
+}
+""")
+    self.configureLauncher(enable_anomaly=True)
+    self.launcher.run()
+    self.assertPassedMessage(
+      self.getPromiseResult(self.promise_name),
+      "http://www.erp5.com/ : http_query: OK with status code "
+      "and HTTP Header dict {'Vary': 'Accept-Encoding', 'Cache-Control': 'max-age=300, public'}"
+    )
+
+  def test_http_with_bad_header_dict(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'http://www.erp5.com/',
+        'status-code': '200',
+        'http-header-dict-json': '{"Vary": "Accept-Encoding", "Cache-Control": "max-age=300, public"}',
+        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
+      }
+    )
+    self.writeSurykatkaJson("""{
+    "http_query": [
+        {
+            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+            "ip": "176.31.129.213",
+            "http_header_dict": {"Vary": "Accept-Encoding,Cookie", "Cache-Control": "max-age=300, public"},
+            "status_code": 200,
+            "url": "http://www.erp5.org/"
+        }
+    ],
+    "ssl_certificate": [
+    ]
+}
+""")
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : http_query: ERROR http Header dict was "
+      "{'Vary': 'Accept-Encoding,Cookie', 'Cache-Control': 'max-age=300, public'} "
+      "instead of {'Vary': 'Accept-Encoding', 'Cache-Control': 'max-age=300, public'}"
+    )
+
   def test_no_ip_list(self):
     self.writeSurykatkaPromise(
       {
