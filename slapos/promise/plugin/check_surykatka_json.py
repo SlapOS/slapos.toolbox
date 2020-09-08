@@ -190,12 +190,10 @@ class RunPromise(GenericPromise):
         error = True
     if error:
       return
+    info_message = ''%s: OK with status code %s' % (key, status_code)
     if len(ip_list) > 0:
-      self.appendInfoMessage('%s: OK status code %s on IPs %s' % (
-        key, status_code, ' '.join(ip_list)))
-    else:
-      self.appendInfoMessage('%s: OK with status code %s' % (
-        key, status_code))
+      info_message += ' on IPs %s' % (' '.join(ip_list))
+    self.appendInfoMessage(info_message)
 
   def senseElapsedTime(self):
     key = 'elapsed_time'
