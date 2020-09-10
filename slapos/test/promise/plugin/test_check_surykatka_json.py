@@ -537,7 +537,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "176.31.129.213",
             "http_header_dict": {"Vary": "Accept-Encoding", "Cache-Control": "max-age=300, public"},
             "status_code": 200,
-            "url": "http://www.erp5.org/"
+            "url": "http://www.erp5.com/"
         }
     ],
     "ssl_certificate": [
@@ -570,7 +570,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "176.31.129.213",
             "http_header_dict": {"Vary": "Accept-Encoding,Cookie", "Cache-Control": "max-age=300, public"},
             "status_code": 200,
-            "url": "http://www.erp5.org/"
+            "url": "http://www.erp5.com/"
         }
     ],
     "ssl_certificate": [
