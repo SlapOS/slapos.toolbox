@@ -548,8 +548,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http://www.erp5.com/ : http_query: OK with status code "
-      "and HTTP Header dict {'Vary': 'Accept-Encoding', 'Cache-Control': 'max-age=300, public'}"
+      "http://www.erp5.com/ : http_query: OK with status code 200 "
+      "and HTTP Header dict {u'Vary': u'Accept-Encoding', u'Cache-Control': u'max-age=300, public'}"
     )
 
   def test_http_with_bad_header_dict(self):
@@ -582,9 +582,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "https://www.erp5.com/ : http_query: ERROR http Header dict was "
-      "{'Vary': 'Accept-Encoding,Cookie', 'Cache-Control': 'max-age=300, public'} "
-      "instead of {'Vary': 'Accept-Encoding', 'Cache-Control': 'max-age=300, public'}"
+      "http://www.erp5.com/ : http_query: ERROR HTTP Header dict was "
+      "{u'Vary': u'Accept-Encoding,Cookie', u'Cache-Control': u'max-age=300, public'} "
+      "instead of {u'Vary': u'Accept-Encoding', u'Cache-Control': u'max-age=300, public'}"
     )
 
   def test_no_ip_list(self):
