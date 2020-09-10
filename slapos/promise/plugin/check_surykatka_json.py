@@ -184,8 +184,10 @@ class RunPromise(GenericPromise):
         error = True
       if http_header_dict and http_header_dict != entry['http_header_dict']:
         appendError(
-          'HTTP Header dict was %r instead of %r' % (
-            entry['http_header_dict'], http_header_dict))
+          'HTTP Header dict was %s instead of %s' % (
+            json.dumps(entry['http_header_dict'], sort_keys=True),
+            json.dumps(http_header_dict, sort_keys=True),
+        ))
         error = True
     db_ip_list = [q['ip'] for q in entry_list]
     if len(ip_list):
@@ -198,7 +200,9 @@ class RunPromise(GenericPromise):
       return
     info_message = '%s: OK with status code %s' % (key, status_code)
     if http_header_dict:
-      info_message += ' and HTTP Header dict %s' % (http_header_dict)
+      info_message += ' and HTTP Header dict %s' % (
+        json.dumps(http_header_dict, sort_keys=True),
+      )
     if len(ip_list) > 0:
       info_message += ' on IPs %s' % (' '.join(ip_list))
     self.appendInfoMessage(info_message)
