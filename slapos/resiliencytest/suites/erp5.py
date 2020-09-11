@@ -251,6 +251,7 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     time.sleep(60)
 
     self._editHAProxyconfiguration()
+    time.sleep(60)
     new_data = self._getCreatedERP5Document()
 
     if new_data == self.data:

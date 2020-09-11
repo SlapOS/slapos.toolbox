@@ -191,7 +191,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
     except (NotHttpOkException, HTTPError):
       # The nginx frontend might timeout before software release is finished.
       pass
-
+    time.sleep(20)
     self._waitForSoftwareBuild()
 
   def _deployInstance(self):
