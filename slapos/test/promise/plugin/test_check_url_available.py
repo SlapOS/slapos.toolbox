@@ -29,6 +29,7 @@ from slapos.grid.promise import PromiseError
 from slapos.test.promise.plugin import TestPromisePluginMixin
 from slapos.util import str2bytes
 
+import contextlib
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -42,6 +43,7 @@ import json
 import multiprocessing
 import os
 import six
+import socket
 import ssl
 import tempfile
 import time
@@ -192,6 +194,12 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
 
     cls.server_process = multiprocessing.Process(target=server)
     cls.server_process.start()
+    for _ in range(20):
+      try:
+        with contextlib.closing(socket.create_connection((SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT))):
+          break
+      except Exception:
+        time.sleep(.1)
 
   @classmethod
   def tearDownClass(cls):
