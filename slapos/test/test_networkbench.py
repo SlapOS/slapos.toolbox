@@ -47,7 +47,7 @@ class TestDNSBench(unittest.TestCase):
     self.assertEqual(info[1], 'eu.web.vifib.com')
     self.assertEqual(info[2], 200)
 
-    self.assertTrue(info[3] < 1)
+    self.assertLess(info[3], 1)
     self.assertEqual(info[4], 'OK', 
           "%s != OK, full info: %s" % (info[4], info) )
     self.assertEqual(set(info[5]), set([u'85.118.38.162', u'176.31.129.213']),
@@ -63,7 +63,7 @@ class TestDNSBench(unittest.TestCase):
     self.assertEqual(info[1], 'thisdomaindontexist.erp5.com')
     self.assertEqual(info[2], 600)
 
-    self.assertTrue(info[3] < 1)
+    self.assertLess(info[3], 1)
     self.assertEqual(info[4], 'Cannot resolve the hostname')
     self.assertEqual(info[5], [])
 
@@ -77,7 +77,7 @@ class TestDNSBench(unittest.TestCase):
     self.assertEqual(info[1], 'www.erp5.com')
     self.assertEqual(info[2], 200)
 
-    self.assertTrue(info[3] < 1)
+    self.assertLess(info[3], 1)
     self.assertEqual(info[4], 'UNEXPECTED')
     self.assertTrue(info[5].startswith("['85.118.38.162'] (expected) != "))
 
@@ -88,7 +88,7 @@ class TestPing(unittest.TestCase):
     self.assertEqual(info[0], 'PING')
     self.assertEqual(info[1], 'localhost')
     self.assertEqual(info[2], 200)
-    self.assertTrue(float(info[3]) < 0.2)
+    self.assertLess(float(info[3]), 0.2)
     self.assertEqual(info[4], '0')
     self.assertTrue(info[5].startswith("min"))
 
@@ -107,7 +107,7 @@ class TestPing(unittest.TestCase):
     self.assertEqual(info[0], 'PING6')
     self.assertEqual(info[1], 'localhost')
     self.assertEqual(info[2], 200)
-    self.assertTrue(float(info[3]) < 0.2)
+    self.assertLess(float(info[3]), 0.2)
     self.assertEqual(info[4], '0')
     self.assertTrue(info[5].startswith("min"))
 
