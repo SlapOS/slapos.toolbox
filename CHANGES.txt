@@ -1,3 +1,8 @@
+0.111 (2020-09-14)
+==================
+
+* promise: Support http-header-dict in check_surykatka_json
+
 0.110 (2020-08-25)
 ==================
 
