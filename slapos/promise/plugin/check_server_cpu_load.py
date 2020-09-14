@@ -4,6 +4,7 @@ from slapos.grid.promise.generic import GenericPromise
 
 import subprocess
 import os
+import psutil
 
 @implementer(interface.IPromise)
 class RunPromise(GenericPromise):
@@ -14,13 +15,9 @@ class RunPromise(GenericPromise):
     self.setPeriodicity(minute=3)
 
   def checkCPULoad(self, tolerance=2.2):
-
     # tolerance=1.5 => accept CPU load up to 1.5 =150%
-    uptime_result = subprocess.check_output('uptime', universal_newlines=True)
-    line = uptime_result.strip().split(' ')
-    load, load5, long_load = line[-3:]
-    long_load = float(long_load.replace(',', '.'))
-    core_count = int(subprocess.check_output('nproc').strip())
+    load, load5, long_load = psutil.getloadavg()
+    core_count = psutil.cpu_count()
     max_load = core_count * tolerance
     if long_load > max_load:
       # display top statistics
@@ -51,9 +48,9 @@ class RunPromise(GenericPromise):
     self.checkCPULoad(threshold or 2.2)
 
   def test(self):
-    # fail if load is high than the threshold for more than 30 minutes
+    # fail if load is higher than the threshold for more than 30 minutes
     return self._test(result_count=10, failure_amount=10)
 
   def anomaly(self):
-    # fail if load is high than the threshold for more than 30 minutes
+    # fail if load is higher than the threshold for more than 30 minutes
     return self._test(result_count=10, failure_amount=10)
