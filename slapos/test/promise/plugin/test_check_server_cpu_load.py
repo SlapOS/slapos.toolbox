@@ -32,7 +32,7 @@ import os
 class TestCheckServerCPULoad(TestPromisePluginMixin):
 
   def setUp(self):
-    TestPromisePluginMixin.setUp(self)
+    super(TestCheckServerCPULoad, self).setUp()
     self.promise_name = "server-cpu-load-promise.py"
 
     content = """from slapos.promise.plugin.check_server_cpu_load import RunPromise
@@ -44,13 +44,10 @@ extra_config_dict = {
     self.writePromise(self.promise_name, content)
 
   def test_check_cpu_load_run(self):
-    self.configureLauncher()
+    self.configureLauncher(timeout=5)
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     if result['result']['failed']:
       self.assertTrue("CPU load is high" in result['result']['message'])
     else:
       self.assertEqual("CPU load is OK", result['result']['message'].strip())
-
-if __name__ == '__main__':
-  unittest.main()
