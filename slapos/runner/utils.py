@@ -327,6 +327,8 @@ def config_SR_folder(config):
         cf.write(current_project + '#' + folder)
 
   # First create the link for current project
+  with open(os.path.join(config['etc_dir'], ".project")) as f:
+    current_project = f.read().strip().rstrip('/')
   profile = getCurrentSoftwareReleaseProfile(config)
   name = getSoftwareReleaseName(config)
   md5sum = md5digest(profile)
