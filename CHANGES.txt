@@ -1,3 +1,9 @@
+0.112 (2020-10-20)
+==================
+
+* test: fix for random failures
+* runner: fix deployment of instance through GUI
+
 0.111 (2020-09-14)
 ==================
 
