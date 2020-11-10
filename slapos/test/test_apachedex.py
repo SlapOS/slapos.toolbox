@@ -64,6 +64,19 @@ class TestApachedexCommand(unittest.TestCase):
                                '--base', 'bar', 'foo',
                                '--default', 'foo',
                                '--error-detail', self.acesslog1, self.acesslog2 ])
+
+  def test_complexCommandEscape(self):
+    command = build_command(self.apachedex,
+                            'bar.html',
+                            [self.acesslog1, self.acesslog2],
+                            '--base "foo bar"')
+
+    self.assertEqual(command, ['/bin/apachedex',
+                               '--js-embed',
+                               '--out', 'bar.html',
+                               '--base', 'foo bar',
+                               '--error-detail', self.acesslog1, self.acesslog2 ])
+
   def test_raiseErro(self):
     self.assertRaises(ValueError, build_command, self.apachedex, 'foo.html', [])
 if __name__ == '__main__':
