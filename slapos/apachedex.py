@@ -32,7 +32,7 @@ from __future__ import print_function
 import os, errno
 import subprocess
 import argparse
-import time
+import shlex
 from datetime import date
 
 # run_apachedex.py <apachedex_executable> /srv/etc/output_folder script_name
@@ -61,8 +61,7 @@ def build_command(apachedex_executable, output_file,
     raise ValueError("log_list: no log files to analyse were provided")
 
   if config:
-    config = filter(None, [x.strip() for x in config.split(' ')])
-    argument_list += config
+    argument_list.extend(shlex.split(config))
 
   argument_list.append('--error-detail')
   argument_list += log_list
@@ -74,8 +73,8 @@ def main():
   parser.add_argument("apachedex_executable", metavar="APACHEDEX_EXECUTABLE")
   parser.add_argument("output_folder", metavar="OUTPUT_FOLDER")
   parser.add_argument("base_url", metavar="BASE_URL")
-  parser.add_argument("--apache-log-list", dest="apache_log_list", nargs='*')
-  parser.add_argument("--configuration", dest="configuration")
+  parser.add_argument("--apache-log-list", nargs='*')
+  parser.add_argument("--configuration")
   args = parser.parse_args()
 
   config = args.configuration
@@ -97,23 +96,15 @@ def main():
   except ValueError as e:
     print(e)
     return 1
-  process_handler = subprocess.Popen(argument_list,
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE,
-                                     universal_newlines=True,
-                                     )
 
-  stdout, stderr = process_handler.communicate()
-  if process_handler.returncode != 0:
-    if stderr:
-      print(stderr)
+  try:
+    subprocess.check_output(argument_list, stderr=subprocess.STDOUT)
+  except subprocess.CalledProcessError as e:
+    print("Error running apachedex", e.output)
     return 1
-  
+
   # Check that output_file is a readable file.
   with open(output_file, 'r'):
     print(base_url + '/ApacheDex-%s.html' % today)
   return 0
-
-if __name__ == "__main__":
-  sys.exit(main())
 
