@@ -61,7 +61,10 @@ def build_command(apachedex_executable, output_file,
     raise ValueError("log_list: no log files to analyse were provided")
 
   if config:
-    argument_list.extend(shlex.split(config))
+    lexer = shlex.shlex(config, posix=True)
+    lexer.whitespace_split = True
+    lexer.escape = '' # don't escape \
+    argument_list.extend(list(lexer))
 
   argument_list.append('--error-detail')
   argument_list += log_list

@@ -65,7 +65,7 @@ class TestApachedexCommand(unittest.TestCase):
                                '--default', 'foo',
                                '--error-detail', self.acesslog1, self.acesslog2 ])
 
-  def test_complexCommandEscape(self):
+  def test_complexCommandDoubleQuoteEscape(self):
     command = build_command(self.apachedex,
                             'bar.html',
                             [self.acesslog1, self.acesslog2],
@@ -75,6 +75,18 @@ class TestApachedexCommand(unittest.TestCase):
                                '--js-embed',
                                '--out', 'bar.html',
                                '--base', 'foo bar',
+                               '--error-detail', self.acesslog1, self.acesslog2 ])
+
+  def test_complexCommandBackslashEscape(self):
+    command = build_command(self.apachedex,
+                            'bar.html',
+                            [self.acesslog1, self.acesslog2],
+                            r'--base +erp5 .*/VirtualHostRoot/erp5(/|\?|$)')
+
+    self.assertEqual(command, ['/bin/apachedex',
+                               '--js-embed',
+                               '--out', 'bar.html',
+                               '--base', '+erp5', r'.*/VirtualHostRoot/erp5(/|\?|$)',
                                '--error-detail', self.acesslog1, self.acesslog2 ])
 
   def test_raiseErro(self):
