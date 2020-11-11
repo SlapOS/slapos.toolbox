@@ -29,10 +29,9 @@
 
 from __future__ import print_function
 
-import os, errno
+import os
 import subprocess
 import argparse
-import shlex
 from datetime import date
 
 # run_apachedex.py <apachedex_executable> /srv/etc/output_folder script_name
@@ -61,7 +60,7 @@ def build_command(apachedex_executable, output_file,
     raise ValueError("log_list: no log files to analyse were provided")
 
   if config:
-    argument_list.extend(shlex.split(config))
+    argument_list.append('@' + config)
 
   argument_list.append('--error-detail')
   argument_list += log_list
@@ -74,7 +73,10 @@ def main():
   parser.add_argument("output_folder", metavar="OUTPUT_FOLDER")
   parser.add_argument("base_url", metavar="BASE_URL")
   parser.add_argument("--apache-log-list", nargs='*')
-  parser.add_argument("--configuration")
+  parser.add_argument(
+      "--configuration",
+      help="file containing apachedex command line arguments",
+  )
   args = parser.parse_args()
 
   config = args.configuration
