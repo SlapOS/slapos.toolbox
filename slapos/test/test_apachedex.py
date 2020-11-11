@@ -45,39 +45,12 @@ class TestApachedexCommand(unittest.TestCase):
     command = build_command(self.apachedex,
                             'foo.html',
                             [self.acesslog1, self.acesslog2],
-                            '--default foo')
+                            '/path/to/config')
     self.assertEqual(command, ['/bin/apachedex',
                                '--js-embed',
                                '--out', 'foo.html',
-                               '--default', 'foo',
+                               '@/path/to/config',
                                '--error-detail', self.acesslog1, self.acesslog2 ])
  
-  def test_complexCommand(self):
-    command = build_command(self.apachedex,
-                            'bar.html',
-                            [self.acesslog1, self.acesslog2],
-                            '--base bar foo --default foo')
-
-    self.assertEqual(command, ['/bin/apachedex',
-                               '--js-embed',
-                               '--out', 'bar.html',
-                               '--base', 'bar', 'foo',
-                               '--default', 'foo',
-                               '--error-detail', self.acesslog1, self.acesslog2 ])
-
-  def test_complexCommandEscape(self):
-    command = build_command(self.apachedex,
-                            'bar.html',
-                            [self.acesslog1, self.acesslog2],
-                            '--base "foo bar"')
-
-    self.assertEqual(command, ['/bin/apachedex',
-                               '--js-embed',
-                               '--out', 'bar.html',
-                               '--base', 'foo bar',
-                               '--error-detail', self.acesslog1, self.acesslog2 ])
-
-  def test_raiseErro(self):
+  def test_raiseError(self):
     self.assertRaises(ValueError, build_command, self.apachedex, 'foo.html', [])
-if __name__ == '__main__':
-  unittest.main()
