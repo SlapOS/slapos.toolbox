@@ -105,24 +105,19 @@ class RunPromise(GenericPromise):
     self.logger.warn("collector database is locked by another process")
     return False
 
-  def getInodeUsage(self, path):
-    max_inode_usage = 97.99 # < 98% usage
+  @staticmethod
+  def _checkInodeUsage(path):
     stat = os.statvfs(path)
-    usage_output = ""
     total_inode = stat.f_files
-    free_inode = stat.f_ffree
-    usage = round(((total_inode - free_inode) / total_inode), 4) * 100
-    if usage > max_inode_usage:
-      return "Disk Inodes usages is really high: %s%%" % usage
-    elif os.path.exists('/tmp'):
-      # check if /tmp is mounted on another disk than path
-      tmp_stat = os.statvfs('/tmp')
-      if tmp_stat.f_blocks != stat.f_blocks:
-        tmp_usage = round(((tmp_stat.f_files - tmp_stat.f_ffree) / tmp_stat.f_files), 4) * 100
-        if tmp_usage > max_inode_usage:
-          return "Disk Inodes usage is high: %s%%" % tmp_usage
-    return ""
+    if total_inode:
+      usage = 100 * (total_inode - stat.f_ffree) / total_inode
+      if usage >= 98:
+        return "Disk Inodes usage is really high: %.4f%%" % usage
 
+  def getInodeUsage(self, path):
+    return (self._checkInodeUsage(path) or
+       os.path.ismount('/tmp') and self._checkInodeUsage('/tmp') or
+       "")
 
   def sense(self):
     # find if a disk is mounted on the path
