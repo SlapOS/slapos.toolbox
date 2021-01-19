@@ -85,8 +85,8 @@ class RunPromise(GenericPromise):
       return
 
     self.appendInfoMessage(
-      '%s: OK Last bot status from %s' %
-      (key, last_bot_datetime_string,))
+      '%s: OK Last bot status' %
+      (key,))
 
   def senseSslCertificate(self):
     key = 'ssl_certificate'
@@ -241,9 +241,8 @@ class RunPromise(GenericPromise):
               (entry['ip'], entry['total_seconds'], maximum_elapsed_time))
           else:
             self.appendInfoMessage(
-              '%s: OK IP %s replied in %.2fs which is shorter than '
-              'maximum %.2fs' % (key, entry['ip'],
-                                 entry['total_seconds'], maximum_elapsed_time))
+              '%s: OK IP %s replied shorter than maximum %.2fs' % (
+                key, entry['ip'], maximum_elapsed_time))
 
   def sense(self):
     """

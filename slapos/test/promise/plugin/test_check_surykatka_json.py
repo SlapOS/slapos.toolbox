@@ -114,7 +114,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "bot_status: OK Last bot status from Fri, 13 Dec 2222 08:10:11 -0000"
+      "bot_status: OK Last bot status"
     )
 
   def test_no_loop(self):
@@ -348,8 +348,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "https://www.erp5.com/ : http_query: OK with status code 302 on IPs "
       "127.0.0.1 127.0.0.2 ssl_certificate: OK Certificate on 127.0.0.1 will "
       "expire on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 days "
-      "elapsed_time: OK IP 127.0.0.1 replied in 4.00s which is shorter than "
-      "maximum 5.00s elapsed_time: OK IP 127.0.0.2 replied in 4.00s which is "
+      "elapsed_time: OK IP 127.0.0.1 replied shorter than "
+      "maximum 5.00s elapsed_time: OK IP 127.0.0.2 replied "
       "shorter than maximum 5.00s"
     )
 
