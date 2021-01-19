@@ -75,18 +75,13 @@ class RunPromise(GenericPromise):
     delta = self.utcnow - last_bot_datetime
     # sanity check
     if delta < datetime.timedelta(minutes=0):
-      appendError('Last bot datetime %s is in future',
-                  last_bot_datetime_string,)
+      appendError('Last bot datetime is in future')
       return
     if delta > datetime.timedelta(minutes=15):
-      appendError(
-        'Last bot datetime %s is more than 15 minutes old',
-        last_bot_datetime_string,)
+      appendError('Last bot datetime is more than 15 minutes old')
       return
 
-    self.appendInfoMessage(
-      '%s: OK Last bot status from %s' %
-      (key, last_bot_datetime_string,))
+    self.appendInfoMessage('%s: OK Last bot status' % (key,))
 
   def senseSslCertificate(self):
     key = 'ssl_certificate'
@@ -236,14 +231,12 @@ class RunPromise(GenericPromise):
             appendError('IP %s failed to reply' % (entry['ip']))
           elif entry['total_seconds'] > maximum_elapsed_time:
             appendError(
-              'IP %s replied in %.2fs which is longer than '
-              'maximum %.2fs' %
-              (entry['ip'], entry['total_seconds'], maximum_elapsed_time))
+              'IP %s replied in more time than maximum %.2fs' %
+              (entry['ip'], maximum_elapsed_time))
           else:
             self.appendInfoMessage(
-              '%s: OK IP %s replied in %.2fs which is shorter than '
-              'maximum %.2fs' % (key, entry['ip'],
-                                 entry['total_seconds'], maximum_elapsed_time))
+              '%s: OK IP %s replied in less time than maximum %.2fs' % (
+                key, entry['ip'], maximum_elapsed_time))
 
   def sense(self):
     """
