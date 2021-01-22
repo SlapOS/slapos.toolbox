@@ -1,3 +1,9 @@
+0.114 (2021-01-22)
+==================
+
+* apachedex: expect apachedex options to be passed as a file
+* check_free_disk_space: Btrfs has no fixed inode limit
+
 0.113 (2020-11-11)
 ==================
 
