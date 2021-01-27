@@ -1,3 +1,8 @@
+0.115 (2021-01-27)
+==================
+
+* check_surykatka_json: minimise messages to avoid information bloat
+
 0.114 (2021-01-22)
 ==================
 
