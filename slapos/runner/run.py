@@ -110,7 +110,10 @@ def run():
   serve(config)
 
 def serve(config):
-  from werkzeug.contrib.fixers import ProxyFix
+  try:
+    from werkzeug.middleware.proxy_fix import ProxyFix
+  except ImportError:
+    from werkzeug.contrib.fixers import ProxyFix
   workdir = os.path.join(config.runner_workdir, 'project')
   software_link = os.path.join(config.runner_workdir, 'softwareLink')
   app.config.update(**config.__dict__)
