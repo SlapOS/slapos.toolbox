@@ -1,3 +1,8 @@
+0.116 (2021-02-01)
+==================
+
+* runner: import werkzeug.middleware.proxy_fix.ProxyFix from its new location (for compatibility with werkzeug 1.0.x)
+
 0.115 (2021-01-27)
 ==================
 
