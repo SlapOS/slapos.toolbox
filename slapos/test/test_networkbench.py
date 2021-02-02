@@ -32,7 +32,7 @@ from slapos.networkbench.ping import ping, ping6
 from slapos.networkbench.http import request
 
 
-DNS_EXPECTED_LIST = ["85.118.38.162", "176.31.129.213"]
+DNS_EXPECTED_LIST = ["161.97.166.226", "176.31.129.213"]
 
 class TestDNSBench(unittest.TestCase):
 
@@ -50,8 +50,8 @@ class TestDNSBench(unittest.TestCase):
     self.assertLess(info[3], 30)
     self.assertEqual(info[4], 'OK', 
           "%s != OK, full info: %s" % (info[4], info) )
-    self.assertEqual(set(info[5]), set([u'85.118.38.162', u'176.31.129.213']),
-          "%s != set([u'85.118.38.162', u'176.31.129.213']), full info: %s" % (set(info[5]), info))
+    self.assertEqual(set(info[5]), set([u'161.97.166.226', u'176.31.129.213']),
+          "%s != set([u'161.97.166.226', u'176.31.129.213']), full info: %s" % (set(info[5]), info))
     
   def test_dnsbench_fail(self):
     """ Test dns failure resolution
@@ -79,7 +79,7 @@ class TestDNSBench(unittest.TestCase):
 
     self.assertLess(info[3], 30)
     self.assertEqual(info[4], 'UNEXPECTED')
-    self.assertTrue(info[5].startswith("['85.118.38.162'] (expected) != "))
+    self.assertTrue(info[5].startswith("['161.97.166.226'] (expected) != "))
 
 class TestPing(unittest.TestCase):
 
