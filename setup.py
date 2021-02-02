@@ -103,7 +103,6 @@ setup(name=name,
           'slaprunnertest = slapos.runner.runnertest:main',
           'slaprunnerteststandalone = slapos.runner.runnertest:runStandaloneUnitTest',
           'zodbpack = slapos.zodbpack:run [zodbpack]',
-          'networkbench = slapos.networkbench:main',
           'cachechecker = slapos.cachechecker:web_checker_utility'
         ]
       },
