@@ -33,6 +33,7 @@ import tempfile
 import os
 import unittest
 import shutil
+import psutil
 import textwrap
 import subprocess
 
@@ -95,8 +96,12 @@ class TestCheckServiceState(TestPromisePluginMixin):
   def tearDown(self):
     TestPromisePluginMixin.tearDown(self)
     with getSupervisorRPC(self._supervisor_socket) as supervisor:
+      supervisor_process = psutil.Process(supervisor.getPID())
       supervisor.stopAllProcesses()
       supervisor.shutdown()
+    _, alive = psutil.wait_procs([supervisor_process], timeout=300)
+    if alive:
+      supervisor_process.kill()
     shutil.rmtree(self._tempdir)
 
   def test_running_expect_running(self):
