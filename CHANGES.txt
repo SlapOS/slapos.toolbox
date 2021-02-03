@@ -1,3 +1,8 @@
+0.117 (2021-02-03)
+==================
+
+* promise/plugin: Implement check_service_state promise plugin
+
 0.116 (2021-02-01)
 ==================
 
