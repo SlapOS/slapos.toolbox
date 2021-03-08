@@ -54,6 +54,8 @@ setup(name=name,
         'pycurl',
         'six',
         'cryptography',
+        'click',
+        'ipaddress',
       ),
       extras_require = {
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
@@ -104,7 +106,8 @@ setup(name=name,
           'slaprunnerteststandalone = slapos.runner.runnertest:runStandaloneUnitTest',
           'zodbpack = slapos.zodbpack:run [zodbpack]',
           'networkbench = slapos.networkbench:main',
-          'cachechecker = slapos.cachechecker:web_checker_utility'
+          'cachechecker = slapos.cachechecker:web_checker_utility',
+          'dnsresolver = slapos.dnsresolver:main',
         ]
       },
       test_suite='slapos.test',
