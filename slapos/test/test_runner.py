@@ -1,12 +1,18 @@
+import json
 import mock
 import os
 import string
 import random
+import shutil
 import supervisor
+import tempfile
+import textwrap
+
 import unittest
 
 
 import slapos.runner.utils as runner_utils
+import slapos.runner.views
 
 import sys
 sys.modules['slapos.runner.utils'].sup_process = mock.MagicMock()
@@ -362,6 +368,138 @@ class TestRunnerBackEnd(unittest.TestCase):
   @unittest.skip('No scenario defined')
   def test_parametersAreCorrectlyUpdatedAndGivenToTheInstance(self):
     raise NotImplementedError
+
+
+class TestViews(unittest.TestCase):
+  def setUp(self):
+    app = slapos.runner.views.app
+    self.client = app.test_client()
+    for key in (
+        'etc_dir',
+        'workspace',
+        'software_link',
+        'instance_profile',
+        'instance_root',
+    ):
+      tmpdir = tempfile.mkdtemp()
+      app.config[key] = tmpdir
+      self.addCleanup(shutil.rmtree, tmpdir)
+    slapos_command = tempfile.NamedTemporaryFile(mode='w', delete=False)
+    self.addCleanup(os.unlink, slapos_command.name)
+    slapos_command.write(textwrap.dedent('''\
+        #!/bin/sh
+        echo $@ > $0.arguments
+        cat $0.output
+    '''))
+    self.slapos_command_arguments = slapos_command.name + '.arguments'
+    self.slapos_command_output = slapos_command.name + '.output'
+    os.chmod(slapos_command.name, 0o700)
+    app.config['slapos'] = slapos_command.name
+    app.config['configuration_file_path'] = 'slapos.cfg'
+    app.config['instance_monitoring_url'] = 'https://monitoring.example.com'
+    app.config['master_url'] = 'https://slapos.example.com'
+    app.config['computer_id'] = 'COMP-1234'
+    app.config['partition_amount'] = 1
+    app.config['software_profile'] = 'https://example.com/software.cfg'
+    app.config['TESTING'] = True
+    app.secret_key = 'secret'
+
+  def test_home(self):
+    self.assertIn(b'SlapOS web runner', self.client.get('/').data)
+
+  def test_browseWorkspace(self):
+    self.assertEqual(self.client.get('/browseWorkspace').status_code, 200)
+
+  def test_editSoftwareProfile(self):
+    self.assertEqual(self.client.get('/editSoftwareProfile').status_code, 200)
+
+  def test_inspectSoftware(self):
+    self.assertEqual(self.client.get('/inspectSoftware').status_code, 200)
+
+  def test_runSoftwareProfile(self):
+    self.assertEqual(self.client.get('/runSoftwareProfile').status_code, 200)
+    self.assertEqual(self.client.post('/runSoftwareProfile').status_code, 200)
+
+  def test_editInstanceProfile(self):
+    self.assertEqual(self.client.get('/editInstanceProfile').status_code, 200)
+
+  def test_inspectInstance(self):
+    with open(self.slapos_command_output, 'w') as f:
+      f.write(textwrap.dedent('''
+        slappart1:service            RUNNING   pid 1234, uptime 6 days, 4:02:18
+        watchdog                     RUNNING   pid 5678, uptime 6 days, 4:03:07
+        '''))
+
+    self.assertEqual(
+        json.loads(
+            self.client.get(
+                '/inspectInstance',
+                headers={
+                    'Accept': 'application/json'
+                },
+            ).data),
+        [{
+            'service_name':
+            'slappart1:service',
+            'status': 'RUNNING'
+        }],
+    )
+    with open(self.slapos_command_arguments) as f:
+      self.assertEqual(f.read().strip(), 'node supervisorctl --cfg slapos.cfg status')
+
+    self.assertIn(
+        b'<a href="/startStopProccess/name/slappart1:service/cmd/RUNNING">RUNNING</a>',
+        self.client.get('/inspectInstance', headers={
+            'Accept': '*/*'
+        }).data)
+
+
+  def test_supervisordStatus(self):
+    with open(self.slapos_command_output, 'w') as f:
+      f.write(
+          textwrap.dedent('''
+        slappart1:service            RUNNING   pid 1234, uptime 6 days, 4:02:18
+        watchdog                     RUNNING   pid 5678, uptime 6 days, 4:03:07
+        '''))
+
+    self.assertEqual(
+        json.loads(self.client.get('/supervisordStatus').data), {
+            'code':
+            1,
+            'result':
+            "<tr><th>Partition and Process name</th><th>Status</th>"
+            "<th>Process PID </th><th> UpTime</th><th></th></tr><tr>"
+            "<td  class='first'><b>"
+            "<a href='/tailProcess/name/slappart1:service'>slappart1:service</a>"
+            "</b></td><td align='center'>"
+            "<a href='/startStopProccess/name/slappart1:service/cmd/RUNNING'>"
+            "RUNNING</a></td><td align='center'>1234</td><td>6</td><td align='center'>"
+            "<a href='/startStopProccess/name/slappart1:service/cmd/RESTART'>"
+            "Restart</a></td></tr>"
+        })
+
+    def test_runInstanceProfile(self):
+      self.assertEqual(self.client.get('/runInstanceProfile').status_code, 200)
+      self.assertEqual(self.client.post('/runInstanceProfile').status_code, 200)
+
+    def test_removeInstance(self):
+      self.assertEqual(self.client.get('/removeInstance').status_code, 200)
+
+    def test_viewLog(self):
+      self.assertEqual(self.client.get('/viewLog').status_code, 200)
+
+    def test_getFileLog(self):
+      self.assertEqual(self.client.post('/getFileLog').status_code, 200)
+
+    def test_stopAllPartition(self):
+      self.assertEqual(self.client.post('/stopAllPartition').status_code, 302)
+
+    def test_tailProcess(self):
+      self.assertEqual(
+          self.client.post('/tailProcess/name/slappart1:service').status_code,
+          200)
+
+    # TODO: test other important views
 
 
 if __name__ == '__main__':

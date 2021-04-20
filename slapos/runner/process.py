@@ -15,6 +15,7 @@ class Popen(subprocess.Popen):
     self.name = kwargs.pop('name', None)
     kwargs['stdin'] = subprocess.PIPE
     kwargs['stderr'] = subprocess.STDOUT
+    kwargs.setdefault('encoding', 'utf-8')
     kwargs.setdefault('stdout', subprocess.PIPE)
     kwargs.setdefault('close_fds', True)
     subprocess.Popen.__init__(self, *args, **kwargs)
