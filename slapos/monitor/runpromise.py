@@ -28,7 +28,7 @@ def getArgumentParser():
   parser = argparse.ArgumentParser()
   parser.add_argument('-c', '--config', dest='config_file',
                       help='The Path of configuration file to load.')
-  parser.add_argument('-p', '--partition-folder',
+  parser.add_argument('-p', '--partition-folder', required=True,
                       help='Base path of the partition.')
   parser.add_argument('-L', '--log-folder',
                       help='Folder where promises will write logs.')
@@ -123,9 +123,6 @@ class MonitorPromiseLauncher(object):
 
       with open(self.config.pid_path, 'w') as fpid:
         fpid.write(str(os.getpid()))
-
-    if not self.config.partition_folder:
-      raise ValueError("Partition folder is not specified")
 
     parameter_dict = {
       'promise-timeout': self.config.promise_timeout or promise_timeout,
