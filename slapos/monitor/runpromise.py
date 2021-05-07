@@ -159,7 +159,8 @@ class MonitorPromiseLauncher(object):
     except PromiseError as e:
       # error was already logged
       exit_code = 1
-    os.remove(self.config.pid_path)
+    if self.config.pid_path:
+      os.remove(self.config.pid_path)
     self.logger.info("Finished promises.")
     return exit_code
 
