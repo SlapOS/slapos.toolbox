@@ -22,8 +22,6 @@ class RunPromise(GenericPromise):
     # check disk space at least every 3 minutes
     self.setPeriodicity(minute=3)
 
-
-
   def getDiskSize(self, disk_partition, database):
     database = Database(database, create=False, timeout=10)
     try:
@@ -149,7 +147,7 @@ class RunPromise(GenericPromise):
       disk_partition = self.getConfig('test-disk-partition', '/dev/sda1')
     else:
       # get last minute
-      now = datetime.datetime.now()
+      now = datetime.datetime.utcnow()
       currentdate = now.strftime('%Y-%m-%d')
       currenttime = now - datetime.timedelta(minutes=1)
       currenttime = currenttime.time().strftime('%H:%M')
