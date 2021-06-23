@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 import argparse
+import cgi
 import csv
 import datetime
 import json
@@ -84,15 +85,19 @@ def main():
 
   while args.max_run > 0:
     try:
+      kwargs = {}
+      if str is not bytes:
+        kwargs['errors'] = 'replace'
       content = subprocess.check_output(
           args.executable[0],
-          stderr=subprocess.STDOUT
+          stderr=subprocess.STDOUT,
+          **kwargs
       )
       exit_code = 0
       content = ("OK</br><p>%s ran successfully</p>"
                     "<p>Output is: </p><pre>%s</pre>" % (
             args.executable[0],
-            content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+            cgi.escape(content)
         ))
       saveStatus('FINISHED')
       break
@@ -105,7 +110,7 @@ def main():
                     "<p>Output is: </p><pre>%s</pre>" % (
             args.executable[0],
             exit_code,
-            content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+            cgi.escape(content)
         ))
 
   print(content)
@@ -163,7 +168,7 @@ def main():
     transaction_id = args.transaction_id[0] if args.transaction_id else int(time.time()*1e6)
     notification_path += str(transaction_id)
 
-    headers = {'Content-Type': feed.info().getheader('Content-Type')}
+    headers = {'Content-Type': feed.info().get('Content-Type')}
     try:
       notification = httplib.HTTPConnection(notification_url.hostname,
                                             notification_port)
@@ -189,4 +194,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-

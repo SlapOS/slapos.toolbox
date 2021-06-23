@@ -13,6 +13,8 @@ import time
 from datetime import datetime
 from hashlib import sha512
 
+from slapos.util import bytes2str, str2bytes
+
 from atomize import Entry
 from atomize import Feed
 from atomize import Content
@@ -81,7 +83,7 @@ def notify(transaction_id):
 
   try:
     callback_filepath = os.path.join(app.config['CALLBACKS'],
-                                     sha512(str(feed.feed.id)).hexdigest())
+                                     sha512(feed.feed.id.encode()).hexdigest())
     if not os.path.exists(callback_filepath):
       abort(httplib.NOT_FOUND)
   except AttributeError:
@@ -90,17 +92,17 @@ def notify(transaction_id):
 
   abort_it = False
 
-  for callback in io.open(callback_filepath, 'r', encoding='utf8'):
+  for callback in io.open(callback_filepath, 'rb'):
     timestamp = int(math.floor(time.mktime(feed.feed.updated_parsed)))
 
     equeue_request = json.dumps({
-        'command': '%s\0--transaction-id\0%s' % (callback, transaction_id),
+        'command': '%s\0--transaction-id\0%s' % (bytes2str(callback), transaction_id),
         'timestamp': timestamp,
         })
 
     equeue_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     equeue_socket.connect(app.config['EQUEUE_SOCKET'])
-    equeue_socket.send(equeue_request)
+    equeue_socket.send(str2bytes(equeue_request))
     result = equeue_socket.recv(len(callback))
     equeue_socket.close()
 
