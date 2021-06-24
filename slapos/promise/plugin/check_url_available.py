@@ -1,3 +1,20 @@
+"""
+Some notable parameters:
+
+  promise-timeout:
+    Optional timeout (in seconds) for promise.
+  timeout:
+    Optional timeout (in seconds) for HTTP request.
+  verify, ca-cert-file, cert-file, key-file:
+    Optional SSL information. (See Python requests documentation.)
+  http-code:
+    (default 200) The expected response HTTP code.
+  ignore-code:
+    (default 0) If set to 1, ignore the response HTTP code.
+  username, password:
+    If supplied, enables basic HTTP authentication.
+"""
+
 from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
@@ -14,7 +31,7 @@ class RunPromise(GenericPromise):
 
   def sense(self):
     """
-      Check if frontend URL is available
+      Check if frontend URL is available.
     """
 
     url = self.getConfig('url')
@@ -22,12 +39,18 @@ class RunPromise(GenericPromise):
     # and in the same time at least 1 second
     default_timeout = max(
       1, min(5, int(self.getConfig('promise-timeout', 20)) - 1))
-    timeout = int(self.getConfig('timeout', default_timeout))
-    expected_http_code = int(self.getConfig('http_code', '200'))
+    expected_http_code = int(self.getConfig('http-code', 200))
     ca_cert_file = self.getConfig('ca-cert-file')
     cert_file = self.getConfig('cert-file')
     key_file = self.getConfig('key-file')
     verify = int(self.getConfig('verify', 0))
+    username = self.getConfig('username')
+    password = self.getConfig('password')
+
+    if int(self.getConfig('ignore-code', 0)) == 1:
+      ignore_code = True
+    else:
+      ignore_code = False
 
     if ca_cert_file:
       verify = ca_cert_file
@@ -41,36 +64,54 @@ class RunPromise(GenericPromise):
     else:
       cert = None
 
+    if username and password:
+      credentials = (username, password)
+      request_type = "authenticated"
+    else:
+      credentials = None
+      request_type = "non-authenticated"
+
+    request_options = {
+      'allow_redirects': True,
+      'timeout': int(self.getConfig('timeout', default_timeout)),
+      'verify': verify,
+      'cert': cert,
+      'auth': credentials,
+    }
+
     try:
-      result = requests.get(
-        url, verify=verify, allow_redirects=True, timeout=timeout, cert=cert)
+      response = requests.get(url, **request_options)
     except requests.exceptions.SSLError as e:
       if 'certificate verify failed' in str(e):
         self.logger.error(
-          "ERROR SSL verify failed while accessing %r" % (url,))
+          "ERROR SSL verify failed while accessing %r", url)
       else:
         self.logger.error(
-          "ERROR Unknown SSL error %r while accessing %r" % (e, url))
-      return
+          "ERROR Unknown SSL error %r while accessing %r", e, url)
     except requests.ConnectionError as e:
       self.logger.error(
-        "ERROR connection not possible while accessing %r" % (url, ))
-      return
+        "ERROR connection not possible while accessing %r", url)
     except Exception as e:
-      self.logger.error("ERROR: %s" % (e,))
-      return
+      self.logger.error("ERROR: %s", e)
 
-    http_code = result.status_code
-    check_secure = int(self.getConfig('check-secure', 0))
-    ignore_code = int(self.getConfig('ignore-code', 0))
-
-    if http_code == 401 and check_secure == 1:
-      self.logger.info("%r is protected (returned %s)." % (url, http_code))
-    elif not ignore_code and http_code != expected_http_code:
-      self.logger.error("%r is not available (returned %s, expected %s)." % (
-        url, http_code, expected_http_code))
     else:
-      self.logger.info("%r is available" % (url,))
+      # Log a sensible message, depending on the request/response
+      # parameters.
+      if ignore_code:
+        log = self.logger.info
+        result = "succeeded"
+        message = "return code ignored"
+      elif response.status_code == expected_http_code:
+        log = self.logger.info
+        result = "succeeded"
+        message = "returned expected code %d" % expected_http_code
+      else:
+        log = self.logger.error
+        result = "failed"
+        message = "returned %d, expected %d" % (response.status_code,
+                                                expected_http_code)
+
+      log("%s request to %r %s (%s)", request_type, url, result, message)
 
   def anomaly(self):
     return self._test(result_count=3, failure_amount=3)
