@@ -162,7 +162,7 @@ class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     # The encoding/decoding trick is necessary for compatibility with
     # Python 2 and 3.
     key = b64encode(('%s:%s' % (TEST_GOOD_USERNAME,
-                                TEST_GOOD_PASSWORD).encode())).decode()
+                                TEST_GOOD_PASSWORD)).encode()).decode()
     try:
       authorization = self.headers['Authorization']
     except KeyError:
