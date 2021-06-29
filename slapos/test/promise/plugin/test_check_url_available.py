@@ -37,6 +37,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 from six.moves import BaseHTTPServer
+from base64 import b64encode
 import datetime
 import ipaddress
 import json
@@ -53,6 +54,11 @@ SLAPOS_TEST_IPV4 = os.environ.get('SLAPOS_TEST_IPV4', '127.0.0.1')
 SLAPOS_TEST_IPV4_PORT = 57965
 HTTPS_ENDPOINT = "https://%s:%s/" % (SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT)
 
+# Good and bad username/password for HTTP authentication tests.
+TEST_GOOD_USERNAME = 'good username'
+TEST_GOOD_PASSWORD = 'good password'
+TEST_BAD_USERNAME = 'bad username'
+TEST_BAD_PASSWORD = 'bad password'
 
 def createKey():
   key = rsa.generate_private_key(
@@ -135,6 +141,16 @@ class CertificateAuthority(object):
 class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def do_GET(self):
     path = self.path.split('/')[-1]
+
+    # This is a bit of a hack, but to ensure compatibility with previous
+    # tests, prepend an '!' to the path if you want the server to check
+    # for authentication.
+    if path[0] == '!':
+      require_auth = True
+      path = path[1:]
+    else:
+      require_auth = False
+
     if '_' in path:
       response, timeout = path.split('_')
       response = int(response)
@@ -143,15 +159,30 @@ class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       timeout = 0
       response = int(path)
 
-    time.sleep(timeout)
-    self.send_response(response)
+    # The encoding/decoding trick is necessary for compatibility with
+    # Python 2 and 3.
+    key = b64encode(('%s:%s' % (TEST_GOOD_USERNAME,
+                                TEST_GOOD_PASSWORD).encode())).decode()
+    try:
+      authorization = self.headers['Authorization']
+    except KeyError:
+      authorization = None
 
-    self.send_header("Content-type", "application/json")
-    self.end_headers()
-    response = {
-      'Path': self.path,
-    }
-    self.wfile.write(str2bytes(json.dumps(response, indent=2)))
+    time.sleep(timeout)
+    if require_auth and authorization != 'Basic ' + key:
+      self.send_response(401)
+      self.send_header('WWW-Authenticate', 'Basic realm="test"')
+      self.end_headers()
+      self.wfile.write('bad credentials\n'.encode())
+    else:
+      self.send_response(response)
+
+      self.send_header("Content-type", "application/json")
+      self.end_headers()
+      response = {
+        'Path': self.path,
+      }
+      self.wfile.write(str2bytes(json.dumps(response, indent=2)))
 
 
 class CheckUrlAvailableMixin(TestPromisePluginMixin):
@@ -258,6 +289,17 @@ extra_config_dict = {
   'check-secure': %(check_secure)s,
   'ignore-code': %(ignore_code)s,
   'http_code': %(http_code)s
+}
+"""
+
+    self.base_content_authenticate = """from slapos.promise.plugin.check_url_available import RunPromise
+
+extra_config_dict = {
+  'url': '%(url)s',
+  'timeout': %(timeout)s,
+  'username': '%(username)s',
+  'password': '%(password)s',
+  'require-auth': %(require_auth)s
 }
 """
 
@@ -484,6 +526,65 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       "%r is available" % (url,)
     )
 
+  # Test normal authentication success.
+  def test_check_authenticate_success(self):
+    url = HTTPS_ENDPOINT + '!200'
+    content = self.base_content_authenticate % {
+      'url': url,
+      'username': TEST_GOOD_USERNAME,
+      'password': TEST_GOOD_PASSWORD,
+      'require_auth': 1
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is available" % (url,)
+    )
+
+  # Test authentication failure due to bad password.
+  def test_check_authenticate_bad_password(self):
+    url = HTTPS_ENDPOINT + '!200'
+    content = self.base_content_authenticate % {
+      'url': url,
+      'username': TEST_BAD_USERNAME,
+      'password': TEST_BAD_PASSWORD,
+      'require_auth': 1
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is not available (returned 401, expected 200)." % (url,)
+    )
+
+  # Test authentication failure due to the server not requiring any
+  # authentication.
+  def test_check_authenticate_no_password(self):
+    url = HTTPS_ENDPOINT + '200'
+    content = self.base_content_authenticate % {
+      'url': url,
+      'username': TEST_GOOD_USERNAME,
+      'password': TEST_GOOD_PASSWORD,
+      'require_auth': 1
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is not available (returned 200, expected 401)." % (url,)
+    )
 
 class TestCheckUrlAvailableTimeout(CheckUrlAvailableMixin):
   def test_check_200_timeout(self):
