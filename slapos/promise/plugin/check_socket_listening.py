@@ -30,7 +30,8 @@ class RunPromise(GenericPromise):
       if path or abstract or not port:
         self.logger.error(ADDRESS_USAGE)
         return
-      family, _, _, _, addr = socket.getaddrinfo(host, port)[0]
+      # type of port must be int or str, unicode is not accepted.
+      family, _, _, _, addr = socket.getaddrinfo(host, int(port))[0]
     else:
       if bool(path) == bool(abstract):
         self.logger.error(ADDRESS_USAGE)
