@@ -296,7 +296,6 @@ extra_config_dict = {
 
 extra_config_dict = {
   'url': '%(url)s',
-  'timeout': %(timeout)s,
   'username': '%(username)s',
   'password': '%(password)s',
   'require-auth': %(require_auth)s
