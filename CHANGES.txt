@@ -1,3 +1,8 @@
+0.122 (2021-06-29)
+==================
+
+* promise/plugin: Fix check_socket_listening promise
+
 0.121 (2021-06-24)
 ==================
 
