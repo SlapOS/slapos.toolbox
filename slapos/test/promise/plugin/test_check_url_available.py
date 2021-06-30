@@ -541,6 +541,28 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
+      # Since require_auth = 1, we expect that the promise will try two
+      # requests: one with the credentials and one without.
+      "%r is available\n%r is available" % (url, url)
+    )
+
+  # Test that the promise doesn't check whether the server requires
+  # credentials when we set require_auth = 0.
+  def test_check_authenticate_success_no_password(self):
+    url = HTTPS_ENDPOINT + '200'
+    content = self.base_content_authenticate % {
+      'url': url,
+      'username': TEST_GOOD_USERNAME,
+      'password': TEST_GOOD_PASSWORD,
+      'require_auth': 0
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(
+      result['result']['message'],
       "%r is available" % (url,)
     )
 
@@ -561,7 +583,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "%r is not available (returned 401, expected 200)." % (url,)
+      ("%r is not available (returned 401, expected 200)." + \
+       "%r is not available (returned 401, expected 200).") % (url, url)
     )
 
   # Test authentication failure due to the server not requiring any
@@ -581,8 +604,11 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
+      # The first request should succeed, but the second one (to check
+      # that credentials are actually required) should fail.
       result['result']['message'],
-      "%r is not available (returned 200, expected 401)." % (url,)
+      ("%r is available\n" + \
+       "%r is not available (returned 200, expected 401).") % (url, url)
     )
 
 class TestCheckUrlAvailableTimeout(CheckUrlAvailableMixin):
