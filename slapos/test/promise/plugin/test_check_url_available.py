@@ -583,8 +583,11 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
+      # The first request checks the actual credentials (which should
+      # fail). The second request checks that the server responds with a
+      # 401 when no credentials are supplied (which succeeds).
       ("%r is not available (returned 401, expected 200).\n" + \
-       "%r is not available (returned 401, expected 200).") % (url, url)
+       "%r is available") % (url, url)
     )
 
   # Test authentication failure due to the server not requiring any
