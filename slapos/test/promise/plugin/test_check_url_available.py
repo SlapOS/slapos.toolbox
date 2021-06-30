@@ -583,7 +583,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      ("%r is not available (returned 401, expected 200)." + \
+      ("%r is not available (returned 401, expected 200).\n" + \
        "%r is not available (returned 401, expected 200).") % (url, url)
     )
 
