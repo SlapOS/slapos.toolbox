@@ -530,7 +530,9 @@ class QemuQMPWrapper(object):
     current_memdev_list = self._send({ "execute": "query-memdev" }, retry=5)
 
     for memdev in current_memdev_list['return']:
-      cleanup_memdev_id_dict[memdev['id']] = ''
+      # qemu 5.x+ reports init memory static memory as pc.ram
+      if memdev['id'] != 'pc.ram':
+        cleanup_memdev_id_dict[memdev['id']] = ''
 
     for dimm in current_dimm_list['return']:
       current_size += dimm['data']['size']
