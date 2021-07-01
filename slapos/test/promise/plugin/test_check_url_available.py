@@ -288,7 +288,7 @@ extra_config_dict = {
   'timeout': %(timeout)s,
   'check-secure': %(check_secure)s,
   'ignore-code': %(ignore_code)s,
-  'http_code': %(http_code)s
+  'http_code': %(http_code)s,
 }
 """
 
@@ -298,7 +298,7 @@ extra_config_dict = {
   'url': '%(url)s',
   'username': '%(username)s',
   'password': '%(password)s',
-  'require-auth': %(require_auth)s
+  'require-auth': %(require_auth)s,
 }
 """
 
@@ -532,7 +532,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'require_auth': 1
+      'require_auth': 1,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -554,7 +554,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'require_auth': 0
+      'require_auth': 0,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -573,7 +573,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_BAD_USERNAME,
       'password': TEST_BAD_PASSWORD,
-      'require_auth': 1
+      'require_auth': 1,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -598,7 +598,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'require_auth': 1
+      'require_auth': 1,
     }
     self.writePromise(self.promise_name, content)
     self.configureLauncher()

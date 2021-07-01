@@ -57,15 +57,15 @@ class RunPromise(GenericPromise):
     except requests.exceptions.SSLError as e:
       if 'certificate verify failed' in str(e):
         self.logger.error(
-          "ERROR SSL verify failed while accessing %r" % (url,))
+          "ERROR SSL verify failed while accessing %r", url)
       else:
         self.logger.error(
-          "ERROR Unknown SSL error %r while accessing %r" % (e, url))
+          "ERROR Unknown SSL error %r while accessing %r", e, url)
     except requests.ConnectionError as e:
       self.logger.error(
-        "ERROR connection not possible while accessing %r" % (url, ))
+        "ERROR connection not possible while accessing %r", url)
     except Exception as e:
-      self.logger.error("ERROR: %s" % (e,))
+      self.logger.error("ERROR: %s", e)
 
     else:
       # Check that the returned status code is what we expected
@@ -73,12 +73,12 @@ class RunPromise(GenericPromise):
       check_secure = int(self.getConfig('check-secure', 0))
 
       if http_code == 401 and check_secure == 1:
-        self.logger.info("%r is protected (returned %s)." % (url, http_code))
+        self.logger.info("%r is protected (returned %s).", url, http_code)
       elif not ignore_code and http_code != expected_http_code:
-        self.logger.error("%r is not available (returned %s, expected %s)." % (
-          url, http_code, expected_http_code))
+        self.logger.error("%r is not available (returned %s, expected %s).",
+                          url, http_code, expected_http_code)
       else:
-        self.logger.info("%r is available" % (url,))
+        self.logger.info("%r is available", url)
 
   def sense(self):
     """
