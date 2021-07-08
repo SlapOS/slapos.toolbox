@@ -14,7 +14,7 @@ Some notable parameters:
   http_code:
     (default 200) The expected response HTTP code.
   ignore-code:
-    (default 1) Ignore the response HTTP code.
+    (default 0) Ignore the response HTTP code.
   username, password:
     If supplied, enables basic HTTP authentication.
   require-auth:
