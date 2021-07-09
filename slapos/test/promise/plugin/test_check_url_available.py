@@ -503,7 +503,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      "%r is protected (returned 401)." % (url,)
+      "%r is protected (correctly returned 401)." % (url,)
     )
 
   def test_check_512_http_code(self):

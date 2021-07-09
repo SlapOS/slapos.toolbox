@@ -73,7 +73,7 @@ class RunPromise(GenericPromise):
       check_secure = int(self.getConfig('check-secure', 0))
 
       if http_code == 401 and check_secure == 1:
-        self.logger.info("%r is protected (returned %s).", url, http_code)
+        self.logger.info("%r is protected (correctly returned 401).", url)
       elif not ignore_code and http_code != expected_http_code:
         self.logger.error("%r is not available (returned %s, expected %s).",
                           url, http_code, expected_http_code)
