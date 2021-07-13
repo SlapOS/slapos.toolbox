@@ -255,6 +255,9 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
     self.authenticated_success_template = \
       ("authenticated request to %r was successful "
        "(returned expected code %d)")
+    self.ignored_success_template = \
+      ("non-authenticated request to %r was successful "
+       "(return code ignored)")
 
     self.base_content = """from slapos.promise.plugin.check_url_available import RunPromise
 
@@ -492,7 +495,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      self.success_template % (url, 401)
+      self.ignored_success_template % (url,)
     )
 
   def test_check_401_check_secure(self):

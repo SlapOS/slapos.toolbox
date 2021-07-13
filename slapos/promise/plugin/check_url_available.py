@@ -37,13 +37,23 @@ class RunPromise(GenericPromise):
     # SR can set custom periodicity
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
 
-  def log_success(self, url, expected_code=200, authenticated=False):
+  def log_success(self, url, expected_code=200, authenticated=False,
+                  ignore_code=False):
+    """
+    Log a sensible success message, depending on the request parameters.
+    """
     if authenticated:
-      self.logger.info(("authenticated request to %r was successful "
-                        "(returned expected code %d)"), url, expected_code)
+      request_type = "authenticated"
     else:
-      self.logger.info(("non-authenticated request to %r was successful "
-                        "(returned expected code %d)"), url, expected_code)
+      request_type = "non-authenticated"
+
+    if ignore_code:
+      message = "return code ignored"
+    else:
+      message = "returned expected code %d" % expected_code
+
+    self.logger.info("%s request to %r was successful (%s)",
+                     request_type, url, message)
 
   def request_and_check_code(self, url, expected_http_code=None, **kwargs):
     """
@@ -93,7 +103,8 @@ class RunPromise(GenericPromise):
                           url, http_code, expected_http_code)
       else:
         self.log_success(url, authenticated=authenticated,
-                         expected_code=expected_http_code)
+                         expected_code=expected_http_code,
+                         ignore_code=ignore_code)
 
   def sense(self):
     """
