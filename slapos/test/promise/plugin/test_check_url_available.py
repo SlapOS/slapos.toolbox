@@ -249,6 +249,13 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
     TestPromisePluginMixin.setUp(self)
     self.promise_name = "check-url-available.py"
 
+    self.success_template = \
+      ("non-authenticated request to %r was successful "
+       "(returned expected code %d)")
+    self.authenticated_success_template = \
+      ("authenticated request to %r was successful "
+       "(returned expected code %d)")
+
     self.base_content = """from slapos.promise.plugin.check_url_available import RunPromise
 
 extra_config_dict = {
@@ -379,7 +386,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      "%r is available" % (url,)
+      self.success_template % (url, 200)
     )
 
   def test_check_200_verify(self):
@@ -409,7 +416,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      "%r is available" % (url,)
+      self.success_template % (url, 200)
     )
 
   def test_check_200_verify_fail(self):
@@ -448,7 +455,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      "%r is available" % (url,)
+      self.success_template % (url, 200)
     )
 
   def test_check_401(self):
@@ -485,7 +492,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      "%r is available" % (url,)
+      self.success_template % (url, 401)
     )
 
   def test_check_401_check_secure(self):
@@ -503,7 +510,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      "%r is protected (correctly returned 401)." % (url,)
+      self.success_template % (url, 401)
     )
 
   def test_check_512_http_code(self):
@@ -522,7 +529,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      "%r is available" % (url,)
+      self.success_template % (url, 512)
     )
 
   # Test normal authentication success.
@@ -543,7 +550,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       result['result']['message'],
       # Since require_auth = 1, we expect that the promise will try two
       # requests: one with the credentials and one without.
-      "%r is available\n%r is available" % (url, url)
+      "%s\n%s" % (self.authenticated_success_template % (url, 200),
+                  self.success_template % (url, 401))
     )
 
   # Test that the promise doesn't check whether the server requires
@@ -563,7 +571,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      "%r is available" % (url,)
+      self.authenticated_success_template % (url, 200)
     )
 
   # Test authentication failure due to bad password.
@@ -586,8 +594,9 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       # The first request checks the actual credentials (which should
       # fail). The second request checks that the server responds with a
       # 401 when no credentials are supplied (which succeeds).
-      ("%r is not available (returned 401, expected 200).\n" + \
-       "%r is available") % (url, url)
+      ("%r is not available (returned 401, expected 200).\n"
+       "non-authenticated request to %r was successful "
+       "(returned expected code 401)") % (url, url)
     )
 
   # Test authentication failure due to the server not requiring any
@@ -610,7 +619,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       # The first request should succeed, but the second one (to check
       # that credentials are actually required) should fail.
       result['result']['message'],
-      ("%r is available\n" + \
+      ("authenticated request to %r was successful "
+       "(returned expected code 200)\n"
        "%r is not available (returned 200, expected 401).") % (url, url)
     )
 

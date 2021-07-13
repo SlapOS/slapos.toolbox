@@ -37,6 +37,14 @@ class RunPromise(GenericPromise):
     # SR can set custom periodicity
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
 
+  def log_success(self, url, expected_code=200, authenticated=False):
+    if authenticated:
+      self.logger.info(("authenticated request to %r was successful "
+                        "(returned expected code %d)"), url, expected_code)
+    else:
+      self.logger.info(("non-authenticated request to %r was successful "
+                        "(returned expected code %d)"), url, expected_code)
+
   def request_and_check_code(self, url, expected_http_code=None, **kwargs):
     """
       Wrapper around GET requests, to make multiple requests easier. If
@@ -51,6 +59,11 @@ class RunPromise(GenericPromise):
       ignore_code = int(self.getConfig('ignore-code', 0))
     else:
       ignore_code = 0
+
+    if 'auth' in kwargs and kwargs['auth'] != None:
+      authenticated = True
+    else:
+      authenticated = False
 
     try:
       result = requests.get(url, allow_redirects=True, **kwargs)
@@ -73,12 +86,14 @@ class RunPromise(GenericPromise):
       check_secure = int(self.getConfig('check-secure', 0))
 
       if http_code == 401 and check_secure == 1:
-        self.logger.info("%r is protected (correctly returned 401).", url)
+        self.log_success(url, authenticated=authenticated,
+                         expected_code=401)
       elif not ignore_code and http_code != expected_http_code:
         self.logger.error("%r is not available (returned %s, expected %s).",
                           url, http_code, expected_http_code)
       else:
-        self.logger.info("%r is available", url)
+        self.log_success(url, authenticated=authenticated,
+                         expected_code=expected_http_code)
 
   def sense(self):
     """
