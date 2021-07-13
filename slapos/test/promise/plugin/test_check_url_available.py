@@ -140,11 +140,18 @@ class CertificateAuthority(object):
 
 class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def do_GET(self):
+    """
+    Respond to a GET request. You can configure the response as follows:
+      - Specify the response code in the URL, e.g. /200
+      - Optionally, use an underscore to specify a timeout (in seconds)
+        to wait before responding, e.g. /200_5
+      - Optionally, use an exclamation mark to require HTTP basic
+        authentication, using the credentials TEST_GOOD_USERNAME and
+        TEST_GOOD_PASSWORD defined at the top of this file, e.g. /!200
+        or /!200_5.
+    """
     path = self.path.split('/')[-1]
 
-    # This is a bit of a hack, but to ensure compatibility with previous
-    # tests, prepend an '!' to the path if you want the server to check
-    # for authentication.
     if path[0] == '!':
       require_auth = True
       path = path[1:]
@@ -159,8 +166,6 @@ class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       timeout = 0
       response = int(path)
 
-    # The encoding/decoding trick is necessary for compatibility with
-    # Python 2 and 3.
     key = b64encode(('%s:%s' % (TEST_GOOD_USERNAME,
                                 TEST_GOOD_PASSWORD)).encode()).decode()
     try:
