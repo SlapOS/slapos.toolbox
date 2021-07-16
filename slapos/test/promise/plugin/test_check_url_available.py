@@ -284,8 +284,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': 'https://',
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 0,
+      'check-secure': 0,
+      'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -303,8 +303,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': '',
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 0,
+      'check-secure': 0,
+      'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -321,8 +321,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': 'https://localhost:56789/site',
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 0,
+      'check-secure': 0,
+      'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -341,8 +341,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 0,
+      'check-secure': 0,
+      'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -359,8 +359,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 0,
+      'check-secure': 0,
+      'ignore-code': 0,
       'verify': 1,
     })
     try:
@@ -389,8 +389,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 0,
+      'check-secure': 0,
+      'ignore-code': 0,
       'verify': 1,
     })
     self.writePromise(self.promise_name, content)
@@ -409,9 +409,9 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 0,
-      'ca_cert_file': self.test_server_ca_certificate_file.name
+      'check-secure': 0,
+      'ignore-code': 0,
+      'ca-cert-file': self.test_server_ca_certificate_file.name
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -428,8 +428,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 0,
+      'check-secure': 0,
+      'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -447,8 +447,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 1,
+      'check-secure': 0,
+      'ignore-code': 1,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -465,8 +465,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check_secure': 1,
-      'ignore_code': 0,
+      'check-secure': 1,
+      'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -483,8 +483,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check_secure': 0,
-      'ignore_code': 0,
+      'check-secure': 0,
+      'ignore-code': 0,
       'http_code': 512,
     })
     self.writePromise(self.promise_name, content)
@@ -504,7 +504,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'require_auth': 1,
+      'require-auth': 1,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -513,21 +513,21 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      # Since require_auth = 1, we expect that the promise will try two
+      # Since require-auth = 1, we expect that the promise will try two
       # requests: one with the credentials and one without.
       "%s\n%s" % (self.authenticated_success_template % (url, 200),
                   self.success_template % (url, 401))
     )
 
   # Test that the promise doesn't check whether the server requires
-  # credentials when we set require_auth = 0.
+  # credentials when we set require-auth = 0.
   def test_check_authenticate_success_no_password(self):
     url = HTTPS_ENDPOINT + '200'
     content = self.make_content({
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'require_auth': 0,
+      'require-auth': 0,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -546,7 +546,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_BAD_USERNAME,
       'password': TEST_BAD_PASSWORD,
-      'require_auth': 1,
+      'require-auth': 1,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -572,7 +572,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'require_auth': 1,
+      'require-auth': 1,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -595,8 +595,8 @@ class TestCheckUrlAvailableTimeout(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 1,
-      'check_secure': 0,
-      'ignore_code': 0,
+      'check-secure': 0,
+      'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
