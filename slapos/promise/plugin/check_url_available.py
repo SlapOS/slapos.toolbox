@@ -65,6 +65,11 @@ class RunPromise(GenericPromise):
     username = self.getConfig('username')
     password = self.getConfig('password')
 
+    if int(self.getConfig('ignore-code', 0)) == 1:
+      ignore_code = True
+    else:
+      ignore_code = False
+
     if ca_cert_file:
       verify = ca_cert_file
     elif verify:
