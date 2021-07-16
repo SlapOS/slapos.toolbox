@@ -263,6 +263,9 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
     self.ignored_success_template = \
       ("non-authenticated request to %r was successful "
        "(return code ignored)")
+    self.authenticated_ignored_success_template = \
+      ("authenticated request to %r was successful "
+       "(return code ignored)")
 
   def make_content(self, option_dict):
     content = """from slapos.promise.plugin.check_url_available import RunPromise
@@ -284,7 +287,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': 'https://',
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
@@ -303,7 +305,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': '',
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
@@ -321,7 +322,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': 'https://localhost:56789/site',
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
@@ -341,7 +341,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
@@ -359,7 +358,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 0,
       'verify': 1,
     })
@@ -389,7 +387,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 0,
       'verify': 1,
     })
@@ -409,7 +406,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 0,
       'ca-cert-file': self.test_server_ca_certificate_file.name
     })
@@ -428,7 +424,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
@@ -447,7 +442,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 1,
     })
     self.writePromise(self.promise_name, content)
@@ -460,30 +454,11 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       self.ignored_success_template % (url,)
     )
 
-  def test_check_401_check_secure(self):
-    url = HTTPS_ENDPOINT + '401'
-    content = self.make_content({
-      'url': url,
-      'timeout': 10,
-      'check-secure': 1,
-      'ignore-code': 0,
-    })
-    self.writePromise(self.promise_name, content)
-    self.configureLauncher()
-    self.launcher.run()
-    result = self.getPromiseResult(self.promise_name)
-    self.assertEqual(result['result']['failed'], False)
-    self.assertEqual(
-      result['result']['message'],
-      self.success_template % (url, 401)
-    )
-
   def test_check_512_http_code(self):
     url = HTTPS_ENDPOINT + '512'
     content = self.make_content({
       'url': url,
       'timeout': 10,
-      'check-secure': 0,
       'ignore-code': 0,
       'http_code': 512,
     })
@@ -497,6 +472,26 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       self.success_template % (url, 512)
     )
 
+  # Test bad HTTP code.
+  def test_check_bad_http_code(self):
+    url = HTTPS_ENDPOINT + '412'
+    content = self.make_content({
+      'url': url,
+      'timeout': 10,
+      'ignore-code': 0,
+      'http_code': 732,
+    })
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is not available (returned 412, expected 732)."
+    )
+
   # Test normal authentication success.
   def test_check_authenticate_success(self):
     url = HTTPS_ENDPOINT + '!200'
@@ -504,7 +499,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'require-auth': 1,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -513,21 +507,17 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      # Since require-auth = 1, we expect that the promise will try two
-      # requests: one with the credentials and one without.
-      "%s\n%s" % (self.authenticated_success_template % (url, 200),
-                  self.success_template % (url, 401))
+      self.authenticated_success_template % (url, 200)
     )
 
-  # Test that the promise doesn't check whether the server requires
-  # credentials when we set require-auth = 0.
-  def test_check_authenticate_success_no_password(self):
+  # Test that supplying a username/password still succeeds when the
+  # server doesn't require them.
+  def test_check_authenticate_no_password_needed(self):
     url = HTTPS_ENDPOINT + '200'
     content = self.make_content({
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'require-auth': 0,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -546,7 +536,6 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_BAD_USERNAME,
       'password': TEST_BAD_PASSWORD,
-      'require-auth': 1,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -556,37 +545,63 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      # The first request checks the actual credentials (which should
-      # fail). The second request checks that the server responds with a
-      # 401 when no credentials are supplied (which succeeds).
-      ("%r is not available (returned 401, expected 200).\n"
-       "non-authenticated request to %r was successful "
-       "(returned expected code 401)") % (url, url)
+      "%r is not available (returned 401, expected 200)." % (url,)
     )
 
-  # Test authentication failure due to the server not requiring any
-  # authentication.
-  def test_check_authenticate_no_password(self):
-    url = HTTPS_ENDPOINT + '200'
+  # Test authentication failure due to no password being given to a
+  # protected server.
+  def test_check_authenticate_no_password_given(self):
+    url = HTTPS_ENDPOINT + '!200'
+    content = self.make_content({
+      'url': url,
+    })
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(
+      result['result']['message'],
+      "%r is not available (returned 200, expected 401)." % (url,)
+    )
+
+  # Test that authentication and HTTP code can be used together.
+  def test_check_authenticate_http_code(self):
+    url = HTTPS_ENDPOINT + '!412'
     content = self.make_content({
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'require-auth': 1,
+      'http_code': 412
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
-    with self.assertRaises(PromiseError):
-      self.launcher.run()
+    self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
-    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
-      # The first request should succeed, but the second one (to check
-      # that credentials are actually required) should fail.
       result['result']['message'],
-      ("authenticated request to %r was successful "
-       "(returned expected code 200)\n"
-       "%r is not available (returned 200, expected 401).") % (url, url)
+      self.authenticated_success_template % (url, 200)
+    )
+
+  # Test that authentication and igore-code can be used together.
+  def test_check_authenticate_ignore_code(self):
+    url = HTTPS_ENDPOINT + '!404'
+    content = self.make_content({
+      'url': url,
+      'username': TEST_GOOD_USERNAME,
+      'password': TEST_GOOD_PASSWORD,
+      'ignore-code': 1
+    })
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(
+      result['result']['message'],
+      self.authenticated_ignored_success_template % (url,)
     )
 
 class TestCheckUrlAvailableTimeout(CheckUrlAvailableMixin):
@@ -595,7 +610,6 @@ class TestCheckUrlAvailableTimeout(CheckUrlAvailableMixin):
     content = self.make_content({
       'url': url,
       'timeout': 1,
-      'check-secure': 0,
       'ignore-code': 0,
     })
     self.writePromise(self.promise_name, content)
