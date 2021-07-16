@@ -264,58 +264,15 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
       ("non-authenticated request to %r was successful "
        "(return code ignored)")
 
-    self.base_content = """from slapos.promise.plugin.check_url_available import RunPromise
+  def make_content(self, option_dict):
+    content = """from slapos.promise.plugin.check_url_available import RunPromise
 
 extra_config_dict = {
-  'url': '%(url)s',
-  'timeout': %(timeout)s,
-  'check-secure': %(check_secure)s,
-  'ignore-code': %(ignore_code)s,
-}
 """
+    for option in option_dict.items():
+      content += "\n  '%s': %r," % option
 
-    self.base_content_verify = """from slapos.promise.plugin.check_url_available import RunPromise
-
-extra_config_dict = {
-  'url': '%(url)s',
-  'timeout': %(timeout)s,
-  'check-secure': %(check_secure)s,
-  'ignore-code': %(ignore_code)s,
-  'verify': %(verify)s,
-}
-"""
-
-    self.base_content_ca_cert = """from slapos.promise.plugin.check_url_available import RunPromise
-
-extra_config_dict = {
-  'url': '%(url)s',
-  'timeout': %(timeout)s,
-  'check-secure': %(check_secure)s,
-  'ignore-code': %(ignore_code)s,
-  'ca-cert-file': %(ca_cert_file)r,
-}
-"""
-
-    self.base_content_http_code = """from slapos.promise.plugin.check_url_available import RunPromise
-
-extra_config_dict = {
-  'url': '%(url)s',
-  'timeout': %(timeout)s,
-  'check-secure': %(check_secure)s,
-  'ignore-code': %(ignore_code)s,
-  'http_code': %(http_code)s,
-}
-"""
-
-    self.base_content_authenticate = """from slapos.promise.plugin.check_url_available import RunPromise
-
-extra_config_dict = {
-  'url': '%(url)s',
-  'username': '%(username)s',
-  'password': '%(password)s',
-  'require-auth': %(require_auth)s,
-}
-"""
+    return content + "\n}"
 
   def tearDown(self):
     TestPromisePluginMixin.tearDown(self)
@@ -324,12 +281,12 @@ extra_config_dict = {
 class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_url_bad(self):
-    content = self.base_content % {
+    content = self.make_content({
       'url': 'https://',
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 0,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     with self.assertRaises(PromiseError):
@@ -343,12 +300,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     )
 
   def test_check_url_malformed(self):
-    content = self.base_content % {
+    content = self.make_content({
       'url': '',
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 0,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     with self.assertRaises(PromiseError):
@@ -361,12 +318,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     )
 
   def test_check_url_site_off(self):
-    content = self.base_content % {
+    content = self.make_content({
       'url': 'https://localhost:56789/site',
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 0,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     with self.assertRaises(PromiseError):
@@ -381,12 +338,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_200(self):
     url = HTTPS_ENDPOINT + '200'
-    content = self.base_content % {
+    content = self.make_content({
       'url': url,
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 0,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     self.launcher.run()
@@ -399,13 +356,13 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_200_verify(self):
     url = HTTPS_ENDPOINT + '200'
-    content = self.base_content_verify % {
+    content = self.make_content({
       'url': url,
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 0,
       'verify': 1,
-    }
+    })
     try:
       old = os.environ.get('REQUESTS_CA_BUNDLE')
       # simulate system provided CA bundle
@@ -429,13 +386,13 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_200_verify_fail(self):
     url = HTTPS_ENDPOINT + '200'
-    content = self.base_content_verify % {
+    content = self.make_content({
       'url': url,
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 0,
       'verify': 1,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     with self.assertRaises(PromiseError):
@@ -449,13 +406,13 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_200_verify_own(self):
     url = HTTPS_ENDPOINT + '200'
-    content = self.base_content_ca_cert % {
+    content = self.make_content({
       'url': url,
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 0,
       'ca_cert_file': self.test_server_ca_certificate_file.name
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     self.launcher.run()
@@ -468,12 +425,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_401(self):
     url = HTTPS_ENDPOINT + '401'
-    content = self.base_content % {
+    content = self.make_content({
       'url': url,
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 0,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     with self.assertRaises(PromiseError):
@@ -487,12 +444,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_401_ignore_code(self):
     url = HTTPS_ENDPOINT + '401'
-    content = self.base_content % {
+    content = self.make_content({
       'url': url,
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 1,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     self.launcher.run()
@@ -505,12 +462,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_401_check_secure(self):
     url = HTTPS_ENDPOINT + '401'
-    content = self.base_content % {
+    content = self.make_content({
       'url': url,
       'timeout': 10,
       'check_secure': 1,
       'ignore_code': 0,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     self.launcher.run()
@@ -523,13 +480,13 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 
   def test_check_512_http_code(self):
     url = HTTPS_ENDPOINT + '512'
-    content = self.base_content_http_code % {
+    content = self.make_content({
       'url': url,
       'timeout': 10,
       'check_secure': 0,
       'ignore_code': 0,
       'http_code': 512,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     self.launcher.run()
@@ -543,12 +500,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
   # Test normal authentication success.
   def test_check_authenticate_success(self):
     url = HTTPS_ENDPOINT + '!200'
-    content = self.base_content_authenticate % {
+    content = self.make_content({
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
       'require_auth': 1,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     self.launcher.run()
@@ -566,12 +523,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
   # credentials when we set require_auth = 0.
   def test_check_authenticate_success_no_password(self):
     url = HTTPS_ENDPOINT + '200'
-    content = self.base_content_authenticate % {
+    content = self.make_content({
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
       'require_auth': 0,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     self.launcher.run()
@@ -585,12 +542,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
   # Test authentication failure due to bad password.
   def test_check_authenticate_bad_password(self):
     url = HTTPS_ENDPOINT + '!200'
-    content = self.base_content_authenticate % {
+    content = self.make_content({
       'url': url,
       'username': TEST_BAD_USERNAME,
       'password': TEST_BAD_PASSWORD,
       'require_auth': 1,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     with self.assertRaises(PromiseError):
@@ -611,12 +568,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
   # authentication.
   def test_check_authenticate_no_password(self):
     url = HTTPS_ENDPOINT + '200'
-    content = self.base_content_authenticate % {
+    content = self.make_content({
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
       'require_auth': 1,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     with self.assertRaises(PromiseError):
@@ -635,12 +592,12 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
 class TestCheckUrlAvailableTimeout(CheckUrlAvailableMixin):
   def test_check_200_timeout(self):
     url = HTTPS_ENDPOINT + '200_5'
-    content = self.base_content % {
+    content = self.make_content({
       'url': url,
       'timeout': 1,
       'check_secure': 0,
       'ignore_code': 0,
-    }
+    })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
     with self.assertRaises(PromiseError):
