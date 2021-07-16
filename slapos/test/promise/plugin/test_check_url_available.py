@@ -489,7 +489,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "%r is not available (returned 412, expected 732)."
+      "%r is not available (returned 412, expected 732)." % (url,)
     )
 
   # Test normal authentication success.
@@ -563,7 +563,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "%r is not available (returned 200, expected 401)." % (url,)
+      "%r is not available (returned 401, expected 200)." % (url,)
     )
 
   # Test that authentication and HTTP code can be used together.
@@ -582,7 +582,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(
       result['result']['message'],
-      self.authenticated_success_template % (url, 200)
+      self.authenticated_success_template % (url, 412)
     )
 
   # Test that authentication and igore-code can be used together.
