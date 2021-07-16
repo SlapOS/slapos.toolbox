@@ -7,7 +7,7 @@ Some notable parameters:
     Optional timeout (in seconds) for HTTP request.
   verify, ca-cert-file, cert-file, key-file:
     Optional SSL information. (See Python requests documentation.)
-  http_code:
+  http-code:
     (default 200) The expected response HTTP code.
   ignore-code:
     (default 0) If set to 1, ignore the response HTTP code.
@@ -57,7 +57,7 @@ class RunPromise(GenericPromise):
     # and in the same time at least 1 second
     default_timeout = max(
       1, min(5, int(self.getConfig('promise-timeout', 20)) - 1))
-    expected_http_code = int(self.getConfig('http_code', 200))
+    expected_http_code = int(self.getConfig('http-code', 200))
     ca_cert_file = self.getConfig('ca-cert-file')
     cert_file = self.getConfig('cert-file')
     key_file = self.getConfig('key-file')

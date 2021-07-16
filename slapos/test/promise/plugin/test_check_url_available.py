@@ -460,7 +460,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'timeout': 10,
       'ignore-code': 0,
-      'http_code': 512,
+      'http-code': 512,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -479,7 +479,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'timeout': 10,
       'ignore-code': 0,
-      'http_code': 732,
+      'http-code': 732,
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
@@ -573,7 +573,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       'url': url,
       'username': TEST_GOOD_USERNAME,
       'password': TEST_GOOD_PASSWORD,
-      'http_code': 412
+      'http-code': 412
     })
     self.writePromise(self.promise_name, content)
     self.configureLauncher()
