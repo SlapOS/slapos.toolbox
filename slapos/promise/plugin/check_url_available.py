@@ -83,7 +83,7 @@ class RunPromise(GenericPromise):
       credentials = None
 
     request_options = {
-      'allow_redirectors': True,
+      'allow_redirects': True,
       'timeout': int(self.getConfig('timeout', default_timeout)),
       'verify': verify,
       'cert': cert,
