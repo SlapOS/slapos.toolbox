@@ -29,24 +29,6 @@ class RunPromise(GenericPromise):
     # SR can set custom periodicity
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
 
-  def log_success(self, url, authenticated=True, http_code=200,
-                  ignore_code=False):
-    """
-    Log a sensible success message, depending on the request parameters.
-    """
-    if authenticated:
-      request_type = "authenticated"
-    else:
-      request_type = "non-authenticated"
-
-    if ignore_code:
-      message = "return code ignored"
-    else:
-      message = "returned expected code %d" % http_code
-
-    self.logger.info("%s request to %r was successful (%s)",
-                     request_type, url, message)
-
   def sense(self):
     """
       Check if frontend URL is available.
@@ -84,8 +66,10 @@ class RunPromise(GenericPromise):
 
     if username and password:
       credentials = (username, password)
+      request_type = "authenticated"
     else:
       credentials = None
+      request_type = "non-authenticated"
 
     request_options = {
       'allow_redirects': True,
@@ -96,7 +80,7 @@ class RunPromise(GenericPromise):
     }
 
     try:
-      result = requests.get(url, **request_options)
+      response = requests.get(url, **request_options)
     except requests.exceptions.SSLError as e:
       if 'certificate verify failed' in str(e):
         self.logger.error(
@@ -111,13 +95,23 @@ class RunPromise(GenericPromise):
       self.logger.error("ERROR: %s", e)
 
     else:
-      if not ignore_code and result.status_code != expected_http_code:
-        self.logger.error("%r is not available (returned %s, expected %s).",
-                          url, result.status_code, expected_http_code)
+      # Log a sensible message, depending on the request/response
+      # parameters.
+      if ignore_code:
+        log = self.logger.info
+        result = "succeeded"
+        message = "return code ignored"
+      elif response.status_code == expected_http_code:
+        log = self.logger.info
+        result = "succeeded"
+        message = "returned expected code %d" % expected_http_code
       else:
-        self.log_success(url, authenticated=(credentials != None),
-                         http_code=result.status_code,
-                         ignore_code=ignore_code)
+        log = self.logger.error
+        result = "failed"
+        message = "returned %d, expected %d" % (response.status_code,
+                                                expected_http_code)
+
+      log("%s request to %r %s (%s)", request_type, url, result, message)
 
   def anomaly(self):
     return self._test(result_count=3, failure_amount=3)

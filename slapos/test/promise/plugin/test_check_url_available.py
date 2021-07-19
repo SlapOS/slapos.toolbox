@@ -255,16 +255,16 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
     self.promise_name = "check-url-available.py"
 
     self.success_template = \
-      ("non-authenticated request to %r was successful "
+      ("non-authenticated request to %r succeeded "
        "(returned expected code %d)")
     self.authenticated_success_template = \
-      ("authenticated request to %r was successful "
+      ("authenticated request to %r succeeded "
        "(returned expected code %d)")
     self.ignored_success_template = \
-      ("non-authenticated request to %r was successful "
+      ("non-authenticated request to %r succeeded "
        "(return code ignored)")
     self.authenticated_ignored_success_template = \
-      ("authenticated request to %r was successful "
+      ("authenticated request to %r succeeded "
        "(return code ignored)")
 
   def make_content(self, option_dict):
@@ -434,7 +434,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "%r is not available (returned 401, expected 200)." % (url,)
+      ("non-authenticated request to %r failed "
+       "(returned 401, expected 200)") % (url,)
     )
 
   def test_check_401_ignore_code(self):
@@ -489,7 +490,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "%r is not available (returned 412, expected 732)." % (url,)
+      ("non-authenticated request to %r failed "
+       "(returned 412, expected 732)") % (url,)
     )
 
   # Test normal authentication success.
@@ -545,7 +547,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "%r is not available (returned 401, expected 200)." % (url,)
+      ("authenticated request to %r failed "
+       "(returned 401, expected 200)") % (url,)
     )
 
   # Test authentication failure due to no password being given to a
@@ -563,7 +566,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "%r is not available (returned 401, expected 200)." % (url,)
+      ("authenticated request to %r failed "
+       "(returned 401, expected 200)") % (url,)
     )
 
   # Test that authentication and HTTP code can be used together.
