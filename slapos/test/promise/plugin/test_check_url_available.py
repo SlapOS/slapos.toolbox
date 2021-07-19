@@ -566,7 +566,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      ("authenticated request to %r failed "
+      ("non-authenticated request to %r failed "
        "(returned 401, expected 200)") % (url,)
     )
 
