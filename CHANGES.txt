@@ -1,3 +1,11 @@
+0.123 (2021-07-23)
+==================
+
+* plugin/check_url_available: many improvements, now supports basic auth
+    WARNING, backward incompatible changes:
+      + http_code option is now http-code
+      + check-secure option has been removed. Users should specify http-code = 401 instead.
+
 0.122 (2021-06-29)
 ==================
 
