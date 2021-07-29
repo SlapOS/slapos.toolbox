@@ -56,6 +56,9 @@ setup(name=name,
         'cryptography',
         'click',
         'ipaddress; python_version<"3"',
+        'pandas',
+        'statsmodels',
+        'scipy',
       ),
       extras_require = {
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
