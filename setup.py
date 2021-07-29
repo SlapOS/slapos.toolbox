@@ -61,6 +61,8 @@ setup(name=name,
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
         'zodbpack': ['ZODB3'], # needed to play with ZODB
         'flask_auth' : ["Flask-Auth"],
+        'pandas' : ['pandas'], # needed to monitor_partition_space promise
+        'prediction' : ['statsmodels', 'scipy', 'pandas'], # needed to use ARIMA in check_free_disk_space
         'test': test_require,
       },
       tests_require=test_require,
