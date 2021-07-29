@@ -11,7 +11,8 @@ for f in sorted(glob.glob(os.path.join('slapos', 'README.*.rst'))):
 
 long_description += open("CHANGES.txt").read() + "\n"
 
-test_require = ['mock', 'cryptography',]
+prediction_require = ['statsmodels', 'scipy', 'pandas']
+test_require = ['mock', 'cryptography',] + prediction_require
 
 setup(name=name,
       version=version,
@@ -61,6 +62,8 @@ setup(name=name,
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
         'zodbpack': ['ZODB3'], # needed to play with ZODB
         'flask_auth' : ["Flask-Auth"],
+        'pandas' : ['pandas'], # needed to monitor_partition_space promise
+        'prediction' : prediction_require, # needed to use ARIMA in check_free_disk_space
         'test': test_require,
       },
       tests_require=test_require,
