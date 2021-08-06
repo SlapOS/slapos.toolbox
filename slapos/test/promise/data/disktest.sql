@@ -1,5 +1,6 @@
 BEGIN TRANSACTION;
 CREATE TABLE disk (partition text, used text, free text, mountpoint text,  date text, time text, reported integer NULL DEFAULT 0);
+CREATE TABLE folder (partition text, disk_used real,  date text, time text, reported integer NULL DEFAULT 0);
 INSERT INTO "disk" VALUES('/dev/sda1','159220666368','288948396032','/','2017-10-02','09:17:01',1);
 INSERT INTO "disk" VALUES('/dev/sda1','159237537792','288931524608','/','2017-10-02','09:18:01',1);
 INSERT INTO "disk" VALUES('/dev/sda1','159238090752','288930971648','/','2017-10-02','09:19:02',1);
@@ -14,4 +15,5 @@ INSERT INTO "disk" VALUES('/dev/sda1','159429677056','288739385344','/','2017-10
 INSERT INTO "disk" VALUES('/dev/sda1','159444549632','288724512768','/','2017-10-02','09:28:03',1);
 INSERT INTO "disk" VALUES('/dev/sda1','159472902144','288696160256','/','2017-10-02','09:29:02',1);
 INSERT INTO "disk" VALUES('/dev/sda1','159476805632','288692256768','/','2017-10-02','09:30:03',1);
+INSERT INTO "folder" VALUES('slapuser0',218832550.0,'2017-10-02','09:17:01',1);
 COMMIT;
