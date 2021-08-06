@@ -85,7 +85,7 @@ extra_config_dict = {
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
-    self.assertEqual(result['result']['message'], "Disk usage: OK")
+    self.assertEqual(result['result']['message'], "Current disk usage: OK")
 
   def test_disk_space_nok(self):
     content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
@@ -104,14 +104,14 @@ extra_config_dict = {
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(result['result']['message'],
-      "Free disk space low: remaining 269.1 G (threshold: 278.0 G)")
+      "Free disk space low: remaining 269.10 G (disk size: 417.38 G, threshold: 278.0 G).")
 
     self.configureLauncher()
     with self.assertRaises(PromiseError):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(result['result']['message'], "Free disk space low: remaining 269.1 G (threshold: 278.0 G)")
+    self.assertEqual(result['result']['message'], "Free disk space low: remaining 269.10 G (disk size: 417.38 G, threshold: 278.0 G).")
 
   def test_check_free_disk_with_unicode_string_path(self):
     # set path unicode
@@ -121,6 +121,45 @@ extra_config_dict = {
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
     self.assertEqual(result['result']['message'], "Disk usage: OK")
+
+  def test_display_partition(self):
+    content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
+
+extra_config_dict = {
+  'collectordb': '%(collectordb)s',
+  'test-check-date': '2017-10-02',
+  'threshold': '278',
+  'display_partition' : '1',
+}
+""" % {'collectordb': self.db_file}
+    self.writePromise(self.promise_name, content)
+
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(result['result']['message'], 
+      "Free disk space low: remaining 269.10 G (disk size: 417.38 G, threshold: 278.0 G). " \
+      "The partition slapuser0 uses 20.86 G (date checked: 2017-10-02 09:17:01).")
+
+    def test_display_prediction(self):
+      content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
+
+extra_config_dict = {
+  'collectordb': '%(collectordb)s',
+  'test-check-date': '2017-10-02',
+  'display_prediction' : '1',
+}
+""" % {'collectordb': self.db_file}
+    self.writePromise(self.promise_name, content)
+
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertIn("Predicion:", result['result']['message'])
 
 if __name__ == '__main__':
   unittest.main()
