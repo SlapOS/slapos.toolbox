@@ -19,7 +19,7 @@ class RunPromise(GenericPromise):
 
     filename = self.getConfig('filename')
     state = self.getConfig('state')
-    url = self.getConfig('url').strip()
+    url = (self.getConfig('url') or '').strip()
 
     try:
       with open(filename) as f:
