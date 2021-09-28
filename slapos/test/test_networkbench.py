@@ -30,8 +30,18 @@ import os.path
 from slapos.networkbench import dnsbench
 from slapos.networkbench.ping import ping, ping6
 from slapos.networkbench.http import request
+import dns
+import mock
 
 
+class MockIPAddress:
+  def __init__(self, ip_text):
+    self.ip = ip_text
+
+  def to_text(self):
+    return self.ip
+
+MOCK_IP_ADDRESS_LIST = [MockIPAddress('161.97.166.226'), MockIPAddress('176.31.129.213')]
 DNS_EXPECTED_LIST = ["161.97.166.226", "176.31.129.213"]
 
 class TestDNSBench(unittest.TestCase):
@@ -40,17 +50,20 @@ class TestDNSBench(unittest.TestCase):
     """
     Test dns resolution
     """
-    info = dnsbench.resolve(
-       "eu.web.vifib.com", DNS_EXPECTED_LIST)
-  
-    self.assertEqual(info[0], 'DNS')
-    self.assertEqual(info[1], 'eu.web.vifib.com')
-    self.assertEqual(info[2], 200)
+    with mock.patch.object(dns.resolver, "query") as query:
+        query.return_value = MOCK_IP_ADDRESS_LIST
 
-    self.assertLess(info[3], 30)
-    self.assertEqual(info[4], 'OK', 
-          "%s != OK, full info: %s" % (info[4], info) )
-    self.assertEqual(set(info[5]), set([u'161.97.166.226', u'176.31.129.213']),
+        info = dnsbench.resolve(
+           "eu.web.vifib.com", DNS_EXPECTED_LIST)
+
+        self.assertEqual(info[0], 'DNS')
+        self.assertEqual(info[1], 'eu.web.vifib.com')
+        self.assertEqual(info[2], 200)
+
+        self.assertLess(info[3], 30)
+        self.assertEqual(info[4], 'OK',
+              "%s != OK, full info: %s" % (info[4], info) )
+        self.assertEqual(set(info[5]), set([u'161.97.166.226', u'176.31.129.213']),
           "%s != set([u'161.97.166.226', u'176.31.129.213']), full info: %s" % (set(info[5]), info))
     
   def test_dnsbench_fail(self):
