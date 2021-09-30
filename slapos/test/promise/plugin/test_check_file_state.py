@@ -76,7 +76,7 @@ extra_config_dict = {
         filename)
     )
 
-  def test_check_file_not_exists(self):
+  def test_check_file_not_exists_fail(self):
     filename = os.path.join(self.tempdir, 'test.file')
     content = self.base_content % {
       'filename': filename,
@@ -91,10 +91,46 @@ extra_config_dict = {
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "ERROR %s(2, 'No such file or directory') "
-      "during opening and reading file %r" % (
-        "FileNotFoundError" if six.PY3 else "IOError",
-        filename)
+      "ERROR %r not present" % (filename,)
+    )
+
+  def test_check_file_not_exists_absent(self):
+    filename = os.path.join(self.tempdir, 'test.file')
+    state = 'absent'
+    content = self.base_content % {
+      'filename': filename,
+      'state': state,
+      'url': 'https://www.example.com/',
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(
+      result['result']['message'],
+      "OK %r state %r" % (filename, state)
+    )
+    self.assertEqual(result['result']['failed'], False)
+
+  def test_check_file_not_exists_absent_fail(self):
+    filename = os.path.join(self.tempdir, 'test.file')
+    with open(filename, 'w') as fh:
+      fh.write('')
+    state = 'absent'
+    content = self.base_content % {
+      'filename': filename,
+      'state': state,
+      'url': 'https://www.example.com/',
+    }
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    self.assertEqual(
+      result['result']['message'],
+      "ERROR %r not absent" % (filename,)
     )
 
   def test_check_file_empty(self):

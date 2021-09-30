@@ -1,6 +1,7 @@
 from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
+import os
 
 
 @implementer(interface.IPromise)
@@ -20,6 +21,17 @@ class RunPromise(GenericPromise):
     filename = self.getConfig('filename')
     state = self.getConfig('state')
     url = (self.getConfig('url') or '').strip()
+
+    exists = os.path.exists(filename)
+    if state == 'absent':
+      if exists:
+        self.logger.error("ERROR %r not absent", filename)
+      else:
+        self.logger.info("OK %r state %r" % (filename, state))
+      return
+    if not exists:
+      self.logger.error("ERROR %r not present", filename)
+      return
 
     try:
       with open(filename) as f:
