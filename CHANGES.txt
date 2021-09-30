@@ -1,3 +1,9 @@
+0.125 (2021-09-30)
+==================
+
+* plugin/check_file_state: fix empty url parameter usage
+* plugin/check_file_state: allow to assert absence of the file
+
 0.124 (2021-08-25)
 ==================
 
