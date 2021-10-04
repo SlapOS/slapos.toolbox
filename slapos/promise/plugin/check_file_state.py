@@ -53,4 +53,4 @@ class RunPromise(GenericPromise):
       self.logger.info("OK %r state %r" % (filename, state))
 
   def anomaly(self):
-    return self._anomaly(result_count=3, failure_amount=3)
+    return self._anomaly(result_count=1, failure_amount=1)
