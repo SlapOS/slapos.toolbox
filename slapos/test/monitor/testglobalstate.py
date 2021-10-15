@@ -100,7 +100,10 @@ ipv4 = 10.0.151.118
       base_dir=self.base_dir,
       root_title="Monitor ROOT",
       title="Monitor",
-      url_list="https://sub.monitor.test.com https://sub2.monitor.test.com",
+      # These two URL is for retrive monitor title from getMonitorTitleFromUrl
+      # which need by the bootstrapMonitor in test_monitor_instance_state
+      # With this change, we can get the title "Unknown Instance" directly
+      url_list="foo://sub.monitor.foo.com bar://sub2.monitor.bar.com",
       base_url="https://monitor.test.com",
       etc_dir=self.etc_dir,
       promise_runner_pid=os.path.join(self.base_dir, 'run', 'monitor-promises.pid'),
@@ -234,8 +237,8 @@ exit %(code)s
 			"href": "https://monitor.test.com/share/private/"
 		},
 		"related_monitor": [
-		  {"href": "https://sub.monitor.test.com/share/public"},
-      {"href": "https://sub2.monitor.test.com/share/public"}
+		  {"href": "foo://sub.monitor.foo.com/share/public"},
+      {"href": "bar://sub2.monitor.bar.com/share/public"}
     ]
 	},
 	"aggregate_reference": "COMP-1234",
