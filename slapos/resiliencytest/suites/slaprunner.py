@@ -102,7 +102,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
 
   def _login(self):
     self.logger.debug('Logging in...')
-    b64string = base64.encodestring('%s:%s' % (self.slaprunner_user, self.slaprunner_password))[:-1]
+    b64string = base64.b64encode(('%s:%s' % (self.slaprunner_user, self.slaprunner_password)).encode()).decode()
     self._opener_director.addheaders = [
         ('Authorization', 'Basic %s' % b64string),
         # By default we will prefer to receive JSON to simplify
