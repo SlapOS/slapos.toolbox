@@ -244,7 +244,7 @@ def viewLog():
   return render_template('viewLog.html')
 
 def getFileLog():
-  logfile = request.form.get('filename', '').encode('utf-8')
+  logfile = request.form.get('filename', '')
   if logfile == "instance.log":
     file_path = app.config['instance_log']
   elif logfile == "software.log":
