@@ -244,13 +244,13 @@ def viewLog():
   return render_template('viewLog.html')
 
 def getFileLog():
-  logfile = request.form.get('filename', '').encode('utf-8')
+  logfile = request.form.get('filename', '')
   if logfile == "instance.log":
     file_path = app.config['instance_log']
   elif logfile == "software.log":
     file_path = app.config['software_log']
   else:
-    file_path = realpath(app.config, logfile)
+    file_path = realpath(app.config, logfile.encode('utf-8'))
   try:
     if not os.path.exists(file_path):
       raise IOError
