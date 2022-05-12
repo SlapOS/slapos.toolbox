@@ -315,7 +315,7 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
     self.assertEqual(result['result']['failed'], True)
     self.assertEqual(
       result['result']['message'],
-      "ERROR: Invalid URL '': No schema supplied. Perhaps you meant http://?"
+      "ERROR: Invalid URL '': No scheme supplied. Perhaps you meant http://?"
     )
 
   def test_check_url_site_off(self):
