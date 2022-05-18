@@ -77,49 +77,6 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     self.logger.info('Retrieved erp5 password is:\n%s' % password)
     return password
 
-  def _getSlaprunnerServiceInformationList(self):
-    result = self._connectToSlaprunner(
-      resource='/inspectInstance',
-    )
-    return json.loads(result)
-
-  def _editHAProxyconfiguration(self):
-    """
-    XXX pure hack.
-    haproxy processes don't support long path for sockets.
-    Edit haproxy configuration file of erp5 to make it compatible with long paths
-    Then restart haproxy.
-    """
-    self.logger.info('Editing HAProxy configuration...')
-
-    service_information_list = self._getSlaprunnerServiceInformationList()
-    # We expect only one service haproxy
-    haproxy_service, = [
-        x['service_name'] for x in service_information_list
-        if 'haproxy' in x['service_name']
-    ]
-    haproxy_slappart = haproxy_service.split(':', 1)[0]
-
-    result = self._connectToSlaprunner(
-        resource='/getFileContent',
-        data='file=runner_workdir%2Finstance%2F{slappart}%2Fetc%2Fhaproxy.cfg'.format(slappart=haproxy_slappart)
-    )
-    file_content = json.loads(result)['result']
-    file_content = file_content.replace('var/run/haproxy.sock', 'ha.sock')
-    self._connectToSlaprunner(
-        resource='/saveFileContent',
-        data='file=runner_workdir%%2Finstance%%2F%s%%2Fetc%%2Fhaproxy.cfg&content=%s' % (
-            haproxy_slappart,
-            quote(file_content),
-        )
-    )
-
-    # Restart HAProxy
-    self._connectToSlaprunner(
-        resource='/startStopProccess/name/%s:*/cmd/RESTART' % haproxy_slappart
-    )
-
-
   def _getCreatedERP5Document(self):
     """ Fetch and return content of ERP5 document created above."""
     url = "%s/erp5/getTitle" % self._getERP5Url()
@@ -129,7 +86,6 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     """ Fetch and return id of ERP5 document created above."""
     url = "%s/erp5/getId" % self._getERP5Url()
     return self._connectToERP5(url)
-
 
   def _connectToERP5(self, url, data=None, password=None):
     if password is None:
@@ -202,8 +158,6 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     self._deployInstance()
     self._deployInstance()
 
-    self._editHAProxyconfiguration()
-
     time.sleep(30)
     self.logger.info('Starting all partitions ...')
     self._connectToSlaprunner('/startAllPartition')
@@ -250,8 +204,6 @@ class ERP5TestSuite(SlaprunnerTestSuite):
     self._deployInstance()
     time.sleep(60)
 
-    self._editHAProxyconfiguration()
-    time.sleep(60)
     new_data = self._getCreatedERP5Document()
 
     if new_data == self.data:
