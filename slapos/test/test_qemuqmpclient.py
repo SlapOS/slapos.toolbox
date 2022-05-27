@@ -44,7 +44,7 @@ class TestQemuQMPWrapper(unittest.TestCase):
     # slot of 1G
     self.memory_slot_size = 1024
     self.event_list = []
-    self.fail = False
+    self._fail = False
 
   def tearDown(self):
     if os.path.exists(self.base_dir):
@@ -75,7 +75,7 @@ class TestQemuQMPWrapper(unittest.TestCase):
         self.setChange('dimm', -1 * self.memory_slot_size)
       if message['arguments']['id'].startswith('cpu'):
         self.setChange('cpu', -1)
-    if self.fail:
+    if self._fail:
       return {"error": {"class": "CommandFailed", "desc": ""}}
     return {"return": {}}
 
@@ -92,48 +92,42 @@ class TestQemuQMPWrapper(unittest.TestCase):
       free_cpu_slot = self.free_cpu_slot_amount - self.readChange('cpu')
       for i in range(4, 4 - free_cpu_slot, -1):
         hotpluggable_cpu_list.append({
-          u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': i, u'thread-id': 0},
-          u'type': u'qemu64-x86_64-cpu',
+          u'props': {u'core-id': i, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
+          u'type': u'host-x86_64-cpu',
           u'vcpus-count': 1
         })
       for i in range(4 - free_cpu_slot, 0, -1):
         hotpluggable_cpu_list.append({
-          u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': i, u'thread-id': 0},
+          u'props': {u'core-id': i, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
           u'qom-path': u'/machine/peripheral/cpu%s' % i,
-          u'type': u'qemu64-x86_64-cpu',
+          u'type': u'host-x86_64-cpu',
           u'vcpus-count': 1
         })
       # first cpu
       hotpluggable_cpu_list.append(
         {u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
           u'qom-path': u'/machine/unattached/device[0]',
-          u'type': u'qemu64-x86_64-cpu',
+          u'type': u'host-x86_64-cpu',
           u'vcpus-count': 1
         }
       )
       return {"return": hotpluggable_cpu_list}
-    elif message['execute'] == 'query-cpus':
+    elif message['execute'] == 'query-cpus-fast':
       cpu_list = []
       cpu_slot = 4 - self.free_cpu_slot_amount + self.readChange('cpu')
       cpu_list.append({
-        u'CPU': 0,
-        u'arch': u'x86',
-        u'current': True,
-        u'halted': True,
-        u'pc': -1694470494,
+        u'cpu-index': 0,
         u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
-        u'qom_path': u'/machine/unattached/device[0]',
+        u'qom-path': u'/machine/unattached/device[0]',
+        u'target': u'x86_64',
         u'thread_id': 1181
       })
-      for i in range(0, cpu_slot):
+      for i in range(1, cpu_slot+1):
         cpu_list.append({
-          u'CPU': i + 1,
-          u'arch': u'x86',
-          u'current': False,
-          u'halted': True,
-          u'pc': -1694470494,
-          u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': i + 1, u'thread-id': 0},
-          u'qom_path': u'/machine/peripheral/cpu%s' % (i + 1),
+          u'cpu-index': i,
+          u'props': {u'core-id': i, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
+          u'qom-path': u'/machine/peripheral/cpu%s' % i,
+          u'target': u'x86_64',
           u'thread_id': 1187
         })
       return {"return": cpu_list}
@@ -178,16 +172,14 @@ class TestQemuQMPWrapper(unittest.TestCase):
     qmpwrapper._send = self.fake_send
 
     expected_result = {
-      "execute": "change",
+      "execute": "set_password",
       "arguments": {
-        "device": "vnc",
-        "target": "password",
-        "arg": "my password"
+        "protocol": "vnc",
+        "password": "my password"
       }
     }
     qmpwrapper.setVNCPassword("my password")
-    self.assertEqual(len(self.call_stack_list), 1)
-    self.assertEqual(self.call_stack_list[0], expected_result)
+    self.assertEqual(self.call_stack_list, [expected_result])
 
   def test_updateDevice_cpu_add(self):
     self.free_cpu_slot_amount = 4
@@ -204,10 +196,10 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {
         'execute': 'device_add',
         'arguments': {
-          u'socket-id': 1,
+          u'socket-id': 0,
           u'thread-id': 0,
           'driver': 'qemu64-x86_64-cpu',
-          u'core-id': 0,
+          u'core-id': 1,
           u'node-id': 0,
           'id': 'cpu1'
         }
@@ -215,18 +207,16 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {
         'execute': 'device_add',
         'arguments': {
-          u'socket-id': 2,
+          u'socket-id': 0,
           u'thread-id': 0,
           'driver': 'qemu64-x86_64-cpu',
-          u'core-id': 0,
+          u'core-id': 2,
           u'node-id': 0,
           'id': 'cpu2'
         }
       },
-      {'execute': 'query-cpus'}
+      {'execute': 'query-cpus-fast'}
     ]
-
-    self.assertEqual(len(self.call_stack_list), 4)
     self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_cpu_increase(self):
@@ -244,10 +234,10 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {
         'execute': 'device_add',
         'arguments': {
-          u'socket-id': 3,
+          u'socket-id': 0,
           u'thread-id': 0,
           'driver': 'qemu64-x86_64-cpu',
-          u'core-id': 0,
+          u'core-id': 3,
           u'node-id': 0,
           'id': 'cpu3'
         }
@@ -255,18 +245,17 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {
         'execute': 'device_add',
         'arguments': {
-          u'socket-id': 4,
+          u'socket-id': 0,
           u'thread-id': 0,
           'driver': 'qemu64-x86_64-cpu',
-          u'core-id': 0,
+          u'core-id': 4,
           u'node-id': 0,
           'id': 'cpu4'
         }
       },
-      {'execute': 'query-cpus'}
+      {'execute': 'query-cpus-fast'}
     ]
 
-    self.assertEqual(len(self.call_stack_list), 4)
     self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_cpu_remove(self):
@@ -289,10 +278,9 @@ class TestQemuQMPWrapper(unittest.TestCase):
           'id': 'cpu2'
         }
       },
-      {'execute': 'query-cpus'}
+      {'execute': 'query-cpus-fast'}
     ]
 
-    self.assertEqual(len(self.call_stack_list), 3)
     self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_cpu_no_update(self):
@@ -309,7 +297,6 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-hotpluggable-cpus'}
     ]
 
-    self.assertEqual(len(self.call_stack_list), 1)
     self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_add(self):
@@ -334,7 +321,7 @@ class TestQemuQMPWrapper(unittest.TestCase):
         'arguments': {
           'id': 'mem1',
           'qom-type': 'memory-backend-ram',
-          'props': {'size': self.memory_slot_size * 1024 * 1024}
+          'size': self.memory_slot_size * 1024 * 1024
         }
       },
       {
@@ -350,7 +337,7 @@ class TestQemuQMPWrapper(unittest.TestCase):
         'arguments': {
           'id': 'mem2',
           'qom-type': 'memory-backend-ram',
-          'props': {'size': 1073741824}
+          'size': 1073741824
         }
       },
       {
@@ -364,7 +351,6 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memory-devices'}
     ]
 
-    self.assertEqual(len(self.call_stack_list), 7)
     self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_increase(self):
@@ -389,7 +375,7 @@ class TestQemuQMPWrapper(unittest.TestCase):
         'arguments': {
           'id': 'mem3',
           'qom-type': 'memory-backend-ram',
-          'props': {'size': self.memory_slot_size * 1024 * 1024}
+          'size': self.memory_slot_size * 1024 * 1024
         }
       },
       {
@@ -403,7 +389,6 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memory-devices'}
     ]
 
-    self.assertEqual(len(self.call_stack_list), 5)
     self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_delete(self):
@@ -444,7 +429,6 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memory-devices'}
     ]
 
-    self.assertEqual(len(self.call_stack_list), 7)
     self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_delete_all(self):
@@ -493,7 +477,6 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memory-devices'}
     ]
 
-    self.assertEqual(len(self.call_stack_list), 9)
     self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_no_update(self):
@@ -515,14 +498,13 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'query-memdev'}
     ]
 
-    self.assertEqual(len(self.call_stack_list), 2)
     self.assertEqual(self.call_stack_list, expected_result)
 
   def test_updateDevice_memory_will_reboot(self):
     qmpwrapper = QemuQMPWrapper(self.socket_file, auto_connect=False)
     qmpwrapper._send = self.fake_send
     qmpwrapper.getEventList = self.fake_getEventList
-    self.fail = True
+    self._fail = True
     self.hotplugged_memory_amount = 3072
     # slot of 1G
     self.memory_slot_size = 1024
@@ -563,7 +545,6 @@ class TestQemuQMPWrapper(unittest.TestCase):
       {'execute': 'quit'}
     ]
 
-    self.assertEqual(len(self.call_stack_list), 9)
     self.assertEqual(self.call_stack_list, expected_result)
 
 if __name__ == '__main__':
