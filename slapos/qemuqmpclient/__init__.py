@@ -244,11 +244,10 @@ class QemuQMPWrapper(object):
     # Set VNC password
     print('Setting VNC password...')
     result = self._send({
-      "execute": "change",
+      "execute": "set_password",
       "arguments": {
-        "device": "vnc",
-        "target": "password",
-        "arg": password
+        "protocol": "vnc",
+        "password": password
       }
     })
     if result and result.get('return', None) != {}:
@@ -336,17 +335,17 @@ class QemuQMPWrapper(object):
     """
     cpu_info_dict = {'hotplugged': [], 'base': []}
     cpu_list = self._send({
-      'execute': 'query-cpus'
+      'execute': 'query-cpus-fast'
     }, retry=5)['return']
     for cpu in cpu_list:
-      if 'unattached' in cpu['qom_path']:
+      if 'unattached' in cpu['qom-path']:
         index = 'base'
       else:
         index = 'hotplugged'
       cpu_info_dict[index].append({
         'props': cpu['props'],
-        'CPU': cpu['CPU'],
-        'qom_path': cpu['qom_path']
+        'CPU': cpu['cpu-index'],
+        'qom_path': cpu['qom-path']
       })
     return cpu_info_dict
 
@@ -438,16 +437,18 @@ class QemuQMPWrapper(object):
       'execute': 'query-hotpluggable-cpus'
     }, retry=5)['return']
     cpu_hotplugable_list.reverse()
-    for cpu in cpu_hotplugable_list:
-      if cpu.get('qom-path', '') == '':
+    for i, cpu in enumerate(cpu_hotplugable_list):
+      i = 'cpu%s' % i
+      path = cpu.get('qom-path')
+      if not path:
         if len(empty_socket_list) < amount:
           cpu['props']['driver'] = cpu_model
-          cpu['props']['id'] = 'cpu%s' % (cpu['props']['socket-id'])
+          cpu['props']['id'] = i
           empty_socket_list.append(cpu['props'])
       else:
         # if this is an hotpluggable cpu
-        if '/machine/peripheral' in cpu.get('qom-path', ''):
-          used_socket_id_list.append('cpu%s' % (cpu['props']['socket-id']))
+        if path.startswith('/machine/peripheral/'):
+          used_socket_id_list.append(i)
           cpu_amount += 1
         else:
           unremovable_cpu += 1
@@ -544,10 +545,10 @@ class QemuQMPWrapper(object):
          'id': dimm['data']['id'],
          'size': dimm['data']['size']//(1024 * 1024),
        })
-    memory_id_list = sorted(memory_id_list, key=itemgetter('id'))
+    memory_id_list.sort(key=itemgetter('id'))
 
     # cleanup memdev that was not removed because of failure
-    for memdev in cleanup_memdev_id_dict.keys():
+    for memdev in cleanup_memdev_id_dict:
       print("Cleaning up memdev %s..." % memdev)
       self._removeDevice(memdev, {
         'execute': 'object-del',
@@ -557,7 +558,7 @@ class QemuQMPWrapper(object):
       }, auto_reboot=allow_reboot)
 
     num_slot_used = len(memory_id_list)
-    if (mem_size % slot_size) != 0:
+    if mem_size % slot_size:
       raise ValueError("Memory size %r is not a multiple of %r" % (mem_size,
         slot_size))
     if (mem_size // slot_size) > slot_amount:
@@ -594,14 +595,14 @@ class QemuQMPWrapper(object):
       slot_add = (mem_size - current_size) // slot_size
 
       print("Adding %s memory slot(s) of %s MB..." % (slot_add, slot_size))
-      for i in range(0, slot_add):
+      for i in range(slot_add):
         index = num_slot_used + i + 1
         self._send({
             'execute': 'object-add',
             'arguments': {
               'qom-type': 'memory-backend-ram',
               'id': 'mem%s' % index,
-              'props': { 'size': slot_size * 1024 * 1024 }
+              'size': slot_size * 1024 * 1024
             }
         })
         self._send({
