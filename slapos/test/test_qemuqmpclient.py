@@ -92,48 +92,42 @@ class TestQemuQMPWrapper(unittest.TestCase):
       free_cpu_slot = self.free_cpu_slot_amount - self.readChange('cpu')
       for i in range(4, 4 - free_cpu_slot, -1):
         hotpluggable_cpu_list.append({
-          u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': i, u'thread-id': 0},
-          u'type': u'qemu64-x86_64-cpu',
+          u'props': {u'core-id': i, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
+          u'type': u'host-x86_64-cpu',
           u'vcpus-count': 1
         })
       for i in range(4 - free_cpu_slot, 0, -1):
         hotpluggable_cpu_list.append({
-          u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': i, u'thread-id': 0},
+          u'props': {u'core-id': i, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
           u'qom-path': u'/machine/peripheral/cpu%s' % i,
-          u'type': u'qemu64-x86_64-cpu',
+          u'type': u'host-x86_64-cpu',
           u'vcpus-count': 1
         })
       # first cpu
       hotpluggable_cpu_list.append(
         {u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
           u'qom-path': u'/machine/unattached/device[0]',
-          u'type': u'qemu64-x86_64-cpu',
+          u'type': u'host-x86_64-cpu',
           u'vcpus-count': 1
         }
       )
       return {"return": hotpluggable_cpu_list}
-    elif message['execute'] == 'query-cpus':
+    elif message['execute'] == 'query-cpus-fast':
       cpu_list = []
       cpu_slot = 4 - self.free_cpu_slot_amount + self.readChange('cpu')
       cpu_list.append({
-        u'CPU': 0,
-        u'arch': u'x86',
-        u'current': True,
-        u'halted': True,
-        u'pc': -1694470494,
+        u'cpu-index': 0,
         u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
-        u'qom_path': u'/machine/unattached/device[0]',
+        u'qom-path': u'/machine/unattached/device[0]',
+        u'target': u'x86_64',
         u'thread_id': 1181
       })
-      for i in range(0, cpu_slot):
+      for i in range(1, cpu_slot+1):
         cpu_list.append({
-          u'CPU': i + 1,
-          u'arch': u'x86',
-          u'current': False,
-          u'halted': True,
-          u'pc': -1694470494,
-          u'props': {u'core-id': 0, u'node-id': 0, u'socket-id': i + 1, u'thread-id': 0},
-          u'qom_path': u'/machine/peripheral/cpu%s' % (i + 1),
+          u'cpu-index': i,
+          u'props': {u'core-id': i, u'node-id': 0, u'socket-id': 0, u'thread-id': 0},
+          u'qom-path': u'/machine/peripheral/cpu%s' % i,
+          u'target': u'x86_64',
           u'thread_id': 1187
         })
       return {"return": cpu_list}
@@ -178,11 +172,10 @@ class TestQemuQMPWrapper(unittest.TestCase):
     qmpwrapper._send = self.fake_send
 
     expected_result = {
-      "execute": "change",
+      "execute": "set_password",
       "arguments": {
-        "device": "vnc",
-        "target": "password",
-        "arg": "my password"
+        "protocol": "vnc",
+        "password": "my password"
       }
     }
     qmpwrapper.setVNCPassword("my password")
@@ -334,7 +327,7 @@ class TestQemuQMPWrapper(unittest.TestCase):
         'arguments': {
           'id': 'mem1',
           'qom-type': 'memory-backend-ram',
-          'props': {'size': self.memory_slot_size * 1024 * 1024}
+          'size': self.memory_slot_size * 1024 * 1024
         }
       },
       {
@@ -350,7 +343,7 @@ class TestQemuQMPWrapper(unittest.TestCase):
         'arguments': {
           'id': 'mem2',
           'qom-type': 'memory-backend-ram',
-          'props': {'size': 1073741824}
+          'size': 1073741824
         }
       },
       {
