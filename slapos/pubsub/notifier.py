@@ -3,7 +3,6 @@
 
 from __future__ import print_function
 import argparse
-import cgi
 import csv
 import datetime
 import json
@@ -18,6 +17,11 @@ import traceback
 from six.moves.urllib.request import urlopen
 from six.moves.urllib.parse import urlparse
 import uuid
+
+if sys.version_info[:2] >= (3,8):
+  from html import escape
+else:
+  from cgi import escape
 
 def createStatusItem(item_directory, instance_name, callback, date, link, status):
   global app
@@ -97,7 +101,7 @@ def main():
       content = ("OK</br><p>%s ran successfully</p>"
                     "<p>Output is: </p><pre>%s</pre>" % (
             args.executable[0],
-            cgi.escape(content)
+            escape(content)
         ))
       saveStatus('FINISHED')
       break
@@ -110,7 +114,7 @@ def main():
                     "<p>Output is: </p><pre>%s</pre>" % (
             args.executable[0],
             exit_code,
-            cgi.escape(content)
+            escape(content)
         ))
 
   print(content)
