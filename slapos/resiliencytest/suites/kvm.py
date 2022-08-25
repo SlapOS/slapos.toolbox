@@ -45,7 +45,7 @@ def fetchKey(ip):
   new_key = None
   for i in range(0, 10):
     try:
-      new_key = urlopen('http://%s:10080/get' % ip).read().strip()
+      new_key = urlopen('http://%s:10080/get' % ip).read().strip().decode()
       break
     except IOError:
       logger.error('Server in new KVM does not answer.')
@@ -138,7 +138,7 @@ class KVMTestSuite(ResiliencyTestSuite):
     Set a random key that will be stored inside of the virtual hard drive.
     """
     self.key = ''.join(random.SystemRandom().sample(string.ascii_lowercase, 20))
-    self.logger.info('Generated key is: %s' % self.key)
+    self.logger.info('Generated key is: %s', self.key)
 
   def pushDataOnMainInstance(self):
     self.logger.info('Getting the KVM IP...')
@@ -171,7 +171,7 @@ class KVMTestSuite(ResiliencyTestSuite):
     )
 
     new_key = fetchKey(self.ip)
-    logger.info('Key on this new instance is %s' % new_key)
+    logger.info('Key on this new instance is %s', new_key)
 
     # Compare with original key. If same: success.
     if new_key == self.key:

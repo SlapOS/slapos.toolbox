@@ -86,7 +86,7 @@ class ResiliencyTestSuite(object):
 
     # Do takeover
     takeover_result = urlopen('%s?password=%s' % (takeover_url, takeover_password)).read()
-    if 'Error' in takeover_result:
+    if b'Error' in takeover_result:
       raise Exception('Error while doing takeover: %s' % takeover_result)
 
     self.logger.info('Done.')
