@@ -36,11 +36,22 @@ import time
 import json
 import argparse
 import psutil
-from time import strftime
+from time import strftime, gmtime
 from datetime import datetime, timedelta
 
 from slapos.collect.db import Database
 from slapos.collect.reporter import ConsumptionReportBase
+
+def get_date_scope():
+  return strftime('%Y-%m-%d', gmtime())
+
+def get_min_time():
+  gm = gmtime()
+  return '{}:{}:00'.format(gm.tm_hour, gm.tm_min - 1)
+
+def get_max_time():
+  gm = gmtime()
+  return '{}:{}:59'.format(gm.tm_hour, gm.tm_min - 1)
 
 def parseArguments():
   """
@@ -103,11 +114,11 @@ class ResourceCollect:
     if where != "":
       where = "and %s" % where
     if not date_scope:
-      date_scope = datetime.now().strftime('%Y-%m-%d')
+      date_scope = get_date_scope()
     if not min_time:
-      min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
+      min_time = get_min_time()
     if not max_time:
-      max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59')
+      max_time = get_max_time()
 
     columns = """count(pid), SUM(cpu_percent) as cpu_result, SUM(cpu_time),
                 MAX(cpu_num_threads), SUM(memory_percent), SUM(memory_rss), pid, SUM(io_rw_counter),
@@ -148,11 +159,11 @@ class ResourceCollect:
     if where != "":
       where = " and %s" % where
     if not date_scope:
-      date_scope = datetime.now().strftime('%Y-%m-%d')
+      date_scope = get_date_scope()
     if not min_time:
-      min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
+      min_time = get_min_time()
     if not max_time:
-      max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59') 
+      max_time = get_max_time()
 
     colums = """count(pid), SUM(cpu_percent), SUM(cpu_time), SUM(cpu_num_threads), SUM(memory_percent), 
                 SUM(memory_rss), SUM(io_rw_counter), SUM(io_cycles_counter)"""  
