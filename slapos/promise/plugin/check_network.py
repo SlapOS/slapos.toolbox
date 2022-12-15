@@ -1,4 +1,5 @@
 import psutil
+import math
 
 from zope.interface import implementer
 from slapos.grid.promise import interface
@@ -18,24 +19,30 @@ class RunPromise(GenericPromise):
     promise_success = True
     
     # Get reference values
-    max_lost_packets = int(self.getConfig('max-lost-packets', 100))
-    max_error_messages = int(self.getConfig('max-error-messages', 100))
+    max_lost_packets = int(self.getConfig('max-lost-packets-per-MB', 100))
+    max_error_messages = int(self.getConfig('max-error-messages-per-MB', 100))
 
     # Get current Network statistics
-    network_data =  psutil.net_io_counters() # Check for args if useful
+    network_data =  psutil.net_io_counters()
+    # Get total number of bytes recv and sent in MB (if > 1MB)
+    if (network_data.bytes_recv + network_data.bytes_sent) > 1e6:
+      total_MB = (network_data.bytes_recv + network_data.bytes_sent)/1e6
+    else:
+      total_MB = 1
+    # Get sum of errors and dropped packets
     total_dropped = network_data.dropin + network_data.dropout
     total_errors = network_data.errin + network_data.errout
 
     # Check for network dropped packets
-    if total_dropped >= max_lost_packets:
+    if total_dropped/total_MB >= max_lost_packets:
       self.logger.error("Network packets lost reached critical threshold: %s "\
-        " (threshold is %s)" % (total_dropped, max_lost_packets))
+        " (threshold is %s per MB)" % (math.ceil(total_dropped/total_MB), max_lost_packets))
       promise_success = False
 
     # Check for network errors
-    if total_errors >= max_error_messages:
+    if total_errors/total_MB >= max_error_messages:
       self.logger.error("Network errors reached critical threshold: %s "\
-        " (threshold is %s)" % (total_errors, max_error_messages))
+        " (threshold is %s per MB)" % (math.ceil(total_errors/total_MB), max_error_messages))
       promise_success = False
 
     if promise_success:

@@ -38,6 +38,8 @@ class TestCheckNetwork(TestPromisePluginMixin):
 
   def setUp(self):
     super(TestCheckNetwork, self).setUp()
+    self.network_data = namedtuple('network_data', 
+    ['bytes_recv', 'bytes_sent','errin', 'errout', 'dropin', 'dropout'])
 
   def writePromise(self, **kw):
     super(TestCheckNetwork, self).writePromise(self.promise_name,
@@ -57,44 +59,40 @@ class TestCheckNetwork(TestPromisePluginMixin):
 
   def test_network_ok(self):
     message = "Network statistics OK"
-    network_data = namedtuple('network_data', ['errin', 'errout', 'dropin', 'dropout'])
-    mock_stats = {'errin':0, 'errout':0, 'dropin':0, 'dropout':0}
+    mock_stats = {'bytes_recv':0, 'bytes_sent':0,'errin':0, 'errout':0, 'dropin':0, 'dropout':0}
     self.writePromise(**{
-        'max-lost-packets': 5,
-        'max-error-messages': 5,
+        'max-lost-packets-per-MB': 5,
+        'max-error-messages-per-MB': 5,
     })
-    self.assertEqual(message, self.runPromise(network_data(**mock_stats)))
+    self.assertEqual(message, self.runPromise(self.network_data(**mock_stats)))
 
   def test_network_dropped_packets_nok(self):
-    message = "Network packets lost reached critical threshold: 10  (threshold is 5)"
-    network_data = namedtuple('network_data', ['errin', 'errout', 'dropin', 'dropout'])
-    mock_stats = {'errin':0, 'errout':0, 'dropin':5, 'dropout':5}
+    message = "Network packets lost reached critical threshold: 10  (threshold is 5 per MB)"
+    mock_stats = {'bytes_recv':0, 'bytes_sent':0,'errin':0, 'errout':0, 'dropin':5, 'dropout':5}
     self.writePromise(**{
-        'max-lost-packets': 5,
-        'max-error-messages': 5,
+        'max-lost-packets-per-MB': 5,
+        'max-error-messages-per-MB': 5,
     })
-    self.assertEqual(message, self.runPromise(network_data(**mock_stats)))
+    self.assertEqual(message, self.runPromise(self.network_data(**mock_stats)))
 
   def test_network_errors_nok(self):
-    message = "Network errors reached critical threshold: 10  (threshold is 5)"
-    network_data = namedtuple('network_data', ['errin', 'errout', 'dropin', 'dropout'])
-    mock_stats = {'errin':5, 'errout':5, 'dropin':0, 'dropout':0}
+    message = "Network errors reached critical threshold: 10  (threshold is 5 per MB)"
+    mock_stats = {'bytes_recv':0, 'bytes_sent':0,'errin':5, 'errout':5, 'dropin':0, 'dropout':0}
     self.writePromise(**{
-        'max-lost-packets': 5,
-        'max-error-messages': 5,
+        'max-lost-packets-per-MB': 5,
+        'max-error-messages-per-MB': 5,
     })
-    self.assertEqual(message, self.runPromise(network_data(**mock_stats)))
+    self.assertEqual(message, self.runPromise(self.network_data(**mock_stats)))
 
   def test_network_nok(self):
-    message = "Network packets lost reached critical threshold: 10  (threshold is 5)"\
-      "\nNetwork errors reached critical threshold: 10  (threshold is 5)"
-    network_data = namedtuple('network_data', ['errin', 'errout', 'dropin', 'dropout'])
-    mock_stats = {'errin':5, 'errout':5, 'dropin':5, 'dropout':5}
+    message = "Network packets lost reached critical threshold: 10  (threshold is 5 per MB)"\
+      "\nNetwork errors reached critical threshold: 10  (threshold is 5 per MB)"
+    mock_stats = {'bytes_recv':0, 'bytes_sent':0, 'errin':5, 'errout':5, 'dropin':5, 'dropout':5}
     self.writePromise(**{
-        'max-lost-packets': 5,
-        'max-error-messages': 5,
+        'max-lost-packets-per-MB': 5,
+        'max-error-messages-per-MB': 5,
     })
-    self.assertEqual(message, self.runPromise(network_data(**mock_stats)))
+    self.assertEqual(message, self.runPromise(self.network_data(**mock_stats)))
 
 if __name__ == '__main__':
   unittest.main()
