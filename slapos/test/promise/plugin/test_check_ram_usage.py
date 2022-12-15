@@ -41,6 +41,7 @@ class TestCheckRamUsage(TestPromisePluginMixin):
 
   def setUp(self):
     super(TestCheckRamUsage, self).setUp()
+    self.ram_data = namedtuple('ram_data', ['available'])
 
   def writePromise(self, **kw):
     super(TestCheckRamUsage, self).writePromise(self.promise_name,
@@ -60,29 +61,26 @@ class TestCheckRamUsage(TestPromisePluginMixin):
 
   def test_ram_ok(self):
     message = "RAM usage OK"
-    ram_data = namedtuple('ram_data', ['available'])
     available_ram = {'available':1e9}
     self.writePromise(**{
         'last-avg-ram-file':'last_avg_ram_file',
         'min-threshold-ram': 500e6, # 500MB
         'min-avg-ram': 100,
     })
-    self.assertEqual(message, self.runPromise(ram_data(**available_ram)))
+    self.assertEqual(message, self.runPromise(self.ram_data(**available_ram)))
 
   def test_ram_below_threshold_nok(self):
     message = "RAM usage reached critical threshold:  190.7M  (threshold is  476.8M)"
-    ram_data = namedtuple('ram_data', ['available'])
     available_ram = {'available': 200e6}
     self.writePromise(**{
         'last-avg-ram-file':'last_avg_ram_file',
         'min-threshold-ram': 500e6, # ≈500MB
         'min-avg-ram': 100,
     })
-    self.assertEqual(message, self.runPromise(ram_data(**available_ram)))
+    self.assertEqual(message, self.runPromise(self.ram_data(**available_ram)))
 
   def test_ram_below_average_nok(self):
     message = "Average RAM usage over the last 1 seconds reached threshold:  100.5B (threshold is  200.0B)"
-    ram_data = namedtuple('ram_data', ['available'])
     available_ram = {'available': 200}
     self.writePromise(**{
         'last-avg-ram-file':'last_avg_ram_file',
@@ -90,9 +88,10 @@ class TestCheckRamUsage(TestPromisePluginMixin):
         'min-avg-ram': 200,
         'avg-ram-period-sec': 1,
     })
-    m = self.runPromise(ram_data(**{'available': 1}))
+    m = self.runPromise(self.ram_data(**{'available': 200}))
+    m = self.runPromise(self.ram_data(**{'available': 1}))
     time.sleep(1)
-    self.assertEqual(message, self.runPromise(ram_data(**available_ram), failed=True))
+    self.assertEqual(message, self.runPromise(self.ram_data(**available_ram)))
     
 
 if __name__ == '__main__':
