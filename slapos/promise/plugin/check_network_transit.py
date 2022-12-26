@@ -48,7 +48,7 @@ class RunPromise(JSONPromise):
     # Get total bytes recv/sent since transit_period
     if (time.time() - t) > transit_period:
       open(self.last_transit_file, 'w').close()
-      temp_list = self.getJsonLogDataInterval(self.log_file, transit_period)
+      temp_list = self.getJsonLogDataInterval(transit_period)
       if temp_list:
         if len(temp_list) == 1: # If no previous data in log
           pass
