@@ -28,7 +28,7 @@ import mock
 
 from collections import namedtuple
 from slapos.grid.promise import PromiseError
-from slapos.promise.plugin.check_network import RunPromise
+from slapos.promise.plugin.check_network_errors_packets import RunPromise
 from . import TestPromisePluginMixin
 
 
