@@ -4,14 +4,13 @@ import psutil
 import time
 
 from psutil._common import bytes2human
-from .util import get_data_interval_json_log
-from .util import JSONRunPromise
+from .util import JSONPromise
 
 from zope.interface import implementer
 from slapos.grid.promise import interface
 
 @implementer(interface.IPromise)
-class RunPromise(JSONRunPromise):
+class RunPromise(JSONPromise):
 
   def __init__(self, config):
 
@@ -49,7 +48,7 @@ class RunPromise(JSONRunPromise):
     # Get total bytes recv/sent since transit_period
     if (time.time() - t) > transit_period:
       open(self.last_transit_file, 'w').close()
-      temp_list = get_data_interval_json_log(self.log_file, transit_period)
+      temp_list = self.getJsonLogDataInterval(self.log_file, transit_period)
       if temp_list:
         if len(temp_list) == 1: # If no previous data in log
           pass

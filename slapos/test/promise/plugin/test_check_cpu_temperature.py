@@ -57,7 +57,7 @@ class TestCheckCpuTemperature(TestPromisePluginMixin):
     return result['message']
 
   def test_temp_ok(self):
-    message = "Temperature OK"
+    message = "Temperature OK (50 °C)"
     self.writePromise(**{
         'last-avg-computation-file':'last_avg_computation_file',
         'max-spot-temp': 80,
@@ -66,7 +66,7 @@ class TestCheckCpuTemperature(TestPromisePluginMixin):
     self.assertEqual(message, self.runPromise({'coretemp': [[0, 50]]}))
 
   def test_spot_critical(self):
-    message = "Temperature reached critical threshold: 90 degrees celsius (threshold is 80.0 degrees celsius)"
+    message = "Temperature reached critical threshold: 90 °C (threshold is 80.0 °C)"
     self.writePromise(**{
         'last-avg-computation-file':'last_avg_computation_file',
         'max-spot-temp': 80,
@@ -76,7 +76,7 @@ class TestCheckCpuTemperature(TestPromisePluginMixin):
 
 
   def test_avg_critical(self):
-    message = "Average temperature over the last 1 seconds reached threshold: 45.0 degrees celsius (threshold is 40.0 degrees celsius)"
+    message = "Average temperature over the last 1s reached threshold: 45.0 °C (threshold is 40.0 °C)"
     self.writePromise(**{
         'last-avg-computation-file':'last_avg_computation_file',
         'max-spot-temp': 99999,

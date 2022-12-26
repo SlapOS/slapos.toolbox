@@ -4,14 +4,13 @@ import psutil
 import time
 
 from psutil._common import bytes2human
-from .util import get_data_interval_json_log
-from .util import JSONRunPromise
+from .util import JSONPromise
 
 from zope.interface import implementer
 from slapos.grid.promise import interface
 
 @implementer(interface.IPromise)
-class RunPromise(JSONRunPromise):
+class RunPromise(JSONPromise):
 
   def __init__(self, config):
 
@@ -55,7 +54,7 @@ class RunPromise(JSONRunPromise):
     # Get last available RAM from log file since avg_ram_period
     if (time.time() - t) > avg_ram_period:
       open(self.last_avg_ram_file, 'w').close()
-      temp_list = get_data_interval_json_log(self.log_file, avg_ram_period)
+      temp_list = self.getJsonLogDataInterval(avg_ram_period)
       if temp_list:
         avg_ram = sum(map(lambda x: x['available_ram'], temp_list)) / len(temp_list)
         if avg_ram < min_avg_ram:
