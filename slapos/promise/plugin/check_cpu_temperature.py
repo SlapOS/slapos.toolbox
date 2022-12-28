@@ -28,7 +28,9 @@ class RunPromise(JSONPromise):
     try:
       cpu_temp = psutil.sensors_temperatures()['coretemp'][0][1]
     except (KeyError, IndexError) as e:
-      self.logger.error("Could not read core temperature")
+      # Put logger.info to avoid errors when sensors are not 
+      # supported by OS (ex: VM)
+      self.logger.info("Could not read core temperature on VM")
       return
 
     # Check spot temperature
