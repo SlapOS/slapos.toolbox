@@ -61,58 +61,49 @@ class TestCheckNetworkTransit(TestPromisePluginMixin):
 
   def test_network_transit_ok(self):
     message = "Network transit OK"
+    mock_stats = {'bytes_recv':1e6, 'bytes_sent':1e6}
+    self.writePromise(**{
+        'average-data-duration': 1,
+    })
+    self.runPromise(self.network_data(**{'bytes_recv':1e3, 'bytes_sent':1e3}))
+    time.sleep(1)
+    self.assertEqual(message, self.runPromise(self.network_data(**mock_stats)))
+
+  def test_network_min_nok(self):
+    message = "Network congested, data amount over the last 1 seconds"\
+      " reached minimum threshold:    1.4K (threshold is  102.4K)"
     mock_stats = {'bytes_recv':1e3, 'bytes_sent':1e3}
     self.writePromise(**{
-        'last_transit_file':'last_transit_file',
-        'min-threshold-recv': 500, # ≈500B
-        'min-threshold-sent': 500, # ≈500B
-        'transit-period-sec': 1,
+        'min-data-amount': 0.1, # MB
+        'average-data-duration': 1,
     })
     self.runPromise(self.network_data(**{'bytes_recv':300, 'bytes_sent':300}))
     time.sleep(1)
     self.assertEqual(message, self.runPromise(self.network_data(**mock_stats)))
 
-  def test_network_upload_nok(self):
-    message = "Network congested, sent bytes over the last 1 seconds"\
-      " reached minimum threshold:  100.0B (threshold is  500.0B)"
-    mock_stats = {'bytes_recv':1e3, 'bytes_sent':400}
+  def test_network_max_nok(self):
+    message = "Network congested, data amount over the last 1 seconds"\
+      " reached maximum threshold:    1.1M (threshold is    1.0M)"
+    mock_stats = {'bytes_recv':0.7e6, 'bytes_sent':0.5e6}
     self.writePromise(**{
-        'last_transit_file':'last_transit_file',
-        'min-threshold-recv': 500, # ≈500B
-        'min-threshold-sent': 500, # ≈500B
-        'transit-period-sec': 1,
-    })
-    self.runPromise(self.network_data(**{'bytes_recv':300, 'bytes_sent':300}))
-    time.sleep(1)
-    self.assertEqual(message, self.runPromise(self.network_data(**mock_stats)))
-
-  def test_network_download_nok(self):
-    message = "Network congested, received bytes over the last 1 seconds"\
-      " reached minimum threshold:  100.0B (threshold is  500.0B)"
-    mock_stats = {'bytes_recv':400, 'bytes_sent':1e3}
-    self.writePromise(**{
-        'last_transit_file':'last_transit_file',
-        'min-threshold-recv': 500, # ≈500B
-        'min-threshold-sent': 500, # ≈500B
-        'transit-period-sec': 1,
+        'max-data-amount': 1, # MB
+        'average-data-duration': 1,
     })
     self.runPromise(self.network_data(**{'bytes_recv':300, 'bytes_sent':300}))
     time.sleep(1)
     self.assertEqual(message, self.runPromise(self.network_data(**mock_stats)))
 
   def test_network_transit_nok(self):
-    message = "Network congested, received bytes over the last 1 seconds"\
-      " reached minimum threshold:  100.0B (threshold is  500.0B)\n"\
-      "Network congested, sent bytes over the last 1 seconds"\
-      " reached minimum threshold:  100.0B (threshold is  500.0B)"
-    mock_stats = {'bytes_recv':400, 'bytes_sent':400}
+    message = "Network congested, data amount over the last 1 seconds reached minimum threshold:    0.0B (threshold is    0.0B)\n"\
+      "Network congested, data amount over the last 1 seconds reached maximum threshold:    0.0B (threshold is    0.0B)"
+    mock_stats = {'bytes_recv':1e6, 'bytes_sent':1e6}
     self.writePromise(**{
         'last_transit_file':'last_transit_file',
-        'min-threshold-recv': 500, # ≈500B
-        'min-threshold-sent': 500, # ≈500B
-        'transit-period-sec': 1,
+        'max-data-amount': 0,
+        'min-data-amount': 0,
+        'average-data-duration': 1,
     })
-    self.runPromise(self.network_data(**{'bytes_recv':300, 'bytes_sent':300}))
+    self.runPromise(self.network_data(**{'bytes_recv':1e6, 'bytes_sent':1e6}))
     time.sleep(1)
     self.assertEqual(message, self.runPromise(self.network_data(**mock_stats)))
 

@@ -13,57 +13,48 @@ from slapos.grid.promise import interface
 class RunPromise(JSONPromise):
 
   def __init__(self, config):
-
     super(RunPromise, self).__init__(config)
-
-    self.setPeriodicity(minute=1)
+    # Get reference values
+    self.setPeriodicity(float(self.getConfig('frequency', 1)))
     self.last_transit_file = self.getConfig('last-transit-file', 'last_transit')
+    self.max_data_amount = float(self.getConfig('max-data-amount', 10e3))*1048576 #  MB convert into bytes
+    self.min_data_amount = float(self.getConfig('min-data-amount', 0.1))*1048576 #  MB convert into bytes
+    self.average_data_duration = int(self.getConfig('average-data-duration', 600)) # 10min
 
   def sense(self):
-
-    promise_success = True
-    
-    # Get reference values
-    min_threshold_recv = float(self.getConfig('min-threshold-recv', 1e2)) # ≈100 bytes
-    min_threshold_sent = float(self.getConfig('min-threshold-sent', 1e2)) # ≈100 bytes
-    transit_period_sec = int(self.getConfig('transit-period-sec', 0)) # For test
-    if transit_period_sec:
-      transit_period = transit_period_sec
-    else:
-      transit_period = 60*int(self.getConfig('transit-period-minutes', 5)) # 5 min
-    
+    promise_success = True    
     # Get current network statistics, see https://psutil.readthedocs.io/en/latest/#network
     network_data = psutil.net_io_counters(nowrap=True)
-
-    # Log recv and sent bytes
-    data = json.dumps({'bytes_recv': network_data.bytes_recv, 
-    'bytes_sent': network_data.bytes_sent})
-    self.json_logger.info("Network data", extra={'data': data})
+    data_amount = network_data.bytes_recv + network_data.bytes_sent
+    # Log data amount
+    data = json.dumps({'network_data_amount': data_amount})
+    self.json_logger.info("Network data amount", extra={'data': data})
 
     # Get last timestamp (i.e. last modification) of log file
     try:
       t = os.path.getmtime(self.last_transit_file)
     except OSError:
       t = 0
-    # Get total bytes recv/sent since transit_period
-    if (time.time() - t) > transit_period:
+    # We recalculate every quarter of average_data_duration since calculate over periodicity
+    # can be heavy in computation
+    if (time.time() - t) > self.average_data_duration / 4:
       open(self.last_transit_file, 'w').close()
-      temp_list = self.getJsonLogDataInterval(transit_period)
+      temp_list = self.getJsonLogDataInterval(self.average_data_duration)
       if temp_list:
-        if len(temp_list) == 1: # If no previous data in log
+        # If no previous data in log
+        if len(temp_list) == 1:
           pass
-        else: 
-          total_recv = temp_list[0]['bytes_recv'] - temp_list[-1]['bytes_recv']
-          total_sent = temp_list[0]['bytes_sent'] - temp_list[-1]['bytes_sent']
-          if total_recv <= min_threshold_recv:
-            self.logger.error("Network congested, received bytes over the last %s seconds "\
+        else:
+          data_diff = temp_list[0]['network_data_amount'] - temp_list[-1]['network_data_amount']
+          if data_diff <= self.min_data_amount:
+            self.logger.error("Network congested, data amount over the last %s seconds "\
               "reached minimum threshold: %7s (threshold is %7s)" 
-              % (transit_period, bytes2human(total_recv), bytes2human(min_threshold_recv)))
+              % (self.average_data_duration, bytes2human(data_diff), bytes2human(self.min_data_amount)))
             promise_success = False
-          if total_sent <= min_threshold_sent:
-            self.logger.error("Network congested, sent bytes over the last %s seconds "\
-              "reached minimum threshold: %7s (threshold is %7s)" 
-              % (transit_period, bytes2human(total_sent), bytes2human(min_threshold_sent)))
+          if data_diff >= self.max_data_amount:
+            self.logger.error("Network congested, data amount over the last %s seconds "\
+              "reached maximum threshold: %7s (threshold is %7s)" 
+              % (self.average_data_duration, bytes2human(data_diff), bytes2human(self.max_data_amount)))
             promise_success = False
       else:
         self.logger.error("Couldn't read network data from log")
