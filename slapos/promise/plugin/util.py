@@ -5,7 +5,7 @@ import os
 import textwrap
 
 from dateutil import parser as dateparser
-
+from datetime import datetime
 from slapos.grid.promise.generic import GenericPromise
 
 
@@ -66,15 +66,14 @@ class JSONPromise(GenericPromise):
       Get all data in the last "interval" seconds from JSON log
       Reads rotated logs too (XX.log, XX.log.1, XX.log.2, ...)
     """
-    oldest_timestamp = None
+    current_time = datetime.now()
     data_list = []
     for f in iter_logrotate_file_handle(self.__json_log_file, 'rb'):
       for line in iter_reverse_lines(f):
         l = json.loads(line.decode().replace("'", '"'))
         timestamp = dateparser.parse(l['time'])
         data_list.append(l['data'])
-        oldest_timestamp = oldest_timestamp or timestamp
-        if (oldest_timestamp - timestamp).total_seconds() > interval:
+        if (current_time - timestamp).total_seconds() > interval:
           return data_list
     return data_list
 
