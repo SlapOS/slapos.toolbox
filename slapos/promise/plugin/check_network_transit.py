@@ -17,9 +17,9 @@ class RunPromise(JSONPromise):
     # Get reference values
     self.setPeriodicity(float(self.getConfig('frequency', 1)))
     self.last_transit_file = self.getConfig('last-transit-file', 'last_transit')
-    self.max_data_amount = float(self.getConfig('max-data-amount', 10e3))*1048576 #  MB convert into bytes
-    self.min_data_amount = float(self.getConfig('min-data-amount', 0.1))*1048576 #  MB convert into bytes
-    self.average_data_duration = int(self.getConfig('average-data-duration', 600)) # 10min
+    self.max_data_amount = float(self.getConfig('max-data-amount', 10e3))*1048576 #  MB converted into bytes
+    self.min_data_amount = float(self.getConfig('min-data-amount', 0.1))*1048576 #  MB converted into bytes
+    self.transit_period = int(self.getConfig('transit-period', 600)) # secondes
 
   def sense(self):
     promise_success = True    
@@ -35,11 +35,11 @@ class RunPromise(JSONPromise):
       t = os.path.getmtime(self.last_transit_file)
     except OSError:
       t = 0
-    # We recalculate every quarter of average_data_duration since calculate over periodicity
+    # We recalculate every quarter of transit_period since calculate over periodicity
     # can be heavy in computation
-    if (time.time() - t) > self.average_data_duration / 4:
+    if (time.time() - t) > self.transit_period / 4:
       open(self.last_transit_file, 'w').close()
-      temp_list = self.getJsonLogDataInterval(self.average_data_duration)
+      temp_list = self.getJsonLogDataInterval(self.transit_period)
       if temp_list:
         # If no previous data in log
         if len(temp_list) == 1:
@@ -49,12 +49,12 @@ class RunPromise(JSONPromise):
           if data_diff <= self.min_data_amount:
             self.logger.error("Network congested, data amount over the last %s seconds "\
               "reached minimum threshold: %7s (threshold is %7s)" 
-              % (self.average_data_duration, bytes2human(data_diff), bytes2human(self.min_data_amount)))
+              % (self.transit_period, bytes2human(data_diff), bytes2human(self.min_data_amount)))
             promise_success = False
           if data_diff >= self.max_data_amount:
             self.logger.error("Network congested, data amount over the last %s seconds "\
               "reached maximum threshold: %7s (threshold is %7s)" 
-              % (self.average_data_duration, bytes2human(data_diff), bytes2human(self.max_data_amount)))
+              % (self.transit_period, bytes2human(data_diff), bytes2human(self.max_data_amount)))
             promise_success = False
       else:
         self.logger.error("Couldn't read network data from log")

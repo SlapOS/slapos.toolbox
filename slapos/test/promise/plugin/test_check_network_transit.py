@@ -63,7 +63,7 @@ class TestCheckNetworkTransit(TestPromisePluginMixin):
     message = "Network transit OK"
     mock_stats = {'bytes_recv':1e6, 'bytes_sent':1e6}
     self.writePromise(**{
-        'average-data-duration': 1,
+        'transit-period': 1,
     })
     self.runPromise(self.network_data(**{'bytes_recv':1e3, 'bytes_sent':1e3}))
     time.sleep(1)
@@ -75,7 +75,7 @@ class TestCheckNetworkTransit(TestPromisePluginMixin):
     mock_stats = {'bytes_recv':1e3, 'bytes_sent':1e3}
     self.writePromise(**{
         'min-data-amount': 0.1, # MB
-        'average-data-duration': 1,
+        'transit-period': 1,
     })
     self.runPromise(self.network_data(**{'bytes_recv':300, 'bytes_sent':300}))
     time.sleep(1)
@@ -87,7 +87,7 @@ class TestCheckNetworkTransit(TestPromisePluginMixin):
     mock_stats = {'bytes_recv':0.7e6, 'bytes_sent':0.5e6}
     self.writePromise(**{
         'max-data-amount': 1, # MB
-        'average-data-duration': 1,
+        'transit-period': 1,
     })
     self.runPromise(self.network_data(**{'bytes_recv':300, 'bytes_sent':300}))
     time.sleep(1)
@@ -101,7 +101,7 @@ class TestCheckNetworkTransit(TestPromisePluginMixin):
         'last_transit_file':'last_transit_file',
         'max-data-amount': 0,
         'min-data-amount': 0,
-        'average-data-duration': 1,
+        'transit-period': 1,
     })
     self.runPromise(self.network_data(**{'bytes_recv':1e6, 'bytes_sent':1e6}))
     time.sleep(1)
