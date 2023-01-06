@@ -12,15 +12,11 @@ from slapos.grid.promise import interface
 class RunPromise(JSONPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=2)
+    self.setPeriodicity(float(self.getConfig('frequency', 2)))
     self.avg_flag_file = self.getConfig('last-avg-computation-file', 'last_avg')
-    self.max_spot_temp = float(self.getConfig('max-spot-temp', 90))
-    self.max_avg_temp = float(self.getConfig('max-avg-temp', 80))
-    avg_temp_duration_sec = int(self.getConfig('avg-temp-duration-sec', 0))
-    if avg_temp_duration_sec:
-      self.avg_temp_duration = avg_temp_duration_sec
-    else:
-      self.avg_temp_duration = 60 * int(self.getConfig('avg-temp-duration', 5))
+    self.max_spot_temp = float(self.getConfig('max-spot-temp', 90)) # °C
+    self.max_avg_temp = float(self.getConfig('max-avg-temp', 80)) # °C
+    self.avg_temp_duration = int(self.getConfig('avg-temp-duration', 600)) # secondes
 
   def sense(self):
     success = True

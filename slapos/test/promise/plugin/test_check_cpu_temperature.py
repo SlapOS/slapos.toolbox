@@ -81,7 +81,7 @@ class TestCheckCpuTemperature(TestPromisePluginMixin):
         'last-avg-computation-file':'last_avg_computation_file',
         'max-spot-temp': 99999,
         'max-avg-temp': 40,
-        'avg-temp-duration-sec': 1,
+        'avg-temp-duration': 1,
     })
 		# TODO: promise should computer average only with logs between interval
     m = self.runPromise({'coretemp': [[0, 0]]})
