@@ -30,7 +30,7 @@ class RunPromise(GenericPromise):
 
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=5)
+    self.setPeriodicity(float(self.getConfig('frequency', 5)))
 
   def getDiskSize(self, disk_partition, db_path):
     database = Database(db_path, create=False, timeout=10)
