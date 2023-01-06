@@ -12,7 +12,7 @@ class RunPromise(GenericPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
     # test load every 3 minutes
-    self.setPeriodicity(minute=3)
+    self.setPeriodicity(float(self.getConfig('frequency', 3)))
 
   def checkCPULoad(self, tolerance=2.2):
     # tolerance=1.5 => accept CPU load up to 1.5 =150%
