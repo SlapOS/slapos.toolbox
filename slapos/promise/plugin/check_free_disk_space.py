@@ -32,7 +32,7 @@ class RunPromise(GenericPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
     # check disk space at least every 3 minutes
-    self.setPeriodicity(minute=3)
+    self.setPeriodicity(float(self.getConfig('frequency', 3)))
 
   def getDiskSize(self, disk_partition, database):
     database = Database(database, create=False, timeout=10)
