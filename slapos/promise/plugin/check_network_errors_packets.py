@@ -9,19 +9,14 @@ from slapos.grid.promise.generic import GenericPromise
 class RunPromise(GenericPromise):
 
   def __init__(self, config):
-
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=5)
-
+    # Get reference values
+    self.setPeriodicity(float(self.getConfig('frequency', 5)))
+    self.max_lost_packets = int(self.getConfig('max-lost-packets-per-MB', 100))
+    self.max_error_messages = int(self.getConfig('max-error-messages-per-MB', 100))
 
   def sense(self):
-
     promise_success = True
-    
-    # Get reference values
-    max_lost_packets = int(self.getConfig('max-lost-packets-per-MB', 100))
-    max_error_messages = int(self.getConfig('max-error-messages-per-MB', 100))
-
     # Get current Network statistics
     network_data =  psutil.net_io_counters()
     # Get total number of bytes recv and sent in MB (if > 1MB)
@@ -34,15 +29,15 @@ class RunPromise(GenericPromise):
     total_errors = network_data.errin + network_data.errout
 
     # Check for network dropped packets
-    if total_dropped/total_MB >= max_lost_packets:
+    if total_dropped/total_MB >= self.max_lost_packets:
       self.logger.error("Network packets lost reached critical threshold: %s "\
-        " (threshold is %s per MB)" % (math.ceil(total_dropped/total_MB), max_lost_packets))
+        " (threshold is %s per MB)" % (math.ceil(total_dropped/total_MB), self.max_lost_packets))
       promise_success = False
 
     # Check for network errors
-    if total_errors/total_MB >= max_error_messages:
+    if total_errors/total_MB >= self.max_error_messages:
       self.logger.error("Network errors reached critical threshold: %s "\
-        " (threshold is %s per MB)" % (math.ceil(total_errors/total_MB), max_error_messages))
+        " (threshold is %s per MB)" % (math.ceil(total_errors/total_MB), self.max_error_messages))
       promise_success = False
 
     if promise_success:
