@@ -64,32 +64,32 @@ class TestCheckRamUsage(TestPromisePluginMixin):
     available_ram = {'available':1e9}
     self.writePromise(**{
         'last-avg-ram-file':'last_avg_ram_file',
-        'min-threshold-ram': 500e6, # 500MB
+        'min-threshold-ram': 500, # 500MB
         'min-avg-ram': 100,
     })
     self.assertEqual(message, self.runPromise(self.ram_data(**available_ram)))
 
   def test_ram_below_threshold_nok(self):
-    message = "RAM usage reached critical threshold:  190.7M  (threshold is  476.8M)"
+    message = "RAM usage reached critical threshold:  190.7M  (threshold is  500.0M)"
     available_ram = {'available': 200e6}
     self.writePromise(**{
         'last-avg-ram-file':'last_avg_ram_file',
-        'min-threshold-ram': 500e6, # ≈500MB
+        'min-threshold-ram': 500, # ≈500MB
         'min-avg-ram': 100,
     })
     self.assertEqual(message, self.runPromise(self.ram_data(**available_ram)))
 
   def test_ram_below_average_nok(self):
-    message = "Average RAM usage over the last 1 seconds reached threshold:  100.5B (threshold is  200.0B)"
-    available_ram = {'available': 200}
+    message = "Average RAM usage over the last 1 seconds reached threshold:  190.7M (threshold is  200.0M)"
+    available_ram = {'available': 200e6}
     self.writePromise(**{
         'last-avg-ram-file':'last_avg_ram_file',
         'min-threshold-ram': 0,
         'min-avg-ram': 200,
-        'avg-ram-period-sec': 1,
+        'avg-ram-period': 1,
     })
-    m = self.runPromise(self.ram_data(**{'available': 200}))
-    m = self.runPromise(self.ram_data(**{'available': 1}))
+    m = self.runPromise(self.ram_data(**{'available': 300e6}))
+    m = self.runPromise(self.ram_data(**{'available': 200e6}))
     time.sleep(1)
     self.assertEqual(message, self.runPromise(self.ram_data(**available_ram)))
     

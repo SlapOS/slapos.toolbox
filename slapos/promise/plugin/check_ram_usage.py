@@ -13,33 +13,22 @@ from slapos.grid.promise import interface
 class RunPromise(JSONPromise):
 
   def __init__(self, config):
-
     super(RunPromise, self).__init__(config)
-
-    self.setPeriodicity(minute=2)
-    self.last_avg_ram_file = self.getConfig(
-      'last-avg-ram-file', 'last_avg')
+    # Get reference values
+    self.setPeriodicity(float(self.getConfig('frequency', 2)))
+    self.last_avg_ram_file = self.getConfig('last-avg-ram-file', 'last_avg')
+    self.min_threshold_ram = float(self.getConfig('min-threshold-ram', 500))*1048576 #  MB converted into bytes
+    self.min_avg_ram = float(self.getConfig('min-avg-ram', 1e3))*1048576 #  MB converted into bytes
+    self.avg_ram_period =  int(self.getConfig('avg-ram-period', 600)) # secondes
 
   def sense(self):
-
     promise_success = True
-    
-    # Get reference values
-    min_threshold_ram = float(self.getConfig('min-threshold-ram', 500e6)) # ≈500 MB
-    min_avg_ram = float(self.getConfig('min-avg-ram', 1e9)) # ≈1 GB
-    avg_ram_period_sec = int(self.getConfig('avg-ram-period-sec', 0))
-    if avg_ram_period_sec:
-      avg_ram_period = avg_ram_period_sec
-    else:
-      avg_ram_period =  60 * int(self.getConfig('avg-ram-period', 5))
-
     # Get current RAM usage
     ram_data = psutil.virtual_memory()
-
     # Check with min threshold and log error if below it
-    if ram_data.available <= min_threshold_ram:
+    if ram_data.available <= self.min_threshold_ram:
       self.logger.error("RAM usage reached critical threshold: %7s "\
-        " (threshold is %7s)" % (bytes2human(ram_data.available), bytes2human(min_threshold_ram)))
+        " (threshold is %7s)" % (bytes2human(ram_data.available), bytes2human(self.min_threshold_ram)))
       promise_success = False
     
     # Log RAM usage
@@ -51,16 +40,16 @@ class RunPromise(JSONPromise):
       t = os.path.getmtime(self.last_avg_ram_file)
     except OSError:
       t = 0
-    # Get last available RAM from log file since avg_ram_period
-    if (time.time() - t) > avg_ram_period:
+    # Get last available RAM from log file since avg_ram_period / 4
+    if (time.time() - t) > self.avg_ram_period / 4:
       open(self.last_avg_ram_file, 'w').close()
-      temp_list = self.getJsonLogDataInterval(avg_ram_period)
+      temp_list = self.getJsonLogDataInterval(self.avg_ram_period)
       if temp_list:
         avg_ram = sum(map(lambda x: x['available_ram'], temp_list)) / len(temp_list)
-        if avg_ram < min_avg_ram:
+        if avg_ram < self.min_avg_ram:
           self.logger.error("Average RAM usage over the last %s seconds "\
             "reached threshold: %7s (threshold is %7s)" 
-            % (avg_ram_period, bytes2human(avg_ram), bytes2human(min_avg_ram)))
+            % (self.avg_ram_period, bytes2human(avg_ram), bytes2human(self.min_avg_ram)))
           promise_success = False
       else:
         self.logger.error("Couldn't read available RAM from log")
