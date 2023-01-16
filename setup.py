@@ -38,12 +38,10 @@ setup(name=name,
         'setuptools', # namespaces
         'slapos.core', # as it provides library for slap
         'xml_marshaller', # needed to dump information
-        'GitPython', #needed for git manipulation into slaprunner
         'croniter', # needed to know cron schedule
         'pytz', # needed to manipulate timezone
         'tzlocal', # needed to manipulate timezone
         'backports.lzma',
-        'passlib',
         'netifaces',
         'erp5.util',
         'PyRSS2Gen',
@@ -102,8 +100,6 @@ setup(name=name,
           'backup-identity-script-excluding-path = slapos.resilient.identity_script_excluding_path:calculateSignature',
           'securedelete = slapos.securedelete:main',
           'slapos-kill = slapos.systool:kill',
-          'slaprunnertest = slapos.runner.runnertest:main',
-          'slaprunnerteststandalone = slapos.runner.runnertest:runStandaloneUnitTest',
           'zodbpack = slapos.zodbpack:run [zodbpack]',
           'networkbench = slapos.networkbench:main',
           'cachechecker = slapos.cachechecker:web_checker_utility',

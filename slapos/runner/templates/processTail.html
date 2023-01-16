@@ -1,6 +1,0 @@
-{% extends "layout.html" %}
-{% block title %}Log for {{ process }}{% endblock %}
-{% block body %}
-<h2 class='title'>Supervisord tail for "{{ process }}"</h2><br/>
-<textarea cols=103 rows=30 readonly style="background:#000; color:#fff;">{{ process_log }}</textarea>
-{% endblock %}
