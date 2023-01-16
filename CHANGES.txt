@@ -1,3 +1,8 @@
+unreleased
+==========
+
+* runner: totally remove runner directory (webrunner is replaced by Theia)
+
 0.129 (2023-01-18)
 ==================
 
