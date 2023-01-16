@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+* resiliencytest: totally remove resiliencytest folder (now tested in Theia)
 * runner: totally remove runner directory (webrunner is replaced by Theia)
 
 0.128 (2022-06-30)
