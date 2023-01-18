@@ -1,3 +1,10 @@
+0.129 (2023-01-18)
+==================
+
+* promise/plugin: added alarms for node monitoring: check_ram_usage, check_network_errors_packets, check_network_transit, check_cpu_temperature
+* monitor: use gmtime to query data in collect db
+* resiliencytestsuite,kvm: python3 fixes
+
 0.128 (2022-06-30)
 ==================
 
