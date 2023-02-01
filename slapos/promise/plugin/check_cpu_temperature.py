@@ -10,10 +10,11 @@ from slapos.grid.promise import interface
 
 @implementer(interface.IPromise)
 class RunPromise(JSONPromise):
+
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
-    self.avg_flag_file = self.getConfig('last-avg-computation-file', 'last_avg')
+    self.avg_flag_file = self.getConfig('avg-flag-file', 'last_avg')
     self.max_spot_temp = float(self.getConfig('max-spot-temp', 90)) # °C
     self.max_avg_temp = float(self.getConfig('max-avg-temp', 80)) # °C
     self.avg_temp_duration = int(self.getConfig('avg-temp-duration', 600)) # secondes
@@ -50,7 +51,7 @@ class RunPromise(JSONPromise):
       t = 0
     if (time.time() - t) > avg_computation_period:
       open(self.avg_flag_file, 'w').close()
-      temp_list = self.getJsonLogDataInterval(self.avg_temp_duration)
+      temp_list = self.get_json_log_data_interval(self.avg_temp_duration)
       if temp_list:
         avg_temp = sum(x['cpu_temperature'] for x in temp_list) / len(temp_list)
         if avg_temp > self.max_avg_temp:
@@ -74,7 +75,6 @@ class RunPromise(JSONPromise):
     In this case, fail if the previous sensor result is negative.
     """
     return self._test(result_count=1, failure_amount=1)
-
 
   def anomaly(self):
     """

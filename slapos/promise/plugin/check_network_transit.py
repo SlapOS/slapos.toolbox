@@ -39,7 +39,7 @@ class RunPromise(JSONPromise):
     # can be heavy in computation
     if (time.time() - t) > self.transit_period / 4:
       open(self.last_transit_file, 'w').close()
-      temp_list = self.getJsonLogDataInterval(self.transit_period)
+      temp_list = self.get_json_log_data_interval(self.transit_period)
       if temp_list:
         # If no previous data in log
         if len(temp_list) == 1:
