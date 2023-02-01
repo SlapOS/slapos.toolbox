@@ -7,6 +7,7 @@ import textwrap
 from dateutil import parser as dateparser
 from datetime import datetime
 from slapos.grid.promise.generic import GenericPromise
+from slapos.grid.promise.generic import GenericPromise
 
 
 def iter_reverse_lines(f):
@@ -38,6 +39,33 @@ def iter_logrotate_file_handle(path, mode='r'):
     except OSError:
       break
 
+def get_json_log_data_interval(json_log_file, interval):
+  """
+    Get all data in the last "interval" seconds from JSON log
+    Reads rotated logs too (XX.log, XX.log.1, XX.log.2, ...)
+  """
+  current_time = datetime.now()
+  data_list = []
+  for f in iter_logrotate_file_handle(json_log_file, 'rb'):
+    for line in iter_reverse_lines(f):
+      l = json.loads(line.decode().replace("'", '"'))
+      timestamp = dateparser.parse(l['time'])
+      if (current_time - timestamp).total_seconds() > interval:
+        return data_list
+      data_list.append(l['data'])
+  return data_list
+
+def get_json_log_latest_timestamp(json_log_file):
+  """
+    Get latest timestamp from JSON log
+    Reads rotated logs too (XX.log, XX.log.1, XX.log.2, ...)
+  """
+  for f in iter_logrotate_file_handle(json_log_file, 'rb'):
+    for line in iter_reverse_lines(f):
+      l = json.loads(line.decode().replace("'", '"'))
+      return dateparser.parse(l['time']).timestamp()
+  return 0
+
 
 class JSONPromise(GenericPromise):
   def __init__(self, config):
@@ -47,9 +75,9 @@ class JSONPromise(GenericPromise):
     super(JSONPromise, self).__init__(config)
     json_log_name = os.path.splitext(self.__name)[0] + '.json.log'
     self.__json_log_file = os.path.join(self.__log_folder, json_log_name)
-    self.json_logger = self.__makeJsonLogger(self.__json_log_file)
+    self.json_logger = self.__make_json_logger(self.__json_log_file)
 
-  def __makeJsonLogger(self, json_log_file):
+  def __make_json_logger(self, json_log_file):
     logger = logging.getLogger('json-logger')
     logger.setLevel(logging.INFO)
     handler = logging.FileHandler(json_log_file)
@@ -61,42 +89,15 @@ class JSONPromise(GenericPromise):
     logger.addHandler(handler)
     return logger
 
-  def getJsonLogDataInterval(self, interval):
-    """
-      Get all data in the last "interval" seconds from JSON log
-      Reads rotated logs too (XX.log, XX.log.1, XX.log.2, ...)
-    """
-    current_time = datetime.now()
-    data_list = []
-    for f in iter_logrotate_file_handle(self.__json_log_file, 'rb'):
-      for line in iter_reverse_lines(f):
-        l = json.loads(line.decode().replace("'", '"'))
-        timestamp = dateparser.parse(l['time'])
-        if (current_time - timestamp).total_seconds() > interval:
-          return data_list
-        data_list.append(l['data'])
-    return data_list
-
-  def getJsonLogLatestTimestamp(log):
-    """
-      Get latest timestamp from JSON log
-      Reads rotated logs too (XX.log, XX.log.1, XX.log.2, ...)
-    """
-    for f in iter_logrotate_file_handle(self.__json_log_file, 'rb'):
-      for line in iter_reverse_lines(f):
-        l = json.loads(line.decode().replace("'", '"'))
-        return dateparser.parse(l['time'])
-    return 0
-
-from dateutil import parser
-from slapos.grid.promise.generic import GenericPromise
+  def get_json_log_data_interval(self, interval):
+    return get_json_log_data_interval(self.__json_log_file, interval)
 
 def tail_file(file_path, line_count=10):
   """
   Returns the last lines of file.
   """
   line_list = []
-  with open(file_path) as f:
+  with open(file_path, 'rb') as f:
     BUFSIZ = 1024
     f.seek(0, 2)
     bytes = f.tell()
@@ -106,11 +107,11 @@ def tail_file(file_path, line_count=10):
       if bytes - BUFSIZ > 0:
           # Seek back one whole BUFSIZ
           f.seek(block * BUFSIZ, 2)
-          line_list.insert(0, f.read(BUFSIZ))
+          line_list.insert(0, f.read(BUFSIZ).decode())
       else:
           f.seek(0, 0)
           # only read what was not read
-          line_list.insert(0, f.read(bytes))
+          line_list.insert(0, f.read(bytes).decode())
       line_len = line_list[0].count('\n')
       size -= line_len
       bytes -= BUFSIZ

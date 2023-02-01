@@ -26,7 +26,6 @@
 ##############################################################################
 
 import mock
-import os
 import time
 from slapos.grid.promise import PromiseError
 from slapos.promise.plugin.check_cpu_temperature import RunPromise
@@ -73,7 +72,6 @@ class TestCheckCpuTemperature(TestPromisePluginMixin):
         'max-avg-temp': 100,
     })
     self.assertEqual(message, self.runPromise({'coretemp': [[0, 90]]}))
-
 
   def test_avg_critical(self):
     message = "Average temperature over the last 1s reached threshold: 45.0 °C (threshold is 40.0 °C)"
