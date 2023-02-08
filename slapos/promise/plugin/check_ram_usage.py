@@ -43,7 +43,7 @@ class RunPromise(JSONPromise):
     # Get last available RAM from log file since avg_ram_period / 4
     if (time.time() - t) > self.avg_ram_period / 4:
       open(self.last_avg_ram_file, 'w').close()
-      temp_list = self.getJsonLogDataInterval(self.avg_ram_period)
+      temp_list = self.get_json_log_data_interval(self.avg_ram_period)
       if temp_list:
         avg_ram = sum(map(lambda x: x['available_ram'], temp_list)) / len(temp_list)
         if avg_ram < self.min_avg_ram:
