@@ -3,6 +3,12 @@ unreleased
 
 * runner: totally remove runner directory (webrunner is replaced by Theia)
 
+0.130 (2023-02-08)
+==================
+
+* promise/plugin: added alarms for ORS monitoring: check_amarisoft_stats_log, check_baseband_latency, check_cpri_lock, check_interface_up, check_lopcomm_lof, check_lopcomm_rssi, check_lopcomm_vswr, check_rx_saturated, check_sdr_busy
+* promise/plugin: reworked methods in util.py
+
 0.129 (2023-01-18)
 ==================
 
