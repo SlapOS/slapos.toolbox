@@ -105,6 +105,7 @@ setup(name=name,
           'slapos-kill = slapos.systool:kill',
           'zodbpack = slapos.zodbpack:run [zodbpack]',
           'networkbench = slapos.networkbench:main',
+          'networkbench-ping = slapos.networkbench.pingcli:main',
           'cachechecker = slapos.cachechecker:web_checker_utility',
           'dnsresolver = slapos.dnsresolver:cli',
         ]

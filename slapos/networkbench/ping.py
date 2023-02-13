@@ -49,4 +49,3 @@ def ping(host, timeout=10, protocol="4", count=10):
 
 def ping6(host, timeout=10, count=10):
   return ping(host, timeout=10, protocol='6', count=count)
-
