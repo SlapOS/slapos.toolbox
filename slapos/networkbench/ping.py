@@ -1,3 +1,5 @@
+import argparse
+import sys
 import subprocess
 import re
 
@@ -50,3 +52,18 @@ def ping(host, timeout=10, protocol="4", count=10):
 def ping6(host, timeout=10, count=10):
   return ping(host, timeout=10, protocol='6', count=count)
 
+
+def main():
+  parser = argparse.ArgumentParser(
+        description="Run network benchmarch.",
+        )
+  _ = parser.add_argument
+  _('-p', '--protocol', default="4", type=str)
+  _('-t', '--timeout', default=10, type=int)
+  _('-c', '--count', default=10, type=int)
+  _('host', type=str)
+  config = parser.parse_args()
+  result = ping(config.host, config.timeout, config.protocol, config.count)
+  print(result)
+  if result[3] == "failed":
+    sys.exit(1)
