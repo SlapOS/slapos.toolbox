@@ -71,7 +71,6 @@ class RunPromise(GenericPromise):
       return
     timetuple = email.utils.parsedate(bot_status['date'])
     last_bot_datetime = datetime.datetime.fromtimestamp(time.mktime(timetuple))
-    last_bot_datetime_string = email.utils.formatdate(time.mktime(timetuple))
     delta = self.utcnow - last_bot_datetime
     # sanity check
     if delta < datetime.timedelta(minutes=0):
@@ -181,8 +180,7 @@ class RunPromise(GenericPromise):
         appendError(
           'HTTP Header dict was %s instead of %s' % (
             json.dumps(entry['http_header_dict'], sort_keys=True),
-            json.dumps(http_header_dict, sort_keys=True),
-        ))
+            json.dumps(http_header_dict, sort_keys=True),))
         error = True
     db_ip_list = [q['ip'] for q in entry_list]
     if len(ip_list):
