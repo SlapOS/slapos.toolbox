@@ -512,8 +512,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.launcher.run()
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
-      "http://www.erp5.com/ : http_query: OK with status code 302 on IPs 127.0.0.1 "
-      "127.0.0.2"
+      "http://www.erp5.com/ : http_query: OK with status code 302 on IPs "
+      "127.0.0.1 127.0.0.2"
     )
 
   def test_http_with_header_dict(self):
@@ -523,16 +523,19 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'http://www.erp5.com/',
         'status-code': '200',
-        'http-header-dict': '{"Vary": "Accept-Encoding", "Cache-Control": "max-age=300, public"}',
+        'http-header-dict': '{"Vary": "Accept-Encoding", "Cache-Control": '
+        '"max-age=300, public"}',
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
+    self.writeSurykatkaJson(
+      """{
     "http_query": [
         {
             "date": "Wed, 11 Dec 2019 09:35:28 -0000",
             "ip": "176.31.129.213",
-            "http_header_dict": {"Vary": "Accept-Encoding", "Cache-Control": "max-age=300, public"},
+            "http_header_dict": {"Vary": "Accept-Encoding", """
+      """"Cache-Control": "max-age=300, public"},
             "status_code": 200,
             "url": "http://www.erp5.com/"
         }
@@ -546,7 +549,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
       "http://www.erp5.com/ : http_query: OK with status code 200 "
-      "and HTTP Header dict {\"Cache-Control\": \"max-age=300, public\", \"Vary\": \"Accept-Encoding\"}"
+      "and HTTP Header dict {\"Cache-Control\": \"max-age=300, public\", "
+      "\"Vary\": \"Accept-Encoding\"}"
     )
 
   def test_http_with_bad_header_dict(self):
@@ -556,16 +560,19 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'http://www.erp5.com/',
         'status-code': '200',
-        'http-header-dict': '{"Vary": "Accept-Encoding", "Cache-Control": "max-age=300, public"}',
+        'http-header-dict': '{"Vary": "Accept-Encoding", "Cache-Control": '
+                            '"max-age=300, public"}',
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
+    self.writeSurykatkaJson(
+      """{
     "http_query": [
         {
             "date": "Wed, 11 Dec 2019 09:35:28 -0000",
             "ip": "176.31.129.213",
-            "http_header_dict": {"Vary": "Accept-Encoding,Cookie", "Cache-Control": "max-age=300, public"},
+            "http_header_dict": {"Vary": "Accept-Encoding,Cookie", """
+      """"Cache-Control": "max-age=300, public"},
             "status_code": 200,
             "url": "http://www.erp5.com/"
         }
@@ -580,8 +587,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
       "http://www.erp5.com/ : http_query: ERROR HTTP Header dict was "
-      "{\"Cache-Control\": \"max-age=300, public\", \"Vary\": \"Accept-Encoding,Cookie\"} "
-      "instead of {\"Cache-Control\": \"max-age=300, public\", \"Vary\": \"Accept-Encoding\"}"
+      "{\"Cache-Control\": \"max-age=300, public\", \"Vary\": "
+      "\"Accept-Encoding,Cookie\"} "
+      "instead of {\"Cache-Control\": \"max-age=300, public\", \"Vary\": "
+      "\"Accept-Encoding\"}"
     )
 
   def test_no_ip_list(self):
