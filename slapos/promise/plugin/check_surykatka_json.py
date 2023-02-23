@@ -202,6 +202,38 @@ class RunPromise(GenericPromise):
       info_message += ' on IPs %s' % (' '.join(ip_list))
     self.appendInfoMessage(info_message)
 
+  def senseDnsQuery(self):
+    key = 'dns_query'
+    error = False
+
+    def appendError(msg, *args):
+      self.appendErrorMessage(key + ': ERROR ' + msg % args)
+
+    if key not in self.surykatka_json:
+      appendError("%r not in %r", key, self.json_file)
+      return
+
+    url = self.getConfig('url')
+    hostname = urlparse(url).hostname
+    ip_set = set(self.getConfig('ip-list', '').split())
+
+    entry_list = [q for q in self.surykatka_json[key]
+      if q['domain'] == hostname and q['rdtype'] == 'A']
+    if len(entry_list) == 0:
+      appendError('No data')
+      return
+    for entry in entry_list:
+      response_ip_set = set([q.strip() for q in entry['response'].split(",")])
+      if ip_set != response_ip_set:
+        if len(response_ip_set) == 0:
+          appendError("resolver %s returned no IPs, expected %s DEBUG %r" % (entry['resolver_ip'], ','.join(ip_set), response_ip_set))
+        else:
+          appendError("resolver %s returned unexpected set of IPs %s, expected %s DEBUG %r" % (entry['resolver_ip'], ', '.join(sorted(response_ip_set)), ', '.join(sorted(ip_set)), response_ip_set))
+        error = True
+    if error:
+      return
+    self.appendInfoMessage("%s: OK all resolvers returned expected set of IPs %s" % (key, ', '.join(sorted(ip_set)),))
+
   def senseElapsedTime(self):
     key = 'elapsed_time'
     surykatka_key = 'http_query'
@@ -267,6 +299,7 @@ class RunPromise(GenericPromise):
             self.senseHttpQuery()
             self.senseSslCertificate()
             self.senseElapsedTime()
+            self.senseDnsQuery()
           else:
             self.appendErrorMessage(
               "ERROR Report %r is not supported" % report)
