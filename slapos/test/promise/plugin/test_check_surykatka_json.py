@@ -1,6 +1,7 @@
 from slapos.grid.promise import PromiseError
 from slapos.test.promise.plugin import TestPromisePluginMixin
 
+import json
 import os
 import shutil
 import tempfile
@@ -26,9 +27,13 @@ class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
     content_list.append('}')
     self.writePromise(self.promise_name, '\n'.join(content_list))
 
-  def writeSurykatkaJson(self, content):
+  def writeSurykatkaJsonDirect(self, content):
     with open(self.json_file, 'w') as fh:
       fh.write(content)
+
+  def writeSurykatkaJson(self, content):
+    with open(self.json_file, 'w') as fh:
+      json.dump(content, fh, indent=2)
 
   def assertFailedMessage(self, result, message):
     self.assertEqual(result['result']['failed'], True)
@@ -64,7 +69,7 @@ class TestCheckSurykatkaJSON(CheckSurykatkaJSONMixin):
 
   def test_empty_file(self):
     self.writeSurykatkaPromise({'json-file': self.json_file})
-    self.writeSurykatkaJson('')
+    self.writeSurykatkaJsonDirect('')
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -81,9 +86,7 @@ class TestCheckSurykatkaJSONUnknownReport(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
       }
     )
-    self.writeSurykatkaJson("""{
-}
-""")
+    self.writeSurykatkaJson({})
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -101,15 +104,11 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Wed, 13 Dec 2222 09:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "bot_status": [
+    self.writeSurykatkaJson({
+      "bot_status": [
         {
-            "date": "Wed, 13 Dec 2222 09:10:11 -0000",
-            "text": "loop"
-        }
-    ]
-}
-""")
+          "date": "Wed, 13 Dec 2222 09:10:11 -0000",
+          "text": "loop"}]})
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
@@ -125,15 +124,11 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Wed, 13 Dec 2222 09:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "bot_status": [
+    self.writeSurykatkaJson({
+      "bot_status": [
         {
-            "date": "Wed, 13 Dec 2222 09:10:11 -0000",
-            "text": "error"
-        }
-    ]
-}
-""")
+          "date": "Wed, 13 Dec 2222 09:10:11 -0000",
+          "text": "error"}]})
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -151,15 +146,11 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Wed, 13 Dec 2222 09:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "bot_status": [
+    self.writeSurykatkaJson({
+      "bot_status": [
         {
-            "date": "Wed, 13 Dec 2223 09:10:11 -0000",
-            "text": "loop"
-        }
-    ]
-}
-""")
+          "date": "Wed, 13 Dec 2223 09:10:11 -0000",
+          "text": "loop"}]})
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -176,15 +167,11 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Wed, 13 Dec 2223 09:26:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "bot_status": [
+    self.writeSurykatkaJson({
+      "bot_status": [
         {
-            "date": "Wed, 13 Dec 2223 09:10:11 -0000",
-            "text": "loop"
-        }
-    ]
-}
-""")
+          "date": "Wed, 13 Dec 2223 09:10:11 -0000",
+          "text": "loop"}]})
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -200,9 +187,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
       }
     )
-    self.writeSurykatkaJson("""{
-}
-""")
+    self.writeSurykatkaJson({})
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -217,10 +202,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
       }
     )
-    self.writeSurykatkaJson("""{
-  "bot_status": []
-}
-""")
+    self.writeSurykatkaJson({"bot_status": []})
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -241,43 +223,42 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.2",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
@@ -299,46 +280,45 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/",
-            "total_seconds": 4
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/",
+          "total_seconds": 4
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.2",
-            "status_code": 302,
-            "url": "https://www.erp5.com/",
-            "total_seconds": 4
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 302,
+          "url": "https://www.erp5.com/",
+          "total_seconds": 4
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/",
-            "total_seconds": 4
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/",
+          "total_seconds": 4
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
@@ -362,46 +342,45 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/",
-            "total_seconds": 6
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/",
+          "total_seconds": 6
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.2",
-            "status_code": 302,
-            "url": "https://www.erp5.com/",
-            "total_seconds": 0
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 302,
+          "url": "https://www.erp5.com/",
+          "total_seconds": 0
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/",
-            "total_seconds": 4
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/",
+          "total_seconds": 4
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -426,43 +405,42 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.2",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
@@ -483,31 +461,30 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "http://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "http://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.2",
-            "status_code": 302,
-            "url": "http://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 302,
+          "url": "http://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "http://www.erp5.org/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "http://www.erp5.org/"
         }
-    ],
-    "ssl_certificate": [
-    ]
-}
-""")
+      ],
+      "ssl_certificate": [
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
@@ -528,22 +505,20 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson(
-      """{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "http_header_dict": {"Vary": "Accept-Encoding", """
-      """"Cache-Control": "max-age=300, public"},
-            "status_code": 200,
-            "url": "http://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "http_header_dict": {
+            "Vary": "Accept-Encoding", "Cache-Control": "max-age=300, public"},
+          "status_code": 200,
+          "url": "http://www.erp5.com/"
         }
-    ],
-    "ssl_certificate": [
-    ]
-}
-""")
+      ],
+      "ssl_certificate": [
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
@@ -565,22 +540,21 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson(
-      """{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "http_header_dict": {"Vary": "Accept-Encoding,Cookie", """
-      """"Cache-Control": "max-age=300, public"},
-            "status_code": 200,
-            "url": "http://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "http_header_dict": {
+            "Vary": "Accept-Encoding,Cookie",
+            "Cache-Control": "max-age=300, public"},
+          "status_code": 200,
+          "url": "http://www.erp5.com/"
         }
-    ],
-    "ssl_certificate": [
-    ]
-}
-""")
+      ],
+      "ssl_certificate": [
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -603,43 +577,42 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.2",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
@@ -660,25 +633,24 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'certificate-expiration-days': '2'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Sun, 30 Dec 2019 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Sun, 30 Dec 2019 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
     self.assertPassedMessage(
@@ -699,25 +671,24 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'certificate-expiration-days': '2'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Sat, 28 Dec 2019 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Sat, 28 Dec 2019 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -738,25 +709,24 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Sat, 28 Dec 2019 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Sat, 28 Dec 2019 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -777,25 +747,24 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Thu, 26 Dec 2019 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Thu, 26 Dec 2019 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -817,25 +786,24 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
-    ],
-    "ssl_certificate": [
+    self.writeSurykatkaJson({
+      "http_query": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -857,31 +825,30 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.2",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/"
         }
-    ],
-    "ssl_certificate": [
-    ]
-}
-""")
+      ],
+      "ssl_certificate": [
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -902,29 +869,28 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.2",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -945,43 +911,42 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.2",
-            "status_code": 301,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 301,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -1002,31 +967,30 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": %s,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": status_code,
+          "url": "https://www.erp5.com/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""" % status_code)
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -1061,43 +1025,42 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 301,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 301,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.4",
-            "status_code": 301,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.4",
+          "status_code": 301,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -1120,43 +1083,42 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.4",
-            "status_code": 301,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.4",
+          "status_code": 301,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "176.31.129.213",
-            "status_code": 200,
-            "url": "https://www.erp5.org/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
@@ -1180,37 +1142,36 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
-    self.writeSurykatkaJson("""{
-    "http_query": [
+    self.writeSurykatkaJson({
+      "http_query": [
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.1",
-            "status_code": 302,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/"
         },
         {
-            "date": "Wed, 11 Dec 2019 09:35:28 -0000",
-            "ip": "127.0.0.4",
-            "status_code": 301,
-            "url": "https://www.erp5.com/"
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.4",
+          "status_code": 301,
+          "url": "https://www.erp5.com/"
         }
-    ],
-    "ssl_certificate": [
+      ],
+      "ssl_certificate": [
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.1",
-            "not_after": null
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": None
         },
         {
-            "date": "Fri, 27 Dec 2019 14:43:26 -0000",
-            "hostname": "www.erp5.com",
-            "ip": "127.0.0.2",
-            "not_after": null
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": None
         }
-    ]
-}
-""")
+      ]
+    })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
