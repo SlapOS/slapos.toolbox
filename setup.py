@@ -12,7 +12,7 @@ for f in sorted(glob.glob(os.path.join('slapos', 'README.*.rst'))):
 long_description += open("CHANGES.txt").read() + "\n"
 
 prediction_require = ['statsmodels', 'scipy', 'pandas']
-test_require = ['mock', 'cryptography',] + prediction_require
+test_require = ['mock', 'cryptography', 'websockets; python_version>="3"',] + prediction_require
 
 setup(name=name,
       version=version,
@@ -54,6 +54,7 @@ setup(name=name,
         'six',
         'cryptography',
         'click',
+        'websocket-client; python_version>="3"',
         'ipaddress; python_version<"3"',
       ),
       extras_require = {
