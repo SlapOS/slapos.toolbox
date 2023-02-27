@@ -205,12 +205,13 @@ class RunPromise(GenericPromise):
     surykatka_key = 'http_query'
 
     def appendError(msg, *args):
-      self.appendErrorMessage(key + ': ERROR ' + msg % args)
+      self.appendErrorMessage('ERROR ' + msg % args)
 
     if surykatka_key not in self.surykatka_json:
-      appendError(
-        'No key %r. If the error persist, please update surykatka.' % (
-          surykatka_key,))
+      self.appendErrorMessage(
+        '%s: ERROR No key %r. If the error persist, please update '
+        'surykatka.' % (
+          key, surykatka_key,))
       return
 
     url = self.getConfig('url')
@@ -219,22 +220,32 @@ class RunPromise(GenericPromise):
     entry_list = [
       q for q in self.surykatka_json[surykatka_key] if q['url'] == url]
     if len(entry_list) == 0:
-      appendError('No data')
+      self.appendErrorMessage('%s: ERROR No data' % (key,))
       return
+    prefix_added = False
     for entry in entry_list:
       if maximum_elapsed_time:
         if 'total_seconds' in entry:
           maximum_elapsed_time = float(maximum_elapsed_time)
           if entry['total_seconds'] == 0.:
+            if not prefix_added:
+              self.appendErrorMessage('%s:' % (key,))
+              prefix_added = True
             appendError('IP %s failed to reply' % (entry['ip']))
           elif entry['total_seconds'] > maximum_elapsed_time:
+            if not prefix_added:
+              self.appendErrorMessage('%s:' % (key,))
+              prefix_added = True
             appendError(
               'IP %s replied in more time than maximum %.2fs' %
               (entry['ip'], maximum_elapsed_time))
           else:
+            if not prefix_added:
+              self.appendInfoMessage('%s:' % (key,))
+              prefix_added = True
             self.appendInfoMessage(
-              '%s: OK IP %s replied in less time than maximum %.2fs' % (
-                key, entry['ip'], maximum_elapsed_time))
+              'OK IP %s replied in less time than maximum %.2fs' % (
+                entry['ip'], maximum_elapsed_time))
 
   def sense(self):
     """
