@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import glob
 import os
 
-version = '0.130'
+version = '0.131'
 name = 'slapos.toolbox'
 long_description = open("README.rst").read() + "\n"
 
@@ -29,6 +29,7 @@ setup(name=name,
       maintainer="Nexedi",
       maintainer_email="info@nexedi.com",
       url="https://lab.nexedi.com/nexedi/slapos.toolbox",
+      python_requires='>=2.7',
       install_requires=(
         'Flask', # needed by servers
         'atomize', # needed by pubsub

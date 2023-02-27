@@ -1,6 +1,7 @@
-unreleased
-==========
+0.131 (2023-03-01)
+==================
 
+* promise/plugin: add check_websocket_available promise
 * runner: totally remove runner directory (webrunner is replaced by Theia)
 
 0.130 (2023-02-08)
