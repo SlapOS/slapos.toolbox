@@ -8,6 +8,7 @@ import tempfile
 
 
 class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
+  maxDiff = None  # show full diffs for test readability
   promise_name = 'check-surykatka-json.py'
 
   def setUp(self):
