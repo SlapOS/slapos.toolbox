@@ -324,8 +324,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "https://www.erp5.com/ : http_query: OK with status code 302 on IPs "
       "127.0.0.1 127.0.0.2 ssl_certificate: OK Certificate on 127.0.0.1 will "
       "expire on Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 days "
-      "elapsed_time: OK IP 127.0.0.1 replied in less time than maximum 5.00s "
-      "elapsed_time: OK IP 127.0.0.2 replied in less time than maximum 5.00s"
+      "elapsed_time: OK IP 127.0.0.1 replied < 5.00s OK IP 127.0.0.2 replied "
+      "< 5.00s"
     )
 
   def test_maximum_elapsed_time_too_long(self):
@@ -384,11 +384,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.launcher.run()
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
-      "https://www.erp5.com/ : elapsed_time: ERROR IP 127.0.0.1 replied in "
-      "more time than maximum 5.00s elapsed_time: ERROR IP 127.0.0.2 failed "
-      "to reply http_query: OK with status code 302 on IPs 127.0.0.1 "
-      "127.0.0.2 ssl_certificate: OK Certificate on 127.0.0.1 will expire on "
-      "Mon, 13 Jul 2020 12:00:00 -0000, which is more than 15 days"
+      "https://www.erp5.com/ : elapsed_time: ERROR IP 127.0.0.1 replied > "
+      "5.00s ERROR IP 127.0.0.2 failed to reply http_query: OK with status "
+      "code 302 on IPs 127.0.0.1 127.0.0.2 ssl_certificate: OK Certificate on "
+      "127.0.0.1 will expire on Mon, 13 Jul 2020 12:00:00 -0000, which is "
+      "more than 15 days"
     )
 
   def test_maximum_elapsed_time_no_total_seconds(self):
