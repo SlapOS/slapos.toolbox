@@ -48,7 +48,7 @@ class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
       message)
 
 
-class TestCheckSurykatkaJSON(CheckSurykatkaJSONMixin):
+class TestCheckSurykatkaJSONBase(CheckSurykatkaJSONMixin):
   def test_no_config(self):
     self.writeSurykatkaPromise()
     self.configureLauncher(enable_anomaly=True)
@@ -77,8 +77,6 @@ class TestCheckSurykatkaJSON(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "ERROR loading JSON from '%s'" % (self.json_file,))
 
-
-class TestCheckSurykatkaJSONUnknownReport(CheckSurykatkaJSONMixin):
   def test(self):
     self.writeSurykatkaPromise(
       {
