@@ -1,10 +1,12 @@
 from slapos.grid.promise import PromiseError
 from slapos.test.promise.plugin import TestPromisePluginMixin
 
+import email
 import json
 import os
 import shutil
 import tempfile
+import time
 
 
 class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
@@ -16,6 +18,18 @@ class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
     self.json_file = os.path.join(self.working_directory, 'surykatka.json')
     self.addCleanup(shutil.rmtree, self.working_directory)
     TestPromisePluginMixin.setUp(self)
+
+    now = time.time()
+    minute = 60
+    day = 24 * 3600
+    create_date = email.utils.formatdate
+    self.time_past14d = create_date(now - 14 * day)
+    self.time_past20m = create_date(now - 20 * minute)
+    self.time_past2m = create_date(now - 2 * minute)
+    self.time_future20m = create_date(now + 20 * minute)
+    self.time_future3d = create_date(now + 3 * day)
+    self.time_future14d = create_date(now + 14 * day)
+    self.time_future60d = create_date(now + 60 * day)
 
   def writeSurykatkaPromise(self, d=None):
     if d is None:
@@ -100,13 +114,12 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       {
         'report': 'bot_status',
         'json-file': self.json_file,
-        'test-utcnow': 'Wed, 13 Dec 2222 09:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
       "bot_status": [
         {
-          "date": "Wed, 13 Dec 2222 09:10:11 -0000",
+          "date": self.time_past2m,
           "text": "loop"}]})
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
@@ -120,7 +133,6 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       {
         'report': 'bot_status',
         'json-file': self.json_file,
-        'test-utcnow': 'Wed, 13 Dec 2222 09:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -142,13 +154,12 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       {
         'report': 'bot_status',
         'json-file': self.json_file,
-        'test-utcnow': 'Wed, 13 Dec 2222 09:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
       "bot_status": [
         {
-          "date": "Wed, 13 Dec 2223 09:10:11 -0000",
+          "date": self.time_future20m,
           "text": "loop"}]})
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -163,13 +174,12 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       {
         'report': 'bot_status',
         'json-file': self.json_file,
-        'test-utcnow': 'Wed, 13 Dec 2223 09:26:12 -0000'
       }
     )
     self.writeSurykatkaJson({
       "bot_status": [
         {
-          "date": "Wed, 13 Dec 2223 09:10:11 -0000",
+          "date": self.time_past20m,
           "text": "loop"}]})
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -219,7 +229,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'url': 'https://www.erp5.com/',
         'status-code': '302',
         'ip-list': '127.0.0.1 127.0.0.2',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -248,13 +257,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -276,7 +285,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'status-code': '302',
         'ip-list': '127.0.0.1 127.0.0.2',
         'maximum-elapsed-time': '5',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -308,13 +316,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -338,7 +346,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'status-code': '302',
         'ip-list': '127.0.0.1 127.0.0.2',
         'maximum-elapsed-time': '5',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -370,13 +377,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -401,7 +408,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'status-code': '302',
         'ip-list': '127.0.0.1 127.0.0.2',
         'maximum-elapsed-time': '5',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -430,13 +436,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -457,7 +463,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'url': 'http://www.erp5.com/',
         'status-code': '302',
         'ip-list': '127.0.0.1 127.0.0.2',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -501,7 +506,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'status-code': '200',
         'http-header-dict': '{"Vary": "Accept-Encoding", "Cache-Control": '
         '"max-age=300, public"}',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -536,7 +540,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'status-code': '200',
         'http-header-dict': '{"Vary": "Accept-Encoding", "Cache-Control": '
                             '"max-age=300, public"}',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -573,7 +576,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'https://www.erp5.com/',
         'status-code': '302',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -602,13 +604,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -628,7 +630,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'https://www.erp5.com/',
         'status-code': '302',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000',
         'certificate-expiration-days': '2'
       }
     )
@@ -646,7 +647,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Sun, 30 Dec 2019 12:00:00 -0000"
+          "not_after": self.time_future3d
         }
       ]
     })
@@ -665,7 +666,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'https://www.erp5.com/',
         'status-code': '302',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000',
         'certificate-expiration-days': '2'
       }
     )
@@ -683,7 +683,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Sat, 28 Dec 2019 12:00:00 -0000"
+          "not_after": self.time_future1d
         }
       ]
     })
@@ -703,7 +703,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'https://www.erp5.com/',
         'status-code': '302',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -720,7 +719,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Sat, 28 Dec 2019 12:00:00 -0000"
+          "not_after": self.time_future14d
         }
       ]
     })
@@ -740,7 +739,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'https://www.erp5.com/',
         'status-code': '302',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -757,7 +755,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Thu, 26 Dec 2019 12:00:00 -0000"
+          "not_after": self.time_past14d
         }
       ]
     })
@@ -777,7 +775,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'url': 'https://www.erp5.com/',
         'status-code': '302',
         'ip-list': '127.0.0.1 127.0.0.2',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -788,13 +785,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -817,7 +814,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'url': 'https://www.erp5.com/',
         'status-code': '302',
         'ip-list': '127.0.0.1 127.0.0.2',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -826,13 +822,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -856,7 +852,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'url': 'https://www.erp5.com/',
         'status-code': '302',
         'ip-list': '127.0.0.1 127.0.0.2',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -900,7 +895,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'url': 'https://www.erp5.com/',
         'status-code': '302',
         'ip-list': '127.0.0.1 127.0.0.2',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -942,7 +936,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'https://www.erp5.com/',
         'status-code': '301',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -971,13 +964,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -998,7 +991,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json-file': self.json_file,
         'url': 'https://www.erp5.com/',
         'status-code': '301',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -1015,13 +1007,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -1055,7 +1047,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'url': 'https://www.erp5.com/',
         'status-code': '301',
         'ip-list': '127.0.0.1 127.0.0.2',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -1084,13 +1075,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -1113,7 +1104,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'url': 'https://www.erp5.com/',
         'status-code': '301',
         'ip-list': '127.0.0.1 127.0.0.2',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
@@ -1142,13 +1132,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         },
         {
           "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
-          "not_after": "Mon, 13 Jul 2020 12:00:00 -0000"
+          "not_after": self.time_future60d
         }
       ]
     })
@@ -1172,7 +1162,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'url': 'https://www.erp5.com/',
         'status-code': '301',
         'ip-list': '127.0.0.1 127.0.0.2',
-        'test-utcnow': 'Fri, 27 Dec 2019 15:11:12 -0000'
       }
     )
     self.writeSurykatkaJson({
