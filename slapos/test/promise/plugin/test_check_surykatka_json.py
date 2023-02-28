@@ -267,52 +267,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
         }
-      ],
-      "dns_query": [
-        {
-            "domain": "www.erp5.com",
-            "rdtype": "A",
-            "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
-            "response": "127.0.0.1, 127.0.0.2"
-        },
-        {
-            "domain": "www.erp5.org",
-            "rdtype": "A",
-            "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
-            "response": "127.0.0.1, 127.0.0.2"
-        },
-      ],
-      "tcp_server": [
-        {
-            "ip": "127.0.0.1",
-            "state": "open",
-            "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
-            "domain": "www.erp5.com, www.erp5.org"
-        },
-        {
-            "ip": "127.0.0.1",
-            "state": "open",
-            "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
-            "domain": "www.erp5.com, www.erp5.org"
-        },
-        {
-            "ip": "127.0.0.2",
-            "state": "open",
-            "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
-            "domain": "www.erp5.com, www.erp5.org"
-        },
-        {
-            "ip": "127.0.0.2",
-            "state": "open",
-            "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
-            "domain": "www.erp5.com, www.erp5.org"
-        },
       ]
     })
     self.configureLauncher(enable_anomaly=True)
