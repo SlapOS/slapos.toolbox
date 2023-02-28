@@ -232,57 +232,6 @@ class RunPromise(GenericPromise):
             "OK resolver %s returned expected set of IPs %s" % (
               entry['resolver_ip'], ' '.join(sorted(ip_set)),))
 
-  def senseTcpServer(self):
-    key = 'tcp_server'
-    error = False
-
-    def appendError(msg, *args):
-      self.error = True
-      self.appendMessage(key + ': ERROR ' + msg % args)
-
-    if key not in self.surykatka_json:
-      appendError("%r not in %r", key, self.json_file)
-      return
-
-    url = self.getConfig('url')
-    parsed_url = urlparse(url)
-    hostname = parsed_url.hostname
-    if parsed_url.port is not None:
-      port = parsed_url.port
-    else:
-      if parsed_url.scheme == 'https':
-        port = 443
-      else:
-        port = 80
-    ip_set = set(self.getConfig('ip-list', '').split())
-
-    entry_list = [
-      q for q in self.surykatka_json[key]
-      if hostname in [
-        r.strip() for r in q['domain'].split(',')] and q['port'] == port]
-    if len(entry_list) == 0:
-      appendError('No data')
-      return
-    db_ip_list = []
-    ok_ip_list = []
-    for entry in entry_list:
-      db_ip_list.append(entry['ip'])
-      if entry['ip'] in ip_set:
-        if entry['state'] == 'closed':
-          appendError("%s:%s closed" % (entry['ip'], port))
-          error = True
-        else:
-          ok_ip_list.append(entry['ip'])
-    if set(db_ip_list) != ip_set:
-      appendError(
-        "IP list %s differes from expected %s" % (
-          ' '.join(sorted(db_ip_list)), ' '.join(sorted(ip_set))))
-      error = True
-    if error:
-      return
-    self.appendMessage(
-      "%s: OK IPs %s reachable " % (key, ' '.join(sorted(ip_set)),))
-
   def senseElapsedTime(self):
     key = 'elapsed_time'
     surykatka_key = 'http_query'
@@ -357,7 +306,6 @@ class RunPromise(GenericPromise):
             self.senseBotStatus()
           elif report == 'http_query':
             self.senseDnsQuery()
-            self.senseTcpServer()
             self.senseHttpQuery()
             self.senseSslCertificate()
             self.senseElapsedTime()
