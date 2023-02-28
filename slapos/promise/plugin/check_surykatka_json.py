@@ -144,7 +144,6 @@ class RunPromise(GenericPromise):
 
   def senseHttpQuery(self):
     key = 'http_query'
-    error = False
 
     def appendError(msg, *args):
       self.error = True
@@ -163,6 +162,11 @@ class RunPromise(GenericPromise):
     if len(entry_list) == 0:
       appendError('No data')
       return
+
+    def addError(msg, *args):
+      self.error = True
+      self.appendMessage('ERROR ' + msg % args)
+    self.appendMessage('%s:' % (key,))
     for entry in entry_list:
       entry_status_code = str(entry['status_code'])
       if entry_status_code != status_code:
@@ -173,33 +177,29 @@ class RunPromise(GenericPromise):
             entry_status_code, status_code_explanation)
         else:
           status_code_explanation = entry_status_code
-        appendError(
-          'IP %s got status code %s instead of %s' % (
+        addError(
+          'IP %s expected status_code %s != %s' % (
             entry['ip'], status_code_explanation, status_code))
-        error = True
-      if http_header_dict and http_header_dict != entry['http_header_dict']:
-        appendError(
-          'HTTP Header dict was %s instead of %s' % (
-            json.dumps(entry['http_header_dict'], sort_keys=True),
-            json.dumps(http_header_dict, sort_keys=True),))
-        error = True
+      else:
+        self.appendMessage(
+          'OK IP %s status_code %s' % (entry['ip'], status_code))
+      if http_header_dict:
+        if http_header_dict != entry['http_header_dict']:
+          addError(
+            'IP %s expected HTTP Header %s != of %s' % (
+              entry['ip'],
+              json.dumps(http_header_dict, sort_keys=True),
+              json.dumps(entry['http_header_dict'], sort_keys=True)))
+        else:
+          self.appendMessage(
+            'OK IP %s HTTP Header %s' % (
+              entry['ip'], json.dumps(http_header_dict, sort_keys=True)))
     db_ip_list = [q['ip'] for q in entry_list]
     if len(ip_list):
       if set(ip_list) != set(db_ip_list):
-        appendError(
-          'expected IPs %s differes from got %s' % (
+        addError(
+          'expected IPs %s != %s' % (
             ' '.join(ip_list), ' '.join(db_ip_list)))
-        error = True
-    if error:
-      return
-    info_message = '%s: OK with status code %s' % (key, status_code)
-    if http_header_dict:
-      info_message += ' and HTTP Header dict %s' % (
-        json.dumps(http_header_dict, sort_keys=True),
-      )
-    if len(ip_list) > 0:
-      info_message += ' on IPs %s' % (' '.join(ip_list))
-    self.appendMessage(info_message)
 
   def senseElapsedTime(self):
     key = 'elapsed_time'
