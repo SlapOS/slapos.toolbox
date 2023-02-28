@@ -155,7 +155,6 @@ class RunPromise(GenericPromise):
 
     url = self.getConfig('url')
     status_code = self.getConfig('status-code')
-    ip_list = self.getConfig('ip-list', '').split()
     http_header_dict = json.loads(self.getConfig('http-header-dict', '{}'))
 
     entry_list = [q for q in self.surykatka_json[key] if q['url'] == url]
@@ -194,12 +193,44 @@ class RunPromise(GenericPromise):
           self.appendMessage(
             'OK IP %s HTTP Header %s' % (
               entry['ip'], json.dumps(http_header_dict, sort_keys=True)))
-    db_ip_list = [q['ip'] for q in entry_list]
-    if len(ip_list):
-      if set(ip_list) != set(db_ip_list):
-        addError(
-          'expected IPs %s != %s' % (
-            ' '.join(ip_list), ' '.join(db_ip_list)))
+
+  def senseDnsQuery(self):
+    key = 'dns_query'
+
+    def appendError(msg, *args):
+      self.error = True
+      self.appendMessage(key + ': ERROR ' + msg % args)
+
+    if key not in self.surykatka_json:
+      appendError("%r not in %r", key, self.json_file)
+      return
+
+    url = self.getConfig('url')
+    hostname = urlparse(url).hostname
+    ip_set = set(self.getConfig('ip-list', '').split())
+
+    entry_list = [
+      q for q in self.surykatka_json[key]
+      if q['domain'] == hostname and q['rdtype'] == 'A']
+    if len(entry_list) == 0:
+      appendError('No data')
+      return
+
+    if len(ip_set):
+      self.appendMessage('%s:' % (key,))
+      for entry in entry_list:
+        response_ip_set = set([
+          q.strip() for q in entry['response'].split(",") if q.strip()])
+        if ip_set != response_ip_set:
+          self.error = True
+          self.appendMessage(
+            "ERROR resolver %s expected %s != %s" % (
+              entry['resolver_ip'], ' '.join(sorted(ip_set)),
+              ' '.join(sorted(response_ip_set)) or "empty-reply"))
+        else:
+          self.appendMessage(
+            "OK resolver %s returned expected set of IPs %s" % (
+              entry['resolver_ip'], ' '.join(sorted(ip_set)),))
 
   def senseElapsedTime(self):
     key = 'elapsed_time'
@@ -274,6 +305,7 @@ class RunPromise(GenericPromise):
           if report == 'bot_status':
             self.senseBotStatus()
           elif report == 'http_query':
+            self.senseDnsQuery()
             self.senseHttpQuery()
             self.senseSslCertificate()
             self.senseElapsedTime()
