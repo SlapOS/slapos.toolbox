@@ -284,6 +284,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
     })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
@@ -292,6 +308,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "https://www.erp5.com/ : "
       "dns_query: OK resolver 1.2.3.4 returned expected set of IPs 127.0.0.1 "
       "127.0.0.2 "
+      "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
@@ -363,6 +380,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
     })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
@@ -371,6 +404,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "https://www.erp5.com/ : "
       "dns_query: OK resolver 1.2.3.4 returned expected set of IPs 127.0.0.1 "
       "127.0.0.2 "
+      "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
@@ -428,7 +462,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_future60d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -437,6 +472,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
@@ -506,6 +542,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
+      ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
       ]
     })
     self.configureLauncher(enable_anomaly=True)
@@ -515,6 +567,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "https://www.erp5.com/ : "
       "dns_query: OK resolver 1.2.3.4 returned expected set of IPs 127.0.0.1 "
       "127.0.0.2 "
+      "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
@@ -570,6 +623,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "open",
+            "port": 80,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 80,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
     })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
@@ -578,6 +647,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "http://www.erp5.com/ : "
       "dns_query: OK resolver 1.2.3.4 returned expected set of IPs "
       "127.0.0.1 127.0.0.2 "
+      "tcp_server: OK IP 127.0.0.1:80 OK IP 127.0.0.2:80 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302"
     )
@@ -622,6 +692,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "open",
+            "port": 80,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 80,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
     })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
@@ -674,6 +760,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "open",
+            "port": 80,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 80,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -747,6 +849,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "response": "176.31.129.213"
         },
       ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
     })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
@@ -802,6 +920,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
     })
     self.configureLauncher(enable_anomaly=True)
     self.launcher.run()
@@ -839,7 +973,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_future1d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -848,6 +983,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 "
       "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 2 days"
     )
@@ -878,7 +1014,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_future14d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -887,6 +1024,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 "
       "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 15 days"
     )
@@ -917,7 +1055,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_past14d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": []
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -926,6 +1065,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 "
       "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 15 days")
 
@@ -956,7 +1096,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_future60d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -965,6 +1106,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: ERROR No data "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
       "127.0.0.2 will expire in > 15 days "
@@ -996,7 +1138,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_future60d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1005,6 +1148,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: ERROR 'http_query' not in %(json_file)r "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
       "127.0.0.2 will expire in > 15 days "
@@ -1046,7 +1190,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "ssl_certificate": [
       ],
       "dns_query": [
-      ]
+      ],
+      "tcp_server": []
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1055,6 +1200,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: ERROR No data"
@@ -1091,7 +1237,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "url": "https://www.erp5.org/"
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": []
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1100,6 +1247,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: ERROR No key 'ssl_certificate'. If the error "
@@ -1150,7 +1298,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_future60d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": []
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1159,6 +1308,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: ERROR IP 127.0.0.1 expected status_code 302 != 301 OK IP "
       "127.0.0.2 status_code 301 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
@@ -1197,7 +1347,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_future60d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1206,6 +1357,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: ERROR IP 127.0.0.1 expected status_code %s != 301 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
       "127.0.0.2 will expire in > 15 days" % (explanation,)
@@ -1268,7 +1420,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_future60d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1277,6 +1430,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 301 OK IP 127.0.0.4 "
       "status_code 301 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
@@ -1328,7 +1482,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": self.time_future60d
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1337,6 +1492,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: ERROR IP 127.0.0.1 expected status_code 302 != 301 OK IP "
       "127.0.0.4 status_code 301 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
@@ -1382,7 +1538,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "not_after": None
         }
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1391,6 +1548,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: ERROR IP 127.0.0.1 expected status_code 302 != 301 OK IP "
       "127.0.0.4 status_code 301 "
       "ssl_certificate: ERROR IP 127.0.0.1 no information ERROR IP 127.0.0.2 "
@@ -1412,7 +1570,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
       ],
-      "dns_query": []
+      "dns_query": [],
+      "tcp_server": [],
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1421,6 +1580,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
       "http_query: ERROR No data "
       "ssl_certificate: ERROR No data elapsed_time: ERROR No data"
     )
@@ -1440,6 +1600,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
       ],
+      "tcp_server": []
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1448,6 +1609,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
       "dns_query: ERROR 'dns_query' not in %(json_file)r "
+      "tcp_server: ERROR No data "
       "http_query: ERROR No data "
       "ssl_certificate: ERROR No data elapsed_time: ERROR No data" % {
         'json_file': self.json_file}
@@ -1484,6 +1646,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
+      "tcp_server": []
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1493,6 +1656,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "https://www.erp5.com/ : "
       "dns_query: ERROR resolver 1.2.3.4 expected 127.0.0.1 127.0.0.2 != "
       "127.0.0.2 127.0.0.3 "
+      "tcp_server: ERROR No data "
       "http_query: ERROR No data "
       "ssl_certificate: ERROR No data elapsed_time: ERROR No data"
     )
@@ -1528,6 +1692,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
     })
     self.configureLauncher(enable_anomaly=True)
     with self.assertRaises(PromiseError):
@@ -1537,6 +1717,162 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "https://www.erp5.com/ : "
       "dns_query: ERROR resolver 1.2.3.4 expected 127.0.0.1 127.0.0.2 != "
       "empty-reply "
+      "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
       "http_query: ERROR No data "
       "ssl_certificate: ERROR No data elapsed_time: ERROR No data"
+    )
+
+  def test_tcp_server_no_ip(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '301',
+        'ip-list': '127.0.0.1 127.0.0.2',
+      }
+    )
+    self.writeSurykatkaJson({
+      "http_query": [
+      ],
+      "ssl_certificate": [
+      ],
+      "dns_query": [
+      ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.3",
+            "state": "filtered",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.4",
+            "state": "open",
+            "port": 80,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
+    })
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : "
+      "dns_query: ERROR No data "
+      "tcp_server: ERROR IP 127.0.0.1:443 ERROR IP 127.0.0.2:443 "
+      "http_query: ERROR No data "
+      "ssl_certificate: ERROR No data elapsed_time: ERROR No data"
+    )
+
+  def test_tcp_server_mismatch(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '301',
+        'ip-list': '127.0.0.1 127.0.0.2',
+      }
+    )
+    self.writeSurykatkaJson({
+      "http_query": [
+      ],
+      "ssl_certificate": [
+      ],
+      "dns_query": [
+      ],
+      "tcp_server": [
+        {
+            "ip": "127.0.0.1",
+            "state": "filtered",
+            "port": 443,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+        {
+            "ip": "127.0.0.2",
+            "state": "open",
+            "port": 80,
+            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
+            "domain": "www.erp5.com"
+        },
+      ]
+    })
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : "
+      "dns_query: ERROR No data "
+      "tcp_server: ERROR IP 127.0.0.1:443 ERROR IP 127.0.0.2:443 "
+      "http_query: ERROR No data "
+      "ssl_certificate: ERROR No data elapsed_time: ERROR No data"
+    )
+
+  def test_tcp_server_no_entry(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '301',
+        'ip-list': '127.0.0.1 127.0.0.2',
+      }
+    )
+    self.writeSurykatkaJson({
+      "http_query": [
+      ],
+      "ssl_certificate": [
+      ],
+      "dns_query": [
+      ],
+      "tcp_server": [
+      ]
+    })
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : "
+      "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
+      "http_query: ERROR No data "
+      "ssl_certificate: ERROR No data elapsed_time: ERROR No data"
+    )
+
+  def test_tcp_server_no_key(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '301',
+        'ip-list': '127.0.0.1 127.0.0.2',
+      }
+    )
+    self.writeSurykatkaJson({
+      "http_query": [
+      ],
+      "ssl_certificate": [
+      ],
+      "dns_query": [
+      ],
+    })
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : "
+      "dns_query: ERROR No data "
+      "tcp_server: ERROR 'tcp_server' not in %(json_file)r "
+      "http_query: ERROR No data "
+      "ssl_certificate: ERROR No data elapsed_time: ERROR No data" % {
+        'json_file': self.json_file}
     )
