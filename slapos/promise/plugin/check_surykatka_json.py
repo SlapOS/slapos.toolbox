@@ -255,12 +255,7 @@ class RunPromise(GenericPromise):
     """
       Check if frontend URL is available
     """
-    test_utcnow = self.getConfig('test-utcnow')
-    if test_utcnow:
-      self.utcnow = datetime.datetime.fromtimestamp(
-        time.mktime(email.utils.parsedate(test_utcnow)))
-    else:
-      self.utcnow = datetime.datetime.utcnow()
+    self.utcnow = datetime.datetime.utcnow()
 
     self.json_file = self.getConfig('json-file', '')
     if not os.path.exists(self.json_file):
