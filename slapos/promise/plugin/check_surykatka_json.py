@@ -101,6 +101,7 @@ class RunPromise(GenericPromise):
       ssl_check = False
       certificate_expiration_days = None
     if not ssl_check:
+      self.appendMessage('%s: OK No check needed' % (key,))
       return
     if certificate_expiration_days is None:
       appendError(
@@ -216,8 +217,8 @@ class RunPromise(GenericPromise):
       appendError('No data')
       return
 
+    self.appendMessage('%s:' % (key,))
     if len(ip_set):
-      self.appendMessage('%s:' % (key,))
       for entry in entry_list:
         response_ip_set = set([
           q.strip() for q in entry['response'].split(",") if q.strip()])
@@ -231,6 +232,8 @@ class RunPromise(GenericPromise):
           self.appendMessage(
             "OK resolver %s returned expected set of IPs %s" % (
               entry['resolver_ip'], ' '.join(sorted(ip_set)),))
+    else:
+      self.appendMessage('OK No check configured')
 
   def senseTcpServer(self):
     key = 'tcp_server'
@@ -262,8 +265,8 @@ class RunPromise(GenericPromise):
     if len(entry_list) == 0:
       appendError('No data')
       return
+    self.appendMessage('%s:' % (key,))
     if len(ip_set) > 0:
-      self.appendMessage('%s:' % (key,))
       for ip in sorted(ip_set):
         ok = False
         for entry in entry_list:
@@ -278,6 +281,8 @@ class RunPromise(GenericPromise):
         else:
           self.error = True
           self.appendMessage('ERROR IP %s:%s' % (ip, port))
+    else:
+      self.appendMessage('OK No check configured')
 
   def senseElapsedTime(self):
     key = 'elapsed_time'
@@ -304,30 +309,23 @@ class RunPromise(GenericPromise):
       self.error = True
       self.appendMessage('%s: ERROR No data' % (key,))
       return
-    prefix_added = False
-    for entry in entry_list:
-      if maximum_elapsed_time:
+    self.appendMessage('%s:' % (key,))
+    if maximum_elapsed_time:
+      for entry in entry_list:
         if 'total_seconds' in entry:
           maximum_elapsed_time = float(maximum_elapsed_time)
           if entry['total_seconds'] == 0.:
-            if not prefix_added:
-              self.appendMessage('%s:' % (key,))
-              prefix_added = True
             appendError('IP %s failed to reply' % (entry['ip']))
           elif entry['total_seconds'] > maximum_elapsed_time:
-            if not prefix_added:
-              self.appendMessage('%s:' % (key,))
-              prefix_added = True
             appendError(
               'IP %s replied > %.2fs' %
               (entry['ip'], maximum_elapsed_time))
           else:
-            if not prefix_added:
-              self.appendMessage('%s:' % (key,))
-              prefix_added = True
             self.appendMessage(
               'OK IP %s replied < %.2fs' % (
                 entry['ip'], maximum_elapsed_time))
+    else:
+      self.appendMessage("OK No check configured")
 
   def sense(self):
     """
