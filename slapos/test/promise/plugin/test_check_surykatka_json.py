@@ -310,7 +310,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days"
+      "127.0.0.2 will expire in > 15 days "
+      "elapsed_time: OK No check configured"
     )
 
   def test_maximum_elapsed_time(self):
@@ -496,19 +497,22 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
-          "url": "https://www.erp5.com/"
+          "url": "https://www.erp5.com/",
+          "total_seconds": 4
         },
         {
           "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
-          "url": "https://www.erp5.com/"
+          "url": "https://www.erp5.com/",
+          "total_seconds": 4
         },
         {
           "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
-          "url": "https://www.erp5.org/"
+          "url": "https://www.erp5.org/",
+          "total_seconds": 4
         }
       ],
       "ssl_certificate": [
@@ -569,7 +573,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days"
+      "127.0.0.2 will expire in > 15 days "
+      "elapsed_time: OK IP 127.0.0.1 replied < 5.00s OK IP 127.0.0.2 replied "
+      "< 5.00s"
     )
 
   def test_http(self):
@@ -647,7 +653,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:80 OK IP 127.0.0.2:80 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
-      "status_code 302"
+      "status_code 302 "
+      "ssl_certificate: OK No check needed "
+      "elapsed_time: OK No check configured"
     )
 
   def test_http_with_header_dict(self):
@@ -712,9 +720,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
       'http://www.erp5.com/ : '
+      'dns_query: OK No check configured '
+      'tcp_server: OK No check configured '
       'http_query: OK IP 176.31.129.213 status_code 200 OK IP '
       '176.31.129.213 HTTP Header {"Cache-Control": "max-age=300, public", '
-      '"Vary": "Accept-Encoding"}'
+      '"Vary": "Accept-Encoding"} '
+      'ssl_certificate: OK No check needed '
+      'elapsed_time: OK No check configured'
     )
 
   def test_http_with_bad_header_dict(self):
@@ -781,10 +793,14 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
       'http://www.erp5.com/ : '
+      'dns_query: OK No check configured '
+      'tcp_server: OK No check configured '
       'http_query: OK IP 176.31.129.213 status_code 200 ERROR IP '
       '176.31.129.213 expected HTTP Header {"Cache-Control": "max-age=300, '
       'public", "Vary": "Accept-Encoding"} != of {"Cache-Control": '
-      '"max-age=300, public", "Vary": "Accept-Encoding,Cookie"}'
+      '"max-age=300, public", "Vary": "Accept-Encoding,Cookie"} '
+      'ssl_certificate: OK No check needed '
+      'elapsed_time: OK No check configured'
     )
 
   def test_no_ip_list(self):
@@ -869,10 +885,13 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
+      "dns_query: OK No check configured "
+      "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days"
+      "127.0.0.2 will expire in > 15 days "
+      "elapsed_time: OK No check configured"
     )
 
   def test_good_certificate_2_day(self):
@@ -940,8 +959,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.assertPassedMessage(
       self.getPromiseResult(self.promise_name),
       "https://www.erp5.com/ : "
+      "dns_query: OK No check configured "
+      "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 "
-      "ssl_certificate: OK IP 127.0.0.1 will expire in > 2 days"
+      "ssl_certificate: OK IP 127.0.0.1 will expire in > 2 days "
+      "elapsed_time: OK No check configured"
     )
 
   def test_expired_certificate_2_day(self):
@@ -983,7 +1005,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "dns_query: ERROR No data "
       "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 "
-      "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 2 days"
+      "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 2 days "
+      "elapsed_time: OK No check configured"
     )
 
   def test_expired_certificate(self):
@@ -1024,7 +1047,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "dns_query: ERROR No data "
       "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 "
-      "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 15 days"
+      "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 15 days "
+      "elapsed_time: OK No check configured"
     )
 
   def test_expired_certificate_before_today(self):
@@ -1065,7 +1089,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "dns_query: ERROR No data "
       "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 "
-      "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 15 days")
+      "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 15 days "
+      "elapsed_time: OK No check configured")
 
   def test_no_http_query_data(self):
     self.writeSurykatkaPromise(
@@ -1201,7 +1226,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "tcp_server: ERROR No data "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
-      "ssl_certificate: ERROR No data"
+      "ssl_certificate: ERROR No data "
+      "elapsed_time: OK No check configured"
     )
 
   def test_no_ssl_certificate(self):
@@ -1249,7 +1275,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
       "ssl_certificate: ERROR No key 'ssl_certificate'. If the error "
-      "persist, please update surykatka."
+      "persist, please update surykatka. "
+      "elapsed_time: OK No check configured"
     )
 
   def test_bad_code(self):
@@ -1310,7 +1337,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "http_query: ERROR IP 127.0.0.1 expected status_code 302 != 301 OK IP "
       "127.0.0.2 status_code 301 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days"
+      "127.0.0.2 will expire in > 15 days "
+      "elapsed_time: OK No check configured"
     )
 
   def _test_bad_code_explanation(self, status_code, explanation):
@@ -1358,7 +1386,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "tcp_server: ERROR No data "
       "http_query: ERROR IP 127.0.0.1 expected status_code %s != 301 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days" % (explanation,)
+      "127.0.0.2 will expire in > 15 days "
+      "elapsed_time: OK No check configured" % (explanation,)
     )
 
   def test_bad_code_explanation_520(self):
@@ -1432,7 +1461,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "http_query: OK IP 127.0.0.1 status_code 301 OK IP 127.0.0.4 "
       "status_code 301 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days"
+      "127.0.0.2 will expire in > 15 days "
+      "elapsed_time: OK No check configured"
     )
 
   def test_bad_ip_status_code(self):
@@ -1494,7 +1524,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "http_query: ERROR IP 127.0.0.1 expected status_code 302 != 301 OK IP "
       "127.0.0.4 status_code 301 "
       "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days"
+      "127.0.0.2 will expire in > 15 days "
+      "elapsed_time: OK No check configured"
     )
 
   def test_https_no_cert(self):
@@ -1550,7 +1581,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "http_query: ERROR IP 127.0.0.1 expected status_code 302 != 301 OK IP "
       "127.0.0.4 status_code 301 "
       "ssl_certificate: ERROR IP 127.0.0.1 no information ERROR IP 127.0.0.2 "
-      "no information"
+      "no information "
+      "elapsed_time: OK No check configured"
     )
 
   def test_dns_query_no_entry(self):
