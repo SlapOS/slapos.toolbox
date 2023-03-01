@@ -311,8 +311,10 @@ class RunPromise(GenericPromise):
       return
     self.appendMessage('%s:' % (key,))
     if maximum_elapsed_time:
+      found = False
       for entry in entry_list:
         if 'total_seconds' in entry:
+          found = True
           maximum_elapsed_time = float(maximum_elapsed_time)
           if entry['total_seconds'] == 0.:
             appendError('IP %s failed to reply' % (entry['ip']))
@@ -324,6 +326,10 @@ class RunPromise(GenericPromise):
             self.appendMessage(
               'OK IP %s replied < %.2fs' % (
                 entry['ip'], maximum_elapsed_time))
+      if not found:
+        appendError(
+          "No entry with total_seconds found. If the error persist, please "
+          "update surykatka")
     else:
       self.appendMessage("OK No check configured")
 
