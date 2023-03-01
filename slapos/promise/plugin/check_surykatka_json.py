@@ -8,6 +8,7 @@ import json
 import os
 import time
 from six.moves.urllib.parse import urlparse
+import operator
 
 
 @implementer(interface.IPromise)
@@ -126,7 +127,7 @@ class RunPromise(GenericPromise):
     def addError(msg, *args):
       self.error = True
       self.appendMessage('ERROR ' + msg % args)
-    for entry in entry_list:
+    for entry in sorted(entry_list, key=operator.itemgetter('ip')):
       timetuple = email.utils.parsedate(entry['not_after'])
       if timetuple is None:
         addError('IP %s no information' % (entry['ip'],))
@@ -167,7 +168,7 @@ class RunPromise(GenericPromise):
       self.error = True
       self.appendMessage('ERROR ' + msg % args)
     self.appendMessage('%s:' % (key,))
-    for entry in entry_list:
+    for entry in sorted(entry_list, key=operator.itemgetter('ip')):
       entry_status_code = str(entry['status_code'])
       if entry_status_code != status_code:
         status_code_explanation = self.EXTENDED_STATUS_CODE_MAPPING.get(
@@ -219,7 +220,7 @@ class RunPromise(GenericPromise):
 
     self.appendMessage('%s:' % (key,))
     if len(ip_set):
-      for entry in entry_list:
+      for entry in sorted(entry_list, key=operator.itemgetter('resolver_ip')):
         response_ip_set = set([
           q.strip() for q in entry['response'].split(",") if q.strip()])
         if ip_set != response_ip_set:
@@ -269,7 +270,7 @@ class RunPromise(GenericPromise):
     if len(ip_set) > 0:
       for ip in sorted(ip_set):
         ok = False
-        for entry in entry_list:
+        for entry in sorted(entry_list, key=operator.itemgetter('ip')):
           if entry['ip'] == ip:
             if entry['state'] == 'closed':
               ok = False
@@ -312,7 +313,7 @@ class RunPromise(GenericPromise):
     self.appendMessage('%s:' % (key,))
     if maximum_elapsed_time:
       found = False
-      for entry in entry_list:
+      for entry in sorted(entry_list, key=operator.itemgetter('ip')):
         if 'total_seconds' in entry:
           found = True
           maximum_elapsed_time = float(maximum_elapsed_time)
