@@ -482,6 +482,71 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "127.0.0.2 failed to reply"
     )
 
+  def test_maximum_elapsed_no_match(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.erp5.com/',
+        'status-code': '302',
+        'ip-list': '127.0.0.1 127.0.0.2',
+        'maximum-elapsed-time': '5',
+      }
+    )
+    self.writeSurykatkaJson({
+      "http_query": [
+        {
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.erp5.com/",
+        },
+        {
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "127.0.0.2",
+          "status_code": 302,
+          "url": "https://www.erp5.com/",
+        },
+        {
+          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
+          "ip": "176.31.129.213",
+          "status_code": 200,
+          "url": "https://www.erp5.org/",
+        }
+      ],
+      "ssl_certificate": [
+        {
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.1",
+          "not_after": self.time_future60d
+        },
+        {
+          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
+          "hostname": "www.erp5.com",
+          "ip": "127.0.0.2",
+          "not_after": self.time_future60d
+        }
+      ],
+      "dns_query": [],
+      "tcp_server": [],
+    })
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "https://www.erp5.com/ : "
+      "dns_query: ERROR No data "
+      "tcp_server: ERROR No data "
+      "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
+      "status_code 302 "
+      "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
+      "127.0.0.2 will expire in > 15 days "
+      "elapsed_time: ERROR No entry with total_seconds found. If the error "
+      "persist, please update surykatka"
+    )
+
   def test_maximum_elapsed_time_no_total_seconds(self):
     self.writeSurykatkaPromise(
       {

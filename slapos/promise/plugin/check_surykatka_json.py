@@ -327,7 +327,9 @@ class RunPromise(GenericPromise):
               'OK IP %s replied < %.2fs' % (
                 entry['ip'], maximum_elapsed_time))
       if not found:
-        appendError("No matching entry found")
+        appendError(
+          "No entry with total_seconds found. If the error persist, please "
+          "update surykatka")
     else:
       self.appendMessage("OK No check configured")
 
