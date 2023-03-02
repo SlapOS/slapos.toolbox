@@ -146,6 +146,19 @@ class TestCheckCertificate(TestPromisePluginMixin):
         self.certificate_path, self.key_path)
     )
 
+  def test_no_key_provided(self):
+    self.createKeyCertificate()
+    self.writePromise({
+      'certificate': self.certificate_path,
+    })
+    self.configureLauncher()
+    self.launcher.run()
+    self.assertPassedMessage(
+      self.getPromiseResult(self.promise_name),
+      "OK Certificate '%s' is ok, no key provided" % (
+        self.certificate_path,)
+    )
+
   def test_no_key(self):
     self.createKeyCertificate()
     nokey_path = os.path.join(self.tempdir, 'nokey.pem')
@@ -206,6 +219,20 @@ class TestCheckCertificate(TestPromisePluginMixin):
         self.certificate_path,)
     )
 
+  def test_expires_no_key(self):
+    self.createKeyCertificate(days=5)
+    self.writePromise({
+      'certificate': self.certificate_path,
+    })
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "ERROR Certificate '%s' will expire in less than 15 days" % (
+        self.certificate_path,)
+    )
+
   def test_expires_custom(self):
     self.createKeyCertificate(days=19)
     self.writePromise({
@@ -222,11 +249,40 @@ class TestCheckCertificate(TestPromisePluginMixin):
         self.certificate_path,)
     )
 
+  def test_expires_custom_no_key(self):
+    self.createKeyCertificate(days=19)
+    self.writePromise({
+      'certificate': self.certificate_path,
+      'certificate-expiration-days': '20'
+    })
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "ERROR Certificate '%s' will expire in less than 20 days" % (
+        self.certificate_path,)
+    )
+
   def test_expires_bad_value(self):
     self.createKeyCertificate(days=14)
     self.writePromise({
       'certificate': self.certificate_path,
       'key': self.key_path,
+      'certificate-expiration-days': 'bad'
+    })
+    self.configureLauncher()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "ERROR certificate-expiration-days is wrong: 'bad'"
+    )
+
+  def test_expires_bad_value_no_key(self):
+    self.createKeyCertificate(days=14)
+    self.writePromise({
+      'certificate': self.certificate_path,
       'certificate-expiration-days': 'bad'
     })
     self.configureLauncher()

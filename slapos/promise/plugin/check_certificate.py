@@ -16,7 +16,7 @@ class RunPromise(GenericPromise):
     """
 
     certificate_file = self.getConfig('certificate')
-    key_file = self.getConfig('key')
+    key_file = self.getConfig('key', None)
 
     try:
       certificate_expiration_days = int(
@@ -36,22 +36,6 @@ class RunPromise(GenericPromise):
           certificate_file, e))
       return
 
-    try:
-      with open(key_file, 'r') as fh:
-        key = serialization.load_pem_private_key(
-          str2bytes(fh.read()), None, default_backend())
-    except Exception as e:
-      self.logger.error(
-        'ERROR Problem loading key %r, error: %s' % (key_file, e))
-      return
-
-    if certificate.public_key().public_numbers() != \
-       key.public_key().public_numbers():
-      self.logger.error(
-        'ERROR Certificate %r does not match key %r' % (
-          certificate_file, key_file))
-      return
-
     if certificate.not_valid_after - datetime.timedelta(
        days=certificate_expiration_days) < datetime.datetime.utcnow():
       self.logger.error(
@@ -59,5 +43,26 @@ class RunPromise(GenericPromise):
          certificate_file, certificate_expiration_days))
       return
 
-    self.logger.info(
-      'OK Certificate %r and key %r are ok' % (certificate_file, key_file))
+    if key_file is not None:
+      try:
+        with open(key_file, 'r') as fh:
+          key = serialization.load_pem_private_key(
+            str2bytes(fh.read()), None, default_backend())
+      except Exception as e:
+        self.logger.error(
+          'ERROR Problem loading key %r, error: %s' % (key_file, e))
+        return
+
+      if certificate.public_key().public_numbers() != \
+         key.public_key().public_numbers():
+        self.logger.error(
+          'ERROR Certificate %r does not match key %r' % (
+            certificate_file, key_file))
+        return
+
+    if key_file:
+      self.logger.info(
+        'OK Certificate %r and key %r are ok' % (certificate_file, key_file))
+    else:
+      self.logger.info(
+        'OK Certificate %r is ok, no key provided' % (certificate_file,))
