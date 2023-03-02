@@ -234,19 +234,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/"
@@ -254,13 +251,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -271,14 +266,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
@@ -287,14 +280,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -328,21 +319,18 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/",
           "total_seconds": 4
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
           "url": "https://www.erp5.com/",
           "total_seconds": 4
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/",
@@ -351,13 +339,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -368,14 +354,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
@@ -384,14 +368,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -426,21 +408,18 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/",
           "total_seconds": 6
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
           "url": "https://www.erp5.com/",
           "total_seconds": 0
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/",
@@ -449,13 +428,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -494,19 +471,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/",
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
           "url": "https://www.erp5.com/",
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/",
@@ -514,13 +488,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -559,21 +531,18 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/",
           "total_seconds": 4
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
           "url": "https://www.erp5.com/",
           "total_seconds": 4
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/",
@@ -582,13 +551,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -599,14 +566,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
@@ -615,14 +580,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -656,19 +619,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "http://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
           "url": "http://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "http://www.erp5.org/"
@@ -681,14 +641,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
@@ -697,14 +655,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "open",
             "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -737,7 +693,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "http_header_dict": {
             "Vary": "Accept-Encoding", "Cache-Control": "max-age=300, public"},
@@ -752,14 +707,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
@@ -768,14 +721,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "open",
             "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -808,7 +759,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "http_header_dict": {
             "Vary": "Accept-Encoding,Cookie",
@@ -824,14 +774,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
@@ -840,14 +788,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "open",
             "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -880,19 +826,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/"
@@ -900,13 +843,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -917,14 +858,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "176.31.129.213"
         },
       ],
@@ -933,14 +872,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -972,7 +909,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
@@ -980,7 +916,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future3d
@@ -991,14 +926,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
@@ -1007,14 +940,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -1044,7 +975,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
@@ -1052,7 +982,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future1d
@@ -1086,7 +1015,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
@@ -1094,7 +1022,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future14d
@@ -1128,7 +1055,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
@@ -1136,7 +1062,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_past14d
@@ -1172,13 +1097,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -1214,13 +1137,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -1257,19 +1178,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/"
@@ -1308,19 +1226,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/"
@@ -1356,19 +1271,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.2",
           "status_code": 301,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/"
@@ -1376,13 +1288,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -1418,7 +1328,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": status_code,
           "url": "https://www.erp5.com/"
@@ -1426,13 +1335,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -1480,19 +1387,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 301,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.4",
           "status_code": 301,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/"
@@ -1500,13 +1404,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -1543,19 +1445,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.4",
           "status_code": 301,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "176.31.129.213",
           "status_code": 200,
           "url": "https://www.erp5.org/"
@@ -1563,13 +1462,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": self.time_future60d
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
@@ -1606,13 +1503,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.writeSurykatkaJson({
       "http_query": [
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.1",
           "status_code": 302,
           "url": "https://www.erp5.com/"
         },
         {
-          "date": "Wed, 11 Dec 2019 09:35:28 -0000",
           "ip": "127.0.0.4",
           "status_code": 301,
           "url": "https://www.erp5.com/"
@@ -1620,13 +1515,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       ],
       "ssl_certificate": [
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.1",
           "not_after": None
         },
         {
-          "date": "Fri, 27 Dec 2019 14:43:26 -0000",
           "hostname": "www.erp5.com",
           "ip": "127.0.0.2",
           "not_after": None
@@ -1731,14 +1624,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.2, 127.0.0.3"
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
@@ -1778,14 +1669,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "www.erp5.com",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": ""
         },
         {
             "domain": "www.erp5.org",
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
-            "date": "Tue, 28 Feb 2023 12:40:29 -0000",
             "response": "127.0.0.1, 127.0.0.2"
         },
       ],
@@ -1794,14 +1683,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -1842,14 +1729,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.3",
             "state": "filtered",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.4",
             "state": "open",
             "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
@@ -1889,14 +1774,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "ip": "127.0.0.1",
             "state": "filtered",
             "port": 443,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
         {
             "ip": "127.0.0.2",
             "state": "open",
             "port": 80,
-            "date": "Tue, 28 Feb 2023 09:27:26 -0000",
             "domain": "www.erp5.com"
         },
       ]
