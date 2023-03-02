@@ -126,11 +126,11 @@ class RunPromise(GenericPromise):
         if certificate_expiration_time - datetime.timedelta(
           days=certificate_expiration_days) < self.utcnow:
           self.appendError(
-            'IP %s will expire in < %s days' % (
+            'IP %s expires in < %s days' % (
               entry['ip'], certificate_expiration_days))
         else:
           self.appendOk(
-            'IP %s will expire in > %s days' % (
+            'IP %s expires in > %s days' % (
               entry['ip'], certificate_expiration_days))
 
   def senseHttpQuery(self):
@@ -203,12 +203,12 @@ class RunPromise(GenericPromise):
           q.strip() for q in entry['response'].split(",") if q.strip()])
         if ip_set != response_ip_set:
           self.appendError(
-            "resolver %s expected %s != %s" % (
+            "resolver's %s: %s != %s" % (
               entry['resolver_ip'], ' '.join(sorted(ip_set)),
               ' '.join(sorted(response_ip_set)) or "empty-reply"))
         else:
           self.appendOk(
-            "resolver %s returned expected set of IPs %s" % (
+            "resolver's %s: %s" % (
               entry['resolver_ip'], ' '.join(sorted(ip_set)),))
     else:
       self.appendOk('No check configured')
