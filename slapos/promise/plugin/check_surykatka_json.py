@@ -107,9 +107,9 @@ class RunPromise(GenericPromise):
       self.appendError('url is incorrect')
       return
     if key not in self.surykatka_json:
-      self.appendError(
-        'No key %r. If the error persist, please update surykatka.' % (key,))
+      self.appendError("%r not in %r" % (key, self.json_file))
       return
+
     entry_list = [
       q for q in self.surykatka_json[key] if q['hostname'] == hostname]
     if len(entry_list) == 0:
@@ -169,7 +169,7 @@ class RunPromise(GenericPromise):
       if http_header_dict:
         if http_header_dict != entry['http_header_dict']:
           self.appendError(
-            'IP %s expected HTTP Header %s != of %s' % (
+            'IP %s expected HTTP Header %s != %s' % (
               entry['ip'],
               json.dumps(http_header_dict, sort_keys=True),
               json.dumps(entry['http_header_dict'], sort_keys=True)))
@@ -193,11 +193,11 @@ class RunPromise(GenericPromise):
     entry_list = [
       q for q in self.surykatka_json[key]
       if q['domain'] == hostname and q['rdtype'] == 'A']
-    if len(entry_list) == 0:
-      self.appendError('No data')
-      return
-
     if len(ip_set):
+      if len(entry_list) == 0:
+        self.appendError('No data')
+        return
+
       for entry in sorted(entry_list, key=operator.itemgetter('resolver_ip')):
         response_ip_set = set([
           q.strip() for q in entry['response'].split(",") if q.strip()])
@@ -232,6 +232,9 @@ class RunPromise(GenericPromise):
       else:
         port = 80
     ip_set = set(self.getConfig('ip-list', '').split())
+    if len(ip_set) == 0:
+      self.appendOk('No check configured')
+      return
 
     entry_list = [
       q for q in self.surykatka_json[key]
@@ -240,22 +243,19 @@ class RunPromise(GenericPromise):
     if len(entry_list) == 0:
       self.appendError('No data')
       return
-    if len(ip_set) > 0:
-      for ip in sorted(ip_set):
-        ok = False
-        for entry in sorted(entry_list, key=operator.itemgetter('ip')):
-          if entry['ip'] == ip:
-            if entry['state'] == 'closed':
-              ok = False
-              break
-            if entry['state'] == 'open':
-              ok = True
-        if ok:
-          self.appendOk('IP %s:%s' % (ip, port))
-        else:
-          self.appendError('IP %s:%s' % (ip, port))
-    else:
-      self.appendOk('No check configured')
+    for ip in sorted(ip_set):
+      ok = False
+      for entry in sorted(entry_list, key=operator.itemgetter('ip')):
+        if entry['ip'] == ip:
+          if entry['state'] == 'closed':
+            ok = False
+            break
+          if entry['state'] == 'open':
+            ok = True
+      if ok:
+        self.appendOk('IP %s:%s' % (ip, port))
+      else:
+        self.appendError('IP %s:%s' % (ip, port))
 
   def senseElapsedTime(self):
     key = 'elapsed_time'
@@ -263,9 +263,7 @@ class RunPromise(GenericPromise):
     surykatka_key = 'http_query'
 
     if surykatka_key not in self.surykatka_json:
-      self.appendError(
-        'No key %r. If the error persist, please update surykatka.' % (
-          surykatka_key,))
+      self.appendError("%r not in %r" % (surykatka_key, self.json_file))
       return
 
     url = self.getConfig('url')
