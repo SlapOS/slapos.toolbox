@@ -126,11 +126,11 @@ class RunPromise(GenericPromise):
         if certificate_expiration_time - datetime.timedelta(
           days=certificate_expiration_days) < self.utcnow:
           self.appendError(
-            'IP %s will expire in < %s days' % (
+            'IP %s expires in < %s days' % (
               entry['ip'], certificate_expiration_days))
         else:
           self.appendOk(
-            'IP %s will expire in > %s days' % (
+            'IP %s expires in > %s days' % (
               entry['ip'], certificate_expiration_days))
 
   def senseHttpQuery(self):
@@ -161,7 +161,7 @@ class RunPromise(GenericPromise):
         else:
           status_code_explanation = entry_status_code
         self.appendError(
-          'IP %s expected status_code %s != %s' % (
+          'IP %s status_code %s != %s' % (
             entry['ip'], status_code_explanation, status_code))
       else:
         self.appendOk(
@@ -169,7 +169,7 @@ class RunPromise(GenericPromise):
       if http_header_dict:
         if http_header_dict != entry['http_header_dict']:
           self.appendError(
-            'IP %s expected HTTP Header %s != %s' % (
+            'IP %s HTTP Header %s != %s' % (
               entry['ip'],
               json.dumps(http_header_dict, sort_keys=True),
               json.dumps(entry['http_header_dict'], sort_keys=True)))
@@ -203,12 +203,12 @@ class RunPromise(GenericPromise):
           q.strip() for q in entry['response'].split(",") if q.strip()])
         if ip_set != response_ip_set:
           self.appendError(
-            "resolver %s expected %s != %s" % (
+            "resolver's %s: %s != %s" % (
               entry['resolver_ip'], ' '.join(sorted(ip_set)),
               ' '.join(sorted(response_ip_set)) or "empty-reply"))
         else:
           self.appendOk(
-            "resolver %s returned expected set of IPs %s" % (
+            "resolver's %s: %s" % (
               entry['resolver_ip'], ' '.join(sorted(ip_set)),))
     else:
       self.appendOk('No check configured')

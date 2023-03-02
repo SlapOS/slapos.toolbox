@@ -452,13 +452,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK resolver 1.2.3.4 returned expected set of IPs 127.0.0.1 "
-      "127.0.0.2 "
+      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
-      "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days "
+      "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
+      "127.0.0.2 expires in > 15 days "
       "elapsed_time: OK IP 127.0.0.1 replied < 5.00s OK IP 127.0.0.2 replied "
       "< 5.00s"
     )
@@ -517,8 +516,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "http://www.httpallok.com/ : "
-      "dns_query: OK resolver 1.2.3.4 returned expected set of IPs 127.0.0.1 "
-      "127.0.0.2 "
+      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:80 OK IP 127.0.0.2:80 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
@@ -565,7 +563,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       'dns_query: OK No check configured '
       'tcp_server: OK No check configured '
       'http_query: OK IP 127.0.0.1 status_code 200 ERROR IP 127.0.0.1 '
-      'expected HTTP Header {"Cache-Control": "max-age=300", "Vary": '
+      'HTTP Header {"Cache-Control": "max-age=300", "Vary": '
       '"Accept-Encoding"} != {"Cache-Control": "max-age=300, public", "Vary": '
       '"Accept-Encoding"} '
       'ssl_certificate: OK No check needed '
@@ -587,8 +585,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
-      "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days "
+      "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
+      "127.0.0.2 expires in > 15 days "
       "elapsed_time: OK No check configured"
     )
 
@@ -607,7 +605,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 "
-      "ssl_certificate: OK IP 127.0.0.1 will expire in > 2 days "
+      "ssl_certificate: OK IP 127.0.0.1 expires in > 2 days "
       "elapsed_time: OK No check configured"
     )
 
@@ -627,7 +625,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 "
-      "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 4 days "
+      "ssl_certificate: ERROR IP 127.0.0.1 expires in < 4 days "
       "elapsed_time: OK No check configured"
     )
 
@@ -645,7 +643,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 "
-      "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 15 days "
+      "ssl_certificate: ERROR IP 127.0.0.1 expires in < 15 days "
       "elapsed_time: OK No check configured"
     )
 
@@ -663,7 +661,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 "
-      "ssl_certificate: ERROR IP 127.0.0.1 will expire in < 15 days "
+      "ssl_certificate: ERROR IP 127.0.0.1 expires in < 15 days "
       "elapsed_time: OK No check configured"
     )
 
@@ -770,10 +768,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "https://www.allok.com/ : "
       "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
-      "http_query: ERROR IP 127.0.0.1 expected status_code 302 != 301 ERROR "
-      "IP 127.0.0.2 expected status_code 302 != 301 "
-      "ssl_certificate: OK IP 127.0.0.1 will expire in > 15 days OK IP "
-      "127.0.0.2 will expire in > 15 days "
+      "http_query: ERROR IP 127.0.0.1 status_code 302 != 301 ERROR "
+      "IP 127.0.0.2 status_code 302 != 301 "
+      "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
+      "127.0.0.2 expires in > 15 days "
       "elapsed_time: OK No check configured"
     )
 
@@ -802,7 +800,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "http://www.statuscode.com/ : "
       "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
-      "http_query: ERROR IP 127.0.0.1 expected status_code %s != 301 "
+      "http_query: ERROR IP 127.0.0.1 status_code %s != 301 "
       "ssl_certificate: OK No check needed "
       "elapsed_time: OK No check configured" % (explanation,)
     )
@@ -835,7 +833,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
       "http://www.badip.com/ : "
-      "dns_query: ERROR resolver 1.2.3.4 expected 127.0.0.1 127.0.0.2 != "
+      "dns_query: ERROR resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 != "
       "127.0.0.1 127.0.0.4 "
       "tcp_server: OK IP 127.0.0.1:80 ERROR IP 127.0.0.2:80 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.4 "
@@ -919,7 +917,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertFailedMessage(
       "http://www.httpallok.com/ : "
-      "dns_query: ERROR resolver 1.2.3.4 expected 127.0.0.1 127.0.0.9 != "
+      "dns_query: ERROR resolver's 1.2.3.4: 127.0.0.1 127.0.0.9 != "
       "127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:80 ERROR IP 127.0.0.9:80 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
@@ -940,8 +938,7 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertFailedMessage(
       "http://www.dnsquerynoreply.com/ : "
-      "dns_query: ERROR resolver 1.2.3.4 expected 127.0.0.1 != "
-      "empty-reply "
+      "dns_query: ERROR resolver's 1.2.3.4: 127.0.0.1 != empty-reply "
       "tcp_server: ERROR No data "
       "http_query: ERROR No data "
       "ssl_certificate: OK No check needed "
