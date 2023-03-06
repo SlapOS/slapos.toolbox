@@ -21,6 +21,7 @@ from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
+import ssl
 import websocket
 
 @implementer(interface.IPromise)
@@ -45,7 +46,11 @@ class RunPromise(GenericPromise):
     content_to_receive = self.getConfig('content-to-receive')
 
     try:
-      ws = websocket.create_connection(url, timeout=int(self.getConfig('timeout', default_timeout)))
+      ws = websocket.create_connection(
+        url,
+        timeout=int(self.getConfig('timeout', default_timeout)),
+        sslopt={"cert_reqs": ssl.CERT_NONE}
+        )
     except websocket._exceptions.WebSocketBadStatusException:
       self.logger.error(
         "ERROR connection not possible while accessing %r", url)
