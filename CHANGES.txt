@@ -1,3 +1,8 @@
+0.133 (2023-03-09)
+==================
+
+* promise/plugin: improve check_surykatka_json assertions
+
 0.132 (2023-03-07)
 ==================
 
