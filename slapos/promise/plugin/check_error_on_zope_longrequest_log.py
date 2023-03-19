@@ -17,8 +17,8 @@ class RunPromise(GenericPromise):
 
   def sense(self):
     log_file = self.getConfig('log-file')
-    error_threshold = self.getConfig('error-threshold')
-    maximum_delay = self.getConfig('maximum-delay')
+    error_threshold = int(self.getConfig('error-threshold'))
+    maximum_delay = float(self.getConfig('maximum-delay'))
     error_amount = 0
     if not os.path.exists(log_file):
       # file don't exist, nothing to check

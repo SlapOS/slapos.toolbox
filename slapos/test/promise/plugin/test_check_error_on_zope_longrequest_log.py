@@ -61,8 +61,8 @@ class TestCheckErrorOnZopeLongrequestLog(TestPromisePluginMixin):
 
 extra_config_dict = {
   'log-file': '%(log_file)s',
-  'error-threshold': 0,
-  'maximum-delay': 0
+  'error-threshold': '0',
+  'maximum-delay': '0'
 }
 """ % {'log_file': self.test_log_file}
     self.writePromise(self.promise_name, content)
@@ -78,8 +78,8 @@ extra_config_dict = {
 
 extra_config_dict = {
   'log-file': '%(log_file)s',
-  'error-threshold': 7,
-  'maximum-delay': 0
+  'error-threshold': '7',
+  'maximum-delay': '0'
 }
 """ % {'log_file': self.test_log_file}
     self.writePromise(self.promise_name, content)
@@ -94,8 +94,8 @@ extra_config_dict = {
 
 extra_config_dict = {
   'log-file': '%(log_file)s',
-  'error-threshold': 2,
-  'maximum-delay': 3600
+  'error-threshold': '2',
+  'maximum-delay': '3600.1'
 }
 """ % {'log_file': self.test_log_file}
     self.writePromise(self.promise_name, content)
