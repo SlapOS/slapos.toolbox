@@ -5,6 +5,8 @@ import time
 import os
 import argparse
 
+import six
+
 def parseArguments():
   """
   Parse arguments for monitor statistics.
@@ -52,7 +54,7 @@ def buildStatistic(history_folder):
         result[day][str(entry["status"])] += 1
       f.close()
 
-    for date, stat in result.iteritems():
+    for date, stat in six.iteritems(result):
       stats_list.append(
         {"status": "ERROR" if stat["ERROR"] > 0 else "OK",
          "change-time": now,
