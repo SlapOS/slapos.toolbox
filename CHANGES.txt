@@ -1,3 +1,8 @@
+0.134 (2023-03-09)
+==================
+
+* promise/plugin: allow to check only certificate in check_certificate
+
 0.133 (2023-03-09)
 ==================
 
