@@ -7,8 +7,11 @@ import os
 import shutil
 import tempfile
 import time
+import unittest
 
+import six
 
+@unittest.skipIf(six.PY2, "Python 3 only")
 class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
   maxDiff = None  # show full diffs for test readability
   promise_name = 'check-surykatka-json.py'
@@ -63,6 +66,7 @@ class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
       message)
 
 
+@unittest.skipIf(six.PY2, "Python 3 only")
 class TestCheckSurykatkaJSONBase(CheckSurykatkaJSONMixin):
   def test_no_config(self):
     self.writeSurykatkaPromise()
@@ -108,6 +112,7 @@ class TestCheckSurykatkaJSONBase(CheckSurykatkaJSONMixin):
       "ERROR Report 'NOT_EXISTING_ENTRY' is not supported")
 
 
+@unittest.skipIf(six.PY2, "Python 3 only")
 class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
   def test(self):
     self.writeSurykatkaPromise(
@@ -220,6 +225,7 @@ class TestCheckSurykatkaJSONBotStatus(CheckSurykatkaJSONMixin):
       "bot_status: ERROR 'bot_status' empty in '%s'" % (self.json_file,))
 
 
+@unittest.skipIf(six.PY2, "Python 3 only")
 class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
   def setUp(self):
     super().setUp()

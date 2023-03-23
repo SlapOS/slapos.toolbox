@@ -27,11 +27,16 @@
 
 import mock
 import time
+import unittest
+
+import six
+
 from slapos.grid.promise import PromiseError
 from slapos.promise.plugin.check_cpu_temperature import RunPromise
 from . import TestPromisePluginMixin
 
 
+@unittest.skipIf(six.PY2, 'Python3 only')
 class TestCheckCpuTemperature(TestPromisePluginMixin):
 
   promise_name = "monitor-cpu-temperature.py"
