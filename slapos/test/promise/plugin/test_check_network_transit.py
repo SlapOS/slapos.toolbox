@@ -25,16 +25,20 @@
 #
 ##############################################################################
 
-import mock
+from collections import namedtuple
 import os
 import time
+import unittest
 
-from collections import namedtuple
+import mock
+import six
+
 from slapos.grid.promise import PromiseError
 from slapos.promise.plugin.check_network_transit import RunPromise
 from . import TestPromisePluginMixin
 
 
+@unittest.skipIf(six.PY2, 'Python3 only')
 class TestCheckNetworkTransit(TestPromisePluginMixin):
 
   promise_name = "monitor-network-transit.py"

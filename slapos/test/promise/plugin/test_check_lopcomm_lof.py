@@ -25,15 +25,20 @@
 #
 ##############################################################################
 
-import os
-import time
 from datetime import datetime
 from datetime import timedelta
+import os
+import time
+import unittest
+
+import six
+
 from slapos.grid.promise import PromiseError
 from slapos.promise.plugin.check_lopcomm_lof import RunPromise
 from . import TestPromisePluginMixin
 
 
+@unittest.skipIf(six.PY2, 'Python3 only')
 class TestCheckLopcommLOFSuccess(TestPromisePluginMixin):
 
   promise_name = "check-lopcomm-lof.py"
