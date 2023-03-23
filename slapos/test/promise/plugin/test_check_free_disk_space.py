@@ -25,11 +25,15 @@
 #
 ##############################################################################
 
-from slapos.test.promise.plugin import TestPromisePluginMixin
-from slapos.grid.promise import PromiseError
 import os
 import sqlite3
+import unittest
+
+import six
+
+from slapos.test.promise.plugin import TestPromisePluginMixin
 from slapos.grid.promise import PromiseError
+
 
 class TestCheckFreeDiskSpace(TestPromisePluginMixin):
 
@@ -130,6 +134,7 @@ extra_config_dict = {
       "The partition slappart1 uses 20.87 G (date checked: 2017-10-02 09:17:00)."
     self.assertIn(message, result['result']['message'])
 
+  @unittest.skipIf(six.PY2, 'Python3 only')
   def test_display_prediction(self):
     content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
 

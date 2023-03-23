@@ -25,14 +25,19 @@
 #
 ##############################################################################
 
-import os
 from datetime import datetime
 from datetime import timedelta
+import os
+import unittest
+
+import six
+
 from slapos.grid.promise import PromiseError
 from slapos.promise.plugin.check_baseband_latency import RunPromise
 from . import TestPromisePluginMixin
 
 
+@unittest.skipIf(six.PY2, 'Python3 only')
 class TestCheckBasebandLatency(TestPromisePluginMixin):
 
   promise_name = "check-baseband-latency.py"
