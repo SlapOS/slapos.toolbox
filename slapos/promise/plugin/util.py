@@ -3,9 +3,11 @@ import json
 import logging
 import os
 import textwrap
+import time
 
 from dateutil import parser as dateparser
 from datetime import datetime
+import six
 from slapos.grid.promise.generic import GenericPromise
 
 
@@ -16,9 +18,15 @@ def iter_reverse_lines(f):
   f.seek(0, os.SEEK_END)
   while True:
     try:
-      while f.seek(-2, os.SEEK_CUR) and f.read(1) != b'\n':
-        pass
-    except OSError:
+      if six.PY3:
+        while f.seek(-2, os.SEEK_CUR) and f.read(1) != b'\n':
+          pass
+      else:
+        while True:
+          f.seek(-2, os.SEEK_CUR)
+          if f.tell() == 0 or f.read(1) == '\n':
+            break
+    except (OSError, IOError):
       return
     pos = f.tell()
     yield f.readline()
@@ -62,7 +70,10 @@ def get_json_log_latest_timestamp(json_log_file):
   for f in iter_logrotate_file_handle(json_log_file, 'rb'):
     for line in iter_reverse_lines(f):
       l = json.loads(line.decode().replace("'", '"'))
-      return dateparser.parse(l['time']).timestamp()
+      date = dateparser.parse(l['time'])
+      if six.PY2:
+        return time.mktime(date.timetuple())
+      return date.timestamp()
   return 0
 
 
