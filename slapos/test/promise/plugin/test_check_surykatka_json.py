@@ -7,6 +7,12 @@ import os
 import shutil
 import tempfile
 import time
+import unittest
+
+import six
+
+if six.PY2:
+  raise unittest.SkipTest("Python 3 only")
 
 
 class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
