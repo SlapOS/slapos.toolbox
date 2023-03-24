@@ -31,13 +31,13 @@ class RunPromise(GenericPromise):
     # Check for network dropped packets
     if total_dropped/total_MB >= self.max_lost_packets:
       self.logger.error("Network packets lost reached critical threshold: %s "\
-        " (threshold is %s per MB)" % (math.ceil(total_dropped/total_MB), self.max_lost_packets))
+        " (threshold is %s per MB)" % (int(math.ceil(total_dropped/total_MB)), self.max_lost_packets))
       promise_success = False
 
     # Check for network errors
     if total_errors/total_MB >= self.max_error_messages:
       self.logger.error("Network errors reached critical threshold: %s "\
-        " (threshold is %s per MB)" % (math.ceil(total_errors/total_MB), self.max_error_messages))
+        " (threshold is %s per MB)" % (int(math.ceil(total_errors/total_MB)), self.max_error_messages))
       promise_success = False
 
     if promise_success:
