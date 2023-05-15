@@ -1028,3 +1028,59 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "ssl_certificate: OK No check needed "
       "elapsed_time: ERROR No data" % {'json_file': self.json_file}
     )
+
+  def test_all_ok_nothing_enabled(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.allok.com/',
+        'status-code': '302',
+        'ip-list': '127.0.0.1 127.0.0.2',
+        'maximum-elapsed-time': '5',
+        'enabled-sense-list': '',
+      }
+    )
+    self.runAndAssertPassedMessage(
+      "https://www.allok.com/ :"
+    )
+
+  def test_all_ok_no_ssl_certificate(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.allok.com/',
+        'status-code': '302',
+        'ip-list': '127.0.0.1 127.0.0.2',
+        'maximum-elapsed-time': '5',
+        'enabled-sense-list': 'dns_query tcp_server http_query elapsed_time',
+      }
+    )
+    self.runAndAssertPassedMessage(
+      "https://www.allok.com/ : "
+      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
+      "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
+      "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
+      "status_code 302 "
+      "elapsed_time: OK IP 127.0.0.1 replied < 5.00s OK IP 127.0.0.2 replied "
+      "< 5.00s"
+    )
+
+  def test_all_ok_only_ssl_certificate(self):
+    self.writeSurykatkaPromise(
+      {
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'url': 'https://www.allok.com/',
+        'status-code': '302',
+        'ip-list': '127.0.0.1 127.0.0.2',
+        'maximum-elapsed-time': '5',
+        'enabled-sense-list': 'ssl_certificate',
+      }
+    )
+    self.runAndAssertPassedMessage(
+      "https://www.allok.com/ : "
+      "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
+      "127.0.0.2 expires in > 15 days"
+    )

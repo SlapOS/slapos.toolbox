@@ -27,6 +27,9 @@ class RunPromise(GenericPromise):
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
     self.failure_amount = int(
       self.getConfig('failure-amount', self.getConfig('failure_amount', 1)))
+    self.enabled_sense_list = self.getConfig(
+      'enabled-sense-list',
+      'dns_query tcp_server http_query ssl_certificate elapsed_time').split()
     self.result_count = self.failure_amount
     self.error = False
     self.message_list = []
@@ -317,11 +320,15 @@ class RunPromise(GenericPromise):
           if report == 'bot_status':
             self.senseBotStatus()
           elif report == 'http_query':
-            self.senseDnsQuery()
-            self.senseTcpServer()
-            self.senseHttpQuery()
-            self.senseSslCertificate()
-            self.senseElapsedTime()
+            for check_name, check_method in [
+              ('dns_query', self.senseDnsQuery),
+              ('tcp_server', self.senseTcpServer),
+              ('http_query', self.senseHttpQuery),
+              ('ssl_certificate', self.senseSslCertificate),
+              ('elapsed_time', self.senseElapsedTime)
+            ]:
+              if check_name in self.enabled_sense_list:
+                check_method()
           else:
             self.appendError(
               "Report %r is not supported" % report)
