@@ -18,6 +18,7 @@ setup(name=name,
       version=version,
       description="SlapOS toolbox.",
       long_description=long_description,
+      long_description_content_type='text/markdown',
       classifiers=[
           "Programming Language :: Python",
         ],
