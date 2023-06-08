@@ -4,38 +4,43 @@ import logging
 import os
 
 from dateutil import parser
+from .util import iter_logrotate_file_handle
+from .util import iter_reverse_lines
 from .util import JSONPromise
-from .util import tail_file
 
 from zope.interface import implementer
 from slapos.grid.promise import interface
 
 @implementer(interface.IPromise)
 class RunPromise(JSONPromise):
+
   def __init__(self, config):
+
     super(RunPromise, self).__init__(config)
     self.setPeriodicity(minute=1)
-    self.amarisoft_rf_info_log = self.getConfig('amarisoft-rf-info-log')
-#    self.stats_period = int(self.getConfig('stats-period'))
+    self.netconf_log = self.getConfig('netconf-log')
     self.testing = self.getConfig('testing') == "True"
 
   def sense(self):
-      if self.testing:
-          self.logger.info("skipping promise")
-          return
-  
-      last_line = tail_file(self.amarisoft_rf_info_log)
-      if "CPRI" not in last_line:
-          self.logger.info("No CPRI feature")
-      else:
-          if "HW" in last_line and "SW" in last_line:
-              self.logger.info("CPRI locked")
+
+    if self.testing:
+        self.logger.info("skipping promise")
+        return
+
+    for f in iter_logrotate_file_handle(self.netconf_log, 'rb'):
+      for line in iter_reverse_lines(f):
+        l = json.loads(line.decode().replace("'", '"'))
+        alarm_notif = l.get('data', {}).get('notification', {}).get('alarm-notif', None)
+        if alarm_notif and alarm_notif['fault-id'] == '18':
+          if alarm_notif['is-cleared'] == 'false':
+            affected_objects = alarm_notif.get('affected-objects', {})
+            self.logger.error('Synchronization Error Alarm is on, affected objects are: %s', affected_objects)
+            self.json_logger.info("Affected objects", extra={'data': affected_objects})
           else:
-              if "HW" not in last_line:
-                  self.logger.error("HW Lock is missing")
-              if "SW" not in last_line:
-                  self.logger.error("SW Lock is missing")
-    
+            self.logger.info('Synchronization Error Alarm is off')
+          return
+    self.logger.info('No Synchronization Error Alarm received')
+
   def test(self):
     """
       Called after sense() if the instance is still converging.
