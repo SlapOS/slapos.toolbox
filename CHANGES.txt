@@ -1,3 +1,8 @@
+0.138 (2023-09-21)
+==================
+
+* promise/plugin: add PA over output power for Lopcomm RU
+
 0.137 (2023-06-15)
 ==================
 
