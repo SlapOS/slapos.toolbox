@@ -313,9 +313,11 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(
+    self.assertIn(
       result['result']['message'],
-      "ERROR: Invalid URL '': No scheme supplied. Perhaps you meant http://?"
+      ("ERROR: Invalid URL '': No scheme supplied. Perhaps you meant https://?",
+      # BBB requests < 2.28.2
+       "ERROR: Invalid URL '': No scheme supplied. Perhaps you meant http://?")
     )
 
   def test_check_url_site_off(self):
