@@ -24,7 +24,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-from __future__ import unicode_literals
 import unittest
 import os
 import time
@@ -32,7 +31,7 @@ import tempfile
 import datetime
 import shutil
 import codecs
-from backports import lzma
+import lzma
 
 from . import data
 from slapos.promise.check_slow_queries_digest_result import checkMariadbDigestResult

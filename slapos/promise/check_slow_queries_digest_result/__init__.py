@@ -4,8 +4,6 @@
 Check if a mariadb result matches the desired threshold or raises an error.
 """
 
-from __future__ import print_function
-
 import json
 import os
 import re
@@ -13,7 +11,7 @@ import sys
 import time
 import datetime
 import argparse
-from backports import lzma
+import lzma
 
 def checkMariadbDigestResult(mariadbdex_path, mariadbdex_report_status_file,
                              max_query_threshold, slowest_query_threshold):
