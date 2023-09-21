@@ -191,6 +191,7 @@ class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 class CheckUrlAvailableMixin(TestPromisePluginMixin):
+  RequestHandler = TestHandler
   @classmethod
   def setUpClass(cls):
     cls.another_server_ca = CertificateAuthority(u"Another Server Root CA")
@@ -221,7 +222,7 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
     def server():
       server = BaseHTTPServer.HTTPServer(
         (SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT),
-        TestHandler)
+        cls.RequestHandler)
       server.socket = ssl.wrap_socket(
         server.socket,
         certfile=cls.test_server_certificate_file.name,
@@ -627,6 +628,57 @@ class TestCheckUrlAvailableTimeout(CheckUrlAvailableMixin):
     self.assertEqual(
       result['result']['message'],
       "Error: Promise timed out after 0.5 seconds",
+    )
+
+
+class TestCheckUrlAvailableRedirect(CheckUrlAvailableMixin):
+  class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    def do_GET(self):
+      if self.path == '/':
+        self.send_response(302)
+        self.send_header('Location', '/redirected')
+        self.end_headers()
+        self.wfile.write(b'see /redirected')
+      elif self.path == '/redirected':
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'OK')
+      else:
+        self.send_response(400)
+        self.end_headers()
+        self.wfile.write(b'Unexepected path: ' + self.path.encode())
+
+  def test_check_redirected_follow_redirect(self):
+    url = HTTPS_ENDPOINT
+    content = self.make_content({
+      'url': url,
+      'http-code': '200',
+    })
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(
+      result['result']['message'],
+      self.success_template % (url, 200)
+    )
+
+  def test_check_redirected_not_follow_redirect(self):
+    url = HTTPS_ENDPOINT
+    content = self.make_content({
+      'url': url,
+      'allow-redirects': '0',
+      'http-code': '302',
+    })
+    self.writePromise(self.promise_name, content)
+    self.configureLauncher()
+    self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], False)
+    self.assertEqual(
+      result['result']['message'],
+      self.success_template % (url, 302)
     )
 
 

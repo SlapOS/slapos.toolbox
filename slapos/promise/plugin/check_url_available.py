@@ -11,6 +11,9 @@ Some notable parameters:
     (default 200) The expected response HTTP code.
   ignore-code:
     (default 0) If set to 1, ignore the response HTTP code.
+  allow-redirects:
+    (default 1) If set to 1, follow Location header on HTTP redirect status code.
+    If set to 0, does not follow and use the redirect response.
   username, password:
     If supplied, enables basic HTTP authentication.
 """
@@ -72,7 +75,7 @@ class RunPromise(GenericPromise):
       request_type = "non-authenticated"
 
     request_options = {
-      'allow_redirects': True,
+      'allow_redirects': bool(int(self.getConfig('allow-redirects', 1))),
       'timeout': int(self.getConfig('timeout', default_timeout)),
       'verify': verify,
       'cert': cert,
