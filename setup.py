@@ -44,7 +44,6 @@ setup(name=name,
         'croniter', # needed to know cron schedule
         'pytz', # needed to manipulate timezone
         'tzlocal', # needed to manipulate timezone
-        'backports.lzma',
         'netifaces',
         'erp5.util',
         'PyRSS2Gen',
@@ -56,8 +55,7 @@ setup(name=name,
         'six',
         'cryptography',
         'click',
-        'websocket-client; python_version>="3"',
-        'ipaddress; python_version<"3"',
+        'websocket-client',
       ),
       extras_require = {
         'lampconfigure':  ["mysqlclient"], #needed for MySQL Database access
