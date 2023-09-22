@@ -1,3 +1,8 @@
+0.139 (2023-09-22)
+==================
+
+* check_url_available: new allow-redirects option
+
 0.138 (2023-09-21)
 ==================
 
