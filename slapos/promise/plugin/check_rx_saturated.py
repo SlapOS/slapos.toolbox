@@ -36,9 +36,13 @@ class RunPromise(JSONPromise):
     if not max_rx_list:
         self.logger.error("No RX samples data available")
     elif saturated:
-        self.logger.error("RX antenna saturated, please lower rx_gain")
+        self.logger.error(
+          "RX Max dBFS: {} (RX antennas saturated, please lower rx_gain)".format(
+            ", ".join(max_rx_list)))
     else:
-        self.logger.info("No saturation detected on RX antenna")
+        self.logger.info(
+          "RX Max dBFS: {} (No saturation detected on RX antennas)".format(
+            ", ".join(max_rx_list)))
 
   def test(self):
     """
