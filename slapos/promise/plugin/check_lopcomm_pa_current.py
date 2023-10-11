@@ -29,7 +29,7 @@ class RunPromise(JSONPromise):
 
     for f in iter_logrotate_file_handle(self.netconf_log, 'rb'):
       for line in iter_reverse_lines(f):
-        l = json.loads(line.decode())
+        l = json.loads(line)
         alarm_notif = l.get('data', {}).get('notification', {}).get('alarm-notif', None)
         if alarm_notif and alarm_notif['fault-id'] == '103':
           if alarm_notif['is-cleared'] == 'false':

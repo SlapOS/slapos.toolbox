@@ -47,7 +47,7 @@ def get_json_log_data_interval(json_log_file, interval):
   data_list = []
   for f in iter_logrotate_file_handle(json_log_file, 'rb'):
     for line in iter_reverse_lines(f):
-      l = json.loads(line.decode())
+      l = json.loads(line)
       timestamp = dateparser.parse(l['time'])
       if (current_time - timestamp).total_seconds() > interval:
         return data_list
@@ -61,7 +61,7 @@ def get_json_log_latest_timestamp(json_log_file):
   """
   for f in iter_logrotate_file_handle(json_log_file, 'rb'):
     for line in iter_reverse_lines(f):
-      l = json.loads(line.decode())
+      l = json.loads(line)
       return dateparser.parse(l['time']).timestamp()
   return 0
 
