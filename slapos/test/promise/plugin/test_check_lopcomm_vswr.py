@@ -49,8 +49,8 @@ class TestCheckLopcommVSWRSuccess(TestPromisePluginMixin):
 
   def test_promise_success(self):
     with open(self.netconf_log, 'w+') as f:
-      f.write("""{"time": "%s", "log_level": "INFO", "message": "", "data": {'notification': {'@xmlns': 'urn:ietf:params:xml:ns:netconf:notification:1.0', 'eventTime': '1970-01-05T00:38:50Z', 'alarm-notif': {'@xmlns': 'urn:o-ran:fm:1.0', 'fault-id': '9', 'fault-source': 'Antport1', 'affected-objects': {'name': 'Antport1'}, 'fault-severity': 'MAJOR', 'is-cleared': 'false', 'fault-text': 'PA 1 VSWR Alarm', 'event-time': '1970-01-05T00:38:50Z'}}}}
-{"time": "%s", "log_level": "INFO", "message": "", "data": {'notification': {'@xmlns': 'urn:ietf:params:xml:ns:netconf:notification:1.0', 'eventTime': '1970-01-05T00:38:50Z', 'alarm-notif': {'@xmlns': 'urn:o-ran:fm:1.0', 'fault-id': '9', 'fault-source': 'Antport1', 'affected-objects': {'name': 'Antport1'}, 'fault-severity': 'MAJOR', 'is-cleared': 'true', 'fault-text': 'PA 1 VSWR Alarm', 'event-time': '1970-01-05T00:38:50Z'}}}}""" % (
+      f.write("""{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-05T00:38:50Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "9", "fault-source": "Antport1", "affected-objects": {"name": "Antport1"}, "fault-severity": "MAJOR", "is-cleared": "false", "fault-text": "PA 1 VSWR Alarm", "event-time": "1970-01-05T00:38:50Z"}}}}
+{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-05T00:38:50Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "9", "fault-source": "Antport1", "affected-objects": {"name": "Antport1"}, "fault-severity": "MAJOR", "is-cleared": "true", "fault-text": "PA 1 VSWR Alarm", "event-time": "1970-01-05T00:38:50Z"}}}}""" % (
       (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       ))
@@ -62,8 +62,8 @@ class TestCheckLopcommVSWRSuccess(TestPromisePluginMixin):
 
   def test_promise_fail(self):
     with open(self.netconf_log, 'w+') as f:
-      f.write("""{"time": "%s", "log_level": "INFO", "message": "", "data": {'notification': {'@xmlns': 'urn:ietf:params:xml:ns:netconf:notification:1.0', 'eventTime': '1970-01-05T00:38:50Z', 'alarm-notif': {'@xmlns': 'urn:o-ran:fm:1.0', 'fault-id': '9', 'fault-source': 'Antport1', 'affected-objects': {'name': 'Antport1'}, 'fault-severity': 'MAJOR', 'is-cleared': 'true', 'fault-text': 'PA 1 VSWR Alarm', 'event-time': '1970-01-05T00:38:50Z'}}}}
-{"time": "%s", "log_level": "INFO", "message": "", "data": {'notification': {'@xmlns': 'urn:ietf:params:xml:ns:netconf:notification:1.0', 'eventTime': '1970-01-05T00:38:50Z', 'alarm-notif': {'@xmlns': 'urn:o-ran:fm:1.0', 'fault-id': '9', 'fault-source': 'Antport1', 'affected-objects': {'name': 'Antport1'}, 'fault-severity': 'MAJOR', 'is-cleared': 'false', 'fault-text': 'PA 1 VSWR Alarm', 'event-time': '1970-01-05T00:38:50Z'}}}}""" % (
+      f.write("""{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-05T00:38:50Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "9", "fault-source": "Antport1", "affected-objects": {"name": "Antport1"}, "fault-severity": "MAJOR", "is-cleared": "true", "fault-text": "PA 1 VSWR Alarm", "event-time": "1970-01-05T00:38:50Z"}}}}
+{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-05T00:38:50Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "9", "fault-source": "Antport1", "affected-objects": {"name": "Antport1"}, "fault-severity": "MAJOR", "is-cleared": "false", "fault-text": "PA 1 VSWR Alarm", "event-time": "1970-01-05T00:38:50Z"}}}}""" % (
       (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       ))

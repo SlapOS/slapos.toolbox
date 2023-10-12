@@ -41,9 +41,9 @@ class TestCheckRXSaturated(TestPromisePluginMixin):
     super(TestCheckRXSaturated, self).setUp()
     self.amarisoft_stats_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_stats.json.log')
     with open(self.amarisoft_stats_log, 'w+') as f:
-      f.write("""{"time": "%s", "log_level": "INFO", "message": "Samples stats", "data": {'samples': {'rx': [{'max': %f}, {'max': %f}]}}}
-{"time": "%s", "log_level": "INFO", "message": "Samples stats", "data": {'samples': {'rx': [{'max': %f}, {'max': %f}]}}}
-{"time": "%s", "log_level": "INFO", "message": "Samples stats", "data": {'samples': {'rx': [{'max': %f}, {'max': %f}]}}}""" % (
+      f.write("""{"time": "%s", "log_level": "INFO", "message": "Samples stats", "data": {"samples": {"rx": [{"max": %f}, {"max": %f}]}}}
+{"time": "%s", "log_level": "INFO", "message": "Samples stats", "data": {"samples": {"rx": [{"max": %f}, {"max": %f}]}}}
+{"time": "%s", "log_level": "INFO", "message": "Samples stats", "data": {"samples": {"rx": [{"max": %f}, {"max": %f}]}}}""" % (
       (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], -5.0, -6.0,
       (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], -2.0, -3.0,
       (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], -9.0, -7.0,

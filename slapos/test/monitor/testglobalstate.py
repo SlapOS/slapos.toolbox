@@ -92,7 +92,7 @@ ipv4 = 10.0.151.118
       pkg_resources.resource_string(
         'slapos.monitor',
         'doc/monitor_instance.schema.json')
-    self.monitor_instance_schema = json.loads(monitor_schema_string.decode('utf-8'))
+    self.monitor_instance_schema = json.loads(monitor_schema_string)
 
 
     self.monitor_config_dict = dict(
