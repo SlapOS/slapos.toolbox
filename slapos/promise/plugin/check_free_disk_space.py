@@ -22,7 +22,7 @@ from contextlib import closing
 try:
   import pandas as pd
   import numpy as np
-  from statsmodels.tsa.arima_model import ARIMA
+  from statsmodels.tsa.arima.model import ARIMA
 except ImportError:
   pass
 
@@ -126,9 +126,10 @@ class RunPromise(GenericPromise):
     for t in range(len(test)):
       with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        model = ARIMA(history, order=arima_order)
-        model_fit = model.fit(disp=-1)
-        yhat = model_fit.forecast()[0]
+        # WARNING, HERE we should use the order SOMEHOW
+        model = ARIMA(history)
+        model_fit = model.fit()
+        yhat = model_fit.forecast()
         predictions.append(yhat)
         history.append(test[t])
     # calculate out of sample error
@@ -191,11 +192,11 @@ class RunPromise(GenericPromise):
           # disabling warnings during the ARIMA calculation
           with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            model_arima = ARIMA(df, order=best_cfg)
-            # disp < 0 means no output about convergence information
-            model_arima_fit = model_arima.fit(disp=-1)
+            # WARNING, HERE we should use the order SOMEHOW
+            model_arima = ARIMA(df)
+            model_arima_fit = model_arima.fit()
             # save ARIMA predictions
-            fcast, _, conf = model_arima_fit.forecast(max_date_predicted, alpha=0.05)
+            fcast = model_arima_fit.forecast(max_date_predicted, alpha=0.05)
           # pass the same index as the others
           fcast = pd.Series(fcast, index=future_index_date)
           if fcast.empty:
@@ -205,9 +206,7 @@ class RunPromise(GenericPromise):
           self.logger.info("Arima prediction error: skipped prediction")
           return None
         # get results with 95% confidence
-        lower_series = pd.Series(conf[:, 0], index=future_index_date)
-        upper_series = pd.Series(conf[:, 1], index=future_index_date)
-        return fcast, lower_series, upper_series
+        return fcast
       except sqlite3.OperationalError as e:
         # if database is still locked after timeout expiration (another process is using it)
         # we print warning message and try the promise at next run until max warn count
@@ -324,10 +323,9 @@ class RunPromise(GenericPromise):
               "but at least one module is not installed. Prediction skipped.")
             return
           nb_days_predicted = int(self.getConfig('nb-days-predicted', 10) or 10)
-          disk_space_prediction_tuple = self.diskSpacePrediction(
+          fcast = self.diskSpacePrediction(
             disk_partition, db_path, currentdate, currenttime, nb_days_predicted)
-          if disk_space_prediction_tuple is not None:
-            fcast, lower_series, upper_series = disk_space_prediction_tuple
+          if fcast is not None:
             space_left_predicted = fcast.iloc[-1]
             last_date_predicted = datetime.datetime.strptime(str(fcast.index[-1]),
                                                             "%Y-%m-%d %H:%M:%S")
