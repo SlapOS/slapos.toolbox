@@ -50,9 +50,7 @@ class TestCheckCpriLock(TestPromisePluginMixin):
 
   def test_promise_success(self):
     self.amarisoft_rf_info_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_rf_info.json.log')
-    if os.path.exists(self.amarisoft_rf_info_log):
-      os.remove(self.amarisoft_rf_info_log)
-    with open(self.amarisoft_rf_info_log, 'w+') as f:
+    with open(self.amarisoft_rf_info_log, 'w') as f:
       f.write(
       """
       {"time": "%s", "log_level": "INFO", "message": "RF info", "data": {'rf_info': "CPRI: x16 HW SW"}}
@@ -67,8 +65,6 @@ class TestCheckCpriLock(TestPromisePluginMixin):
 
   def test_promise_fail(self):
     self.amarisoft_rf_info_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_rf_info.json.log')
-    if os.path.exists(self.amarisoft_rf_info_log):
-      os.remove(self.amarisoft_rf_info_log)
     with open(self.amarisoft_rf_info_log, 'w') as f:
       f.write(
       """
