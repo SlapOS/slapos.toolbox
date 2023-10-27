@@ -149,7 +149,7 @@ class KVMTestSuite(ResiliencyTestSuite):
       failure = False
       try:
         connection = urlopen('http://%s:10080/set?key=%s' % (self.ip, self.key))
-        if connection.getcode() is 200:
+        if connection.getcode() == 200:
           break
         else:
           failure = True
@@ -159,7 +159,7 @@ class KVMTestSuite(ResiliencyTestSuite):
         if failure:
           logger.info('Impossible to connect to virtual machine to set key. sleeping...')
           time.sleep(60)
-      if i is 59:
+      if i == 59:
         raise Exception('Bad return code when setting key in main instance, after trying for 60 minutes.')
 
     logger.info('Key uploaded to KVM main instance.')

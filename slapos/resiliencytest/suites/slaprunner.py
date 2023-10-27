@@ -93,7 +93,7 @@ class SlaprunnerTestSuite(ResiliencyTestSuite):
       else:
         result = self._opener_director.open(url)
 
-      if result.getcode() is not 200:
+      if result.getcode() != 200:
         raise NotHttpOkException(result.getcode())
       return result.read()
     except HTTPError:
