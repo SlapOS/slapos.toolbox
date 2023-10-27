@@ -44,9 +44,9 @@ class TestCheckRXSaturated(TestPromisePluginMixin):
       f.write("""{"time": "%s", "log_level": "INFO", "message": "Samples stats", "data": {"samples": {"rx": [{"max": %f}, {"max": %f}]}}}
 {"time": "%s", "log_level": "INFO", "message": "Samples stats", "data": {"samples": {"rx": [{"max": %f}, {"max": %f}]}}}
 {"time": "%s", "log_level": "INFO", "message": "Samples stats", "data": {"samples": {"rx": [{"max": %f}, {"max": %f}]}}}""" % (
-      (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], -5.0, -6.0,
-      (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], -2.0, -3.0,
-      (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], -9.0, -7.0,
+      (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], +99, -6.0,
+      (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], +99, -3.0,
+      (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],  +99, -7.0,
       ))
 
   def writePromise(self, **kw):
@@ -59,6 +59,7 @@ class TestCheckRXSaturated(TestPromisePluginMixin):
         'amarisoft-stats-log': self.amarisoft_stats_log,
         'stats-period': 10,
         'max-rx-sample-db': 0.0,
+        'rf-rx-chan-list': '[1]',
     })
     self.configureLauncher()
     self.launcher.run()
@@ -68,6 +69,7 @@ class TestCheckRXSaturated(TestPromisePluginMixin):
         'amarisoft-stats-log': self.amarisoft_stats_log,
         'stats-period': 10,
         'max-rx-sample-db': -3.0,
+        'rf-rx-chan-list': '[1]',
     })
     self.configureLauncher()
     with self.assertRaises(PromiseError):
