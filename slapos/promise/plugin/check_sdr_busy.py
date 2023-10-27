@@ -16,20 +16,23 @@ class RunPromise(GenericPromise):
 
     testing = self.getConfig('testing') == "True"
     sdr = self.getConfig('sdr')
+    sdr_dev = self.getConfig('sdr_dev')
+    dma_chan = self.getConfig('dma_chan')
+    sdr_devchan = "/dev/sdr%s@%s" % (sdr_dev, dma_chan)
 
     if testing:
         self.logger.info("skipping promise")
         return
     try:
       out = subprocess.check_output([
-        sdr + '/sdr_util', '-c', '0', 'version'], stderr=subprocess.STDOUT)
+        sdr + '/sdr_util', '-c', sdr_dev, '-d', dma_chan, 'version'], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
       if e.returncode == 1 and \
         ("DMA channel is already opened" in e.output.decode() or \
          "Device or resource busy" in e.output.decode()):
-        self.logger.info("eNB is using /dev/sdr0")
+        self.logger.info("eNB is using %s", sdr_devchan)
         return
-    self.logger.error("eNB is not using /dev/sdr0")
+    self.logger.error("eNB is not using %s", sdr_devchan)
 
   def test(self):
     """
