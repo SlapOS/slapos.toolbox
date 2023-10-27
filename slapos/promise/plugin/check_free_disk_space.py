@@ -179,7 +179,7 @@ class RunPromise(GenericPromise):
         # put the list in pandas dataframe format and set the right types
         df = pd.DataFrame(data=result, columns=['free', 'date'])
         df.loc[:,'date'] = pd.to_datetime(df.date)
-        df = df.astype({'free': np.float})
+        df = df.astype({'free': float})
         df = df.set_index('date')
         # find the best configuration by trying different combinations
         p_values = d_values = q_values = range(0, 3)
