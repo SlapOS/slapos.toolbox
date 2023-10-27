@@ -45,32 +45,37 @@ class TestCheckCpriLock(TestPromisePluginMixin):
     self.amarisoft_rf_info_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_rf_info.json.log')
 
 
-  def writeLog(self, data):
+  def writeLog(self, data, ago=5):
     with open(self.amarisoft_rf_info_log, 'w') as f:
       f.write(
       """{"time": "%s", "log_level": "INFO", "message": "RF info", "data": %s}""" %
-        ((datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S")[:-3], json.dumps(data)))
+        ((datetime.now() - timedelta(seconds=ago)).strftime("%Y-%m-%d %H:%M:%S")[:-3], json.dumps(data)))
 
   def writePromise(self, **kw):
     kw.update({'amarisoft-rf-info-log': self.amarisoft_rf_info_log,
-#              'stats-period':          100,
-    })
+               'stats-period':          100})
     super(TestCheckCpriLock, self).writePromise(self.promise_name,
       "from %s import %s\nextra_config_dict = %r\n"
       % (RunPromise.__module__, RunPromise.__name__, kw))
 
-  def test_promise_success(self):
+  def test_locked_ok(self):
     self.writeLog({'rf_info': "CPRI: x16 HW SW"})
     self.writePromise()
     self.configureLauncher()
     self.launcher.run()
 
-
-  def test_promise_fail(self):
+  def test_no_lock(self):
     self.writeLog({'rf_info': "CPRI: x16\\n"})
     self.writePromise()
     self.configureLauncher()
     with self.assertRaises(PromiseError):
+      self.launcher.run()
+
+  def test_stale_data(self):
+    self.writeLog({'rf_info': "CPRI: x16 HW SW"}, ago=500)
+    self.writePromise()
+    self.configureLauncher()
+    with self.assertRaisesRegex(PromiseError, 'rf_info: stale data'):
       self.launcher.run()
 
 if __name__ == '__main__':

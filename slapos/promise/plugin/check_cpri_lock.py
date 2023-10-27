@@ -4,8 +4,7 @@ import logging
 import os
 
 from dateutil import parser
-from .util import JSONPromise
-from .util import tail_file
+from .util import JSONPromise, get_json_log_data_interval
 
 from zope.interface import implementer
 from slapos.grid.promise import interface
@@ -16,7 +15,7 @@ class RunPromise(JSONPromise):
     super(RunPromise, self).__init__(config)
     self.setPeriodicity(minute=1)
     self.amarisoft_rf_info_log = self.getConfig('amarisoft-rf-info-log')
-#    self.stats_period = int(self.getConfig('stats-period'))
+    self.stats_period = int(self.getConfig('stats-period'))
     self.testing = self.getConfig('testing') == "True"
 
   def sense(self):
@@ -24,16 +23,21 @@ class RunPromise(JSONPromise):
           self.logger.info("skipping promise")
           return
   
-      last_line = tail_file(self.amarisoft_rf_info_log)
-      if "CPRI" not in last_line:
+      data_list = get_json_log_data_interval(self.amarisoft_rf_info_log, self.stats_period * 2)
+      if len(data_list) < 1:
+        self.logger.error("rf_info: stale data")
+        return
+
+      rf_info_text = data_list[0]['rf_info']
+      if "CPRI" not in rf_info_text:
           self.logger.info("No CPRI feature")
       else:
-          if "HW" in last_line and "SW" in last_line:
+          if "HW" in rf_info_text and "SW" in rf_info_text:
               self.logger.info("CPRI locked")
           else:
-              if "HW" not in last_line:
+              if "HW" not in rf_info_text:
                   self.logger.error("HW Lock is missing")
-              if "SW" not in last_line:
+              if "SW" not in rf_info_text:
                   self.logger.error("SW Lock is missing")
     
   def test(self):
