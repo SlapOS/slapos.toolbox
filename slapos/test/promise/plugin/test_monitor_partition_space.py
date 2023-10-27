@@ -57,8 +57,8 @@ class TestMonitorPartitionSpace(TestPromisePluginMixin):
 
     # populate db
     self.conn = sqlite3.connect(self.db_file)
-    f = open(self.base_path+"/folder_disk_test.sql")
-    sql = f.read()
+    with open(self.base_path+"/folder_disk_test.sql") as f:
+      sql = f.read()
     # replace every disk_partition_name string with disk partition name
     sql = sql.replace('disk_partition_name', disk_partition)
     self.conn.executescript(sql)
