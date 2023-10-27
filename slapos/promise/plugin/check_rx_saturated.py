@@ -1,6 +1,7 @@
 from .util import get_json_log_data_interval
 from .util import JSONPromise
 
+import json
 from zope.interface import implementer
 from slapos.grid.promise import interface
 
@@ -13,6 +14,7 @@ class RunPromise(JSONPromise):
     self.testing = self.getConfig('testing') == "True"
     self.amarisoft_stats_log = self.getConfig('amarisoft-stats-log')
     self.stats_period = int(self.getConfig('stats-period'))
+    self.rx_chan_list = json.loads(self.getConfig('rf-rx-chan-list'))
     self.max_rx_sample_db = float(self.getConfig('max-rx-sample-db'))
 
   def sense(self):
@@ -23,7 +25,7 @@ class RunPromise(JSONPromise):
     saturated = False
 
     for rx_antenna_list in map(lambda x: x['samples']['rx'], data_list):
-        rx_list = map(lambda x: float(x['max']), rx_antenna_list)
+        rx_list = map(lambda x: float(x['max']), [rx_antenna_list[i] for i in self.rx_chan_list])
         if not max_rx_list:
           max_rx_list = list(rx_list)
         for i, rx in enumerate(rx_list):
