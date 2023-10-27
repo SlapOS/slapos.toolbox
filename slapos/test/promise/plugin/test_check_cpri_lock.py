@@ -44,6 +44,47 @@ class TestCheckCpriLock(TestPromisePluginMixin):
     super(TestCheckCpriLock, self).setUp()
     self.amarisoft_rf_info_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_rf_info.json.log')
 
+    rf_info = \
+"""
+TRX SDR driver 2023-09-07, API v15/18
+PCIe CPRI /dev/sdr2@1:
+  Hardware ID: 0x4b12
+  DNA: [0x0048248a334a7054]
+  Serial: ''
+  FPGA revision: 2023-06-23  10:05:24
+  FPGA vccint: 0.98 V
+  FPGA vccaux: 1.76 V
+  FPGA vccbram: 0.98 V
+  FPGA temperature: 71.9 °C
+  Clock tune: 0.0 ppm
+  NUMA: 0
+  CPRI_option: '5' (x8) lock=no
+  DMA0: TX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0: RX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0 Underflows: 0
+  DMA0 Overflows: 0
+PCIe CPRI /dev/sdr3@1:
+  Hardware ID: 0x4b12
+  DNA: [0x0048248a334a7054]
+  Serial: ''
+  FPGA revision: 2023-06-23  10:05:24
+  FPGA vccint: 0.98 V
+  FPGA vccaux: 1.77 V
+  FPGA vccbram: 0.98 V
+  FPGA temperature: 71.7 °C
+  Clock tune: 0.0 ppm
+  NUMA: 0
+  CPRI_option: '5' (x8) lock=HW+SW rx/tx=46.606us
+    Port #0: T14=46.606us
+  DMA0: TX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0: RX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0 Underflows: 0
+  DMA0 Overflows: 0
+PCIe SDR /dev/sdr4@0:
+  AAA: bbb
+"""
+    self.rf_info_data = {'message': 'rf', 'rf_info': rf_info}
+
 
   def writeLog(self, data, ago=5):
     with open(self.amarisoft_rf_info_log, 'w') as f:
@@ -59,21 +100,35 @@ class TestCheckCpriLock(TestPromisePluginMixin):
       % (RunPromise.__module__, RunPromise.__name__, kw))
 
   def test_locked_ok(self):
-    self.writeLog({'rf_info': "CPRI: x16 HW SW"})
-    self.writePromise()
+    self.writeLog(self.rf_info_data)
+    self.writePromise(sdr_dev='3', sfp_port='1')
     self.configureLauncher()
     self.launcher.run()
 
   def test_no_lock(self):
-    self.writeLog({'rf_info': "CPRI: x16\\n"})
-    self.writePromise()
+    self.writeLog(self.rf_info_data)
+    self.writePromise(sdr_dev='2', sfp_port='1')
     self.configureLauncher()
-    with self.assertRaises(PromiseError):
+    with self.assertRaisesRegex(PromiseError, r'(?m)HW Lock is missing\n.*SW Lock is missing'):
+      self.launcher.run()
+
+  def test_no_device(self):
+    self.writeLog(self.rf_info_data)
+    self.writePromise(sdr_dev='1', sfp_port='0')
+    self.configureLauncher()
+    with self.assertRaisesRegex(PromiseError, 'no device entry'):
+      self.launcher.run()
+
+  def test_no_cpri_entry(self):
+    self.writeLog(self.rf_info_data)
+    self.writePromise(sdr_dev='4', sfp_port='0')
+    self.configureLauncher()
+    with self.assertRaisesRegex(PromiseError, 'no CPRI feature'):
       self.launcher.run()
 
   def test_stale_data(self):
-    self.writeLog({'rf_info': "CPRI: x16 HW SW"}, ago=500)
-    self.writePromise()
+    self.writeLog(self.rf_info_data, ago=500)
+    self.writePromise(sdr_dev='3', sfp_port='1')
     self.configureLauncher()
     with self.assertRaisesRegex(PromiseError, 'rf_info: stale data'):
       self.launcher.run()
