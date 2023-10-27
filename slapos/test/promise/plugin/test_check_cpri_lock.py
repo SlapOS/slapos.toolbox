@@ -28,6 +28,7 @@
 import mock
 import os
 import time
+import json
 from datetime import datetime
 from datetime import timedelta
 from slapos.grid.promise import PromiseError
@@ -41,39 +42,33 @@ class TestCheckCpriLock(TestPromisePluginMixin):
 
   def setUp(self):
     super(TestCheckCpriLock, self).setUp()
+    self.amarisoft_rf_info_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_rf_info.json.log')
 
+
+  def writeLog(self, data):
+    with open(self.amarisoft_rf_info_log, 'w') as f:
+      f.write(
+      """{"time": "%s", "log_level": "INFO", "message": "RF info", "data": %s}""" %
+        ((datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S")[:-3], json.dumps(data)))
 
   def writePromise(self, **kw):
+    kw.update({'amarisoft-rf-info-log': self.amarisoft_rf_info_log,
+#              'stats-period':          100,
+    })
     super(TestCheckCpriLock, self).writePromise(self.promise_name,
       "from %s import %s\nextra_config_dict = %r\n"
       % (RunPromise.__module__, RunPromise.__name__, kw))
 
   def test_promise_success(self):
-    self.amarisoft_rf_info_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_rf_info.json.log')
-    with open(self.amarisoft_rf_info_log, 'w') as f:
-      f.write(
-      """
-      {"time": "%s", "log_level": "INFO", "message": "RF info", "data": {'rf_info': "CPRI: x16 HW SW"}}
-      """ % ((datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S")[:-3],))
-      self.writePromise(**{
-        'amarisoft-rf-info-log': self.amarisoft_rf_info_log,
-#        'stats-period': 100,
-    })
+    self.writeLog({'rf_info': "CPRI: x16 HW SW"})
+    self.writePromise()
     self.configureLauncher()
     self.launcher.run()
 
 
   def test_promise_fail(self):
-    self.amarisoft_rf_info_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_rf_info.json.log')
-    with open(self.amarisoft_rf_info_log, 'w') as f:
-      f.write(
-      """
-      {"time": "%s", "log_level": "INFO", "message": "RF info", "data": {'rf_info': "CPRI: x16\\n"}}
-      """ % ((datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S")[:-3],))
-    self.writePromise(**{
-        'amarisoft-rf-info-log': self.amarisoft_rf_info_log,
-#        'stats-period': 100,
-    })
+    self.writeLog({'rf_info': "CPRI: x16\\n"})
+    self.writePromise()
     self.configureLauncher()
     with self.assertRaises(PromiseError):
       self.launcher.run()
