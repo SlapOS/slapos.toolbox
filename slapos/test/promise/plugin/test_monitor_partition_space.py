@@ -43,7 +43,7 @@ class TestMonitorPartitionSpace(TestPromisePluginMixin):
     disk_partition = ""
     path = os.path.join(self.partition_dir, "") + "extrafolder"
     partitions = psutil.disk_partitions()
-    while path is not '/':
+    while path != '/':
       if not disk_partition:
         path = os.path.dirname(path)
       else:

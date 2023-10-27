@@ -265,7 +265,7 @@ class RunPromise(GenericPromise):
     check_date = self.getConfig('test-check-date')
     path = os.path.join(self.getPartitionFolder(), "") + "extrafolder"
     partitions = psutil.disk_partitions()
-    while path is not '/':
+    while path != '/':
       if not disk_partition:
         path = os.path.dirname(path)
       else:
