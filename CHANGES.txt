@@ -1,3 +1,11 @@
+0.140 (2023-11-30)
+==================
+
+* promise/plugin: teach `check_sdr_busy`, `check_rx_saturated` and `check_cpri_lock` to handle multiple radio units
+* promise/plugin: adjust Amarisoft-related promises and tests to treat `data` in `*.json.log` as real JSON
+* promise/plugin: adjust `check_rx_saturated` messages to provide details about maximum detected signal level
+* all: general improvement on code quality here and there
+
 0.139 (2023-09-22)
 ==================
 
