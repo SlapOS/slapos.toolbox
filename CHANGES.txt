@@ -22,7 +22,7 @@
 ==================
 
 * This release drops support for python2. Software releases using python2
-are pinned to 0.128, the last version with tests passing on python2
+  are pinned to 0.128, the last version with tests passing on python2
 * promise/plugin: add enabled-sense-list feature in check_surykatka_json
 
 0.134 (2023-03-09)
