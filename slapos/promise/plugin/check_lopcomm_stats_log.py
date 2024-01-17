@@ -16,8 +16,13 @@ class RunPromise(JSONPromise):
         super(RunPromise, self).__init__(config)
         self.setPeriodicity(minute=1)
         self.stats_log = self.getConfig('stats-log')
+        self.testing = self.getConfig('testing') == "True"
 
     def sense(self):
+
+        if self.testing:
+            self.logger.info("skipping promise")
+            return
 
         latest_log = tail_file(self.stats_log)
         latest_log.split("\n")
