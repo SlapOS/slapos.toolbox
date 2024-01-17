@@ -54,7 +54,6 @@ class TestCheckLopcommConfigLog(TestPromisePluginMixin):
             )
         self.writePromise(**{
             'stats-log': self.stats_log,
-            'testing': 'True',
         })
         self.configureLauncher()
         with self.assertRaises(PromiseError):
