@@ -29,7 +29,7 @@ class RunPromise(GenericPromise):
       self.getConfig('failure-amount', self.getConfig('failure_amount', 1)))
     self.enabled_sense_list = self.getConfig(
       'enabled-sense-list',
-      'dns_query tcp_server http_query ssl_certificate elapsed_time').split()
+      'dns_query whois tcp_server http_query ssl_certificate elapsed_time').split()
     self.result_count = self.failure_amount
     self.error = False
     self.message_list = []
@@ -260,6 +260,55 @@ class RunPromise(GenericPromise):
       else:
         self.appendError('IP %s:%s' % (ip, port))
 
+  def senseWhois(self):
+    key = 'whois'
+    self.appendMessage('%s:' % (key, ))
+    url = self.getConfig('url')
+    parsed_url = urlparse(url)
+    hostname = parsed_url.netloc
+    if not hostname:
+      self.appendError('url is incorrect')
+      return
+    domain_expiration_days = self.getConfig(
+      'domain-expiration-days', '30')
+    try:
+      domain_expiration_days = int(domain_expiration_days)
+    except ValueError:
+      self.appendError(
+        'domain-expiration-days %r is incorrect' % (
+          self.getConfig('domain-expiration-days')))
+      return
+
+    if key not in self.surykatka_json:
+      self.appendError("%r not in %r" % (key, self.json_file))
+      return
+
+    entry_list = [
+      q for q in self.surykatka_json[key] if hostname.endswith(q['domain'])]
+    if len(entry_list) == 0:
+      self.appendError('No data')
+      return
+
+    if len(entry_list) > 1:
+      self.appendError('Bad data')
+      return
+    entry = entry_list[0]
+    expiration_date = entry['expiration_date']
+    if expiration_date is None:
+      self.appendError('Expiration date not avaliable')
+    timetuple = email.utils.parsedate(expiration_date)
+    if timetuple is None:
+      self.appendError("Can't parse date %s" % (expiration_date,))
+    domain_expiration_time = datetime.datetime.fromtimestamp(
+      time.mktime(timetuple))
+    if domain_expiration_time - datetime.timedelta(
+      days=domain_expiration_days) < self.utcnow:
+      self.appendError(
+        'domain expires in < %s days' % (domain_expiration_days,))
+    else:
+      self.appendOk(
+        'domain expires in > %s days' % (domain_expiration_days,))
+
   def senseElapsedTime(self):
     key = 'elapsed_time'
     self.appendMessage('%s:' % (key, ))
@@ -322,6 +371,7 @@ class RunPromise(GenericPromise):
           elif report == 'http_query':
             for check_name, check_method in [
               ('dns_query', self.senseDnsQuery),
+              ('whois', self.senseWhois),
               ('tcp_server', self.senseTcpServer),
               ('http_query', self.senseHttpQuery),
               ('ssl_certificate', self.senseSslCertificate),
