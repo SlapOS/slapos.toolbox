@@ -1118,3 +1118,33 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "https://www.whoisminus29.com/ : "
       "whois: ERROR whoisminus29.com expires in < 30 days"
     )
+
+
+class TestCheckSurykatkaJSONHttpQueryDnsQuery(CheckSurykatkaJSONMixin):
+  def test(self):
+    self.fail('TODO')
+
+
+class TestCheckSurykatkaJSONHttpQueryWhois(CheckSurykatkaJSONMixin):
+  def test(self):
+    self.fail('TODO')
+
+
+class TestCheckSurykatkaJSONHttpTcpServer(CheckSurykatkaJSONMixin):
+  def test(self):
+    self.fail('TODO')
+
+
+class TestCheckSurykatkaJSONHttpHttpQuery(CheckSurykatkaJSONMixin):
+  def test(self):
+    self.fail('TODO')
+
+
+class TestCheckSurykatkaJSONHttpSslCertificate(CheckSurykatkaJSONMixin):
+  def test(self):
+    self.fail('TODO')
+
+
+class TestCheckSurykatkaJSONHttpElapsedTime(CheckSurykatkaJSONMixin):
+  def test(self):
+    self.fail('TODO')
