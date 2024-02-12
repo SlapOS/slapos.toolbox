@@ -64,6 +64,23 @@ class CheckSurykatkaJSONMixin(TestPromisePluginMixin):
       result['result']['message'],
       message)
 
+  def runAndAssertPassedMessage(self, message):
+    self.configureLauncher(enable_anomaly=True)
+    self.launcher.run()
+    self.assertPassedMessage(
+      self.getPromiseResult(self.promise_name),
+      message
+    )
+
+  def runAndAssertFailedMessage(self, message):
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      message
+    )
+
 
 class TestCheckSurykatkaJSONBase(CheckSurykatkaJSONMixin):
   def test_no_config(self):
@@ -272,40 +289,12 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         {
           "ip": "127.0.0.1",
           "status_code": 302,
-          "url": "https://www.cert3.com/",
-          "total_seconds": 4
-        },
-        {
-          "ip": "127.0.0.1",
-          "status_code": 302,
-          "url": "https://www.cert14.com/",
-          "total_seconds": 4
-        },
-        {
-          "ip": "127.0.0.1",
-          "status_code": 302,
-          "url": "https://www.certminus14.com/",
-          "total_seconds": 4
-        },
-        {
-          "ip": "127.0.0.1",
-          "status_code": 302,
-          "url": "https://www.nosslcertificatedata.com/",
-        },
-        {
-          "ip": "127.0.0.1",
-          "status_code": 302,
           "url": "http://www.badip.com/",
         },
         {
           "ip": "127.0.0.4",
           "status_code": 302,
           "url": "http://www.badip.com/",
-        },
-        {
-          "ip": "127.0.0.1",
-          "status_code": 301,
-          "url": "https://www.sslcertnoinfo.com/",
         },
       ],
       "ssl_certificate": [
@@ -318,26 +307,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
           "hostname": "www.allok.com",
           "ip": "127.0.0.2",
           "not_after": self.time_future60d
-        },
-        {
-          "hostname": "www.cert3.com",
-          "ip": "127.0.0.1",
-          "not_after": self.time_future3d
-        },
-        {
-          "hostname": "www.cert14.com",
-          "ip": "127.0.0.1",
-          "not_after": self.time_future14d
-        },
-        {
-          "hostname": "www.certminus14.com",
-          "ip": "127.0.0.1",
-          "not_after": self.time_past14d
-        },
-        {
-          "hostname": "www.sslcertnoinfo.com",
-          "ip": "127.0.0.1",
-          "not_after": None
         },
       ],
       "dns_query": [
@@ -352,18 +321,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "rdtype": "A",
             "resolver_ip": "1.2.3.4",
             "response": "127.0.0.1, 127.0.0.2"
-        },
-        {
-            "domain": "www.badip.com",
-            "rdtype": "A",
-            "resolver_ip": "1.2.3.4",
-            "response": "127.0.0.1, 127.0.0.4"
-        },
-        {
-            "domain": "www.dnsquerynoreply.com",
-            "rdtype": "A",
-            "resolver_ip": "1.2.3.4",
-            "response": ""
         },
       ],
       "tcp_server": [
@@ -435,37 +392,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
             "domain": "httpheader.com",
             "expiration_date": self.time_future60d,
         },
-        {
-            "domain": "whois3.com",
-            "expiration_date": self.time_future3d,
-        },
-        {
-            "domain": "whois29.com",
-            "expiration_date": self.time_future29d
-        },
-        {
-            "domain": "whoisminus29.com",
-            "expiration_date": self.time_past29d
-        },
       ]
     })
-
-  def runAndAssertPassedMessage(self, message):
-    self.configureLauncher(enable_anomaly=True)
-    self.launcher.run()
-    self.assertPassedMessage(
-      self.getPromiseResult(self.promise_name),
-      message
-    )
-
-  def runAndAssertFailedMessage(self, message):
-    self.configureLauncher(enable_anomaly=True)
-    with self.assertRaises(PromiseError):
-      self.launcher.run()
-    self.assertFailedMessage(
-      self.getPromiseResult(self.promise_name),
-      message
-    )
 
   def test_all_ok(self):
     self.writeSurykatkaPromise(
@@ -607,65 +535,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "elapsed_time: OK No check configured"
     )
 
-  def test_ssl_certificate_good_certificate_2_day(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'https://www.cert3.com/',
-        'certificate-expiration-days': '2',
-        'enabled-sense-list': 'ssl_certificate',
-      }
-    )
-    self.runAndAssertPassedMessage(
-      "https://www.cert3.com/ : "
-      "ssl_certificate: OK IP 127.0.0.1 expires in > 2 days"
-    )
-
-  def test_ssl_certificate_expired_certificate_4_day(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'https://www.cert3.com/',
-        'certificate-expiration-days': '4',
-        'enabled-sense-list': 'ssl_certificate',
-      }
-    )
-
-    self.runAndAssertFailedMessage(
-      "https://www.cert3.com/ : "
-      "ssl_certificate: ERROR IP 127.0.0.1 expires in < 4 days"
-    )
-
-  def test_ssl_certificate_expired_certificate(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'https://www.cert14.com/',
-        'enabled-sense-list': 'ssl_certificate',
-      }
-    )
-    self.runAndAssertFailedMessage(
-      "https://www.cert14.com/ : "
-      "ssl_certificate: ERROR IP 127.0.0.1 expires in < 15 days"
-    )
-
-  def test_expired_certificate_before_today(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'https://www.certminus14.com/',
-        'enabled-sense-list': 'ssl_certificate',
-      }
-    )
-    self.runAndAssertFailedMessage(
-      "https://www.certminus14.com/ : "
-      "ssl_certificate: ERROR IP 127.0.0.1 expires in < 15 days"
-    )
-
   def test_no_http_query_data(self):
     self.writeSurykatkaPromise(
       {
@@ -699,47 +568,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     self.runAndAssertFailedMessage(
       "http://www.httpquerynopresent.com/ : "
       "http_query: ERROR 'http_query' not in %(json_file)r" % {
-        'json_file': self.json_file}
-    )
-
-  def test_no_ssl_certificate_data(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'https://www.nosslcertificatedata.com/',
-        'enabled-sense-list': 'ssl_certificate'
-      }
-    )
-    self.runAndAssertFailedMessage(
-      "https://www.nosslcertificatedata.com/ : "
-      "ssl_certificate: ERROR No data"
-    )
-
-  def test_no_ssl_certificate(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'https://www.nosslcertificate.com/',
-        'enabled-sense-list': 'ssl_certificate',
-      }
-    )
-    self.writeSurykatkaJson({
-      "http_query": [
-        {
-          "ip": "127.0.0.1",
-          "status_code": 302,
-          "url": "https://www.nosslcertificate.com/"
-        },
-      ],
-      "dns_query": [],
-      "tcp_server": [],
-      "whois": []
-    })
-    self.runAndAssertFailedMessage(
-      "https://www.nosslcertificate.com/ : "
-      "ssl_certificate: ERROR 'ssl_certificate' not in %(json_file)r" % {
         'json_file': self.json_file}
     )
 
@@ -797,110 +625,6 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
 
   def test_bad_code_explanation_526(self):
     self._test_bad_code_explanation(526, '526 (SSL Error)')
-
-  def test_bad_ip(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'http://www.badip.com/',
-        'status-code': '302',
-        'ip-list': '127.0.0.1 127.0.0.2',
-        'enabled-sense-list': 'dns_query',
-      }
-    )
-    self.configureLauncher(enable_anomaly=True)
-    with self.assertRaises(PromiseError):
-      self.launcher.run()
-    self.assertFailedMessage(
-      self.getPromiseResult(self.promise_name),
-      "http://www.badip.com/ : "
-      "dns_query: ERROR resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 != "
-      "127.0.0.1 127.0.0.4"
-    )
-
-  def test_https_no_cert(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'https://www.sslcertnoinfo.com/',
-        'enabled-sense-list': 'ssl_certificate',
-      }
-    )
-    self.runAndAssertFailedMessage(
-      "https://www.sslcertnoinfo.com/ : "
-      "ssl_certificate: ERROR IP 127.0.0.1 no information"
-    )
-
-  def test_dns_query_no_entry(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'http://www.dnsquerynoentry.com/',
-        'ip-list': '127.0.0.1',
-        'enabled-sense-list': 'dns_query',
-      }
-    )
-    self.runAndAssertFailedMessage(
-      "http://www.dnsquerynoentry.com/ : "
-      "dns_query: ERROR No data"
-    )
-
-  def test_dns_query_no_key(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'http://www.dnsquerynokey.com/',
-        'ip-list': '127.0.0.1',
-        'enabled-sense-list': 'dns_query',
-      }
-    )
-    self.writeSurykatkaJson({
-      "http_query": [
-      ],
-      "ssl_certificate": [
-      ],
-      "tcp_server": []
-    })
-    self.runAndAssertFailedMessage(
-      "http://www.dnsquerynokey.com/ : "
-      "dns_query: ERROR 'dns_query' not in %(json_file)r" % {
-        'json_file': self.json_file}
-    )
-
-  def test_dns_query_mismatch(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'http://www.httpallok.com/',
-        'ip-list': '127.0.0.1 127.0.0.9',
-        'enabled-sense-list': 'dns_query',
-      }
-    )
-    self.runAndAssertFailedMessage(
-      "http://www.httpallok.com/ : "
-      "dns_query: ERROR resolver's 1.2.3.4: 127.0.0.1 127.0.0.9 != "
-      "127.0.0.1 127.0.0.2"
-    )
-
-  def test_dns_query_no_reply(self):
-    self.writeSurykatkaPromise(
-      {
-        'report': 'http_query',
-        'json-file': self.json_file,
-        'url': 'http://www.dnsquerynoreply.com/',
-        'ip-list': '127.0.0.1',
-        'enabled-sense-list': 'dns_query',
-      }
-    )
-    self.runAndAssertFailedMessage(
-      "http://www.dnsquerynoreply.com/ : "
-      "dns_query: ERROR resolver's 1.2.3.4: 127.0.0.1 != empty-reply"
-    )
 
   def test_tcp_server_no_ip(self):
     self.writeSurykatkaPromise(
@@ -1026,13 +750,142 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "127.0.0.2 expires in > 15 days"
     )
 
-  def test_whois_no_entry(self):
-    self.writeSurykatkaPromise(
-      {
+
+class TestCheckSurykatkaJSONHttpQueryDnsQuery(CheckSurykatkaJSONMixin):
+  def writeSurykatkaPromise(self, d):
+    d.update(**{
         'report': 'http_query',
         'json-file': self.json_file,
-        'url': 'http://www.whoisnoentry.com/',
+        'enabled-sense-list': 'dns_query',
+    })
+    super().writeSurykatkaPromise(d)
+
+  def setUp(self):
+    super().setUp()
+    self.writeSurykatkaJson({
+      "dns_query": [
+        {
+            "domain": "www.httpallok.com",
+            "rdtype": "A",
+            "resolver_ip": "1.2.3.4",
+            "response": "127.0.0.1, 127.0.0.2"
+        },
+        {
+            "domain": "www.badip.com",
+            "rdtype": "A",
+            "resolver_ip": "1.2.3.4",
+            "response": "127.0.0.1, 127.0.0.4"
+        },
+        {
+            "domain": "www.dnsquerynoreply.com",
+            "rdtype": "A",
+            "resolver_ip": "1.2.3.4",
+            "response": ""
+        },
+      ],
+    })
+
+  def test_bad_ip(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'http://www.badip.com/',
+        'ip-list': '127.0.0.1 127.0.0.2',
+      }
+    )
+    self.configureLauncher(enable_anomaly=True)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    self.assertFailedMessage(
+      self.getPromiseResult(self.promise_name),
+      "http://www.badip.com/ : "
+      "dns_query: ERROR resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 != "
+      "127.0.0.1 127.0.0.4"
+    )
+
+  def test_no_entry(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'http://www.dnsquerynoentry.com/',
         'ip-list': '127.0.0.1',
+      }
+    )
+    self.runAndAssertFailedMessage(
+      "http://www.dnsquerynoentry.com/ : "
+      "dns_query: ERROR No data"
+    )
+
+  def test_query_no_key(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'http://www.dnsquerynokey.com/',
+        'ip-list': '127.0.0.1',
+      }
+    )
+    self.writeSurykatkaJson({})
+    self.runAndAssertFailedMessage(
+      "http://www.dnsquerynokey.com/ : "
+      "dns_query: ERROR 'dns_query' not in %(json_file)r" % {
+        'json_file': self.json_file}
+    )
+
+  def test_mismatch(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'http://www.httpallok.com/',
+        'ip-list': '127.0.0.1 127.0.0.9',
+      }
+    )
+    self.runAndAssertFailedMessage(
+      "http://www.httpallok.com/ : "
+      "dns_query: ERROR resolver's 1.2.3.4: 127.0.0.1 127.0.0.9 != "
+      "127.0.0.1 127.0.0.2"
+    )
+
+  def test_no_reply(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'http://www.dnsquerynoreply.com/',
+        'ip-list': '127.0.0.1',
+      }
+    )
+    self.runAndAssertFailedMessage(
+      "http://www.dnsquerynoreply.com/ : "
+      "dns_query: ERROR resolver's 1.2.3.4: 127.0.0.1 != empty-reply"
+    )
+
+
+class TestCheckSurykatkaJSONHttpQueryWhois(CheckSurykatkaJSONMixin):
+  def writeSurykatkaPromise(self, d):
+    d.update(**{
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'enabled-sense-list': 'whois',
+    })
+    super().writeSurykatkaPromise(d)
+
+  def setUp(self):
+    super().setUp()
+    self.writeSurykatkaJson({
+      "whois": [
+        {
+            "domain": "whois3.com",
+            "expiration_date": self.time_future3d,
+        },
+        {
+            "domain": "whois29.com",
+            "expiration_date": self.time_future29d
+        },
+        {
+            "domain": "whoisminus29.com",
+            "expiration_date": self.time_past29d
+        },
+      ]
+    })
+
+  def test_no_entry(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'http://www.whoisnoentry.com/',
         'enabled-sense-list': 'whois',
       }
     )
@@ -1041,14 +894,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "whois: ERROR No data"
     )
 
-  def test_whois_no_key(self):
+  def test_no_key(self):
     self.writeSurykatkaPromise(
       {
-        'report': 'http_query',
-        'json-file': self.json_file,
         'url': 'http://www.whoisnokey.com/',
-        'ip-list': '127.0.0.1',
-        'enabled-sense-list': 'whois',
       }
     )
     self.writeSurykatkaJson({
@@ -1061,14 +910,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
         'json_file': self.json_file}
     )
 
-  def test_whois_expires_2_day(self):
+  def test_expires_2_day(self):
     self.writeSurykatkaPromise(
       {
-        'report': 'http_query',
-        'json-file': self.json_file,
         'url': 'https://www.whois3.com/',
         'domain-expiration-days': '2',
-        'enabled-sense-list': 'whois',
       }
     )
     self.runAndAssertPassedMessage(
@@ -1076,14 +922,11 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "whois: OK whois3.com expires in > 2 days"
     )
 
-  def test_whois_expired_expires_2_day(self):
+  def test_expired_expires_2_day(self):
     self.writeSurykatkaPromise(
       {
-        'report': 'http_query',
-        'json-file': self.json_file,
         'url': 'https://www.whois3.com/',
         'domain-expiration-days': '4',
-        'enabled-sense-list': 'whois',
       }
     )
     self.runAndAssertFailedMessage(
@@ -1091,13 +934,10 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "whois: ERROR whois3.com expires in < 4 days"
     )
 
-  def test_whois_expired(self):
+  def test_expired(self):
     self.writeSurykatkaPromise(
       {
-        'report': 'http_query',
-        'json-file': self.json_file,
         'url': 'https://www.whois29.com/',
-        'enabled-sense-list': 'whois',
       }
     )
     self.runAndAssertFailedMessage(
@@ -1105,16 +945,147 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
       "whois: ERROR whois29.com expires in < 30 days"
     )
 
-  def test_whois_expired_before_today(self):
+  def test_expired_before_today(self):
     self.writeSurykatkaPromise(
       {
-        'report': 'http_query',
-        'json-file': self.json_file,
         'url': 'https://www.whoisminus29.com/',
-        'enabled-sense-list': 'whois',
       }
     )
     self.runAndAssertFailedMessage(
       "https://www.whoisminus29.com/ : "
       "whois: ERROR whoisminus29.com expires in < 30 days"
     )
+
+
+class TestCheckSurykatkaJSONHttpQueryTcpServer(CheckSurykatkaJSONMixin):
+  def test(self):
+    self.fail('TODO')
+
+
+class TestCheckSurykatkaJSONHttpQueryHttpQuery(CheckSurykatkaJSONMixin):
+  def test(self):
+    self.fail('TODO')
+
+
+class TestCheckSurykatkaJSONHttpQuerySslCertificate(CheckSurykatkaJSONMixin):
+  def setUp(self):
+    super().setUp()
+    self.writeSurykatkaJson({
+      "ssl_certificate": [
+        {
+          "hostname": "www.cert3.com",
+          "ip": "127.0.0.1",
+          "not_after": self.time_future3d
+        },
+        {
+          "hostname": "www.cert14.com",
+          "ip": "127.0.0.1",
+          "not_after": self.time_future14d
+        },
+        {
+          "hostname": "www.certminus14.com",
+          "ip": "127.0.0.1",
+          "not_after": self.time_past14d
+        },
+        {
+          "hostname": "www.sslcertnoinfo.com",
+          "ip": "127.0.0.1",
+          "not_after": None
+        },
+      ],
+    })
+
+  def writeSurykatkaPromise(self, d):
+    d.update(**{
+        'report': 'http_query',
+        'json-file': self.json_file,
+        'enabled-sense-list': 'ssl_certificate',
+    })
+    super().writeSurykatkaPromise(d)
+
+  def test_good_certificate_2_day(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'https://www.cert3.com/',
+        'certificate-expiration-days': '2',
+      }
+    )
+    self.runAndAssertPassedMessage(
+      "https://www.cert3.com/ : "
+      "ssl_certificate: OK IP 127.0.0.1 expires in > 2 days"
+    )
+
+  def test_expired_certificate_4_day(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'https://www.cert3.com/',
+        'certificate-expiration-days': '4',
+      }
+    )
+
+    self.runAndAssertFailedMessage(
+      "https://www.cert3.com/ : "
+      "ssl_certificate: ERROR IP 127.0.0.1 expires in < 4 days"
+    )
+
+  def test_expired_certificate(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'https://www.cert14.com/',
+      }
+    )
+    self.runAndAssertFailedMessage(
+      "https://www.cert14.com/ : "
+      "ssl_certificate: ERROR IP 127.0.0.1 expires in < 15 days"
+    )
+
+  def test_expired_certificate_before_today(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'https://www.certminus14.com/',
+      }
+    )
+    self.runAndAssertFailedMessage(
+      "https://www.certminus14.com/ : "
+      "ssl_certificate: ERROR IP 127.0.0.1 expires in < 15 days"
+    )
+
+  def test_https_no_cert(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'https://www.sslcertnoinfo.com/',
+      }
+    )
+    self.runAndAssertFailedMessage(
+      "https://www.sslcertnoinfo.com/ : "
+      "ssl_certificate: ERROR IP 127.0.0.1 no information"
+    )
+
+  def test_no_ssl_certificate(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'https://www.nosslcertificate.com/',
+      }
+    )
+    self.writeSurykatkaJson({
+      "http_query": [
+        {
+          "ip": "127.0.0.1",
+          "status_code": 302,
+          "url": "https://www.nosslcertificate.com/"
+        },
+      ],
+      "dns_query": [],
+      "tcp_server": [],
+      "whois": []
+    })
+    self.runAndAssertFailedMessage(
+      "https://www.nosslcertificate.com/ : "
+      "ssl_certificate: ERROR 'ssl_certificate' not in %(json_file)r" % {
+        'json_file': self.json_file}
+    )
+
+
+class TestCheckSurykatkaJSONHttpQueryElapsedTime(CheckSurykatkaJSONMixin):
+  def test(self):
+    self.fail('TODO')
