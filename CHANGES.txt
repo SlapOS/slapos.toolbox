@@ -1,3 +1,8 @@
+0.141 (2024-02-14)
+==================
+
+* promise plugin: fix Lopcomm-related promises to work correctly under `testing=True` environment.
+
 0.140 (2023-11-30)
 ==================
 
