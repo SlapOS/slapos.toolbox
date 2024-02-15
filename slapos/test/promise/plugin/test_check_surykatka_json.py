@@ -585,6 +585,10 @@ class TestCheckSurykatkaJSONHttpQueryWhois(CheckSurykatkaJSONMixin):
             "domain": "whoisminus29.com",
             "expiration_date": self.time_past29d
         },
+        {
+            "domain": "whoisnone.com",
+            "expiration_date": None
+        },
       ]
     })
 
@@ -660,6 +664,17 @@ class TestCheckSurykatkaJSONHttpQueryWhois(CheckSurykatkaJSONMixin):
     self.runAndAssertFailedMessage(
       "https://www.whoisminus29.com/ : "
       "whois: ERROR whoisminus29.com expires in < 30 days"
+    )
+
+  def test_none(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'https://www.whoisnone.com/',
+      }
+    )
+    self.runAndAssertFailedMessage(
+      "https://www.whoisnone.com/ : "
+      "whois: ERROR whoisnone.com expiration date not avaliable"
     )
 
 

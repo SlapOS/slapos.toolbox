@@ -304,7 +304,8 @@ class RunPromise(GenericPromise):
     entry = entry_list[0]
     expiration_date = entry['expiration_date']
     if expiration_date is None:
-      self.appendError('Expiration date not avaliable')
+      self.appendError('%s expiration date not avaliable' % (entry['domain'],))
+      return
     timetuple = email.utils.parsedate(expiration_date)
     if timetuple is None:
       self.appendError("Can't parse date %s" % (expiration_date,))
