@@ -1,3 +1,9 @@
+0.141 (2024-02-15)
+==================
+
+* promise/plugin: implement whois check in `check_surykatka_json`
+* promise/plugin: skip all promises when testing=True in `check_lopcomm_*`
+
 0.140 (2023-11-30)
 ==================
 
