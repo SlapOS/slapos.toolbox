@@ -1,3 +1,8 @@
+0.142 (2024-02-15)
+==================
+
+* promise/plugin: fix missing expiration date suport in whois check in `check_surykatka_json`
+
 0.141 (2024-02-15)
 ==================
 
