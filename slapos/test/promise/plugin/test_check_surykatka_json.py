@@ -844,9 +844,6 @@ class TestCheckSurykatkaJSONHttpQueryHttpQuery(CheckSurykatkaJSONMixin):
       }
     )
     self.writeSurykatkaJson({
-      "ssl_certificate": [],
-      "dns_query": [],
-      "tcp_server": [],
     })
     self.runAndAssertFailedMessage(
       "http://www.httpquerynopresent.com/ : "
@@ -1008,9 +1005,6 @@ class TestCheckSurykatkaJSONHttpQuerySslCertificate(CheckSurykatkaJSONMixin):
           "url": "https://www.nosslcertificate.com/"
         },
       ],
-      "dns_query": [],
-      "tcp_server": [],
-      "whois": []
     })
     self.runAndAssertFailedMessage(
       "https://www.nosslcertificate.com/ : "
