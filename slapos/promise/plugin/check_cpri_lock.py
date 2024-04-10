@@ -34,7 +34,7 @@ class RunPromise(JSONPromise):
         return
 
       rf_info = rf_info[self.sdr_devchan]
-      icpri = rf_info.get('CPRI_option')
+      icpri = rf_info.get('CPRI_option') or rf_info.get('CPRI')
       if icpri is None:
         error("no CPRI feature")
         return
@@ -70,7 +70,7 @@ class RunPromise(JSONPromise):
     for l in rf_info_text.splitlines():
       if not l.startswith(' '):  # possibly start of new /dev entry
         cur = None
-        m = re.search(r' (/dev/sdr[^\s]+):$', l)
+        m = re.search(r' (/dev/sdr[^\s]+):\s*$', l)
         if m is None: # not so - ignore the line
           continue
 
@@ -82,6 +82,13 @@ class RunPromise(JSONPromise):
       # indented line - it populates current if it still holds its context
       if cur is None:
         continue
+
+      l = l.lstrip()
+      if not l:
+          continue  # empty lines are ignore, e.g. empty trailing lines in 2022 format
+
+      if ':' not in l:
+          raise ValueError('invalid line %r' % (l,))
 
       k, v = l.split(':', 1)
       k = k.strip()
