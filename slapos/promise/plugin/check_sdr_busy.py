@@ -25,7 +25,7 @@ class RunPromise(GenericPromise):
         return
     try:
       out = subprocess.check_output([
-        sdr + '/sdr_util', '-c', sdr_dev, '-d', dma_chan, 'version'], stderr=subprocess.STDOUT)
+        'sudo', sdr + '/sdr_util', '-c', sdr_dev, '-d', dma_chan, 'version'], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
       if e.returncode == 1 and \
         ("DMA channel is already opened" in e.output.decode() or \
