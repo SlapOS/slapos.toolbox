@@ -133,5 +133,34 @@ PCIe SDR /dev/sdr4@0:
     with self.assertRaisesRegex(PromiseError, 'rf_info: stale data'):
       self.launcher.run()
 
+  def test_2022(self):
+    # Amarisoft software from 2022 has different format for rf_info
+    rf_info_data = self.rf_info_data.copy()
+    rf_info_data['rf_info'] = \
+"""
+TRX SDR driver 2022-10-26, API v15/18
+PCIe CPRI /dev/sdr0@0:  
+  Hardware ID: 0x4b12
+  DNA: [0x000841c20971b05c]
+  Serial: ''
+  FPGA revision: 2022-10-25  08:58:42
+  FPGA vccint: 0.98 V
+  FPGA vccaux: 1.77 V
+  FPGA vccbram: 0.99 V
+  FPGA temperature: 71.9 °C
+  Clock tune: -0.1 ppm
+  NUMA: 0
+  CPRI: x16 HW SW
+  DMA0: TX fifo: 66.67us  Usage=16/65536 (0%)
+  DMA0: RX fifo: 66.67us  Usage=864/65536 (1%)
+  DMA0 Underflows: 0
+  DMA0 Overflows: 0
+  """   # NOTE extra spaces in the end and trailing spaces after /dev/sdr0@:0
+    self.writeLog(rf_info_data)
+    self.writePromise(sdr_dev='0', sfp_port='0')
+    self.configureLauncher()
+    self.launcher.run()
+
+
 if __name__ == '__main__':
   unittest.main()
