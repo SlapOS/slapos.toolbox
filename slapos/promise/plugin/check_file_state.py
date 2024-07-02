@@ -15,7 +15,10 @@ class RunPromise(GenericPromise):
     """
       Check state of the filename
 
-      state can be empty or not-empty
+      state can be one of:
+        absent
+        empty
+        not-empty
     """
 
     filename = self.getConfig('filename')
