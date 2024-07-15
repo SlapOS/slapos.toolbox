@@ -10,8 +10,8 @@ class RunPromise(GenericPromise):
     super(RunPromise, self).__init__(config)
     # SR can set custom periodicity
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
-    self.result_count = int(self.getConfig('result_count', '1'))
-    self.failure_amount = int(self.getConfig('failure_amount', '1'))
+    self.result_count = int(self.getConfig('result-count', '1'))
+    self.failure_amount = int(self.getConfig('failure-amount', '1'))
 
   def sense(self):
     """
