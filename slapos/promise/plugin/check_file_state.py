@@ -12,6 +12,10 @@ class RunPromise(GenericPromise):
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
     self.result_count = int(self.getConfig('result-count', '1'))
     self.failure_amount = int(self.getConfig('failure-amount', '1'))
+    if self.result_count < self.failure_amount:
+      raise ValueError(
+        'Bad configuration: result-count %i < failure_amount %i' % (
+          self.result_count, self.failure_amount))
 
     if self.getConfig(
       'perdiodic-only', 'false').lower() in ('true', 'yes', '1'):
