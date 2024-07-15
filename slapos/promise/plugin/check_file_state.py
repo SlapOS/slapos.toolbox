@@ -13,6 +13,14 @@ class RunPromise(GenericPromise):
     self.result_count = int(self.getConfig('result-count', '1'))
     self.failure_amount = int(self.getConfig('failure-amount', '1'))
 
+    if self.getConfig(
+      'perdiodic-only', 'false').lower() in ('true', 'yes', '1'):
+      self.setTestLess()
+
+    if self.getConfig(
+      'report-anomaly', 'true').lower() in ('false', 'no', '0'):
+      self.setAnomalyLess()
+
   def sense(self):
     """
       Check state of the filename
