@@ -41,7 +41,8 @@ class TestCheckFileState(TestPromisePluginMixin):
     self.tempdir = tempfile.mkdtemp()
     self.promise_name = "check-file-state.py"
 
-    self.base_content = """from slapos.promise.plugin.check_file_state import RunPromise
+    self.base_content = """
+from slapos.promise.plugin.check_file_state import RunPromise
 
 extra_config_dict = {
   'filename': %(filename)r,
