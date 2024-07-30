@@ -10,8 +10,20 @@ class RunPromise(GenericPromise):
     super(RunPromise, self).__init__(config)
     # SR can set custom periodicity
     self.setPeriodicity(float(self.getConfig('frequency', 2)))
-    self.result_count = int(self.getConfig('result_count', '1'))
-    self.failure_amount = int(self.getConfig('failure_amount', '1'))
+    self.result_count = int(self.getConfig('result-count', '1'))
+    self.failure_amount = int(self.getConfig('failure-amount', '1'))
+    if self.result_count < self.failure_amount:
+      raise ValueError(
+        'Bad configuration: result-count %i < failure_amount %i' % (
+          self.result_count, self.failure_amount))
+
+    if self.getConfig(
+      'perdiodic-only', 'false').lower() in ('true', 'yes', '1'):
+      self.setTestLess()
+
+    if self.getConfig(
+      'report-anomaly', 'true').lower() in ('false', 'no', '0'):
+      self.setAnomalyLess()
 
   def sense(self):
     """
@@ -56,6 +68,10 @@ class RunPromise(GenericPromise):
           "ERROR %r empty" % (filename,))
     else:
       self.logger.info("OK %r state %r" % (filename, state))
+
+  def test(self):
+    return self._test(
+      result_count=self.result_count, failure_amount=self.failure_amount)
 
   def anomaly(self):
     return self._anomaly(
