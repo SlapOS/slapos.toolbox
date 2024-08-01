@@ -16,6 +16,13 @@ class RunPromise(GenericPromise):
     self.result_count = int(self.getConfig('result-count', 3))
     self.failure_amount = int(self.getConfig('failure-amount', 3))
 
+    if self.getConfig(
+      'perdiodic-only', 'false').lower() in ('true', 'yes', '1'):
+      self.setTestLess()
+
+    if self.getConfig(
+      'report-anomaly', 'true').lower() in ('false', 'no', '0'):
+      self.setAnomalyLess()
 
   def sense(self):
     """
@@ -49,9 +56,10 @@ class RunPromise(GenericPromise):
     finally:
       s.close()
 
+  def test(self):
+    return self._test(
+      result_count=self.result_count, failure_amount=self.failure_amount)
 
   def anomaly(self):
-    """
-      By default, there is an anomaly if last 3 senses were bad.
-    """
-    return self._anomaly(result_count=self.result_count, failure_amount=self.failure_amount)
+    return self._anomaly(
+      result_count=self.result_count, failure_amount=self.failure_amount)
