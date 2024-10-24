@@ -69,15 +69,19 @@ class RunPromise(JSONPromise):
     cur = None
     for l in rf_info_text.splitlines():
       if not l.startswith(' '):  # possibly start of new /dev entry
-        cur = None
-        m = re.search(r' (/dev/sdr[^\s]+):\s*$', l)
-        if m is None: # not so - ignore the line
-          continue
+        new = True
+        if l.startswith('Clock tune:'):
+            new = False # 2024-06-15 started to emit 'Clock tune:' without indent
+        if new:
+            cur = None
+            m = re.search(r' (/dev/sdr[^\s]+):\s*$', l)
+            if m is None: # not so - ignore the line
+              continue
 
-        cur = {}
-        sdr_devchan = m.group(1)
-        rf_info[sdr_devchan] = cur
-        continue
+            cur = {}
+            sdr_devchan = m.group(1)
+            rf_info[sdr_devchan] = cur
+            continue
 
       # indented line - it populates current if it still holds its context
       if cur is None:

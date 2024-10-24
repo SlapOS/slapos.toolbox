@@ -161,6 +161,78 @@ PCIe CPRI /dev/sdr0@0:
     self.configureLauncher()
     self.launcher.run()
 
+  def test_2024_06_15(self):
+    # Amarisoft software from 2024-06-15 has changed format of rf_info
+    rf_info_data = self.rf_info_data.copy()
+    rf_info_data['rf_info'] = \
+"""
+TRX SDR driver 2024-06-11, API v15
+PCIe CPRI /dev/sdr0@0:
+  Hardware ID: 0x4b12
+  DNA: [0x0068102442f1b05c]
+  Serial: ''
+  FPGA revision: 2024-03-14  16:19:27
+  FPGA vccint: 0.98 V
+  FPGA vccaux: 1.77 V
+  FPGA vccbram: 0.99 V
+  FPGA temperature: 57.6 °C
+Clock tune: 0.2 ppm
+  NUMA: 0
+  CPRI_option: '5' (x8) signal=yes lock=HW+SW rx/tx=2.433us
+    Port #0: T14=2.433us
+  DMA0: TX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0: RX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0 Underflows: 0
+  DMA0: Overflows: 0
+  BUFS: TX idx=53800.99 RX idx=53800.100
+PCIe CPRI /dev/sdr1@0:
+  Hardware ID: 0x4b12
+  DNA: [0x0048b504006af054]
+  Serial: ''
+  FPGA revision: 2024-03-14  16:19:27
+  FPGA vccint: 0.99 V
+  FPGA vccaux: 1.78 V
+  FPGA vccbram: 0.99 V
+  FPGA temperature: 51.6 °C
+Clock tune: -4.0 ppm
+  NUMA: 1
+  CPRI_option: '5' (x8) signal=yes lock=HW+SW rx/tx=1.994us
+    Port #0: T14=1.994us
+  DMA0: TX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0: RX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0 Underflows: 0
+  DMA0: Overflows: 0
+  BUFS: TX idx=53800.114 RX idx=53800.115
+PCIe CPRI /dev/sdr0@2:
+  Hardware ID: 0x4b12
+  DNA: [0x0068102442f1b05c]
+  Serial: ''
+  FPGA revision: 2024-03-14  16:19:27
+  FPGA vccint: 0.98 V
+  FPGA vccaux: 1.77 V
+  FPGA vccbram: 0.98 V
+  FPGA temperature: 57.6 °C
+Clock tune: 0.2 ppm
+  NUMA: 0
+  CPRI_option: '5' (x8) signal=yes lock=HW+SW rx/tx=2.393us
+    Port #0: T14=2.393us
+  DMA0: TX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0: RX fifo: 66.67us  Usage=16/32768 (0%)
+  DMA0 Underflows: 0
+  DMA0: Overflows: 0
+  BUFS: TX idx=53800.133 RX idx=53800.134
+
+GPS info:
+  UTC:  2024-10-24 11:51:43
+  pos:  lat=12.34567°  long=34.56789°
+  height: 118.1m  nb_sats: 10
+"""
+    self.writeLog(rf_info_data)
+    for sdr, port in [(0,0), (1,0), (0,2)]:
+        self.writePromise(sdr_dev='%d' % sdr, sfp_port='%d' % port)
+    self.configureLauncher()
+    self.launcher.run()
+
 
 if __name__ == '__main__':
   unittest.main()
