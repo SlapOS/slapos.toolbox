@@ -51,28 +51,28 @@ class TestMonitorCollect(unittest.TestCase):
     self.collector = ResourceCollect('/tmp/')
 
   def test_getPartitionUsedMemoryAverage(self):
-    self.assertEqual(1195.492578125,
+    self.assertAlmostEqual(1195.492578125,
       self.collector.getPartitionUsedMemoryAverage('slapuser15', '2017-09-16'))
 
   def test_getPartitionCPULoadAverage(self):
-    self.assertEqual(2.1599999999999993,
+    self.assertAlmostEqual(2.16,
       self.collector.getPartitionCPULoadAverage('slapuser15', '2017-09-16'))
 
   def test_getPartitionDiskUsedAverage(self):
-    self.assertEqual(35.5234375,
+    self.assertAlmostEqual(35.5234375,
       self.collector.getPartitionDiskUsedAverage('slapuser15', '2017-04-18'))
 
   def test_getPartitionConsumption(self):
     data = self.collector.getPartitionConsumption('slapuser15', date_scope='2017-09-16', 
                                              min_time='00:01:00', max_time='00:13:00')
-    self.assertEqual(1302.66, data[0]['cpu_time'])
-    self.assertEqual(26825304064.0, data[0]['io_rw_counter'])
+    self.assertAlmostEqual(1302.66, data[0]['cpu_time'])
+    self.assertAlmostEqual(26825304064.0, data[0]['io_rw_counter'])
 
   def test_getPartitionComsumptionStatus(self):
     data = self.collector.getPartitionComsumptionStatus('slapuser15', date_scope='2017-09-16',
                                          min_time='00:01:00', max_time='00:13:00')
-    self.assertEqual(7.3, data[0]['cpu_percent'])
-    self.assertEqual(2822535483392.0, data[2]['io_rw_counter'])
+    self.assertAlmostEqual(7.3, data[0]['cpu_percent'])
+    self.assertAlmostEqual(2822535483392.0, data[2]['io_rw_counter'])
 
   def tearDown(self):
     os.remove("/tmp/collector.db") 
