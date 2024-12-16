@@ -1,3 +1,10 @@
+0.145 (2024-12-16)
+==================
+
+* promise/plugin: add GPS lock check promise (simpleran)
+* promise/plugin: add promise to check ORS central frequency is in range (simpleran)
+* promise/plugin: fix check_cpri_lock to work with Amarisoft 2024-06-15
+
 0.144 (2024-07-30)
 ==================
 
