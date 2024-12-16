@@ -22,7 +22,7 @@ from contextlib import closing
 try:
   import pandas as pd
   import numpy as np
-  from statsmodels.tsa.arima_model import ARIMA
+  from statsmodels.tsa.arima.model import ARIMA
 except ImportError:
   pass
 
