@@ -52,5 +52,11 @@ class RunPromise(GenericPromise):
     return self._test(result_count=10, failure_amount=10)
 
   def anomaly(self):
-    # fail if load is higher than the threshold for more than 30 minutes
+    """
+      Anomaly returns a TestResult instead of AnomalyResult because we don't
+      want to call bang when there is a problem of load.
+      This will need a human intervention to find where the load come from.
+
+      We fail if load is higher than the threshold for more than 30 minutes.
+    """
     return self._test(result_count=10, failure_amount=10)

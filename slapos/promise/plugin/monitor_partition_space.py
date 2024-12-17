@@ -236,4 +236,10 @@ class RunPromise(GenericPromise):
     return self._test(result_count=1, failure_amount=1)
 
   def anomaly(self):
+    """
+      Anomaly returns a TestResult instead of AnomalyResult because we don't
+      want to call bang when there is a problem. Usually the problem won't be
+      in the deployment of this instance but rather in this partition taking
+      too much space.  This will need a human intervention.
+    """
     return self._test(result_count=3, failure_amount=3)

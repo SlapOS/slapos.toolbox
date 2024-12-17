@@ -117,4 +117,4 @@ class RunPromise(GenericPromise):
       log("%s request to %r %s (%s)", request_type, url, result, message)
 
   def anomaly(self):
-    return self._test(result_count=3, failure_amount=3)
+    return self._anomaly(result_count=3, failure_amount=3)
