@@ -63,4 +63,4 @@ class RunPromise(GenericPromise):
 
   def anomaly(self):
     # only check the result of the two latest sense call
-    return self._test(result_count=2, failure_amount=2, latest_minute=self.custom_frequency*3)
+    return self._anomaly(result_count=2, failure_amount=2, latest_minute=self.custom_frequency*3)

@@ -73,4 +73,4 @@ class RunPromise(GenericPromise):
       ws.close()
 
   def anomaly(self):
-    return self._test(result_count=3, failure_amount=3)
+    return self._anomaly(result_count=3, failure_amount=3)
