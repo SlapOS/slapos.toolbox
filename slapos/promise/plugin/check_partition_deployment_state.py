@@ -48,4 +48,4 @@ class RunPromise(GenericPromise):
     return self._test(result_count=1, failure_amount=1)
 
   def anomaly(self):
-    return self._test(result_count=2, failure_amount=2)
+    return self._anomaly(result_count=2, failure_amount=2)

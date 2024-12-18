@@ -395,5 +395,10 @@ class RunPromise(GenericPromise):
     self.emitLog()
 
   def anomaly(self):
+    """
+      Anomaly returns a TestResult instead of AnomalyResult because we don't
+      want to call bang when there is a problem.
+      This will need a human intervention.
+    """
     return self._test(
       result_count=self.result_count, failure_amount=self.failure_amount)
