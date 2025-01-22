@@ -278,7 +278,8 @@ def runUnitTest():
         # file will be available on the server.
         stdout = f.read(2048)
         stdout += "\n[...] File truncated\n"
-        f.seek(-2048, os.SEEK_END)
+        f.seek(0, os.SEEK_END)
+        f.seek(f.tell() - 2048, os.SEEK_SET)
         stdout += f.read()
 
     test_line.stop(stdout=stdout,
