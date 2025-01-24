@@ -36,7 +36,12 @@ class RunPromise(GenericPromise):
         (self.logger.error if 'problem' in severities else
          self.logger.warning)('; '.join(summary))
       else:
-        self.logger.info(summary[1])
+        expected_state = self.getConfig('expected-state')
+        status = summary[1]
+        if expected_state and not status.startswith(expected_state + ';'):
+          self.logger.error('%s; expected %s' % (status, expected_state))
+          return
+        self.logger.info(status)
     except Exception as e:
       self.logger.critical(str(e))
 
