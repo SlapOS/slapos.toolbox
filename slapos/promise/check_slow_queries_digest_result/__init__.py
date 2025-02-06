@@ -28,7 +28,7 @@ def checkMariadbDigestResult(mariadbdex_path, mariadbdex_report_status_file,
   else:
     for date in today_or_yesterday:
       if mariadbdex_file == date.strftime('slowquery_digest.txt-%Y-%m-%d.xz'):
-        with lzma.open(os.path.join(mariadbdex_path, mariadbdex_file), 'rt') as f:
+        with lzma.open(os.path.join(mariadbdex_path, mariadbdex_file), 'rt', encoding='utf8', errors='ignore') as f:
           content = f.read()
         if content:
           # XXX: if not a lot of usage, skip this
