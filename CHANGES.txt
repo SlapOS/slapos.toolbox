@@ -1,3 +1,9 @@
+0.128.2 (2025-02-07)
+====================
+
+* plugin/check_neo_health: allow asserting state
+* check_slow_queries_digest_result: fix encoding on file opening
+
 0.128.1 (2023-09-22)
 ====================
 
