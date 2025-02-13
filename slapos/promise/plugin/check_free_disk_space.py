@@ -22,7 +22,7 @@ from contextlib import closing
 try:
   import pandas as pd
   import numpy as np
-  from statsmodels.tsa.arima_model import ARIMA
+  from statsmodels.tsa.arima.model import ARIMA
 except ImportError:
   pass
 
@@ -191,11 +191,16 @@ class RunPromise(GenericPromise):
           # disabling warnings during the ARIMA calculation
           with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            model_arima = ARIMA(df, order=best_cfg)
-            # disp < 0 means no output about convergence information
-            model_arima_fit = model_arima.fit(disp=-1)
+            if best_cfg is None:
+              self.logger.info("best_cfg is None, using default configuration (1,1,1)")
+              best_cfg = (1, 1, 1)
+            model_arima = ARIMA(df, order=best_cfg, trend="t")
+            model_arima_fit = model_arima.fit()
             # save ARIMA predictions
-            fcast, _, conf = model_arima_fit.forecast(max_date_predicted, alpha=0.05)
+            fcast_result  = model_arima_fit.get_forecast(steps=max_date_predicted)
+            fcast = fcast_result.predicted_mean
+            conf = fcast_result.conf_int(alpha=0.05).to_numpy()
+
           # pass the same index as the others
           fcast = pd.Series(fcast, index=future_index_date)
           if fcast.empty:
