@@ -223,10 +223,9 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
       server = BaseHTTPServer.HTTPServer(
         (SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV4_PORT),
         cls.RequestHandler)
-      server.socket = ssl.wrap_socket(
-        server.socket,
-        certfile=cls.test_server_certificate_file.name,
-        server_side=True)
+      context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+      context.load_cert_chain(certfile=cls.test_server_certificate_file.name)
+      server.socket = context.wrap_socket(server.socket, server_side=True)
       server.serve_forever()
 
     cls.server_process = multiprocessing.Process(target=server)
