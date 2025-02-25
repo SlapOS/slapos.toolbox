@@ -8,7 +8,7 @@ from slapos.grid.promise import interface
 class RunPromise(JSONPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=1)
+    self.setPeriodicity(float(self.getConfig('frequency', 1)))
     self.amarisoft_stats_log = self.getConfig('amarisoft-stats-log')
     self.stats_period = int(self.getConfig('stats-period'))
     self.min_rxtx_delay_threshold = float(self.getConfig('min-rxtx-delay', 0))

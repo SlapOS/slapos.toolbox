@@ -11,7 +11,7 @@ class RunPromise(GenericPromise):
       Sets the configuration and the periodicity.
     """
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=1)
+    self.setPeriodicity(float(self.getConfig('frequency', 1)))
 
 
   def sense(self):
