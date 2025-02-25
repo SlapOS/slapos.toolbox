@@ -108,6 +108,7 @@ setup(name=name,
           'networkbench = slapos.networkbench:main',
           'cachechecker = slapos.cachechecker:web_checker_utility',
           'dnsresolver = slapos.dnsresolver:cli',
+          'backup-signature-update = slapos.backup_signature_update:cli',
         ]
       },
       test_suite='slapos.test',
