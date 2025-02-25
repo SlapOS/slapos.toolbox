@@ -13,7 +13,7 @@ r = re.compile(br"^([0-9]+\-[0-9]+\-[0-9]+ [0-9]+\:[0-9]+\:[0-9]+)(\,[0-9]+) - (
 class RunPromise(GenericPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=10)
+    self.setPeriodicity(float(self.getConfig('frequency', 10)))
 
   def sense(self):
     log_file = self.getConfig('log-file')

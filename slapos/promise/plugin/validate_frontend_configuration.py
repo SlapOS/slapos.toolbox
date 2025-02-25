@@ -11,7 +11,7 @@ class RunPromise(GenericPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
     # check configuration every 5 minutes (only for anomaly)
-    self.setPeriodicity(minute=int(self.getConfig('frequency', 5)))
+    self.setPeriodicity(minute=float(self.getConfig('frequency', 5)))
 
   def sense(self):
     """

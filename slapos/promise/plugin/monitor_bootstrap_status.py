@@ -11,7 +11,7 @@ class RunPromise(GenericPromise):
 
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=2)
+    self.setPeriodicity(float(self.getConfig('frequency', 2)))
 
   def sense(self):
     process_pid_file = self.getConfig('process-pid-file')

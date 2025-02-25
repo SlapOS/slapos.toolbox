@@ -18,7 +18,7 @@ class RunPromise(GenericPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
     # check backup ran OK every 5 minutes
-    self.setPeriodicity(minute=5)
+    self.setPeriodicity(float(self.getConfig('frequency', 5)))
 
   def sense(self):
     """
