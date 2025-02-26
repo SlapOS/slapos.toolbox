@@ -127,8 +127,8 @@ class RunPromise(GenericPromise):
       with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         model = ARIMA(history, order=arima_order)
-        model_fit = model.fit(disp=-1)
-        yhat = model_fit.forecast()[0]
+        model_fit = model.fit()
+        yhat = model_fit.get_forecast().predicted_mean[0]
         predictions.append(yhat)
         history.append(test[t])
     # calculate out of sample error
@@ -149,8 +149,12 @@ class RunPromise(GenericPromise):
             rmse = self.evaluateArimaModel(dataset, order)
             if rmse < best_score:
               best_score, best_cfg = rmse, order
-          except Exception:
-            pass
+              if rmse == 0.0:
+                self.logger.info("Found perfect model with order %s", order)
+                return best_cfg
+          except Exception as e:
+            self.logger.info(e)
+            raise
     return best_cfg
 
   def diskSpacePrediction(self, disk_partition, database, date, time, day_range):
@@ -191,9 +195,6 @@ class RunPromise(GenericPromise):
           # disabling warnings during the ARIMA calculation
           with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            if best_cfg is None:
-              self.logger.info("best_cfg is None, using default configuration (1,1,1)")
-              best_cfg = (1, 1, 1)
             model_arima = ARIMA(df, order=best_cfg, trend="t")
             model_arima_fit = model_arima.fit()
             # save ARIMA predictions
