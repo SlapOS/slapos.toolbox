@@ -11,7 +11,7 @@ for f in sorted(glob.glob(os.path.join('slapos', 'README.*.rst'))):
 
 long_description += open("CHANGES.txt").read() + "\n"
 
-prediction_require = ['statsmodels', 'scipy', 'pandas']
+prediction_require = ['statsmodels>=0.14.0', 'scipy', 'pandas']
 test_require = ['mock', 'cryptography', 'websockets; python_version>="3"',] + prediction_require
 
 setup(name=name,
