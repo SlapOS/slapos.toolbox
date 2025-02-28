@@ -1,3 +1,13 @@
+0.147 (2025-02-28)
+==================
+
+* check_free_disk_space: adapt promise to statsmodels version 0.14.4
+* test_check_url_available: support for python3.12
+* loganalyze: Tool to analyse instance logs
+* check_slow_queries_digest_result: fix encoding on file opening
+* resiliencytest: double the size of log outputted in the test result
+* resiliencytest: fix seek in python3
+
 0.146 (2024-12-18)
 ==================
 
