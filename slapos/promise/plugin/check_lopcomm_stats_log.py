@@ -14,7 +14,7 @@ from slapos.grid.promise import interface
 class RunPromise(JSONPromise):
     def __init__(self, config):
         super(RunPromise, self).__init__(config)
-        self.setPeriodicity(minute=1)
+        self.setPeriodicity(float(self.getConfig('frequency', 1)))
         self.stats_log = self.getConfig('stats-log')
         self.testing = self.getConfig('testing') == "True"
 

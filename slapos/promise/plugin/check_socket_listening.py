@@ -12,7 +12,7 @@ ADDRESS_USAGE = (
 class RunPromise(GenericPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=2)
+    self.setPeriodicity(float(self.getConfig('frequency', 2)))
     self.result_count = int(self.getConfig('result-count', 3))
     self.failure_amount = int(self.getConfig('failure-amount', 3))
 

@@ -8,7 +8,7 @@ from slapos.grid.promise import interface
 class RunPromise(JSONPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=1)
+    self.setPeriodicity(float(self.getConfig('frequency', 1)))
     self.amarisoft_rf_info_log = self.getConfig('amarisoft-rf-info-log')
     self.sdr_devchan = "/dev/sdr%s@%s" % (self.getConfig('sdr_dev'), self.getConfig('sfp_port'))
     self.stats_period = int(self.getConfig('stats-period'))

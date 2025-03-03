@@ -17,7 +17,7 @@ class RunPromise(JSONPromise):
   def __init__(self, config):
 
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=1)
+    self.setPeriodicity(float(self.getConfig('frequency', 1)))
     self.netconf_log = self.getConfig('netconf-log')
     self.testing = self.getConfig('testing') == "True"
 
