@@ -10,7 +10,7 @@ class RunPromise(GenericPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
     # set periodicity to run the promise twice per day
-    self.custom_frequency = int(self.getConfig('frequency', 720))
+    self.custom_frequency = float(self.getConfig('frequency', 720))
     self.setPeriodicity(self.custom_frequency)
     # Skip test check on this promise
     self.setTestLess()
