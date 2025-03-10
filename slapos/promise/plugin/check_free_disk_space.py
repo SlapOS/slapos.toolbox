@@ -183,7 +183,15 @@ class RunPromise(GenericPromise):
         df = df.set_index('date')
         # find the best configuration by trying different combinations
         p_values = d_values = q_values = range(0, 3)
-        best_cfg = self.evaluateModels(df.free, p_values, d_values, q_values)
+        # best_cfg = self.evaluateModels(df.free, p_values, d_values, q_values)
+        # we use evaluateModels() to select the best ARIMA (p, d, q) order,
+        # but it evaluates 27 combinations, each taking about 1–2 seconds,
+        # which exceeds the 20s limit for a promise.
+        # And also in statsmodels 0.11.1, _check_estimable would skip combinations
+        # with insufficient degrees of freedom.
+        # but in 0.14.4, all 27 combinations are evaluated, resulting in excessive runtime.
+        # To save time, we simply use the order (0, 0, 0).
+        best_cfg = (0, 0, 0)
         # set the days to be predicted
         max_date_predicted = day_range+1
         future_index_date = pd.date_range(df.index[-1], freq='24H', periods=max_date_predicted)
