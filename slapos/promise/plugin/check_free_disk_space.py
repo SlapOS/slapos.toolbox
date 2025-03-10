@@ -112,47 +112,6 @@ class RunPromise(GenericPromise):
         raise
     return result
 
-  def evaluateArimaModel(self, X, arima_order):
-    """
-    Evaluate an ARIMA model for a given order (p,d,q) with the MSE which
-    measures the average of the squares of the errors.
-    """
-    # take 66% of the data for training and 33% for testing
-    train_size = int(len(X) * 0.66)
-    train, test = X[0:train_size], X[train_size:]
-    history = [x for x in train]
-    # make predictions
-    predictions = list()
-    for t in range(len(test)):
-      with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        model = ARIMA(history, order=arima_order)
-        model_fit = model.fit()
-        yhat = model_fit.get_forecast().predicted_mean[0]
-        predictions.append(yhat)
-        history.append(test[t])
-    # calculate out of sample error
-    rmse = (np.square(np.subtract(test.values, np.hstack(predictions))).mean())**0.5
-    return rmse
-
-  def evaluateModels(self, dataset, p_values, d_values, q_values):
-    """
-    Evaluate combinations of p, d and q values for an ARIMA model
-    """
-    dataset = dataset.astype('float32')
-    best_score, best_cfg = float("inf"), None
-    for p in p_values:
-      for d in d_values:
-        for q in q_values:
-          order = (p,d,q)
-          rmse = self.evaluateArimaModel(dataset, order)
-          if rmse < best_score:
-            best_score, best_cfg = rmse, order
-            if rmse == 0.0:
-              self.logger.info("Found perfect model with order %s", order)
-              return best_cfg
-    return best_cfg
-
   def diskSpacePrediction(self, disk_partition, database, date, time, day_range):
     """
     Returns an estimation of free disk space left depending on
@@ -183,7 +142,15 @@ class RunPromise(GenericPromise):
         df = df.set_index('date')
         # find the best configuration by trying different combinations
         p_values = d_values = q_values = range(0, 3)
-        best_cfg = self.evaluateModels(df.free, p_values, d_values, q_values)
+        # We were using a function called evaluateModels() to select the
+        # best ARIMA (p, d, q) order, but it evaluates 27 combinations,
+        # each taking about 1–2 seconds, which exceeds the 20s limit for a promise.
+        # And also in statsmodels 0.11.1, _check_estimable would skip combinations
+        # with insufficient degrees of freedom.
+        # but in 0.14.4, all 27 combinations are evaluated, resulting in excessive runtime.
+        # To save time, we simply use the order (0, 0, 0).
+        # XXX: Now we are using the hardcoded order, need to find a better way in future.
+        best_cfg = (0, 0, 0)
         # set the days to be predicted
         max_date_predicted = day_range+1
         future_index_date = pd.date_range(df.index[-1], freq='24H', periods=max_date_predicted)
