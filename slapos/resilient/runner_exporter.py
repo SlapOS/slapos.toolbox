@@ -34,7 +34,7 @@ def rsync(rsync_binary, source, destination, exclude_list=None, extra_args=None,
     rsync_binary,
     '-rlptgov',
     '--stats',
-    '--safe-links',
+    '--keep-dirlinks',
     '--ignore-missing-args',
     '--delete',
     '--delete-excluded'
