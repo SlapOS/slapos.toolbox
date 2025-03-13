@@ -160,7 +160,7 @@ class TestRunnerExporter(unittest.TestCase):
       )
     self.assertEqual(check_output_mock.call_count, 1)
     check_output_mock.assert_any_call(
-      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '.parameters.xml', '.project', 'config.json', 'backup/runner/etc/']
+      ['rsync', '-rlptgov', '--stats', '--keep-dirlinks', '--ignore-missing-args', '--delete', '--delete-excluded', '.parameters.xml', '.project', 'config.json', 'backup/runner/etc/']
     )
 
 
@@ -177,7 +177,7 @@ class TestRunnerExporter(unittest.TestCase):
 
     self.assertEqual(check_output_mock.call_count, 1)
     check_output_mock.assert_any_call(
-      ['rsync', '-rlptgov', '--stats', '--safe-links', '--ignore-missing-args', '--delete', '--delete-excluded', '--exclude=*.pid', '--exclude=*.sock', '--exclude=*.socket', '--exclude=.installed*.cfg', '--exclude=instance/slappart0/etc/nicolas.txt', '--exclude=instance/slappart0/etc/rafael.txt', '--exclude=instance/slappart0/srv/backup/*.log', '--exclude=instance/slappart0/srv/exporter.exclude', '--exclude=instance/slappart1/srv/backup/log/**', '--exclude=instance/slappart1/srv/exporter.exclude', 'instance', 'project', 'proxy.db', 'public', 'backup/runner/runner']
+      ['rsync', '-rlptgov', '--stats', '--keep-dirlinks', '--ignore-missing-args', '--delete', '--delete-excluded', '--exclude=*.pid', '--exclude=*.sock', '--exclude=*.socket', '--exclude=.installed*.cfg', '--exclude=instance/slappart0/etc/nicolas.txt', '--exclude=instance/slappart0/etc/rafael.txt', '--exclude=instance/slappart0/srv/backup/*.log', '--exclude=instance/slappart0/srv/exporter.exclude', '--exclude=instance/slappart1/srv/backup/log/**', '--exclude=instance/slappart1/srv/exporter.exclude', 'instance', 'project', 'proxy.db', 'public', 'backup/runner/runner']
     )
 
   def test_getSlappartSignatureMethodDict(self):
