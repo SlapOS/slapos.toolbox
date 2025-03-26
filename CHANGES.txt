@@ -1,3 +1,9 @@
+0.150 (2025-03-26)
+==================
+
+* promise/plugin: keep the periodicity configurable in many promises
+* check_free_disk_space: use a fixed configuration for Arima model to improve speed of the promise
+
 0.149 (2025-03-03)
 ==================
 
