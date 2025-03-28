@@ -194,26 +194,32 @@ class RunPromise(GenericPromise):
     hostname = urlparse(url).hostname
     ip_set = set(self.getConfig('ip-list', '').split())
 
-    entry_list = [
-      q for q in self.surykatka_json[key]
-      if q['domain'] == hostname and q['rdtype'] == 'A']
+    entry_dict = {}
+    for q in self.surykatka_json[key]:
+      if q['domain'] == hostname and q['rdtype'] in ('A', 'AAAA'):
+        if not q['resolver_ip'] in entry_dict:
+          entry_dict[q['resolver_ip']] = {
+            'domain': q['domain'],
+            'response_ip_set': set()
+          }
+        entry_dict[q['resolver_ip']]['response_ip_set'].update([r.strip() for r in q['response'].split(",") if r.strip()])
+
     if len(ip_set):
-      if len(entry_list) == 0:
+      if not entry_dict:
         self.appendError('No data')
         return
 
-      for entry in sorted(entry_list, key=operator.itemgetter('resolver_ip')):
-        response_ip_set = set([
-          q.strip() for q in entry['response'].split(",") if q.strip()])
+      for resolver_ip, entry in sorted(entry_dict.items()):
+        response_ip_set = entry['response_ip_set']
         if ip_set != response_ip_set:
           self.appendError(
             "resolver's %s: %s != %s" % (
-              entry['resolver_ip'], ' '.join(sorted(ip_set)),
+              resolver_ip, ' '.join(sorted(ip_set)),
               ' '.join(sorted(response_ip_set)) or "empty-reply"))
         else:
           self.appendOk(
             "resolver's %s: %s" % (
-              entry['resolver_ip'], ' '.join(sorted(ip_set)),))
+              resolver_ip, ' '.join(sorted(ip_set)),))
     else:
       self.appendOk('No check configured')
 
@@ -256,6 +262,8 @@ class RunPromise(GenericPromise):
             break
           if entry['state'] == 'open':
             ok = True
+      if ":" in ip:
+        ip = "[%s]" % ip
       if ok:
         self.appendOk('IP %s:%s' % (ip, port))
       else:
