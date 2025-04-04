@@ -85,7 +85,7 @@ extra_config_dict = {
     self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], False)
-    message = "Current disk usage: OK\nEnable to display disk space predictions: False"
+    message = "Current disk usage: OK"
     self.assertEqual(result['result']['message'], message)
 
   def test_disk_space_nok(self):
@@ -124,10 +124,10 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    message = "Free disk space low: remaining 269.10 G (disk size: 417 G, threshold: 278 G). " \
-      "The partition slappart0 uses 83.48 G (date checked: 2017-10-02 09:17:00). " \
-      "The partition slappart2 uses 41.74 G (date checked: 2017-10-02 09:17:00). " \
-      "The partition slappart1 uses 20.87 G (date checked: 2017-10-02 09:17:00)."
+    message = """The partition slappart0 uses 83.48 G (date checked: 2017-10-02 09:17:00).
+The partition slappart2 uses 41.74 G (date checked: 2017-10-02 09:17:00).
+The partition slappart1 uses 20.87 G (date checked: 2017-10-02 09:17:00).
+Free disk space low: remaining 269.10 G (disk size: 417 G, threshold: 278 G)."""
     self.assertIn(message, result['result']['message'])
 
   def test_display_prediction(self):
