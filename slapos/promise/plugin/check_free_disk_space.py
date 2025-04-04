@@ -69,7 +69,7 @@ class RunPromise(GenericPromise):
         result = query_result.fetchone()
         if not result or not result[0]:
           self.logger.info("No result from collector database: disk check skipped")
-          return 0
+          return -1
         disk_free = result[0]
       except sqlite3.OperationalError as e:
         # if database is still locked after timeout expiration (another process is using it)
@@ -77,7 +77,7 @@ class RunPromise(GenericPromise):
         locked_message = "database is locked"
         if locked_message in str(e) and \
             not self.raiseOnDatabaseLocked(locked_message):
-          return 0
+          return -1
         raise
     return int(disk_free)
 
@@ -263,60 +263,16 @@ class RunPromise(GenericPromise):
       currenttime = currenttime.time().strftime('%H:%M')
 
     disk_size = self.getDiskSize(disk_partition, db_path)
-    default_threshold = None
+    # threshold is in GB
+    default_threshold = 100.0
     if disk_size is not None:
+      # if we know the disk size, default threshold is 5%
       default_threshold = round(disk_size/(1024*1024*1024) * 0.05, 2)
-    threshold = float(self.getConfig('threshold', default_threshold) or default_threshold)
+    threshold = float(self.getConfig('threshold', default_threshold))
 
-    free_space = self.getFreeSpace(disk_partition, db_path, currentdate,
-                                   currenttime)
-    if free_space == 0:
-      return
-    elif free_space > threshold*1024*1024*1024:
-      inode_usage = self.getInodeUsage(self.getPartitionFolder())
-      if inode_usage:
-        self.logger.error(inode_usage)
-      else:
-        self.logger.info("Current disk usage: OK")
-        # if the option is enabled and the current disk size is large enough,
-        # we check the predicted remaining disk space
-        display_prediction = bool(int(self.getConfig('display-prediction', 0) or 0))
-        self.logger.info("Enable to display disk space predictions: %s" % display_prediction)
-        if display_prediction:
-          # check that the libraries are installed from the slapos.toolbox extra requires
-          pandas_found = pkgutil.find_loader("pandas")
-          numpy_found = pkgutil.find_loader("numpy")
-          statsmodels_found = pkgutil.find_loader("statsmodels")
-          # if one module isn't installed
-          if pandas_found is None or numpy_found is None or statsmodels_found is None:
-            self.logger.warning("Trying to use statsmodels and pandas " \
-              "but at least one module is not installed. Prediction skipped.")
-            return
-          nb_days_predicted = int(self.getConfig('nb-days-predicted', 10) or 10)
-          disk_space_prediction_tuple = self.diskSpacePrediction(
-            disk_partition, db_path, currentdate, currenttime, nb_days_predicted)
-          if disk_space_prediction_tuple is not None:
-            fcast, lower_series, upper_series = disk_space_prediction_tuple
-            space_left_predicted = fcast.iloc[-1]
-            last_date_predicted = datetime.datetime.strptime(str(fcast.index[-1]),
-                                                            "%Y-%m-%d %H:%M:%S")
-            delta_days = (last_date_predicted.date() - \
-              datetime.datetime.strptime(currentdate, "%Y-%m-%d").date()).days
-            self.logger.info("Prediction: there will be %.2f G left on %s (%s days)." % (
-              space_left_predicted/(1024*1024*1024), last_date_predicted, delta_days))
-            if space_left_predicted <= threshold*1024*1024*1024:
-              self.logger.warning("The free disk space will be too low. " \
-                                "(disk size: %.2f G, threshold: %s G)" % (
-                                  disk_size/(1024*1024*1024), threshold))
-      return
-
-    message = "Free disk space low: remaining %.2f G (disk size: %.0f G, threshold: %.0f G)." % (
-      free_space/(1024*1024*1024), disk_size/(1024*1024*1024), threshold)
-
-    display_partition = bool(int(self.getConfig('display-partition', 0) or 0))
-    self.logger.info("Enable to display the 3 biggest partitions: %s" % display_partition)
+    display_partition = bool(self.getConfig('display-partition', 0))
     if display_partition:
-      # display the 3 partitions that have the most storage capacity on the disk
+      # Always display the 3 partitions that have the most storage capacity on the disk
       big_partitions = self.getBiggestPartitions(db_path, currentdate, currenttime)
       if big_partitions is not None:
         for partition in big_partitions:
@@ -324,10 +280,51 @@ class RunPromise(GenericPromise):
           partition_id = self.getConfig('partition-id', 'slappart')
           # get the name of each partition by adding the user's number to the general name of the partition
           partition_name = ''.join(x for x in partition_id if not x.isdigit()) + ''.join(filter(str.isdigit, user_name))
-          message += " The partition %s uses %.2f G (date checked: %s)." % (
+          self.logger.info("The partition %s uses %.2f G (date checked: %s).",
             partition_name, size_partition/(1024*1024*1024), date_checked)
-    # display the final error message
-    self.logger.error(message)
+
+    inode_usage = self.getInodeUsage(self.getPartitionFolder())
+    if inode_usage:
+      self.logger.error(inode_usage)
+
+    free_space = self.getFreeSpace(disk_partition, db_path, currentdate,
+                                   currenttime)
+    if free_space == -1:
+      # we couldn't connect to the database, simply ignore this occurence of sense
+      return
+    elif free_space > threshold*1024*1024*1024:
+      self.logger.info("Current disk usage: OK")
+      # if the option is enabled and the current disk size is OK,
+      # we check the predicted remaining disk space
+      display_prediction = bool(int(self.getConfig('display-prediction', 0) or 0))
+      if display_prediction:
+        # check that the libraries are installed from the slapos.toolbox extra requires
+        pandas_found = pkgutil.find_loader("pandas")
+        numpy_found = pkgutil.find_loader("numpy")
+        statsmodels_found = pkgutil.find_loader("statsmodels")
+        if pandas_found is None or numpy_found is None or statsmodels_found is None:
+          self.logger.warning("Trying to use statsmodels and pandas " \
+            "but at least one module is not installed. Prediction skipped.")
+          return
+        nb_days_predicted = int(self.getConfig('nb-days-predicted', 10) or 10)
+        disk_space_prediction_tuple = self.diskSpacePrediction(
+          disk_partition, db_path, currentdate, currenttime, nb_days_predicted)
+        if disk_space_prediction_tuple is not None:
+          fcast, lower_series, upper_series = disk_space_prediction_tuple
+          space_left_predicted = fcast.iloc[-1]
+          last_date_predicted = datetime.datetime.strptime(str(fcast.index[-1]),
+                                                          "%Y-%m-%d %H:%M:%S")
+          delta_days = (last_date_predicted.date() - \
+            datetime.datetime.strptime(currentdate, "%Y-%m-%d").date()).days
+          self.logger.info("Prediction: there will be %.2f G left on %s (%s days).",
+            space_left_predicted/(1024*1024*1024), last_date_predicted, delta_days)
+          if space_left_predicted <= threshold*1024*1024*1024:
+            self.logger.error("The free disk space will be too low. " \
+                              "(disk size: %.2f G, threshold: %s G)",
+                                disk_size/(1024*1024*1024), threshold)
+    else:
+      self.logger.error("Free disk space low: remaining %.2f G (disk size: %.0f G, threshold: %.0f G).",
+        free_space/(1024*1024*1024), disk_size/(1024*1024*1024), threshold)
 
   def test(self):
     return self._test(result_count=1, failure_amount=1)
