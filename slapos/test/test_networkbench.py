@@ -26,10 +26,7 @@
 ##############################################################################
 
 import unittest
-import os.path
-from slapos.networkbench import dnsbench
 from slapos.networkbench.ping import ping, ping6
-from slapos.networkbench.http import request
 import dns
 import mock
 
@@ -114,7 +111,6 @@ class TestPing(unittest.TestCase):
     self.assertEqual(info[4], -1)
     self.assertEqual(info[5], 'Fail to parser ping output')
 
-
   def test_ping6_ok(self):
     info = ping6("localhost")
     self.assertEqual(info[0], 'PING6')
@@ -132,91 +128,3 @@ class TestPing(unittest.TestCase):
     self.assertEqual(info[3], 'failed')
     self.assertEqual(info[4], -1)
     self.assertEqual(info[5], 'Fail to parser ping output')
-
-
-class TestHTTPBench(unittest.TestCase):
-
-  def test_request_ok(self):
-    """ This test is way to badly written as it depends on
-        www.erp5.com for now, please replace it
-    """
-    info = request("https://www.erp5.com", {})
-
-    self.assertEqual(info[0], 'GET')
-    self.assertEqual(info[1], 'https://www.erp5.com')
-    self.assertEqual(info[2], 200)
-    self.assertEqual(len(info[3].split(';')), 5 )
-    self.assertEqual(info[4], "OK")
-
-  def test_request_expected_response(self):
-    """ This test is way to badly written as it depends on
-        www.erp5.com for now, please replace it
-    """
-    info = request("https://www.erp5.com", {"expected_response": 200})
-
-    self.assertEqual(info[0], 'GET')
-    self.assertEqual(info[1], 'https://www.erp5.com')
-    self.assertEqual(info[2], 200)
-    self.assertEqual(len(info[3].split(';')), 5 )
-    self.assertEqual(info[4], "OK")
-
-  def test_request_expected_redirection(self):
-    """ This test is way to badly written as it depends on
-        www.erp5.com for now, please replace it
-    """
-    info = request("http://www.erp5.com", {"expected_response": 302})
-
-    self.assertEqual(info[0], 'GET')
-    self.assertEqual(info[1], 'http://www.erp5.com')
-    self.assertEqual(info[2], 302)
-    self.assertEqual(len(info[3].split(';')), 5 )
-    self.assertEqual(info[4], "OK")
-
-
-  def test_request_expected_text(self):
-    """ This test is way to badly written as it depends on
-        www.erp5.com for now, please replace it
-    """
-    info = request("https://www.erp5.com", {"expected_text": "ERP5"})
-
-    self.assertEqual(info[0], 'GET')
-    self.assertEqual(info[1], 'https://www.erp5.com')
-    self.assertEqual(info[2], 200)
-    self.assertEqual(len(info[3].split(';')), 5 )
-    self.assertEqual(info[4], "OK")
-
-
-  def test_request_fail(self):
-    """ Test unreachable URL
-    """
-    info = request("http://thisurldontexist.erp5.com", {})
-
-    self.assertEqual(info[0], 'GET')
-    self.assertEqual(info[1], 'http://thisurldontexist.erp5.com')
-    self.assertEqual(info[2], 0)
-    self.assertEqual(len(info[3].split(';')), 5 )
-    self.assertEqual(info[4], "FAIL")
-
-  def test_request_unexpected_response(self):
-    """ This test is way to badly written as it depends on
-        www.erp5.com for now, please replace it
-    """
-    info = request("http://www.erp5.com", {"expected_response": 200})
-
-    self.assertEqual(info[0], 'GET')
-    self.assertEqual(info[1], 'http://www.erp5.com')
-    self.assertEqual(info[2], 302)
-    self.assertEqual(len(info[3].split(';')), 5 )
-    self.assertEqual(info[4], "UNEXPECTED (200 != 302)")
-
-  def test_request_unexpected_text(self):
-    """ This test is way to badly written as it depends on
-        www.erp5.com for now, please replace it.
-    """
-    info = request("https://www.erp5.com", {"expected_text": "COUSCOUS"})
-
-    self.assertEqual(info[0], 'GET')
-    self.assertEqual(info[1], 'https://www.erp5.com')
-    self.assertEqual(info[2], 200)
-    self.assertEqual(len(info[3].split(';')), 5 )
-    self.assertEqual(info[4], "UNEXPECTED (COUSCOUS not in page content)")
