@@ -1,3 +1,10 @@
+0.151 (2025-04-07)
+==================
+
+* networkbench: totally remove
+* plugin/check_surykatka_json: Add support for IPv6
+* plugin/check_free_disk_space: minor improvements
+
 0.150 (2025-03-26)
 ==================
 
