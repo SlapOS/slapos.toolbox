@@ -13,8 +13,6 @@ class RunPromise(JSONPromise):
 
   def sense(self):
 
-      self.logger.info("TEST")
-
       data_list = get_json_log_data_interval(self.amarisoft_rf_info_log, self.stats_period * 2)
       if len(data_list) < 1:
         self.logger.error("rf_info: stale data")
