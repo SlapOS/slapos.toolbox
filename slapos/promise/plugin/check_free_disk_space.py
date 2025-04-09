@@ -136,10 +136,12 @@ class RunPromise(GenericPromise):
           self.logger.info("No or not enough results from collector database in table disk: no prediction")
           return None
         # put the list in pandas dataframe format and set the right types
-        df = pd.DataFrame(data=result, columns=['free', 'date'])
+        data = np.array(result,
+                dtype=[('free', 'float'), ('date', 'datetime64[s]')])
+        df = pd.DataFrame.from_records(data)
         df.loc[:,'date'] = pd.to_datetime(df.date)
-        df = df.astype({'free': float})
         df = df.set_index('date')
+        df.index = pd.DatetimeIndex(df.index).to_period('D')
         # find the best configuration by trying different combinations
         p_values = d_values = q_values = range(0, 3)
         # We were using a function called evaluateModels() to select the
@@ -148,25 +150,19 @@ class RunPromise(GenericPromise):
         # And also in statsmodels 0.11.1, _check_estimable would skip combinations
         # with insufficient degrees of freedom.
         # but in 0.14.4, all 27 combinations are evaluated, resulting in excessive runtime.
-        # To save time, we simply use the order (0, 0, 0).
+        # To save time, we simply use the order (1, 1, 0).
         # XXX: Now we are using the hardcoded order, need to find a better way in future.
-        best_cfg = (0, 0, 0)
+        best_cfg = (1, 1, 0)
         # set the days to be predicted
         max_date_predicted = day_range+1
-        future_index_date = pd.date_range(df.index[-1], freq='24H', periods=max_date_predicted)
         try:
           # disabling warnings during the ARIMA calculation
-          with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            model_arima = ARIMA(df, order=best_cfg, trend="t")
-            model_arima_fit = model_arima.fit()
-            # save ARIMA predictions
-            fcast_result  = model_arima_fit.get_forecast(steps=max_date_predicted)
-            fcast = fcast_result.predicted_mean
-            conf = fcast_result.conf_int(alpha=0.05).to_numpy()
-
-          # pass the same index as the others
-          fcast = pd.Series(fcast, index=future_index_date)
+          model_arima = ARIMA(df, order=best_cfg, trend="t")
+          model_arima_fit = model_arima.fit()
+          # save ARIMA predictions
+          fcast_result  = model_arima_fit.get_forecast(steps=max_date_predicted)
+          fcast = fcast_result.predicted_mean
+          conf = fcast_result.conf_int(alpha=0.05).to_numpy()
           if fcast.empty:
             self.logger.info("Arima prediction: none. Skipped prediction")
             return None
@@ -174,8 +170,8 @@ class RunPromise(GenericPromise):
           self.logger.info("Arima prediction error: skipped prediction")
           return None
         # get results with 95% confidence
-        lower_series = pd.Series(conf[:, 0], index=future_index_date)
-        upper_series = pd.Series(conf[:, 1], index=future_index_date)
+        lower_series = conf[:, 0]
+        upper_series = conf[:, 1]
         return fcast, lower_series, upper_series
       except sqlite3.OperationalError as e:
         # if database is still locked after timeout expiration (another process is using it)
@@ -313,7 +309,7 @@ class RunPromise(GenericPromise):
           fcast, lower_series, upper_series = disk_space_prediction_tuple
           space_left_predicted = fcast.iloc[-1]
           last_date_predicted = datetime.datetime.strptime(str(fcast.index[-1]),
-                                                          "%Y-%m-%d %H:%M:%S")
+                                                          "%Y-%m-%d")
           delta_days = (last_date_predicted.date() - \
             datetime.datetime.strptime(currentdate, "%Y-%m-%d").date()).days
           self.logger.info("Prediction: there will be %.2f G left on %s (%s days).",
