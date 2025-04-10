@@ -1,3 +1,9 @@
+0.152 (2025-04-10)
+==================
+
+* plugin/check_free_disk_space: fix prediction
+* plugin/check_gps_lock: remove debug print
+
 0.151 (2025-04-07)
 ==================
 
