@@ -12,7 +12,12 @@ for f in sorted(glob.glob(os.path.join('slapos', 'README.*.rst'))):
 long_description += open("CHANGES.txt").read() + "\n"
 
 prediction_require = ['statsmodels>=0.14.0', 'scipy', 'pandas']
-test_require = ['mock', 'cryptography', 'websockets; python_version>="3"',] + prediction_require
+test_require = [
+  'cryptography',
+  'jsonschema',
+  'mock',
+  'websockets',
+] + prediction_require
 
 setup(name=name,
       version=version,
@@ -49,11 +54,9 @@ setup(name=name,
         'PyRSS2Gen',
         'dnspython',
         'requests',
-        'jsonschema',
         'zc.buildout',
-        'pycurl',
         'six',
-        'cryptography',
+        'pyasn1-modules',
         'click',
         'websocket-client',
       ),
@@ -73,7 +76,6 @@ setup(name=name,
           'agent = slapos.agent.agent:main',
           'apache-mpm-watchdog = slapos.promise.apache_mpm_watchdog:main',
           'check-computer-memory = slapos.promise.check_computer_memory:main',
-          'check-web-page-http-cache-hit = slapos.promise.check_web_page_http_cache_hit:main',
           'check-feed-as-promise = slapos.checkfeedaspromise:main',
           'check-apachedex-result = slapos.promise.check_apachedex_result:main',
           'check-slow-queries-digest-result = slapos.promise.check_slow_queries_digest_result:main',

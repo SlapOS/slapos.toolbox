@@ -172,7 +172,7 @@ class TestCheckCertificate(TestPromisePluginMixin):
     self.assertFailedMessage(
       self.getPromiseResult(self.promise_name),
       "ERROR Problem loading key '%s', error: [Errno 2] No such file or "
-      "directory: '%s'" % (nokey_path, nokey_path))
+      "directory" % nokey_path)
 
   def test_no_certificate(self):
     self.createKeyCertificate()
