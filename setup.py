@@ -16,7 +16,7 @@ test_require = [
   'cryptography',
   'jsonschema',
   'mock',
-  'websockets; python_version>="3"',
+  'websockets',
 ] + prediction_require
 
 setup(name=name,
