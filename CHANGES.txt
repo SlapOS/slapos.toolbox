@@ -1,3 +1,10 @@
+0.153 (2025-05-21)
+==================
+
+* remove check-web-page-http-cache-hit
+* re-implement check_certificate plugin with pyasn1-modules
+* drop dependency on cryptography, jsonschema and pycurl
+
 0.152 (2025-04-10)
 ==================
 
