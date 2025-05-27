@@ -28,11 +28,11 @@ class RunPromise(JSONPromise):
     else:
       min_rxtx_delay = min(min_rxtx_delay_it)
       if min_rxtx_delay < self.min_rxtx_delay_threshold:
-        self.logger.error("The minimum available time %s (ms) for radio front end processing is lower than the threshold %s (ms)." % (min_rxtx_delay, self.min_rxtx_delay_threshold))
+        self.logger.error("The minimum available time for radio front end processing is lower than the minimum threshold (%s ms)." % (self.min_rxtx_delay_threshold,))
       else:
-        self.logger.info("The minimum %s (ms) available time for radio front end processing is OK" % (min_rxtx_delay,))
+        self.logger.info("The minimum available time for radio front end processing is higher than the minimum threshold (%s ms)." % (self.min_rxtx_delay_threshold,))
 
-    self.json_logger.info("Minimum available time for radio front end processing (ms)",
+    self.json_logger.info("Min RX TX Delay (ms)",
       extra={'data': {'min_rxtx_delay': min_rxtx_delay}})
 
   def test(self):
