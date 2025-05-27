@@ -21,11 +21,11 @@ class RunPromise(GenericPromise):
     latest_timestamp = get_json_log_latest_timestamp(self.amarisoft_stats_log)
     delta = time.time() - latest_timestamp
     if delta > self.stats_period * 2:
-        self.logger.error("Latest entry from amarisoft statistics log too "\
-                          "old (%s seconds old)" % (delta,))
+        self.logger.error("Latest entry from amarisoft statistics log is more"\
+                          "than %s seconds old" % (self.stats_period * 2,))
     else:
-        self.logger.info("Latest entry from amarisoft statistics is "\
-                         "%s seconds old" % (delta,))
+        self.logger.info("Latest entry from amarisoft statistics is less"\
+                          "than %s seconds old" % (self.stats_period * 2,))
 
   def test(self):
     """
