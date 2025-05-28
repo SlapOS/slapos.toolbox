@@ -274,6 +274,48 @@ exit %(code)s
     # validate returned json result
     validate(instance_result_dict, self.monitor_instance_schema)
 
+  def test_monitor_instance_data_corruption(self):
+    config_content = self.monitor_conf % self.monitor_config_dict
+    self.writeContent(self.monitor_config_file, config_content)
+
+    instance = Monitoring(self.monitor_config_file)
+    instance.bootstrapMonitor()
+
+    self.writePromise('promise_1')
+    self.writePromise('promise_2', success=False)
+    parser = self.getPromiseParser()
+    promise_runner = MonitorPromiseLauncher(parser)
+    promise_runner.start()
+
+    self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_1.status.json')))
+    self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_2.status.json')))
+
+    globalstate.run(self.monitor_config_file)
+    statistic_folder = os.path.join(self.private_dir, 'documents')
+    monitor_data_json = os.path.join(statistic_folder, 'monitor_state.data.json')
+
+    self.assertTrue(os.path.exists(monitor_data_json))
+    # Json can be loaded
+    with open(monitor_data_json) as f:
+      data_dict = json.load(f)
+
+    # broken data
+    with open(monitor_data_json, 'w') as f:
+      f.write("""{
+  "date": "12112323442889",
+	"data": ["Date, Success,
+""")
+
+    with self.assertRaises(ValueError):
+      with open(monitor_data_json) as f:
+        data_dict = json.load(f)
+
+    promise_runner.start()
+    globalstate.run(self.monitor_config_file)
+
+    # Json file is fixed
+    with open(monitor_data_json) as f:
+      data_dict = json.load(f)
 
 class MonitorGlobalTestWithoutLegacyPromiseFolder(MonitorGlobalTest):
   monitor_conf = """[monitor]
