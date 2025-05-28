@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import sys
 import os
+import errno
 import glob
 import json
 from six.moves import configparser
@@ -64,13 +65,20 @@ class MonitorFeed(object):
 
 def generateStatisticsData(stat_file_path, content):
   # csv document for success/error statictics
-  if not os.path.exists(stat_file_path) or os.stat(stat_file_path).st_size == 0:
-    with open(stat_file_path, 'w') as fstat:
-      data_dict = {
-        "date": time.time(),
-        "data": ["Date, Success, Error, Warning"]
-      }
-      fstat.write(json.dumps(data_dict))
+  data_dict = {
+    "date": time.time(),
+    "data": ["Date, Success, Error, Warning"]
+  }
+
+  try:
+    with open(stat_file_path) as f:
+      data_dict = json.load(f)
+  except (IOError, OSError) as e:
+    if e.errno != errno.ENOENT:
+      raise
+  except ValueError:
+    # Broken json, we use default
+    pass
 
   current_state = ''
   if 'state' in content:
@@ -79,14 +87,12 @@ def generateStatisticsData(stat_file_path, content):
       content['state']['success'],
       content['state']['error'],
       '')
+  data_dict['data'].append(current_state)
+  tmp_path = '%s.tmp' % stat_file_path
 
-  # append to file
-  if current_state:
-    with open (stat_file_path, mode="r+") as fstat:
-      fstat.seek(0,2)
-      position = fstat.tell() -2
-      fstat.seek(position)
-      fstat.write('%s}' % ',"{}"]'.format(current_state))
+  with open(tmp_path, mode="w") as f:
+    json.dump(data_dict, f)
+  os.rename(tmp_path, stat_file_path)
 
 def writeDocumentList(folder_path):
   # Save document list in a file called _document_list
