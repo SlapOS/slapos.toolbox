@@ -1,3 +1,9 @@
+0.154 (2025-06-02)
+==================
+
+* monitor: prevent monitor_state.data json file corruption
+* promise/plugin: write static message for promises used in ORS
+
 0.153 (2025-05-21)
 ==================
 
