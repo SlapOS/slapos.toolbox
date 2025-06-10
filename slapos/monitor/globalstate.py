@@ -129,21 +129,6 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
       except ValueError:
         pass
 
-  # clean up stale history files
-  expected_history_json_name_list = [
-    os.path.basename(q).replace('status.json', 'history.json') for q in file_list]
-  cleanup_history_json_path_list = []
-  for history_json_name in [q for q in os.listdir(public_folder) if q.endswith('history.json')]:
-    if history_json_name not in expected_history_json_name_list:
-      cleanup_history_json_path_list.append(os.path.join(public_folder, history_json_name))
-  for cleanup_path in cleanup_history_json_path_list:
-    try:
-      os.unlink(cleanup_path)
-    except Exception:
-      print('ERROR: Failed to remove stale %s' % (cleanup_path,))
-    else:
-      print('OK: Removed stale %s' % (cleanup_path,))
-
   for file in file_list:
     try:
       with open(file, 'r') as temp_file:
@@ -170,12 +155,6 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
         message_hash
       ]
       monitor_feed.appendItem(tmp_json, message_hash)
-      savePromiseHistory(
-        tmp_json['title'],
-        tmp_json,
-        previous_state_dict.get(tmp_json['name']),
-        public_folder
-      )
     except ValueError as e:
       # bad json file
       print("ERROR: Bad json file at: %s\n%s" % (file, e))
@@ -186,45 +165,6 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
 
   monitor_feed.generateRSS(feed_output)
   return error, success
-
-def savePromiseHistory(promise_name, state_dict, previous_state_list,
-    history_folder):
-  if not os.path.exists(history_folder) and os.path.isdir(history_folder):
-    self.logger.warning('Bad promise history folder, history is not saved...')
-    return
-
-  history_file = os.path.join(
-    history_folder,
-    '%s.history.json' % promise_name
-  )
-
-  # Remove useless informations
-  result = state_dict.pop('result')
-  state_dict.update(result)
-  state_dict.pop('path', '')
-  state_dict.pop('type', '')
-  if not os.path.exists(history_file) or not os.stat(history_file).st_size:
-    with open(history_file, 'w') as f:
-      data_dict = {
-        "date": time.time(),
-        "data": [state_dict]
-      }
-      json.dump(data_dict, f)
-  else:
-    if previous_state_list is not None:
-      _, change_date, checksum = previous_state_list
-      current_sum = hashlib.md5(str2bytes(state_dict.get('message', ''))).hexdigest()
-      if state_dict['change-date'] == change_date and \
-          current_sum == checksum:
-        # Only save the changes and not the same info
-        return
-
-    state_dict.pop('title', '')
-    state_dict.pop('name', '')
-    with open (history_file, mode="r+") as f:
-      f.seek(0,2)
-      f.seek(f.tell() -2)
-      f.write('%s}' % ',{}]'.format(json.dumps(state_dict)))
 
 def run(monitor_conf_file):
 
