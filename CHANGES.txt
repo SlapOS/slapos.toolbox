@@ -1,3 +1,8 @@
+0.155 (2025-07-22)
+==================
+
+* promise/plugin/backupserver_check_backup: update to new tzlocal API
+
 0.154 (2025-06-02)
 ==================
 
