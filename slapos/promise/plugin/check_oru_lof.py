@@ -31,15 +31,15 @@ class RunPromise(JSONPromise):
       for line in iter_reverse_lines(f):
         l = json.loads(line)
         alarm_notif = l.get('data', {}).get('notification', {}).get('alarm-notif', None)
-        if alarm_notif and alarm_notif['fault-id'] == '9':
+        if alarm_notif and alarm_notif['fault-id'] == '1002':
           if alarm_notif['is-cleared'] == 'false':
             affected_objects = alarm_notif.get('affected-objects', {})
-            self.logger.error('PA Over Output Power Alarm is on, affected objects are: %s', affected_objects)
+            self.logger.error('Loss of Frame (LOF) alarm is on, affected objects are: %s', affected_objects)
             self.json_logger.info("Affected objects", extra={'data': affected_objects})
-        else:
-            self.logger.info('PA Over Output Power Alarm is off')
-        return
-    self.logger.info('No PA Over Output Power Alarm received')
+          else:
+            self.logger.info('Loss of Frame (LOF) alarm is off')
+          return
+    self.logger.info('No Loss of Frame (LOF) alarm received')
 
   def test(self):
     """
