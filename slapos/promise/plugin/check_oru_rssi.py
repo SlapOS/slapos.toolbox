@@ -31,7 +31,7 @@ class RunPromise(JSONPromise):
       for line in iter_reverse_lines(f):
         l = json.loads(line)
         alarm_notif = l.get('data', {}).get('notification', {}).get('alarm-notif', None)
-        if alarm_notif and alarm_notif['fault-id'] == '101':
+        if alarm_notif and alarm_notif['fault-id'] == '1001':
           if alarm_notif['is-cleared'] == 'false':
             affected_objects = alarm_notif.get('affected-objects', {})
             self.logger.error('RSSI Imbalance alarm & RX Diversity Lost alarm is on, affected objects are: %s', affected_objects)

@@ -4,19 +4,19 @@ import time
 from datetime import datetime
 from datetime import timedelta
 from slapos.grid.promise import PromiseError
-from slapos.promise.plugin.check_lopcomm_stats_log import RunPromise
+from slapos.promise.plugin.check_oru_stats_log import RunPromise
 from . import TestPromisePluginMixin
 
 
-class TestCheckLopcommConfigLog(TestPromisePluginMixin):
+class TestCheckOruConfigLog(TestPromisePluginMixin):
 
-    promise_name = "check-lopcomm-stats-log.py"
+    promise_name = "check-oru-stats-log.py"
 
     def setUp(self):
-        super(TestCheckLopcommConfigLog, self).setUp()
+        super(TestCheckOruConfigLog, self).setUp()
 
     def writePromise(self, **kw):
-        super(TestCheckLopcommConfigLog, self).writePromise(self.promise_name,
+        super(TestCheckOruConfigLog, self).writePromise(self.promise_name,
             "from %s import %s\nextra_config_dict = %r\n"
             % (RunPromise.__module__, RunPromise.__name__, kw))
 
