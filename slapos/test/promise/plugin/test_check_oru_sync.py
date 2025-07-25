@@ -30,27 +30,27 @@ import time
 from datetime import datetime
 from datetime import timedelta
 from slapos.grid.promise import PromiseError
-from slapos.promise.plugin.check_lopcomm_vswr import RunPromise
+from slapos.promise.plugin.check_oru_sync import RunPromise
 from . import TestPromisePluginMixin
 
 
-class TestCheckLopcommVSWRSuccess(TestPromisePluginMixin):
+class TestCheckOruSyncSuccess(TestPromisePluginMixin):
 
-  promise_name = "check-lopcomm-vswr.py"
+  promise_name = "check-oru-sync.py"
 
   def setUp(self):
-    super(TestCheckLopcommVSWRSuccess, self).setUp()
+    super(TestCheckOruSyncSuccess, self).setUp()
     self.netconf_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'netconf.json.log')
 
   def writePromise(self, **kw):
-    super(TestCheckLopcommVSWRSuccess, self).writePromise(self.promise_name,
+    super(TestCheckOruSyncSuccess, self).writePromise(self.promise_name,
       "from %s import %s\nextra_config_dict = %r\n"
       % (RunPromise.__module__, RunPromise.__name__, kw))
 
   def test_promise_success(self):
     with open(self.netconf_log, 'w+') as f:
-      f.write("""{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-05T00:38:50Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "9", "fault-source": "Antport1", "affected-objects": {"name": "Antport1"}, "fault-severity": "MAJOR", "is-cleared": "false", "fault-text": "PA 1 VSWR Alarm", "event-time": "1970-01-05T00:38:50Z"}}}}
-{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-05T00:38:50Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "9", "fault-source": "Antport1", "affected-objects": {"name": "Antport1"}, "fault-severity": "MAJOR", "is-cleared": "true", "fault-text": "PA 1 VSWR Alarm", "event-time": "1970-01-05T00:38:50Z"}}}}""" % (
+      f.write("""{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-01T01:34:04Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "18", "fault-source": "Radio Module", "affected-objects": {"name": "Radio Module"}, "fault-severity": "MAJOR", "is-cleared": "false", "fault-text": "Synchronization Error Alarm", "event-time": "1970-01-01T01:34:04Z"}}}}
+{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-01T01:34:28Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "18", "fault-source": "Radio Module", "affected-objects": {"name": "Radio Module"}, "fault-severity": "MAJOR", "is-cleared": "true", "fault-text": "Synchronization Error Alarm", "event-time": "1970-01-01T01:34:28Z"}}}}""" % (
       (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       ))
@@ -62,8 +62,8 @@ class TestCheckLopcommVSWRSuccess(TestPromisePluginMixin):
 
   def test_promise_fail(self):
     with open(self.netconf_log, 'w+') as f:
-      f.write("""{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-05T00:38:50Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "9", "fault-source": "Antport1", "affected-objects": {"name": "Antport1"}, "fault-severity": "MAJOR", "is-cleared": "true", "fault-text": "PA 1 VSWR Alarm", "event-time": "1970-01-05T00:38:50Z"}}}}
-{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-05T00:38:50Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "9", "fault-source": "Antport1", "affected-objects": {"name": "Antport1"}, "fault-severity": "MAJOR", "is-cleared": "false", "fault-text": "PA 1 VSWR Alarm", "event-time": "1970-01-05T00:38:50Z"}}}}""" % (
+      f.write("""{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-01T01:34:04Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "18", "fault-source": "Radio Module", "affected-objects": {"name": "Radio Module"}, "fault-severity": "MAJOR", "is-cleared": "false", "fault-text": "Synchronization Error Alarm", "event-time": "1970-01-01T01:34:04Z"}}}}
+{"time": "%s", "log_level": "INFO", "message": "", "data": {"notification": {"@xmlns": "urn:ietf:params:xml:ns:netconf:notification:1.0", "eventTime": "1970-01-01T01:34:28Z", "alarm-notif": {"@xmlns": "urn:o-ran:fm:1.0", "fault-id": "18", "fault-source": "Radio Module", "affected-objects": {"name": "Radio Module"}, "fault-severity": "MAJOR", "is-cleared": "false", "fault-text": "Synchronization Error Alarm", "event-time": "1970-01-01T01:34:28Z"}}}}""" % (
       (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       ))
@@ -73,4 +73,4 @@ class TestCheckLopcommVSWRSuccess(TestPromisePluginMixin):
     self.configureLauncher()
     with self.assertRaises(PromiseError):
       self.launcher.run()
-    self.assertEqual("VSWR alarm is on, affected objects are: {'name': 'Antport1'}", self.getPromiseResult(self.promise_name)['result']['message'])
+    self.assertEqual("Synchronization Error Alarm is on, affected objects are: {'name': 'Radio Module'}", self.getPromiseResult(self.promise_name)['result']['message'])
