@@ -20,7 +20,7 @@ class RunPromise(JSONPromise):
 
       rf_info_text = data_list[0]['rf_info']
 
-      if 'Sync: gps (locked)' in rf_info_text:
+      if 'Sync: gps (locked)'.lower() in rf_info_text.lower():
         self.logger.info("GPS locked")
       else:
         self.logger.error("GPS not locked")
