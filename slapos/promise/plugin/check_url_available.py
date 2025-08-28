@@ -85,12 +85,8 @@ class RunPromise(GenericPromise):
     try:
       response = requests.get(url, **request_options)
     except requests.exceptions.SSLError as e:
-      if 'certificate verify failed' in str(e):
-        self.logger.error(
-          "ERROR SSL verify failed while accessing %r", url)
-      else:
-        self.logger.error(
-          "ERROR Unknown SSL error %r while accessing %r", e, url)
+      self.logger.error(
+        "ERROR SSL error while accessing %r: %s", url, e)
     except requests.ConnectionError as e:
       self.logger.error(
         "ERROR connection not possible while accessing %r", url)
