@@ -112,6 +112,7 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
   ))
 
   promises_status_file = os.path.join(private_folder, '_promise_status')
+  tmp_dir = os.path.join(config.get('promises', 'partition-folder'), 'tmp')
   previous_state_dict = {}
   new_state_dict = {}
   error = success = 0
@@ -128,6 +129,8 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
         previous_state_dict = json.loads(f.read())
       except ValueError:
         pass
+  if not os.path.isdir(tmp_dir):
+      os.mkdir(tmp_dir)
 
   # clean up stale history files
   expected_history_json_name_list = [
@@ -174,7 +177,8 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
         tmp_json['title'],
         tmp_json,
         previous_state_dict.get(tmp_json['name']),
-        public_folder
+        public_folder,
+        tmp_dir
       )
     except ValueError as e:
       # bad json file
@@ -188,7 +192,7 @@ def generateMonitoringData(config, public_folder, private_folder, public_url,
   return error, success
 
 def savePromiseHistory(promise_name, state_dict, previous_state_list,
-    history_folder):
+    history_folder, tmp_folder):
   if not os.path.exists(history_folder) and os.path.isdir(history_folder):
     self.logger.warning('Bad promise history folder, history is not saved...')
     return
@@ -197,19 +201,27 @@ def savePromiseHistory(promise_name, state_dict, previous_state_list,
     history_folder,
     '%s.history.json' % promise_name
   )
+  tmp_history_file = os.path.join(tmp_folder, '%s.history.json' % promise_name)
+  history_dict = {
+    "date": time.time(),
+    "data": [state_dict]
+  }
 
   # Remove useless informations
   result = state_dict.pop('result')
   state_dict.update(result)
   state_dict.pop('path', '')
   state_dict.pop('type', '')
-  if not os.path.exists(history_file) or not os.stat(history_file).st_size:
-    with open(history_file, 'w') as f:
-      data_dict = {
-        "date": time.time(),
-        "data": [state_dict]
-      }
-      json.dump(data_dict, f)
+
+  try:
+    with open(history_file) as f:
+      history_dict = json.load(f)
+  except (IOError, OSError) as e:
+    if e.errno != errno.ENOENT:
+      raise
+  except ValueError:
+    # Broken json, use default history_dict
+    pass
   else:
     if previous_state_list is not None:
       _, change_date, checksum = previous_state_list
@@ -221,10 +233,11 @@ def savePromiseHistory(promise_name, state_dict, previous_state_list,
 
     state_dict.pop('title', '')
     state_dict.pop('name', '')
-    with open (history_file, mode="r+") as f:
-      f.seek(0,2)
-      f.seek(f.tell() -2)
-      f.write('%s}' % ',{}]'.format(json.dumps(state_dict)))
+    history_dict['data'].append(state_dict)
+
+  with open(tmp_history_file, mode="w") as f:
+    json.dump(history_dict, f)
+  os.rename(tmp_history_file, history_file)
 
 def run(monitor_conf_file):
 
