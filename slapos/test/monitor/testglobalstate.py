@@ -317,6 +317,65 @@ exit %(code)s
     with open(monitor_data_json) as f:
       data_dict = json.load(f)
 
+  def test_monitor_instance_state_promise_history(self):
+    config_content = self.monitor_conf % self.monitor_config_dict
+    self.writeContent(self.monitor_config_file, config_content)
+    public_dir = os.path.join(self.base_dir, 'public')
+
+    instance = Monitoring(self.monitor_config_file)
+    instance.bootstrapMonitor()
+
+    self.writePromise('promise_1')
+    self.writePromise('promise_2', success=False)
+
+    os.symlink(self.output_dir, '%s/public/promise' % self.base_dir)
+    parser = self.getPromiseParser()
+    promise_runner = MonitorPromiseLauncher(parser)
+    promise_runner.config.force = True
+    promise_runner.start()
+    globalstate.run(self.monitor_config_file)
+
+    history_1 = os.path.join(public_dir, 'promise_1.history.json')
+    history_2 = os.path.join(public_dir, 'promise_2.history.json')
+    self.assertTrue(os.path.exists(history_1))
+    self.assertTrue(os.path.exists(history_2))
+
+    # history is a valid json
+    with open(history_1) as f:
+      data_dict = json.load(f)
+      self.assertEqual(data_dict['data'][0]['title'], 'promise_1')
+
+    with open(history_2) as f:
+      data_dict = json.load(f)
+      self.assertEqual(data_dict['data'][0]['title'], 'promise_2')
+
+    # history 2 data file is broken
+    with open(history_2, 'w') as f:
+      f.write('{"date": 1232424, "data": [{"ddfdf}]}')
+    with self.assertRaises(ValueError):
+      with open(history_2) as f:
+        data_dict = json.load(f)
+
+    self.writePromise('promise_1', success=False)
+    self.writePromise('promise_2')
+    promise_runner.config.force = True
+    promise_runner.start()
+    globalstate.run(self.monitor_config_file)
+    self.assertTrue(os.path.exists(history_1))
+    self.assertTrue(os.path.exists(history_2))
+
+    # history_1 and history_2 are valids
+    with open(history_1) as f:
+      data_dict = json.load(f)
+      self.assertEqual(data_dict['data'][0]['title'], 'promise_1')
+      self.assertEqual(len(data_dict['data']), 2)
+
+    with open(history_2) as f:
+      data_dict = json.load(f)
+      self.assertEqual(data_dict['data'][0]['title'], 'promise_2')
+      # this history was broken and was regenerated
+      self.assertEqual(len(data_dict['data']), 1)
+
 class MonitorGlobalTestWithoutLegacyPromiseFolder(MonitorGlobalTest):
   monitor_conf = """[monitor]
 parameter-file-path = %(base_dir)s/knowledge0.cfg
