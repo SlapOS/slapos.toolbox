@@ -216,7 +216,7 @@ def savePromiseHistory(promise_name, state_dict, previous_state_list,
   try:
     with open(history_file) as f:
       history_dict = json.load(f)
-  except OSError as e:
+  except (IOError, OSError) as e:
     if e.errno != errno.ENOENT:
       raise
   except ValueError:
@@ -235,9 +235,9 @@ def savePromiseHistory(promise_name, state_dict, previous_state_list,
     state_dict.pop('name', '')
     history_dict['data'].append(state_dict)
 
-    with open(tmp_history_file, mode="w") as f:
-      json.dump(history_dict, f)
-    os.rename(tmp_history_file, history_file)
+  with open(tmp_history_file, mode="w") as f:
+    json.dump(history_dict, f)
+  os.rename(tmp_history_file, history_file)
 
 def run(monitor_conf_file):
 
