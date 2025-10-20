@@ -12,7 +12,7 @@ import time
 import datetime
 import argparse
 
-def checkApachedexResult(apachedex_path, apachedex_report_status_file, desired_threshold):
+def checkApachedexResult(apachedex_path, apachedex_report_status_file, desired_threshold, min_hits):
   message = "No apachedex result for today or yesterday"
   today = datetime.date.today()
   today_or_yesterday = today, today - datetime.timedelta(1)
@@ -28,17 +28,22 @@ def checkApachedexResult(apachedex_path, apachedex_report_status_file, desired_t
 
         with open(os.path.join(apachedex_path, apachedex_file)) as f:
           content = f.read()
+
         if content:
-          # XXX: if not a lot of usage, skip
           # XXX: too fragile, use lxml.html and use xpath
-          regex = r"Overall<\/h2>.*\n<th>apdex<\/th><th>.*?\n<\/tr><tr>\n<td [^<]*>(.*?)%<\/td>"
+          regex = r"Overall<\/h2>.*?\n<th>apdex<\/th><th>hits<\/th>.*?\n<\/tr><tr>\n<td [^<]*>(\d+(?:\.\d+)?)%<\/td><td [^<]*>(\d+)<\/td>"
           m = re.findall(regex, content)
+
           if m:
-            apx_result=int(m[0])
-            if apx_result > desired_threshold:
-              return 0, "OK - Score: {}%".format(apx_result)
+            apx_score_str, hits_str = m[0]
+            apx_score = float(apx_score_str)
+            hits = int(hits_str)
+            if hits < min_hits:
+                return 0, "Skip: Only {} hits (must be at least {} hits)".format(hits, min_hits)
+            if apx_score > desired_threshold:
+              return 0, "OK - Score: {}%".format(apx_score)
             else:
-              return 1, "Score too low: {}% - Threshold: {}%".format(apx_result, desired_threshold)
+              return 1, "Score too low: {}% - Threshold: {}%".format(apx_score, desired_threshold)
         message = "No result found in the apdex file or the file is corrupted"
         break
 
@@ -58,8 +63,14 @@ def main():
   parser.add_argument("--apachedex_path", required=True)
   parser.add_argument("--status_file", required=True)
   parser.add_argument("--threshold", required=True, type=float)
+  parser.add_argument(
+    "--min_hits",
+    type=int,
+    default=50,
+    help="Minimum number of hits required to do check"
+  )
   args = parser.parse_args()
 
-  status, message = checkApachedexResult(args.apachedex_path, args.status_file, args.threshold)
+  status, message = checkApachedexResult(args.apachedex_path, args.status_file, args.threshold, args.min_hits)
   print(message)
   sys.exit(status)
