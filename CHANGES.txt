@@ -1,3 +1,8 @@
+0.159 (2025-10-20)
+==================
+
+* check_apachedex_result: Prevent false alarm if only few hits
+
 0.158 (2025-10-07)
 ==================
 
