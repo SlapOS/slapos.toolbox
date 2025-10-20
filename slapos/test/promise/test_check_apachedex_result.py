@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2017 Vifib SARL and Contributors. All Rights Reserved.
+# Copyright (c) 2017-2025 Vifib SARL and Contributors. All Rights Reserved.
 #
 # WARNING: This program as such is intended to be used by professional
 # programmers who take the whole responsibility of assessing all potential
@@ -37,6 +37,7 @@ from slapos.promise.check_apachedex_result import checkApachedexResult
 
 apdex_not_found_message = "No result found in the apdex file or the file is corrupted"
 low_score_message_formater = "Score too low: {}% - Threshold: {}%"
+no_hits_formater = "Skip: Only {} hits (must be at least {} hits)"
 ok_message_formater = "OK - Score: {}%"
 skip_message = "Instance has been just deployed. Skipping check.."
 
@@ -101,6 +102,12 @@ class TestCheckApacheDigestResult(unittest.TestCase):
     self._create_file(self.today, True)
     self._remove_file(self.yesterday)
     self._create_file(self.yesterday, False)
+
+  def test_min_hits_is_higher(self):
+    min_hits = 1
+    status, message = checkApachedexResult(self.base_dir, self.status_file, 0, min_hits)
+    self.assertEqual(status, 0)
+    self.assertEqual(no_hits_formater.format(0, min_hits), message)
 
   def tearDown(self):
     self._remove_file(self.today)
