@@ -398,10 +398,8 @@ class TestCheckUrlAvailable(CheckUrlAvailableMixin):
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    self.assertEqual(
-      result['result']['message'],
-      "ERROR SSL verify failed while accessing %r" % (url,)
-    )
+    self.assertIn('ERROR SSL error while accessing %r' % (url, ), result['result']['message'])
+    self.assertIn('CERTIFICATE_VERIFY_FAILED', result['result']['message'])
 
   def test_check_200_verify_own(self):
     url = HTTPS_ENDPOINT + '200'
