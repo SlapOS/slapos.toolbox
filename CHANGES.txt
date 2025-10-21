@@ -1,7 +1,12 @@
-0.128.3 (2025-10-20)
+0.128.4 (2025-10-21)
 ====================
 
 * check_apachedex_result: Prevent false alarm if only few hits
+
+0.128.3 (2025-10-20)
+====================
+
+* nothing this was same as 0.128.2 because of a mistake
 
 0.128.2 (2025-02-07)
 ====================
