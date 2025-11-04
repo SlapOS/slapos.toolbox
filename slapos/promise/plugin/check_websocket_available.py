@@ -15,14 +15,23 @@ Some notable parameters:
     Optional bytes array or string (depending on binary) to send to the websocket
   content-to-receive:
     Optional bytes array or string (depending on binary) to compare the first message sent by websocket with (must be used with content to send)
+  username:
+    Optional string containing the user name for basic auth
+  password:
+    Optional string containing the password for basic auth
 """
 
 from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
+from base64 import b64encode
 
 import ssl
 import websocket
+
+def basic_auth(username, password):
+  token = b64encode(f"{username}:{password}".encode('utf-8')).decode("ascii")
+  return f'Basic {token}'
 
 @implementer(interface.IPromise)
 class RunPromise(GenericPromise):
@@ -44,11 +53,18 @@ class RunPromise(GenericPromise):
     binary = self.getConfig('binary', True)
     content_to_send = self.getConfig('content-to-send')
     content_to_receive = self.getConfig('content-to-receive')
+    username = self.getConfig('username', '')
+    password = self.getConfig('password', '')
+    if username:
+      header = { 'Authorization' : basic_auth(username, password) }
+    else:
+      header = {}
 
     try:
       ws = websocket.create_connection(
         url,
         timeout=int(self.getConfig('timeout', default_timeout)),
+        header=header,
         sslopt={"cert_reqs": ssl.CERT_NONE}
         )
     except websocket._exceptions.WebSocketBadStatusException:
