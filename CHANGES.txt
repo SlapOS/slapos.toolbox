@@ -1,3 +1,8 @@
+0.160 (2025-11-10)
+==================
+
+* check_websocket_available: Supports basic_auth
+
 0.159 (2025-10-20)
 ==================
 
