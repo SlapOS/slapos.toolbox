@@ -241,7 +241,8 @@ def savePromiseHistory(promise_name, state_dict, previous_state_list,
 
 def run(monitor_conf_file):
 
-  config = configparser.ConfigParser()
+  # Interpolation must be disabled because url values may contain % characters
+  config = configparser.ConfigParser(interpolation=None)
   config.read(monitor_conf_file)
 
   base_folder = config.get('monitor', 'private-folder')
