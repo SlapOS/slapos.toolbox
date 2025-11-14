@@ -109,7 +109,8 @@ class Monitoring(object):
 
   def loadConfig(self, pathes, config=None):
     if config is None:
-      config = configparser.ConfigParser()
+      # Interpolation must be disabled because url values may contain % characters
+      config = configparser.ConfigParser(interpolation=False)
     try:
       config.read(pathes)
     except configparser.MissingSectionHeaderError:
