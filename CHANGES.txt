@@ -1,3 +1,8 @@
+0.161 (2025-11-20)
+==================
+
+* monitor: Fix config file parsing (disable interpolation)
+
 0.160 (2025-11-10)
 ==================
 
