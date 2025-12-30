@@ -76,17 +76,21 @@ def notify(transaction_id):
   try:
     feed = feedparser.parse(request.data)
   except ValueError:
+    app.logger.error("Couldn't parse %s", request.data)
     abort(httplib.BAD_REQUEST)
 
   if feed.bozo: # Malformed XML
+    app.logger.error("Malformed XML")
     abort(httplib.BAD_REQUEST)
 
   try:
     callback_filepath = os.path.join(app.config['CALLBACKS'],
                                      sha512(feed.feed.id.encode()).hexdigest())
     if not os.path.exists(callback_filepath):
+      app.logger.error("Callback %s doesn't exist", callback_filepath)
       abort(httplib.NOT_FOUND)
   except AttributeError:
+    app.logger.error("Callback badly configured")
     abort(httplib.BAD_REQUEST)
 
 
@@ -100,11 +104,14 @@ def notify(transaction_id):
         'timestamp': timestamp,
         })
 
+    app.logger.info("Will send following request to equeue")
+    app.logger.info(equeue_request)
     equeue_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     equeue_socket.connect(app.config['EQUEUE_SOCKET'])
     equeue_socket.send(str2bytes(equeue_request))
     result = equeue_socket.recv(len(callback))
     equeue_socket.close()
+    app.logger.info("Got result: %s", result)
 
     if result != callback:
       abort_it = True
@@ -116,15 +123,12 @@ def notify(transaction_id):
   return '', httplib.NO_CONTENT
 
 
-def getLogger(logfile):
-  logger = logging.getLogger("Notifier")
-  logger.setLevel(logging.INFO)
+def getHandler(logfile):
   handler = logging.FileHandler(logfile)
   # Natively support logrotate
   formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
   handler.setFormatter(formatter)
-  logger.addHandler(handler)
-  return logger
+  return handler
 
 def main():
   global app
@@ -146,8 +150,11 @@ def main():
   # Set log
   logfile = args.logfile[0]
   if logfile:
-    logger = getLogger(logfile)
-    app.logger.addHandler(logger)
+    app.logger.addHandler(getHandler(logfile))
+    app.logger.setLevel(logging.INFO)
+    from flask.logging import default_handler
+    app.logger.removeHandler(default_handler)
+
     app.logger.info('starting server')
   app.run(host=args.host, port=args.port)
 
