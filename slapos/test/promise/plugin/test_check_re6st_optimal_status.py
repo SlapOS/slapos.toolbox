@@ -33,7 +33,7 @@ class TestCheckRe6stOptimalStatus(TestPromisePluginMixin):
 
   def setUp(self):
     TestPromisePluginMixin.setUp(self)
-    self.promise_name = "check-icmp-packet-lost.py"
+    self.promise_name = "check-re6st-optimal-status.py"
 
     self.base_content = """from slapos.promise.plugin.check_re6st_optimal_status import RunPromise
 
