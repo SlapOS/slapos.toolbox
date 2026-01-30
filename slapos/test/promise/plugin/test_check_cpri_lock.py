@@ -89,7 +89,7 @@ PCIe SDR /dev/sdr4@0:
   def writeLog(self, data, ago=5):
     with open(self.amarisoft_rf_info_log, 'w') as f:
       f.write(
-      """{"time": "%s", "log_level": "INFO", "message": "RF info", "data": %s}""" %
+      """{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": %s}""" %
         ((datetime.now() - timedelta(seconds=ago)).strftime("%Y-%m-%d %H:%M:%S")[:-3], json.dumps(data)))
 
   def writePromise(self, **kw):
