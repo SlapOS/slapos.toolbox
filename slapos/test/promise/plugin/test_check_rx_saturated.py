@@ -61,8 +61,9 @@ class TestCheckRXSaturated(TestPromisePluginMixin):
         'max-rx-sample-db': 0.0,
         'rf-rx-chan-list': '[1]',
     })
-    self.configureLauncher()
-    self.launcher.run()
+    self.configureLauncher(enable_anomaly=True, force=True)
+    for i in range(3):
+      self.launcher.run()
 
   def test_promise_fail(self):
     self.writePromise(**{
@@ -71,7 +72,9 @@ class TestCheckRXSaturated(TestPromisePluginMixin):
         'max-rx-sample-db': -3.0,
         'rf-rx-chan-list': '[1]',
     })
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
+    for i in range(2):
+      self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
 

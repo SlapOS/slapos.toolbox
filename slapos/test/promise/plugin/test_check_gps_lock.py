@@ -94,13 +94,13 @@ GPS info:
   def test_locked_ok(self):
     self.writeLog(self.rf_info_data)
     self.writePromise()
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
     self.launcher.run()
 
   def test_stale_data(self):
     self.writeLog(self.rf_info_data, ago=500)
     self.writePromise()
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
     with self.assertRaisesRegex(PromiseError, 'rf_info: stale data'):
       self.launcher.run()
 

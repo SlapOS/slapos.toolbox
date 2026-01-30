@@ -59,7 +59,7 @@ class TestCheckAmarisoftStatsLog(TestPromisePluginMixin):
         'amarisoft-stats-log': self.amarisoft_stats_log,
         'stats-period': 10,
     })
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
     self.launcher.run()
 
   def test_promise_fail(self):
@@ -67,7 +67,7 @@ class TestCheckAmarisoftStatsLog(TestPromisePluginMixin):
         'amarisoft-stats-log': self.amarisoft_stats_log,
         'stats-period': 1,
     })
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
 
