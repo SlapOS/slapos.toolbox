@@ -68,6 +68,7 @@ class TestCheckAmarisoftStatsLog(TestPromisePluginMixin):
         'stats-period': 1,
     })
     self.configureLauncher()
+    #self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
 

@@ -60,8 +60,9 @@ class TestCheckBasebandLatency(TestPromisePluginMixin):
         'stats-period': 100,
         'min-rxtx-delay': 0,
     })
-    self.configureLauncher()
-    self.launcher.run()
+    self.configureLauncher(enable_anomaly=True, force=True)
+    for i in range(3):
+      self.launcher.run()
 
   def test_promise_fail(self):
     self.writePromise(**{
@@ -69,7 +70,9 @@ class TestCheckBasebandLatency(TestPromisePluginMixin):
         'stats-period': 100,
         'min-rxtx-delay': 3,
     })
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
+    for i in range(2):
+      self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
 
