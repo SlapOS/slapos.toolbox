@@ -31,7 +31,7 @@ class RunPromise(JSONPromise):
           if s1["address"] == mme and s1["state"] == "setup_done":
             mme_setup_done = True
         if not mme_setup_done:
-          disconnected_core_count.setdefault(mme, 0) += 1
+          disconnected_core_count.setdefault(mme, 0)
           disconnected_core_count[mme] += 1
     for amf in amf_list:
       for ng_list in map(lambda x: x['ng_list'], data_list):
@@ -40,7 +40,7 @@ class RunPromise(JSONPromise):
           if ng["address"] == amf and ng["state"] == "setup_done":
             amf_setup_done = True
         if not amf_setup_done:
-          disconnected_core_count.setdefault(amf, 0) += 1
+          disconnected_core_count.setdefault(amf, 0)
           disconnected_core_count[amf] += 1
         
     for core in disconnected_core_count:
