@@ -10,6 +10,7 @@ class RunPromise(JSONPromise):
     self.setPeriodicity(float(self.getConfig('frequency', 1)))
     self.amarisoft_stats_log = self.getConfig('amarisoft-stats-log')
     self.stats_period = int(self.getConfig('stats-period'))
+    self.allowBang(False)
 
   def sense(self):
 
@@ -33,7 +34,7 @@ class RunPromise(JSONPromise):
 
       In this case, fail if the previous sensor result is negative.
     """
-    return self._test(result_count=1, failure_amount=1)
+    return TestResult(problem=False, message="Promise disabled while instance is converging")
 
 
   def anomaly(self):
