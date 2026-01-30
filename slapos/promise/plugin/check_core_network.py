@@ -45,7 +45,7 @@ class RunPromise(JSONPromise):
         
     for core in disconnected_core_count:
       self.logger.error("{} was disconnected for {} minutes the last {} minutes".format(
-        mme,
+        core,
         self.stats_period / 60,
         interval / 60))
     if not disconnected_core_count:
