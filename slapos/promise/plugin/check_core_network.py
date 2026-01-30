@@ -15,8 +15,8 @@ class RunPromise(JSONPromise):
     self.testing = self.getConfig('testing') == "True"
     self.amarisoft_stats_log = self.getConfig('amarisoft-stats-log')
     self.stats_period = int(self.getConfig('stats-period'))
-    self.mme_list = json.loads(self.getConfig('mme-list'))
-    self.amf_list = json.loads(self.getConfig('amf-list'))
+    self.mme_list = list(self.getConfig('mme-list'))
+    self.amf_list = list(self.getConfig('amf-list'))
 
   def sense(self):
 
