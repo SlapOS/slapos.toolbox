@@ -25,6 +25,11 @@ class RunPromise(JSONPromise):
 
     disconnected_core_count = {}
     for mme in self.mme_list:
+      if '.' in mme:
+        if ':' not in mme:
+          mme = f"{mme}:36412"
+      elif '[' not in mme:
+        mme = f"[{mme}]:36412"
       for s1_list in map(lambda x: x['s1_list'], data_list):
         mme_setup_done = False
         for s1 in s1_list:
@@ -34,6 +39,11 @@ class RunPromise(JSONPromise):
           disconnected_core_count.setdefault(mme, 0)
           disconnected_core_count[mme] += 1
     for amf in self.amf_list:
+      if '.' in amf:
+        if ':' not in amf:
+          amf = f"{amf}:38412"
+      elif '[' not in amf:
+        amf = f"[{amf}]:38412"
       for ng_list in map(lambda x: x['ng_list'], data_list):
         amf_setup_done = False
         for ng in ng_list:
