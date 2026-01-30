@@ -23,7 +23,7 @@ class RunPromise(JSONPromise):
     interval = min(self.frequency * 60, self.stats_period * 2)
     data_list = get_json_log_data_interval(self.amarisoft_stats_log, interval)
 
-    disconnected_core_count = []
+    disconnected_core_count = {}
     for mme in self.mme_list:
       for s1_list in map(lambda x: x['s1_list'], data_list):
         mme_setup_done = False
