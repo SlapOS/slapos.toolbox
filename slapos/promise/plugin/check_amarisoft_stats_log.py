@@ -44,4 +44,4 @@ class RunPromise(GenericPromise):
 
       In this case, fail if two out of the last three results are negative.
     """
-    return self._anomaly(result_count=1, failure_amount=1)
+    return self._anomaly(result_count=2, failure_amount=2)

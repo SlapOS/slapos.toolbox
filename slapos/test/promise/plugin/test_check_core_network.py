@@ -63,7 +63,7 @@ class TestCheckCoreNetwork(TestPromisePluginMixin):
         'mme-list': ['127.0.1.100'],
         'amf-list': [],
     })
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
     self.launcher.run()
 
   def test_promise_fail(self):
@@ -83,7 +83,7 @@ class TestCheckCoreNetwork(TestPromisePluginMixin):
         'mme-list': ['127.0.1.100'],
         'amf-list': [],
     })
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
     with self.assertRaises(PromiseError):
       self.launcher.run()
 
