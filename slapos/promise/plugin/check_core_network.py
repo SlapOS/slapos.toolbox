@@ -59,7 +59,7 @@ class RunPromise(JSONPromise):
         self.stats_period / 60,
         interval / 60))
     if not disconnected_core_count:
-      self.logger.info("All Core Networks were connected")
+      self.logger.info("All Core Networks are connected")
 
     self.json_logger.info("Disconnected Core Networks count map", 
                           extra={'data': disconnected_core_count})
