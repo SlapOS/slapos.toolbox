@@ -60,8 +60,8 @@ class TestCheckCoreNetwork(TestPromisePluginMixin):
     self.writePromise(**{
         'amarisoft-stats-log': self.amarisoft_stats_log,
         'stats-period': 10,
-        'mme_list': ['127.0.1.100'],
-        'amf_list': [],
+        'mme-list': ['127.0.1.100'],
+        'amf-list': [],
     })
     self.configureLauncher()
     self.launcher.run()
@@ -80,8 +80,8 @@ class TestCheckCoreNetwork(TestPromisePluginMixin):
     self.writePromise(**{
         'amarisoft-stats-log': self.amarisoft_stats_log,
         'stats-period': 10,
-        'mme_list': ['127.0.1.100'],
-        'amf_list': [],
+        'mme-list': ['127.0.1.100'],
+        'amf-list': [],
     })
     self.configureLauncher()
     with self.assertRaises(PromiseError):
