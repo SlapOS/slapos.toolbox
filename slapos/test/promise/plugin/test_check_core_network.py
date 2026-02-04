@@ -49,9 +49,9 @@ class TestCheckCoreNetwork(TestPromisePluginMixin):
   def test_promise_success(self):
 
     with open(self.amarisoft_stats_log, 'w+') as f:
-      f.write("""{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100", "state": "setup_done", "plmn": [ "00101" ] } ]}}
-{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100", "state": "setup_done", "plmn": [ "00101" ] } ]}}
-{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100", "state": "setup_done", "plmn": [ "00101" ] } ]}}""" % (
+      f.write("""{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}
+{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}
+{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}""" % (
       (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
@@ -69,9 +69,9 @@ class TestCheckCoreNetwork(TestPromisePluginMixin):
   def test_promise_fail(self):
 
     with open(self.amarisoft_stats_log, 'w+') as f:
-      f.write("""{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100", "state": "setup_done", "plmn": [ "00101" ] } ]}}
+      f.write("""{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}
 {"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": []}}
-{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100", "state": "setup_done", "plmn": [ "00101" ] } ]}}""" % (
+{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}""" % (
       (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
       (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
