@@ -42,7 +42,7 @@ class TestCheckCpriLock(TestPromisePluginMixin):
 
   def setUp(self):
     super(TestCheckCpriLock, self).setUp()
-    self.amarisoft_rf_info_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_rf_info.json.log')
+    self.amarisoft_stats_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_stats.json.log')
 
     rf_info = \
 """
@@ -87,13 +87,13 @@ PCIe SDR /dev/sdr4@0:
 
 
   def writeLog(self, data, ago=5):
-    with open(self.amarisoft_rf_info_log, 'w') as f:
+    with open(self.amarisoft_stats_log, 'w') as f:
       f.write(
       """{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": %s}""" %
         ((datetime.now() - timedelta(seconds=ago)).strftime("%Y-%m-%d %H:%M:%S")[:-3], json.dumps(data)))
 
   def writePromise(self, **kw):
-    kw.update({'amarisoft-rf-info-log': self.amarisoft_rf_info_log,
+    kw.update({'amarisoft-stats-log': self.amarisoft_stats_log,
                'stats-period':          100})
     super(TestCheckCpriLock, self).writePromise(self.promise_name,
       "from %s import %s\nextra_config_dict = %r\n"
