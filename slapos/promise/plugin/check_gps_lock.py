@@ -7,13 +7,14 @@ from slapos.grid.promise import interface
 class RunPromise(JSONPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(float(self.getConfig('frequency', 1)))
-    self.amarisoft_rf_info_log = self.getConfig('amarisoft-rf-info-log')
+    self.setPeriodicity(float(self.getConfig('frequency', 2)))
+    self.amarisoft_stats_log = self.getConfig('amarisoft-stats-log')
     self.stats_period = int(self.getConfig('stats-period'))
+    self.allowBang(False)
 
   def sense(self):
 
-      data_list = get_json_log_data_interval(self.amarisoft_rf_info_log, self.stats_period * 2)
+      data_list = get_json_log_data_interval(self.amarisoft_stats_log, self.stats_period * 2)
       if len(data_list) < 1:
         self.logger.error("rf_info: stale data")
         return
