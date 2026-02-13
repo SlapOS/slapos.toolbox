@@ -7,10 +7,9 @@ from slapos.grid.promise import interface
 class RunPromise(JSONPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(float(self.getConfig('frequency', 2)))
+    self.setPeriodicity(float(self.getConfig('frequency', 1)))
     self.amarisoft_stats_log = self.getConfig('amarisoft-stats-log')
     self.stats_period = int(self.getConfig('stats-period'))
-    self.allowBang(False)
 
   def sense(self):
 
