@@ -29,45 +29,59 @@ import os
 from datetime import datetime
 from datetime import timedelta
 from slapos.grid.promise import PromiseError
-from slapos.promise.plugin.check_baseband_latency import RunPromise
+from slapos.promise.plugin.check_core_network import RunPromise
 from . import TestPromisePluginMixin
 
 
-class TestCheckBasebandLatency(TestPromisePluginMixin):
+class TestCheckCoreNetwork(TestPromisePluginMixin):
 
-  promise_name = "check-baseband-latency.py"
+  promise_name = "check-core-network.py"
 
   def setUp(self):
-    super(TestCheckBasebandLatency, self).setUp()
+    super(TestCheckCoreNetwork, self).setUp()
     self.amarisoft_stats_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_stats.json.log')
-    with open(self.amarisoft_stats_log, 'w+') as f:
-      f.write("""{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"rf": {"rxtx_delay_min": %f}}}
-{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"rf": {"rxtx_delay_min": %f}}}
-{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"rf": {"rxtx_delay_min": %f}}}""" % (
-      (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], 7.0,
-      (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], 2.0,
-      (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], 5.0,
-      ))
 
   def writePromise(self, **kw):
-    super(TestCheckBasebandLatency, self).writePromise(self.promise_name,
+    super(TestCheckCoreNetwork, self).writePromise(self.promise_name,
       "from %s import %s\nextra_config_dict = %r\n"
       % (RunPromise.__module__, RunPromise.__name__, kw))
 
   def test_promise_success(self):
+
+    with open(self.amarisoft_stats_log, 'w+') as f:
+      f.write("""{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}
+{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}
+{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}""" % (
+      (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
+      (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
+      (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
+      ))
+
     self.writePromise(**{
         'amarisoft-stats-log': self.amarisoft_stats_log,
-        'stats-period': 100,
-        'min-rxtx-delay': 0,
+        'stats-period': 10,
+        'mme-list': ['127.0.1.100'],
+        'amf-list': [],
     })
     self.configureLauncher()
     self.launcher.run()
 
   def test_promise_fail(self):
+
+    with open(self.amarisoft_stats_log, 'w+') as f:
+      f.write("""{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}
+{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": []}}
+{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"s1_list": [ { "address": "127.0.1.100:36412", "state": "setup_done", "plmn": [ "00101" ] } ]}}""" % (
+      (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
+      (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
+      (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3],
+      ))
+
     self.writePromise(**{
         'amarisoft-stats-log': self.amarisoft_stats_log,
-        'stats-period': 100,
-        'min-rxtx-delay': 3,
+        'stats-period': 10,
+        'mme-list': ['127.0.1.100'],
+        'amf-list': [],
     })
     self.configureLauncher()
     with self.assertRaises(PromiseError):
