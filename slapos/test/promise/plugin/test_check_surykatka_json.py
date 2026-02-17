@@ -351,15 +351,15 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV4(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
-      "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
-      "127.0.0.2 expires in > 15 days "
       "elapsed_time: OK IP 127.0.0.1 replied < 5.00s OK IP 127.0.0.2 replied "
-      "< 5.00s"
+      "< 5.00s "
+      "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
+      "127.0.0.2 expires in > 15 days"
     )
 
   def test_http_all_ok(self):
@@ -375,14 +375,14 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV4(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "http://www.httpallok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "whois: OK httpallok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:80 OK IP 127.0.0.2:80 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
-      "ssl_certificate: OK No check needed "
       "elapsed_time: OK IP 127.0.0.1 replied < 5.00s OK IP 127.0.0.2 replied "
-      "< 5.00s"
+      "< 5.00s "
+      "ssl_certificate: OK No check needed"
     )
 
   def test_configuration_no_ip_list(self):
@@ -394,14 +394,14 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV4(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK No check configured "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
+      "elapsed_time: OK No check configured "
       "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
-      "127.0.0.2 expires in > 15 days "
-      "elapsed_time: OK No check configured"
+      "127.0.0.2 expires in > 15 days"
     )
 
   def test_all_ok_no_ssl_certificate(self):
@@ -417,8 +417,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV4(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
@@ -624,20 +624,20 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
+      "whois: OK allok.com expires in > 30 days "
       "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
         "2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
-      "whois: OK allok.com expires in > 30 days "
       "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
         "OK IP [2001:db8::8a2e:370:7334]:443 OK IP [fe80::b4b4:cdff:fe96:bee4]:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
         "status_code 302 OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
-      "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
-        "127.0.0.2 expires in > 15 days OK IP 2001:db8::8a2e:370:7334"
-        " expires in > 15 days OK IP fe80::b4b4:cdff:fe96:bee4 expires in > 15 days "
       "elapsed_time: OK IP 127.0.0.1 replied < 5.00s OK IP 127.0.0.2 replied "
         "< 5.00s OK IP 2001:db8::8a2e:370:7334 replied < 5.00s "
-        "OK IP fe80::b4b4:cdff:fe96:bee4 replied < 5.00s"
+        "OK IP fe80::b4b4:cdff:fe96:bee4 replied < 5.00s "
+      "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
+        "127.0.0.2 expires in > 15 days OK IP 2001:db8::8a2e:370:7334"
+        " expires in > 15 days OK IP fe80::b4b4:cdff:fe96:bee4 expires in > 15 days"
     )
 
   def test_http_all_ok(self):
@@ -653,18 +653,18 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "http://www.httpallok.com/ : "
+      "whois: OK httpallok.com expires in > 30 days "
       "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
         "2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
-      "whois: OK httpallok.com expires in > 30 days "
       "tcp_server: OK IP 127.0.0.1:80 OK IP 127.0.0.2:80 "
         "OK IP [2001:db8::8a2e:370:7334]:80 OK IP [fe80::b4b4:cdff:fe96:bee4]:80 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
         "status_code 302 OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
-      "ssl_certificate: OK No check needed "
       "elapsed_time: OK IP 127.0.0.1 replied < 5.00s OK IP 127.0.0.2 replied "
         "< 5.00s OK IP 2001:db8::8a2e:370:7334 replied < 5.00s "
-        "OK IP fe80::b4b4:cdff:fe96:bee4 replied < 5.00s"
+        "OK IP fe80::b4b4:cdff:fe96:bee4 replied < 5.00s "
+      "ssl_certificate: OK No check needed"
     )
 
   def test_configuration_no_ip_list(self):
@@ -676,16 +676,16 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK No check configured "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
         "status_code 302 OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
+      "elapsed_time: OK No check configured "
       "ssl_certificate: OK IP 127.0.0.1 expires in > 15 days OK IP "
         "127.0.0.2 expires in > 15 days OK IP 2001:db8::8a2e:370:7334"
-        " expires in > 15 days OK IP fe80::b4b4:cdff:fe96:bee4 expires in > 15 days "
-      "elapsed_time: OK No check configured"
+        " expires in > 15 days OK IP fe80::b4b4:cdff:fe96:bee4 expires in > 15 days"
     )
 
   def test_all_ok_nothing_enabled(self):
@@ -715,9 +715,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
+      "whois: OK allok.com expires in > 30 days "
       "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
         "2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
-      "whois: OK allok.com expires in > 30 days "
       "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
         "OK IP [2001:db8::8a2e:370:7334]:443 OK IP [fe80::b4b4:cdff:fe96:bee4]:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
@@ -857,15 +857,15 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV6(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "tcp_server: OK IP [2001:db8::8a2e:370:7334]:443 OK IP [fe80::b4b4:cdff:fe96:bee4]:443 "
       "http_query: OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
-      "ssl_certificate: OK IP 2001:db8::8a2e:370:7334"
-        " expires in > 15 days OK IP fe80::b4b4:cdff:fe96:bee4 expires in > 15 days "
       "elapsed_time: OK IP 2001:db8::8a2e:370:7334 replied < 5.00s "
-        "OK IP fe80::b4b4:cdff:fe96:bee4 replied < 5.00s"
+        "OK IP fe80::b4b4:cdff:fe96:bee4 replied < 5.00s "
+      "ssl_certificate: OK IP 2001:db8::8a2e:370:7334"
+        " expires in > 15 days OK IP fe80::b4b4:cdff:fe96:bee4 expires in > 15 days"
     )
 
   def test_http_all_ok(self):
@@ -881,14 +881,14 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV6(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "http://www.httpallok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "whois: OK httpallok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "tcp_server: OK IP [2001:db8::8a2e:370:7334]:80 OK IP [fe80::b4b4:cdff:fe96:bee4]:80 "
       "http_query: OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
-      "ssl_certificate: OK No check needed "
       "elapsed_time: OK IP 2001:db8::8a2e:370:7334 replied < 5.00s "
-        "OK IP fe80::b4b4:cdff:fe96:bee4 replied < 5.00s"
+        "OK IP fe80::b4b4:cdff:fe96:bee4 replied < 5.00s "
+      "ssl_certificate: OK No check needed"
     )
 
   def test_configuration_no_ip_list(self):
@@ -900,14 +900,14 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV6(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK No check configured "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
+      "elapsed_time: OK No check configured "
       "ssl_certificate: OK IP 2001:db8::8a2e:370:7334"
-        " expires in > 15 days OK IP fe80::b4b4:cdff:fe96:bee4 expires in > 15 days "
-      "elapsed_time: OK No check configured"
+        " expires in > 15 days OK IP fe80::b4b4:cdff:fe96:bee4 expires in > 15 days"
     )
 
 
@@ -924,8 +924,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV6(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "tcp_server: OK IP [2001:db8::8a2e:370:7334]:443 OK IP [fe80::b4b4:cdff:fe96:bee4]:443 "
       "http_query: OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
