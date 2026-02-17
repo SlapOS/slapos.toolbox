@@ -388,8 +388,8 @@ class RunPromise(GenericPromise):
             self.senseBotStatus()
           elif report == 'http_query':
             for check_name, check_method in [
-              ('dns_query', self.senseDnsQuery),
               ('whois', self.senseWhois),
+              ('dns_query', self.senseDnsQuery),
               ('tcp_server', self.senseTcpServer),
               ('http_query', self.senseHttpQuery),
               ('ssl_certificate', self.senseSslCertificate),
