@@ -351,8 +351,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV4(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
@@ -375,8 +375,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV4(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "http://www.httpallok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "whois: OK httpallok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:80 OK IP 127.0.0.2:80 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
@@ -394,8 +394,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV4(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK No check configured "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
@@ -417,8 +417,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV4(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
       "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
       "status_code 302 "
@@ -624,9 +624,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
+      "whois: OK allok.com expires in > 30 days "
       "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
         "2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
-      "whois: OK allok.com expires in > 30 days "
       "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
         "OK IP [2001:db8::8a2e:370:7334]:443 OK IP [fe80::b4b4:cdff:fe96:bee4]:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
@@ -653,9 +653,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "http://www.httpallok.com/ : "
+      "whois: OK httpallok.com expires in > 30 days "
       "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
         "2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
-      "whois: OK httpallok.com expires in > 30 days "
       "tcp_server: OK IP 127.0.0.1:80 OK IP 127.0.0.2:80 "
         "OK IP [2001:db8::8a2e:370:7334]:80 OK IP [fe80::b4b4:cdff:fe96:bee4]:80 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
@@ -676,8 +676,8 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK No check configured "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
         "status_code 302 OK IP 2001:db8::8a2e:370:7334 status_code 302 "
@@ -715,9 +715,9 @@ class TestCheckSurykatkaJSONHttpQuery(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
+      "whois: OK allok.com expires in > 30 days "
       "dns_query: OK resolver's 1.2.3.4: 127.0.0.1 127.0.0.2 "
         "2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
-      "whois: OK allok.com expires in > 30 days "
       "tcp_server: OK IP 127.0.0.1:443 OK IP 127.0.0.2:443 "
         "OK IP [2001:db8::8a2e:370:7334]:443 OK IP [fe80::b4b4:cdff:fe96:bee4]:443 "
       "http_query: OK IP 127.0.0.1 status_code 302 OK IP 127.0.0.2 "
@@ -857,8 +857,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV6(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "tcp_server: OK IP [2001:db8::8a2e:370:7334]:443 OK IP [fe80::b4b4:cdff:fe96:bee4]:443 "
       "http_query: OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
@@ -881,8 +881,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV6(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "http://www.httpallok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "whois: OK httpallok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "tcp_server: OK IP [2001:db8::8a2e:370:7334]:80 OK IP [fe80::b4b4:cdff:fe96:bee4]:80 "
       "http_query: OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
@@ -900,8 +900,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV6(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK No check configured "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK No check configured "
       "tcp_server: OK No check configured "
       "http_query: OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
@@ -924,8 +924,8 @@ class TestCheckSurykatkaJSONHttpQueryOnlyIPV6(CheckSurykatkaJSONMixin):
     )
     self.runAndAssertPassedMessage(
       "https://www.allok.com/ : "
-      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "whois: OK allok.com expires in > 30 days "
+      "dns_query: OK resolver's 1.2.3.4: 2001:db8::8a2e:370:7334 fe80::b4b4:cdff:fe96:bee4 "
       "tcp_server: OK IP [2001:db8::8a2e:370:7334]:443 OK IP [fe80::b4b4:cdff:fe96:bee4]:443 "
       "http_query: OK IP 2001:db8::8a2e:370:7334 status_code 302 "
         "OK IP fe80::b4b4:cdff:fe96:bee4 status_code 302 "
