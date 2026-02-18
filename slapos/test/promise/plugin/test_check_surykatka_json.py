@@ -1499,6 +1499,17 @@ class TestCheckSurykatkaJSONHttpQuerySslCertificate(CheckSurykatkaJSONMixin):
       "ssl_certificate: ERROR IP 127.0.0.1 no information"
     )
 
+  def test_https_no_entry(self):
+    self.writeSurykatkaPromise(
+      {
+        'url': 'https://www.sslcertnoentry.com/',
+      }
+    )
+    self.runAndAssertFailedMessage(
+      "https://www.sslcertnoentry.com/ : "
+      "ssl_certificate: ERROR No data"
+    )
+
   def test_no_ssl_certificate(self):
     self.writeSurykatkaPromise(
       {
