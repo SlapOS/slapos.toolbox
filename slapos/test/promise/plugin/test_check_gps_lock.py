@@ -42,7 +42,7 @@ class TestCheckGPSLock(TestPromisePluginMixin):
 
   def setUp(self):
     super(TestCheckGPSLock, self).setUp()
-    self.amarisoft_rf_info_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_rf_info.json.log')
+    self.amarisoft_stats_log = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'amarisoft_stats.json.log')
 
     rf_info = \
 """
@@ -79,13 +79,13 @@ GPS info:
 
 
   def writeLog(self, data, ago=5):
-    with open(self.amarisoft_rf_info_log, 'w') as f:
+    with open(self.amarisoft_stats_log, 'w') as f:
       f.write(
-      """{"time": "%s", "log_level": "INFO", "message": "RF info", "data": %s}""" %
+      """{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": %s}""" %
         ((datetime.now() - timedelta(seconds=ago)).strftime("%Y-%m-%d %H:%M:%S")[:-3], json.dumps(data)))
 
   def writePromise(self, **kw):
-    kw.update({'amarisoft-rf-info-log': self.amarisoft_rf_info_log,
+    kw.update({'amarisoft-stats-log': self.amarisoft_stats_log,
                'stats-period':          100})
     super(TestCheckGPSLock, self).writePromise(self.promise_name,
       "from %s import %s\nextra_config_dict = %r\n"
@@ -94,13 +94,13 @@ GPS info:
   def test_locked_ok(self):
     self.writeLog(self.rf_info_data)
     self.writePromise()
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
     self.launcher.run()
 
   def test_stale_data(self):
     self.writeLog(self.rf_info_data, ago=500)
     self.writePromise()
-    self.configureLauncher()
+    self.configureLauncher(enable_anomaly=True, force=True)
     with self.assertRaisesRegex(PromiseError, 'rf_info: stale data'):
       self.launcher.run()
 

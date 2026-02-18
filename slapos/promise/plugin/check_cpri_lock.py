@@ -9,7 +9,7 @@ class RunPromise(JSONPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
     self.setPeriodicity(float(self.getConfig('frequency', 1)))
-    self.amarisoft_rf_info_log = self.getConfig('amarisoft-rf-info-log')
+    self.amarisoft_stats_log = self.getConfig('amarisoft-stats-log')
     self.sdr_devchan = "/dev/sdr%s@%s" % (self.getConfig('sdr_dev'), self.getConfig('sfp_port'))
     self.stats_period = int(self.getConfig('stats-period'))
     self.testing = self.getConfig('testing') == "True"
@@ -22,7 +22,7 @@ class RunPromise(JSONPromise):
       def error(msg): self.logger.error("%s: %s", self.sdr_devchan, msg)
       def info(msg):  self.logger.info ("%s: %s", self.sdr_devchan, msg)
 
-      data_list = get_json_log_data_interval(self.amarisoft_rf_info_log, self.stats_period * 2)
+      data_list = get_json_log_data_interval(self.amarisoft_stats_log, self.stats_period * 2)
       if len(data_list) < 1:
         error("rf_info: stale data")
         return
