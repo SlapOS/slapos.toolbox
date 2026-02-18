@@ -4,6 +4,7 @@ from .util import JSONPromise
 import json
 from zope.interface import implementer
 from slapos.grid.promise import interface
+from slapos.grid.promise.generic import TestResult
 
 @implementer(interface.IPromise)
 class RunPromise(JSONPromise):
