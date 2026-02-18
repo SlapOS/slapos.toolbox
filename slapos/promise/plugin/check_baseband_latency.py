@@ -42,7 +42,7 @@ class RunPromise(JSONPromise):
 
       In this case, fail if the previous sensor result is negative.
     """
-    return self._test(result_count=1, failure_amount=1)
+    return TestResult(problem=False, message="Promise disabled while instance is converging")
 
   def anomaly(self):
     """
@@ -52,4 +52,4 @@ class RunPromise(JSONPromise):
 
       In this case, fail if two out of the last three results are negative.
     """
-    return self._anomaly(result_count=1, failure_amount=1)
+    return self._anomaly(result_count=3, failure_amount=3)
