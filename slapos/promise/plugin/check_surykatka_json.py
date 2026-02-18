@@ -118,6 +118,14 @@ class RunPromise(GenericPromise):
       q for q in self.surykatka_json[key] if q['hostname'] == hostname]
     if len(entry_list) == 0:
       self.appendError('No data')
+      for check_name, check_method in [
+        ('whois', self.senseWhois),
+        ('dns_query', self.senseDnsQuery),
+        ('tcp_server', self.senseTcpServer),
+        ('http_query', self.senseHttpQuery),
+      ]:
+        if check_name not in self.enabled_sense_list:
+          check_method()
       return
 
     for entry in sorted(entry_list, key=operator.itemgetter('ip')):
@@ -152,6 +160,13 @@ class RunPromise(GenericPromise):
     entry_list = [q for q in self.surykatka_json[key] if q['url'] == url]
     if len(entry_list) == 0:
       self.appendError('No data')
+      for check_name, check_method in [
+        ('whois', self.senseWhois),
+        ('dns_query', self.senseDnsQuery),
+        ('tcp_server', self.senseTcpServer),
+      ]:
+        if check_name not in self.enabled_sense_list:
+          check_method()
       return
 
     for entry in sorted(entry_list, key=operator.itemgetter('ip')):
@@ -207,6 +222,11 @@ class RunPromise(GenericPromise):
     if len(ip_set):
       if not entry_dict:
         self.appendError('No data')
+        for check_name, check_method in [
+          ('whois', self.senseWhois),
+        ]:
+          if check_name not in self.enabled_sense_list:
+            check_method()
         return
 
       for resolver_ip, entry in sorted(entry_dict.items()):
@@ -252,6 +272,12 @@ class RunPromise(GenericPromise):
         r.strip() for r in q['domain'].split(',')] and q['port'] == port]
     if len(entry_list) == 0:
       self.appendError('No data')
+      for check_name, check_method in [
+        ('whois', self.senseWhois),
+        ('dns_query', self.senseDnsQuery),
+      ]:
+        if check_name not in self.enabled_sense_list:
+          check_method()
       return
     for ip in sorted(ip_set):
       ok = False
@@ -343,6 +369,14 @@ class RunPromise(GenericPromise):
       q for q in self.surykatka_json[surykatka_key] if q['url'] == url]
     if len(entry_list) == 0:
       self.appendError('No data')
+      for check_name, check_method in [
+        ('whois', self.senseWhois),
+        ('dns_query', self.senseDnsQuery),
+        ('tcp_server', self.senseTcpServer),
+        ('http_query', self.senseHttpQuery),
+      ]:
+        if check_name not in self.enabled_sense_list:
+          check_method()
       return
     if maximum_elapsed_time:
       found = False
