@@ -70,6 +70,8 @@ class TestCheckBasebandLatency(TestPromisePluginMixin):
         'min-rxtx-delay': 3,
     })
     self.configureLauncher(enable_anomaly=True, force=True)
+    self.launcher.run()
+    self.launcher.run()
     with self.assertRaises(PromiseError):
       self.launcher.run()
 
