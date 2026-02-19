@@ -41,6 +41,7 @@ from datetime import datetime, timedelta
 
 from slapos.collect.db import Database
 from slapos.collect.reporter import ConsumptionReportBase
+from slapos.monitor.monitor_state import safeWriteJsonFile
 
 def parseArguments():
   """
@@ -142,7 +143,7 @@ class ResourceCollect:
       comsumption_list.append(resource_dict)
     self.db.close()
     return comsumption_list
-  
+
   def getPartitionComsumptionStatus(self, partition_id, where="", date_scope=None, min_time=None, max_time=None):
     self.db.connect()
     if where != "":
@@ -191,40 +192,23 @@ class ResourceCollect:
     self.db.close()
     return (process_dict, memory_dict, io_dict)
 
-def appendToJsonFile(file_path, content, stepback=2):
-  with open (file_path, mode="r+") as jfile:
-    jfile.seek(0, 2)
-    position = jfile.tell() - stepback
-    jfile.seek(position)
-    jfile.write('%s}' % ',"{}"]'.format(content))
-
-def initProcessDataFile(process_file):
-  with open(process_file, 'w') as fprocess:
-    data_dict = {
-      "date": time.time(),
-      "data": ["date, total process, CPU percent, CPU time, CPU threads"]
-    }
-    fprocess.write(json.dumps(data_dict))
-
-def initMemoryDataFile(mem_file):
-  with open(mem_file, 'w') as fmem:
-    data_dict = {
-      "date": time.time(),
-      "data": ["date, memory used percent, memory used"]
-    }
-    fmem.write(json.dumps(data_dict))
-
-def initIODataFile(io_file):
-  with open(io_file, 'w') as fio:
-    data_dict = {
-      "date": time.time(),
-      "data": ["date, io rw counter, io cycles counter, disk used"]
-    }
-    fio.write(json.dumps(data_dict))
+def appendJsonToFile(file_path, content, init_dict):
+  try:
+    with open(file_path) as f:
+      data_dict = json.load(f)
+  except (IOError, OSError) as e:
+    if e.errno != errno.ENOENT:
+      raise
+  except ValueError:
+    # Broken json, we use default
+    data_dict = init_dict
+  tmp_dir = os.path.dirname(tmp_dir)
+  safeWriteJsonFile(tmp_dir, file_path, content)
 
 def main():
   parser = parseArguments()
-  if not os.path.exists(parser.output_folder) and os.path.isdir(parser.output_folder):
+  if not os.path.exists(parser.output_folder) and \
+      os.path.isdir(parser.output_folder):
     raise Exception("Invalid ouput folder: %s" % parser.output_folder)
 
   if parser.pid_file:
@@ -242,11 +226,27 @@ def main():
       pidfile.write('%s' % os.getpid())
 
   # Consumption global status
-  process_file = os.path.join(parser.output_folder, 'monitor_resource_process.data.json')
-  mem_file = os.path.join(parser.output_folder, 'monitor_resource_memory.data.json')
-  io_file = os.path.join(parser.output_folder, 'monitor_resource_io.data.json')
-  resource_file = os.path.join(parser.output_folder, 'monitor_process_resource.status.json')
-  status_file = os.path.join(parser.output_folder, 'monitor_resource.status.json')
+  process_file = os.path.join(
+    parser.output_folder,
+    'monitor_resource_process.data.json'
+  )
+  mem_file = os.path.join(
+    parser.output_folder,
+    'monitor_resource_memory.data.json'
+  )
+  io_file = os.path.join(
+    parser.output_folder,
+    'monitor_resource_io.data.json'
+  )
+  resource_file = os.path.join(
+    parser.output_folder,
+    'monitor_process_resource.status.json'
+  )
+  status_file = os.path.join(
+    parser.output_folder,
+    'monitor_resource.status.json'
+  )
+  tmp_dir = parser.output_folder
 
   if not os.path.exists(parser.collector_db):
     print("Collector database not found...")
@@ -282,39 +282,56 @@ def main():
                   'memory_percent', 'memory_rss', 'io_rw_counter', 'io_cycles_counter',
                   'disk_used']
   resource_status_dict = {}
-  if not os.path.exists(process_file) or os.stat(process_file).st_size == 0:
-    initProcessDataFile(process_file)
 
-  if not os.path.exists(mem_file) or os.stat(mem_file).st_size == 0:
-    initMemoryDataFile(mem_file)
-
-  if not os.path.exists(io_file) or os.stat(io_file).st_size == 0:
-    initIODataFile(io_file)
+  init_process_dict = {
+    "date": time.time(),
+    "data": ["date, total process, CPU percent, CPU time, CPU threads"]
+  }
+  init_mem_dict = {
+    "date": time.time(),
+    "data": ["date, memory used percent, memory used"]
+  }
+  init_io_dict = {
+    "date": time.time(),
+    "data": ["date, io rw counter, io cycles counter, disk used"]
+  }
 
   if process_result and process_result['total_process'] != 0.0:
-    appendToJsonFile(process_file, ", ".join(
-      str(process_result[key]) for key in label_list if key in process_result)
+    appendJsonToFile(
+      process_file,
+      ", ".join(
+        str(process_result[key]) for key in label_list if key in process_result
+      ),
+      init_process_dict
     )
     resource_status_dict.update(process_result)
+
   if memory_result and memory_result['memory_rss'] != 0.0:
-    appendToJsonFile(mem_file, ", ".join(
-      str(memory_result[key]) for key in label_list if key in memory_result)
+    appendJsonToFile(
+      mem_file,
+      ", ".join(
+        str(memory_result[key]) for key in label_list if key in memory_result
+      ),
+      init_mem_dict
     )
     resource_status_dict.update(memory_result)
+
   if io_result and io_result['io_rw_counter'] != 0.0:
-    appendToJsonFile(io_file, ", ".join(
-      str(io_result[key]) for key in label_list if key in io_result)
+    appendJsonToFile(
+      io_file,
+      ", ".join(
+        str(io_result[key]) for key in label_list if key in io_result
+      ),
+      init_io_dict
     )
     resource_status_dict.update(io_result)
 
-  with open(status_file, 'w') as fp:
-    fp.write(json.dumps(resource_status_dict))
+  safeWriteJsonFile(tmp_dir, status_file, resource_status_dict)
 
   # Consumption Resource
   resource_process_status_list = collector.getPartitionConsumption(partition_user)
   if resource_process_status_list:
-    with open(resource_file, 'w') as rf:
-      rf.write(json.dumps(resource_process_status_list))
+    safeWriteJsonFile(tmp_dir, resource_file, resource_process_status_list)
 
   if os.path.exists(parser.pid_file):
     os.unlink(parser.pid_file)
