@@ -19,6 +19,19 @@ from slapos.util import bytes2str, str2bytes
 def getKey(item):
   return item.source.name
 
+def safeWriteJsonFile(tmp_dir, file_path, content):
+  """
+    Write the content in a tmp file and rename it to final
+    file destination in order to avoid any json corruption.
+  """
+  tmp_file_path = os.path.join(
+    tmp_dir,
+    '%s.tmp' % os.path.basename(file_path)
+  )
+  with open(tmp_file_path, mode="w") as f:
+    json.dump(content, f)
+  os.rename(tmp_file_path, file_path)
+
 class MonitorFeed(object):
 
   def __init__(self, instance_name, hosting_name,
@@ -116,19 +129,6 @@ class MonitorStateBuilder(object):
     with open(os.path.join(folder_path, '_document_list'), 'w') as f:
       f.write('\n'.join(document_list))
 
-  def _safeWriteJsonFile(self, file_path, content):
-    """
-      Write the content in a tmp file and rename it to final
-      file destination in order to avoid any json corruption.
-    """
-    tmp_file_path = os.path.join(
-      self.tmp_dir,
-      '%s.tmp' % os.path.basename(file_path)
-    )
-    with open(tmp_file_path, mode="w") as f:
-      json.dump(content, f)
-    os.rename(tmp_file_path, file_path)
-
   def savePromiseHistory(self, promise_name, state_dict, previous_state_list):
 
     history_file = os.path.join(
@@ -168,7 +168,7 @@ class MonitorStateBuilder(object):
       state_dict.pop('name', '')
       history_dict['data'].append(state_dict)
 
-    self._safeWriteJsonFile(history_file, history_dict)
+    safeWriteJsonFile(self.tmp_dir, history_file, history_dict)
 
   def saveStatisticsData(self, stat_file_path, content):
     # csv document for success/error statictics
@@ -196,7 +196,7 @@ class MonitorStateBuilder(object):
       '')
     data_dict['data'].append(current_state)
 
-    self._safeWriteJsonFile(stat_file_path, data_dict)
+    safeWriteJsonFile(self.tmp_dir, stat_file_path, data_dict)
 
   def generateMonitoringData(self):
     feed_output = os.path.join(self.public_folder, 'feed')
@@ -278,7 +278,7 @@ class MonitorStateBuilder(object):
         print("ERROR: Bad json file at: %s\n%s" % (file, e))
         continue
 
-    self._safeWriteJsonFile(promises_status_file, new_state_dict)
+    safeWriteJsonFile(self.tmp_dir, promises_status_file, new_state_dict)
 
     monitor_feed.generateRSS(feed_output)
     return error, success
