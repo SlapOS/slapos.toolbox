@@ -4,6 +4,7 @@ from .util import JSONPromise
 import json
 from zope.interface import implementer
 from slapos.grid.promise import interface
+from slapos.grid.promise.generic import TestResult
 
 @implementer(interface.IPromise)
 class RunPromise(JSONPromise):
@@ -16,6 +17,7 @@ class RunPromise(JSONPromise):
     self.stats_period = int(self.getConfig('stats-period'))
     self.rx_chan_list = json.loads(self.getConfig('rf-rx-chan-list')) # which rx channels to check
     self.max_rx_sample_db = float(self.getConfig('max-rx-sample-db'))
+    self.allowBang(False)
 
   def sense(self):
 
@@ -49,7 +51,7 @@ class RunPromise(JSONPromise):
 
       In this case, fail if the previous sensor result is negative.
     """
-    return self._test(result_count=1, failure_amount=1)
+    return TestResult(problem=False, message="Promise disabled while instance is converging")
 
   def anomaly(self):
     """
@@ -59,4 +61,4 @@ class RunPromise(JSONPromise):
 
       In this case, fail if two out of the last three results are negative.
     """
-    return self._anomaly(result_count=1, failure_amount=1)
+    return self._anomaly(result_count=3, failure_amount=3)
