@@ -2,7 +2,6 @@ from .util import JSONPromise, get_json_log_data_interval
 
 from zope.interface import implementer
 from slapos.grid.promise import interface
-from slapos.grid.promise.generic import TestResult
 
 @implementer(interface.IPromise)
 class RunPromise(JSONPromise):
@@ -35,7 +34,7 @@ class RunPromise(JSONPromise):
 
       In this case, fail if the previous sensor result is negative.
     """
-    return TestResult(problem=False, message="Promise disabled while instance is converging")
+    return self._test(result_count=1, failure_amount=1)
 
 
   def anomaly(self):
