@@ -44,11 +44,8 @@ class RunPromise(JSONPromise):
       check_core(amf, 38412, 'ng')
         
     for core in disconnected_core_count:
-      duration = int(self.stats_period * disconnected_core_count[core] / 60)
-      self.logger.error("{} was disconnected for {} minute{} the last {} minutes".format(
+      self.logger.error("{} was disconnected at least once the last {} minutes".format(
         core,
-        duration,
-        's' if duration != 1 else '',
         int(interval / 60)))
     if not disconnected_core_count:
       self.logger.info("All Core Networks are connected")
