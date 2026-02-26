@@ -13,6 +13,7 @@ class RunPromise(JSONPromise):
     self.stats_period = int(self.getConfig('stats-period'))
     self.min_rxtx_delay_threshold = float(self.getConfig('min-rxtx-delay', 0))
     self.testing = self.getConfig('testing') == "True"
+    self.allowBang(False)
 
   def sense(self):
 
@@ -52,4 +53,4 @@ class RunPromise(JSONPromise):
 
       In this case, fail if two out of the last three results are negative.
     """
-    return self._anomaly(result_count=1, failure_amount=1)
+    return self._anomaly(result_count=3, failure_amount=3)
