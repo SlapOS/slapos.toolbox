@@ -16,6 +16,7 @@ class RunPromise(JSONPromise):
     self.stats_period = int(self.getConfig('stats-period'))
     self.rx_chan_list = json.loads(self.getConfig('rf-rx-chan-list')) # which rx channels to check
     self.max_rx_sample_db = float(self.getConfig('max-rx-sample-db'))
+    self.allowBang(False)
 
   def sense(self):
 
@@ -59,4 +60,4 @@ class RunPromise(JSONPromise):
 
       In this case, fail if two out of the last three results are negative.
     """
-    return self._anomaly(result_count=1, failure_amount=1)
+    return self._anomaly(result_count=3, failure_amount=3)
