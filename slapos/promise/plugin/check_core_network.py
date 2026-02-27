@@ -29,13 +29,12 @@ class RunPromise(JSONPromise):
           addr = f"{addr}:{port}"
       elif '[' not in addr:
         addr = f"[{addr}]:{port}"
-      for core_list in map(lambda x: x[f"{proto}_list"], data_list):
-        for core in core_list:
-          if core["address"] == addr and core["state"] == "setup_done":
-            break
-        else:
-          disconnected_core_count.setdefault(addr, 0)
-          disconnected_core_count[addr] += 1
+      for core in data_list[0][f"{proto}_list"]:
+        if core["address"] == addr and core["state"] == "setup_done":
+          break
+      else:
+        disconnected_core_count.setdefault(addr, 0)
+        disconnected_core_count[addr] += 1
 
     disconnected_core_count = {}
     for mme in self.mme_list:
