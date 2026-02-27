@@ -20,7 +20,7 @@ class RunPromise(JSONPromise):
 
   def sense(self):
 
-    interval = max(self.frequency * 60, self.stats_period * 2)
+    interval = self.stats_period * 2
     data_list = get_json_log_data_interval(self.amarisoft_stats_log, interval)
 
     def check_core(addr, port, proto):
@@ -33,24 +33,24 @@ class RunPromise(JSONPromise):
         if core["address"] == addr and core["state"] == "setup_done":
           break
       else:
-        disconnected_core_count.setdefault(addr, 0)
-        disconnected_core_count[addr] += 1
+        disconnected_core_set.add(addr)
 
-    disconnected_core_count = {}
+    disconnected_core_set = set()
     for mme in self.mme_list:
       check_core(mme, 36412, 's1')
     for amf in self.amf_list:
       check_core(amf, 38412, 'ng')
         
-    for core in disconnected_core_count:
-      self.logger.error("{} was disconnected at least once the last {} minutes".format(
-        core,
+    if disconnected_core_set:
+      self.logger.error("{} {} disconnected at least once during the last {} minutes".format(
+        ', '.join(disconnected_core_set),
+        "was" if len(disconnected_core_set) == 1 else "were",
         int(interval / 60)))
-    if not disconnected_core_count:
+    else:
       self.logger.info("All Core Networks are connected")
 
-    self.json_logger.info("Disconnected Core Networks count map", 
-                          extra={'data': disconnected_core_count})
+    self.json_logger.info("Disconnected Core Networks count set", 
+                          extra={'data': disconnected_core_set})
 
   def test(self):
     """
