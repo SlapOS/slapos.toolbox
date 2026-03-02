@@ -1,3 +1,15 @@
+0.162 (2026-03-02)
+==================
+
+ * adjust simpleran promises
+ * add check_core_network promise
+ * update Amarisoft stats log name
+ * check_surykatka_json: Provide more explanation for No data cases
+ * check_surykatka_json: Cover missing case
+ * check_surykatka_json: Order checks
+ * test: fix promise name in test_check_re6st_optimal_status.py
+ * pubsub: correctly log in pubsubserver
+
 0.161 (2025-11-20)
 ==================
 
