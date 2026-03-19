@@ -9,7 +9,7 @@ import glob
 import json
 from six.moves import configparser
 import time
-from datetime import datetime
+import datetime
 import base64
 import hashlib
 import PyRSS2Gen
@@ -24,7 +24,7 @@ class MonitorFeed(object):
   def __init__(self, instance_name, hosting_name,
       public_url, private_url, feed_url):
     self.rss_item_list = []
-    self.report_date = datetime.utcnow()
+    self.report_date = datetime.datetime.now(datetime.UTC)
     self.instance_name = instance_name
     self.hosting_name = hosting_name
     self.public_url = public_url
@@ -259,7 +259,7 @@ def run(monitor_conf_file):
   status = 'OK'
   global_state_file = os.path.join(base_folder, 'monitor.global.json')
   public_state_file = os.path.join(status_folder, 'monitor.global.json')
-  report_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+0000')
+  report_date = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%S+0000')
 
   error, success = generateMonitoringData(config, status_folder, base_folder,
                                           public_url, private_url, feed_url)
