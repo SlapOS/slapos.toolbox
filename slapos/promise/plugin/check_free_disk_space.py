@@ -253,7 +253,7 @@ class RunPromise(GenericPromise):
       disk_partition = self.getConfig('test-disk-partition', '/dev/sda1')
     else:
       # get last minute
-      now = datetime.datetime.utcnow()
+      now = datetime.datetime.now(datetime.UTC)
       currentdate = now.strftime('%Y-%m-%d')
       currenttime = now - datetime.timedelta(minutes=1)
       currenttime = currenttime.time().strftime('%H:%M')

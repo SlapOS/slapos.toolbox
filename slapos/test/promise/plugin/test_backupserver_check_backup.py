@@ -28,7 +28,7 @@
 from slapos.test.promise.plugin import TestPromisePluginMixin
 from slapos.grid.promise import PromiseError
 import os
-from datetime import datetime,timedelta
+import datetime
 
 class TestBackupserverCheckBackup(TestPromisePluginMixin):
 
@@ -65,12 +65,12 @@ extra_config_dict = {{
 
   def format_status(self, date, status):
     """" return a string formatted like backupserver status """
-    if date.tzinfo is not None:
-      raise "Date should be UTC"
+    if date.tzinfo is not None and date.tzinfo != datetime.UTC:
+      raise Exception("Date should be UTC")
     return "{}+0000, DUMMY_STATISTIC_NAME, SOFTINSTTEST, backup {}\n".format(date.replace(microsecond=0).isoformat(), status)
 
   def test_check_backup_ok(self):
-    now = datetime.utcnow()
+    now = datetime.datetime.now(datetime.UTC)
     with open(self.status_fullpath, 'w') as f:
       f.write(self.format_status(now, "running"))
       f.write(self.format_status(now, "success"))
@@ -82,7 +82,7 @@ extra_config_dict = {{
     self.assertIn("Backup OK", result['result']['message'])
 
   def test_check_backup_fail(self):
-    now = datetime.utcnow()
+    now = datetime.datetime.now(datetime.UTC)
     with open(self.status_fullpath, 'w') as f:
       f.write(self.format_status(now, "running"))
       f.write(self.format_status(now, "failed"))
@@ -94,8 +94,8 @@ extra_config_dict = {{
     self.assertIn("Backup FAILED", result['result']['message'])
 
   def test_check_backup_too_long(self):
-    now = datetime.utcnow()
-    long_ago = now - timedelta(days = 2)
+    now = datetime.datetime.now(datetime.UTC)
+    long_ago = now - datetime.timedelta(days = 2)
     with open(self.status_fullpath, 'w') as f:
       f.write(self.format_status(long_ago, "running"))
 
