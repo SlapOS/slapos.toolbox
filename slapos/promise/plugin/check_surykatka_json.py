@@ -404,7 +404,7 @@ class RunPromise(GenericPromise):
     """
       Sense various information about the given url
     """
-    self.utcnow = datetime.datetime.utcnow()
+    self.utcnow = datetime.datetime.now(datetime.UTC)
 
     self.json_file = self.getConfig('json-file', '')
     if not os.path.exists(self.json_file):

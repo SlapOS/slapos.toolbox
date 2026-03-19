@@ -215,7 +215,7 @@ class RunPromise(GenericPromise):
       # get the user name of the partition
       user = pwd.getpwuid(os.getuid()).pw_name
       # get last minute
-      now = datetime.datetime.utcnow()
+      now = datetime.datetime.now(datetime.UTC)
       currentdate = now.strftime('%Y-%m-%d')
       currenttime = now - datetime.timedelta(minutes=1)
       currenttime = currenttime.time().strftime('%H:%M:%S')
