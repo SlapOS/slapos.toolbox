@@ -66,7 +66,7 @@ class RunPromise(GenericPromise):
       return
 
     if not_after - datetime.timedelta(
-       days=certificate_expiration_days) < datetime.datetime.utcnow():
+       days=certificate_expiration_days) < datetime.datetime.now(datetime.UTC):
       self.logger.error(
        'ERROR Certificate %r will expire in less than %s days' % (
          certificate_file, certificate_expiration_days))
