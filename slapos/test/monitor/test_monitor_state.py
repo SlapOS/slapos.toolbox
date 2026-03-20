@@ -7,9 +7,10 @@ import unittest
 import json
 import pkg_resources
 
-from slapos.monitor import globalstate
+#from slapos.monitor import globalstate
 from slapos.monitor.runpromise import MonitorPromiseLauncher, getArgumentParser
 from slapos.monitor.monitor import Monitoring
+from slapos.monitor.monitor_state import MonitorStateBuilder
 from jsonschema import validate
 
 class MonitorGlobalTest(unittest.TestCase):
@@ -180,7 +181,8 @@ exit %(code)s
     with open(document_list_file, 'a+') as fh:
       fh.write('must_unlink.history')
 
-    globalstate.run(self.monitor_config_file)
+    builder = MonitorStateBuilder(self.monitor_config_file)
+    builder.buildMonitorState()
     with open(document_list_file) as fh:
       self.assertNotIn('must_unlink.history', fh.read())
     self.assertTrue(os.path.exists(must_stay_public))
@@ -258,7 +260,8 @@ exit %(code)s
     # rerun right now
     promise_runner.config.force = True
     promise_runner.start()
-    globalstate.run(self.monitor_config_file)
+    builder = MonitorStateBuilder(self.monitor_config_file)
+    builder.buildMonitorState()
 
     expected_result_dict = json.loads(expected_result)
     expected_result_dict["status"] = "OK"
@@ -290,7 +293,8 @@ exit %(code)s
     self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_1.status.json')))
     self.assertTrue(os.path.exists(os.path.join(self.output_dir, 'promise_2.status.json')))
 
-    globalstate.run(self.monitor_config_file)
+    builder = MonitorStateBuilder(self.monitor_config_file)
+    builder.buildMonitorState()
     statistic_folder = os.path.join(self.private_dir, 'documents')
     monitor_data_json = os.path.join(statistic_folder, 'monitor_state.data.json')
 
@@ -311,7 +315,8 @@ exit %(code)s
         data_dict = json.load(f)
 
     promise_runner.start()
-    globalstate.run(self.monitor_config_file)
+    builder = MonitorStateBuilder(self.monitor_config_file)
+    builder.buildMonitorState()
 
     # Json file is fixed
     with open(monitor_data_json) as f:
@@ -333,7 +338,8 @@ exit %(code)s
     promise_runner = MonitorPromiseLauncher(parser)
     promise_runner.config.force = True
     promise_runner.start()
-    globalstate.run(self.monitor_config_file)
+    builder = MonitorStateBuilder(self.monitor_config_file)
+    builder.buildMonitorState()
 
     history_1 = os.path.join(public_dir, 'promise_1.history.json')
     history_2 = os.path.join(public_dir, 'promise_2.history.json')
@@ -360,7 +366,7 @@ exit %(code)s
     self.writePromise('promise_2')
     promise_runner.config.force = True
     promise_runner.start()
-    globalstate.run(self.monitor_config_file)
+    builder.buildMonitorState()
     self.assertTrue(os.path.exists(history_1))
     self.assertTrue(os.path.exists(history_2))
 
