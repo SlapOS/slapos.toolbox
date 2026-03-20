@@ -28,7 +28,7 @@ class RunPromise(GenericPromise):
         sdr + '/sdr_util', '-c', sdr_dev, '-d', dma_chan, 'version'], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
       if e.returncode == 1 and \
-        ("DMA channel is already opened" in e.output.decode() or \
+        ("DMA channel is already" in e.output.decode() or \
          "Device or resource busy" in e.output.decode()):
         self.logger.info("eNB is using %s", sdr_devchan)
         return
