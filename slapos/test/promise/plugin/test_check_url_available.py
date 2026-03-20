@@ -105,13 +105,28 @@ class CertificateAuthority(object):
       x509.NameAttribute(NameOID.COMMON_NAME, common_name),
     ]))
     builder = builder.not_valid_before(
-      datetime.datetime.utcnow() - datetime.timedelta(days=2))
+      datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=2))
     builder = builder.not_valid_after(
-      datetime.datetime.utcnow() + datetime.timedelta(days=30))
+      datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=30))
     builder = builder.serial_number(x509.random_serial_number())
     builder = builder.public_key(public_key)
     builder = builder.add_extension(
       x509.BasicConstraints(ca=True, path_length=None), critical=True,
+    )
+    builder = builder.add_extension(
+      x509.AuthorityKeyIdentifier.from_issuer_public_key(public_key),
+      critical=False
+    )
+    builder = builder.add_extension(
+      x509.SubjectKeyIdentifier.from_public_key(public_key),
+      critical=False
+    )
+    builder = builder.add_extension(
+      x509.KeyUsage(
+        digital_signature=True, key_encipherment=True, key_cert_sign=True,
+        key_agreement=False, content_commitment=False, data_encipherment=False,
+        crl_sign=False, encipher_only=False, decipher_only=False),
+      critical=False
     )
     self.certificate = builder.sign(
       private_key=self.key, algorithm=hashes.SHA256(),
@@ -125,10 +140,14 @@ class CertificateAuthority(object):
       subject_name=csr.subject,
       extensions=csr.extensions,
       issuer_name=self.certificate.subject,
-      not_valid_before=datetime.datetime.utcnow() - datetime.timedelta(days=1),
-      not_valid_after=datetime.datetime.utcnow() + datetime.timedelta(days=30),
+      not_valid_before=datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1),
+      not_valid_after=datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=30),
       serial_number=x509.random_serial_number(),
       public_key=csr.public_key(),
+    )
+    builder = builder.add_extension(
+      x509.AuthorityKeyIdentifier.from_issuer_public_key(self.key.public_key()),
+      critical=False
     )
     certificate = builder.sign(
       private_key=self.key,
