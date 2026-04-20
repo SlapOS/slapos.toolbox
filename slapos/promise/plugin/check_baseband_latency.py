@@ -12,6 +12,8 @@ class RunPromise(JSONPromise):
     self.amarisoft_stats_log = self.getConfig('amarisoft-stats-log')
     self.stats_period = int(self.getConfig('stats-period'))
     self.min_rxtx_delay_threshold = float(self.getConfig('min-rxtx-delay', 0))
+    # TX/RX can never exceed rx_to_tx_latency (default value of 4ms) in normal lteenb operation
+    self.max_rxtx_delay_threshold = float(self.getConfig('max-rxtx-delay', 4))
     self.testing = self.getConfig('testing') == "True"
     self.allowBang(False)
 
@@ -23,15 +25,18 @@ class RunPromise(JSONPromise):
 
     data_list = get_json_log_data_interval(self.amarisoft_stats_log, self.stats_period * 5)
 
-    min_rxtx_delay_it = map(lambda x: float(x['rf']['rxtx_delay_min']), data_list)
-    if not min_rxtx_delay_it:
+    rxtx_delay_it = map(lambda x: float(x['rf']['rxtx_delay_min']), data_list)
+    if not rxtx_delay_it:
         self.logger.error("No TX/RX diff data available")
     else:
-      min_rxtx_delay = min(min_rxtx_delay_it)
+      min_rxtx_delay = min(rxtx_delay_it)
+      max_rxtx_delay = max(rxtx_delay_it)
       if min_rxtx_delay < self.min_rxtx_delay_threshold:
         self.logger.error("The minimum available time for radio front end processing is lower than the minimum threshold (%s ms)." % (self.min_rxtx_delay_threshold,))
+      elif max_rxtx_delay > self.max_rxtx_delay_threshold:
+        self.logger.error("The minimum available time for radio front end processing is higher than the maximum threshold (%s ms)." % (self.max_rxtx_delay_threshold,))
       else:
-        self.logger.info("The minimum available time for radio front end processing is higher than the minimum threshold (%s ms)." % (self.min_rxtx_delay_threshold,))
+        self.logger.info("The minimum available time for radio front end processing is within range (%s ms - %s ms)." % (self.min_rxtx_delay_threshold,self.max_rxtx_delay_threshold,))
 
     self.json_logger.info("Min RX TX Delay (ms)",
       extra={'data': {'min_rxtx_delay': min_rxtx_delay}})
