@@ -44,9 +44,9 @@ class TestCheckBasebandLatency(TestPromisePluginMixin):
       f.write("""{"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"rf": {"rxtx_delay_min": %f}}}
 {"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"rf": {"rxtx_delay_min": %f}}}
 {"time": "%s", "log_level": "INFO", "message": "Amarisoft Stats", "data": {"rf": {"rxtx_delay_min": %f}}}""" % (
-      (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], 7.0,
+      (datetime.now() - timedelta(seconds=25)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], 1.4,
       (datetime.now() - timedelta(seconds=15)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], 2.0,
-      (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], 5.0,
+      (datetime.now() - timedelta(seconds=5)).strftime("%Y-%m-%d %H:%M:%S,%f")[:-3], 1.2,
       ))
 
   def writePromise(self, **kw):
@@ -68,7 +68,20 @@ class TestCheckBasebandLatency(TestPromisePluginMixin):
     self.writePromise(**{
         'amarisoft-stats-log': self.amarisoft_stats_log,
         'stats-period': 100,
-        'min-rxtx-delay': 3,
+        'min-rxtx-delay': 1.5,
+    })
+    self.configureLauncher(enable_anomaly=True, force=True)
+    for i in range(2):
+      self.launcher.run()
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+
+  def test_promise_fail_max(self):
+    self.writePromise(**{
+        'amarisoft-stats-log': self.amarisoft_stats_log,
+        'stats-period': 100,
+        'min-rxtx-delay': 1,
+        'max-rxtx-delay': 1.5,
     })
     self.configureLauncher(enable_anomaly=True, force=True)
     for i in range(2):
