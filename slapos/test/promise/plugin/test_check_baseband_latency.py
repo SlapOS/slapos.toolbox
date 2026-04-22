@@ -68,7 +68,7 @@ class TestCheckBasebandLatency(TestPromisePluginMixin):
     self.writePromise(**{
         'amarisoft-stats-log': self.amarisoft_stats_log,
         'stats-period': 100,
-        'min-rxtx-delay': 1,
+        'min-rxtx-delay': 1.5,
     })
     self.configureLauncher(enable_anomaly=True, force=True)
     for i in range(2):
