@@ -324,6 +324,8 @@ exit %(code)s
     config_content = self.monitor_conf % self.monitor_config_dict
     self.writeContent(self.monitor_config_file, config_content)
     public_dir = os.path.join(self.base_dir, 'public')
+    statistic_folder = os.path.join(self.private_dir, 'documents')
+    monitor_data_json = os.path.join(statistic_folder, 'monitor_state.data.json')
 
     instance = Monitoring(self.monitor_config_file)
     instance.bootstrapMonitor()
@@ -379,6 +381,11 @@ exit %(code)s
       self.assertEqual(data_dict['data'][0]['title'], 'promise_2')
       # this history was broken and was regenerated
       self.assertEqual(len(data_dict['data']), 1)
+
+    self.assertTrue(os.path.exists(monitor_data_json))
+    # State json is consistent
+    with open(monitor_data_json) as f:
+      data_dict = json.load(f)
 
   def test_monitor_promise_history_recreated_if_removed(self):
     config_content = self.monitor_conf % self.monitor_config_dict

@@ -42,7 +42,7 @@ from datetime import datetime, timedelta
 
 from slapos.collect.db import Database
 from slapos.collect.reporter import ConsumptionReportBase
-from slapos.monitor.monitor_state import safeWriteJsonFile
+from slapos.monitor.monitor_state import quickAppendToJsonFile, safeWriteJsonFile
 
 def parseArguments():
   """
@@ -194,20 +194,26 @@ class ResourceCollect:
     return (process_dict, memory_dict, io_dict)
 
 def appendJsonToFile(file_path, content, init_dict):
+  create = False
+  data_dict = init_dict
   try:
     with open(file_path) as f:
-      data_dict = json.load(f)
+      _ = json.load(f)
   except (IOError, OSError) as e:
     if e.errno != errno.ENOENT:
       raise
-    data_dict = init_dict
+    create = True
   except ValueError:
     # Broken json, we use default
-    data_dict = init_dict
-  tmp_dir = os.path.dirname(file_path)
-  if content:
-    data_dict["data"].append(content)
-  safeWriteJsonFile(tmp_dir, file_path, data_dict)
+    create = True
+  if create:
+    tmp_dir = os.path.dirname(file_path)
+    if content:
+      data_dict["data"].append(content)
+    safeWriteJsonFile(tmp_dir, file_path, data_dict)
+  else:
+    # append content to existing json file
+    quickAppendToJsonFile(file_path, content)
 
 def main():
   parser = parseArguments()
@@ -309,9 +315,6 @@ def main():
       init_process_dict
     )
     resource_status_dict.update(process_result)
-  elif not os.path.exists(process_file):
-    # initialise with empty data
-    appendJsonToFile(process_file, [], init_process_dict)
 
   if memory_result and memory_result['memory_rss'] > 0:
     appendJsonToFile(
@@ -322,9 +325,6 @@ def main():
       init_mem_dict
     )
     resource_status_dict.update(memory_result)
-  elif not os.path.exists(mem_file):
-    # initialise with empty data
-    appendJsonToFile(mem_file, [], init_mem_dict)
 
   if io_result and io_result['io_rw_counter'] > 0:
     appendJsonToFile(
@@ -335,9 +335,6 @@ def main():
       init_io_dict
     )
     resource_status_dict.update(io_result)
-  elif not os.path.exists(io_file):
-    # initialise with empty data
-    appendJsonToFile(io_file, [], init_io_dict)
 
   safeWriteJsonFile(tmp_dir, status_file, resource_status_dict)
 

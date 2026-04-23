@@ -30,6 +30,14 @@ def safeWriteJsonFile(tmp_dir, file_path, content):
     json.dump(content, f)
   os.rename(tmp_file_path, file_path)
 
+def quickAppendToJsonFile(file_path, content, step_back=2):
+  mode = 'r+'
+  with open (file_path, mode) as f:
+    f.seek(0, 2)
+    position = f.tell() - step_back
+    f.seek(position)
+    f.write(',{}]}}'.format(json.dumps(content)))
+
 class MonitorFeed(object):
 
   def __init__(self, instance_name, hosting_name,
@@ -133,11 +141,7 @@ class MonitorStateBuilder(object):
       self.public_folder,
       '%s.history.json' % promise_name
     )
-    history_dict = {
-      "date": time.time(),
-      "data": [state_dict]
-    }
-    create_history = False
+    create = False
 
     # Remove useless informations
     result = state_dict.pop('result')
@@ -147,44 +151,50 @@ class MonitorStateBuilder(object):
 
     try:
       with open(history_file) as f:
-        history_dict = json.load(f)
+        _ = json.load(f)
     except (IOError, OSError) as e:
       if e.errno != errno.ENOENT:
         raise
+      # create history file
+      create = True
     except ValueError:
       # Broken json, use default history_dict
-      pass
+      create = True
     else:
       if previous_state_list is not None:
         _, change_date, checksum = previous_state_list
         current_sum = hashlib.md5(str2bytes(state_dict.get('message', ''))).hexdigest()
         if state_dict['change-date'] == change_date and \
-            current_sum == checksum and not create_history:
+            current_sum == checksum:
           # Only save the changes and not the same info
           return
 
       state_dict.pop('title', '')
       state_dict.pop('name', '')
-      history_dict['data'].append(state_dict)
 
-    safeWriteJsonFile(self.tmp_dir, history_file, history_dict)
+    if create:
+      history_dict = {
+        "date": time.time(),
+        "data": [state_dict]
+      }
+      safeWriteJsonFile(self.tmp_dir, history_file, history_dict)
+    else:
+      quickAppendToJsonFile(history_file, state_dict)
 
   def saveStatisticsData(self, stat_file_path, content):
-    # csv document for success/error statictics
-    data_dict = {
-      "date": time.time(),
-      "data": ["Date, Success, Error, Warning"]
-    }
+    create = False
 
     try:
       with open(stat_file_path) as f:
-        data_dict = json.load(f)
+        _ = json.load(f)
     except (IOError, OSError) as e:
       if e.errno != errno.ENOENT:
         raise
+      # we recreate the json file
+      create = True
     except ValueError:
       # Broken json, we use default
-      pass
+      create = True
 
     if not 'state' in content:
       return
@@ -193,9 +203,16 @@ class MonitorStateBuilder(object):
       content['state']['success'],
       content['state']['error'],
       '')
-    data_dict['data'].append(current_state)
-
-    safeWriteJsonFile(self.tmp_dir, stat_file_path, data_dict)
+    if create:
+      # csv document for success/error statictics
+      data_dict = {
+        "date": time.time(),
+        "data": ["Date, Success, Error, Warning"]
+      }
+      data_dict['data'].append(current_state)
+      safeWriteJsonFile(self.tmp_dir, stat_file_path, data_dict)
+    else:
+      quickAppendToJsonFile(stat_file_path, current_state)
 
   def generateMonitoringData(self):
     feed_output = os.path.join(self.public_folder, 'feed')
@@ -216,12 +233,15 @@ class MonitorStateBuilder(object):
       self.private_url,
       self.feed_url)
 
-    if os.path.exists(promises_status_file):
+    try:
       with open(promises_status_file) as f:
-        try:
-          previous_state_dict = json.loads(f.read())
-        except ValueError:
-          pass
+        previous_state_dict = json.load(f)
+    except (IOError, OSError) as e:
+      if e.errno != errno.ENOENT:
+        raise
+    except ValueError:
+      # force recreate json file
+      pass
 
     # clean up stale history files
     expected_history_json_name_list = [
