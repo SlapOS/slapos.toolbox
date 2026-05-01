@@ -1,3 +1,8 @@
+0.165 (2026-05-01)
+==================
+
+* check_certificate: fix can't compare offset-naive and offset-aware datetimes
+
 0.164 (2026-04-23)
 ==================
 
