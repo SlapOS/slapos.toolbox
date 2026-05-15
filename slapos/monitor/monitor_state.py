@@ -11,6 +11,7 @@ import datetime
 import base64
 import hashlib
 import PyRSS2Gen
+import pytz
 
 from slapos.util import bytes2str, str2bytes
 
@@ -43,7 +44,7 @@ class MonitorFeed(object):
   def __init__(self, instance_name, hosting_name,
       public_url, private_url, feed_url):
     self.rss_item_list = []
-    self.report_date = datetime.datetime.now(datetime.UTC)
+    self.report_date = datetime.datetime.now(pytz.utc)
     self.instance_name = instance_name
     self.hosting_name = hosting_name
     self.public_url = public_url
@@ -304,7 +305,7 @@ class MonitorStateBuilder(object):
 
   def buildMonitorState(self):
     status = 'OK'
-    report_date = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%S+0000')
+    report_date = datetime.datetime.now(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S+0000')
     error, success = self.generateMonitoringData()
     parameter_file = os.path.join(
       self.private_folder, 'config', '.jio_documents', 'config.json')
