@@ -12,7 +12,7 @@ NOT_UP_TO_DATE = 'not up-to-date:'
 class RunPromise(GenericPromise):
 
   def __init__(self, config):
-    config.setdefault('periodicity', 86400)
+    config.setdefault('periodicity', 1440)
     super().__init__(config)
     self.setTestLess()
 
