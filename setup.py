@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import glob
 import os
 
-version = '0.165'
+version = '0.166'
 name = 'slapos.toolbox'
 long_description = open("README.rst").read() + "\n"
 
