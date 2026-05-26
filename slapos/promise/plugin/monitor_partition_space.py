@@ -14,6 +14,7 @@ import datetime
 import psutil
 import math
 import pkgutil
+import pytz
 
 # try to install pandas and numpy
 try:
@@ -215,7 +216,7 @@ class RunPromise(GenericPromise):
       # get the user name of the partition
       user = pwd.getpwuid(os.getuid()).pw_name
       # get last minute
-      now = datetime.datetime.now(datetime.UTC)
+      now = datetime.datetime.now(pytz.utc)
       currentdate = now.strftime('%Y-%m-%d')
       currenttime = now - datetime.timedelta(minutes=1)
       currenttime = currenttime.time().strftime('%H:%M:%S')
