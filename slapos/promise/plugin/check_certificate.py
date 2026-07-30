@@ -3,6 +3,7 @@ from slapos.grid.promise.generic import GenericPromise
 from slapos.util import str2bytes
 from zope.interface import implementer
 import datetime
+from slapos.datetime_compat import UTC_compat
 import base64
 import re
 import ssl
@@ -66,7 +67,7 @@ class RunPromise(GenericPromise):
       return
 
     if not_after - datetime.timedelta(
-       days=certificate_expiration_days) < datetime.datetime.now(datetime.UTC):
+       days=certificate_expiration_days) < datetime.datetime.now(UTC_compat):
       self.logger.error(
        'ERROR Certificate %r will expire in less than %s days' % (
          certificate_file, certificate_expiration_days))

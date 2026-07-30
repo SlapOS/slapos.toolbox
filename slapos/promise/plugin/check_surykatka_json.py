@@ -3,6 +3,7 @@ from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
 import datetime
+from slapos.datetime_compat import UTC_compat
 import email.utils
 import json
 import os
@@ -79,7 +80,7 @@ class RunPromise(GenericPromise):
     # parsedate_to_datetime do not set timezone only if it is UTC, see
     # https://docs.python.org/3/library/email.utils.html#email.utils.parsedate_to_datetime
     if not last_bot_datetime.tzinfo:
-      last_bot_datetime = last_bot_datetime.replace(tzinfo=datetime.UTC)
+      last_bot_datetime = last_bot_datetime.replace(tzinfo=UTC_compat)
     delta = self.utcnow - last_bot_datetime
     # sanity check
     if delta < datetime.timedelta(minutes=0):
@@ -137,7 +138,7 @@ class RunPromise(GenericPromise):
         self.appendError('IP %s no information' % (entry['ip'],))
       else:
         certificate_expiration_time = datetime.datetime.fromtimestamp(
-          time.mktime(timetuple), tz=datetime.UTC)
+          time.mktime(timetuple), tz=UTC_compat)
         if certificate_expiration_time - datetime.timedelta(
           days=certificate_expiration_days) < self.utcnow:
           self.appendError(
@@ -347,7 +348,7 @@ class RunPromise(GenericPromise):
     if timetuple is None:
       self.appendError("Can't parse date %s" % (expiration_date,))
     domain_expiration_time = datetime.datetime.fromtimestamp(
-      time.mktime(timetuple), tz=datetime.UTC)
+      time.mktime(timetuple), tz=UTC_compat)
     if domain_expiration_time - datetime.timedelta(
       days=domain_expiration_days) < self.utcnow:
       self.appendError(
@@ -407,7 +408,7 @@ class RunPromise(GenericPromise):
     """
       Sense various information about the given url
     """
-    self.utcnow = datetime.datetime.now(datetime.UTC)
+    self.utcnow = datetime.datetime.now(UTC_compat)
 
     self.json_file = self.getConfig('json-file', '')
     if not os.path.exists(self.json_file):

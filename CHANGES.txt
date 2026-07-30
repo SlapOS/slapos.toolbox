@@ -1,3 +1,10 @@
+Unreleased
+==========
+
+* promise, monitor: fix crash on Python 3.10 -- ``datetime.UTC`` only
+  exists since Python 3.11; add a ``slapos.datetime_compat.UTC_compat``
+  shim and use it, restoring the declared Python >= 3.8 support
+
 0.167 (2026-05-21)
 ==================
 

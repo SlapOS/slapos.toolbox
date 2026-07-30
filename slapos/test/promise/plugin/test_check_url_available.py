@@ -39,6 +39,7 @@ from cryptography.x509.oid import NameOID
 from six.moves import BaseHTTPServer
 from base64 import b64encode
 import datetime
+from slapos.datetime_compat import UTC_compat
 import ipaddress
 import json
 import multiprocessing
@@ -105,9 +106,9 @@ class CertificateAuthority(object):
       x509.NameAttribute(NameOID.COMMON_NAME, common_name),
     ]))
     builder = builder.not_valid_before(
-      datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=2))
+      datetime.datetime.now(UTC_compat) - datetime.timedelta(days=2))
     builder = builder.not_valid_after(
-      datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=30))
+      datetime.datetime.now(UTC_compat) + datetime.timedelta(days=30))
     builder = builder.serial_number(x509.random_serial_number())
     builder = builder.public_key(public_key)
     builder = builder.add_extension(
@@ -140,8 +141,8 @@ class CertificateAuthority(object):
       subject_name=csr.subject,
       extensions=csr.extensions,
       issuer_name=self.certificate.subject,
-      not_valid_before=datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1),
-      not_valid_after=datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=30),
+      not_valid_before=datetime.datetime.now(UTC_compat) - datetime.timedelta(days=1),
+      not_valid_after=datetime.datetime.now(UTC_compat) + datetime.timedelta(days=30),
       serial_number=x509.random_serial_number(),
       public_key=csr.public_key(),
     )
