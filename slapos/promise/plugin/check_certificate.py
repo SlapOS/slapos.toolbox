@@ -34,7 +34,7 @@ def get_notAfter_from_certificate(der_bytes):
   validity = cert['tbsCertificate']['validity']
   not_after_str = str(validity['notAfter'].getComponent())
   dt = datetime.datetime.strptime(not_after_str, '%y%m%d%H%M%SZ')
-  return dt.replace(tzinfo=datetime.timezone.utc)
+  return dt.replace(tzinfo=UTC_compat)
 
 
 @implementer(interface.IPromise)
