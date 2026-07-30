@@ -6,6 +6,7 @@ from slapos.grid.promise.generic import TestResult
 import re
 import sys
 import pytz
+from slapos.datetime_compat import UTC_compat
 from os.path import isfile, getmtime
 from datetime import datetime
 from croniter import croniter
@@ -42,7 +43,7 @@ class RunPromise(GenericPromise):
 
     # If log file is not present, it can be OK if we launched the instance after the last cron due date
     if not isfile(status):
-      if pytz.utc.localize(datetime.utcfromtimestamp(getmtime(script))) < prev_cron:
+      if datetime.utcfromtimestamp(getmtime(script)).replace(tzinfo=UTC_compat) < prev_cron:
         self.logger.error("Backup status file is not present")
       else:
         self.logger.info("Backup was never launched")

@@ -11,6 +11,7 @@ import pwd
 import sqlite3
 import argparse
 import datetime
+from slapos.datetime_compat import UTC_compat
 import psutil
 import math
 import pkgutil
@@ -215,7 +216,7 @@ class RunPromise(GenericPromise):
       # get the user name of the partition
       user = pwd.getpwuid(os.getuid()).pw_name
       # get last minute
-      now = datetime.datetime.now(datetime.UTC)
+      now = datetime.datetime.now(UTC_compat)
       currentdate = now.strftime('%Y-%m-%d')
       currenttime = now - datetime.timedelta(minutes=1)
       currenttime = currenttime.time().strftime('%H:%M:%S')

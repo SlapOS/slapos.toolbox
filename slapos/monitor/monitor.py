@@ -20,6 +20,7 @@ import ssl
 import glob
 import socket
 import datetime
+from slapos.datetime_compat import UTC_compat
 from xml.sax.saxutils import escape
 
 OPML_START = """<?xml version="1.0" encoding="UTF-8"?>
@@ -288,9 +289,9 @@ class Monitoring(object):
     if os.path.exists(output_file):
       creation_date = datetime.datetime.utcfromtimestamp(os.path.getctime(output_file))\
         .strftime("%a, %d %b %Y %H:%M:%S +0000")
-      modification_date = datetime.datetime.now(datetime.UTC).strftime("%a, %d %b %Y %H:%M:%S +0000")
+      modification_date = datetime.datetime.now(UTC_compat).strftime("%a, %d %b %Y %H:%M:%S +0000")
     else:
-      creation_date = modification_date = datetime.datetime.now(datetime.UTC)\
+      creation_date = modification_date = datetime.datetime.now(UTC_compat)\
         .strftime("%a, %d %b %Y %H:%M:%S +0000")
 
     opml_content = OPML_START % {'creation_date': creation_date,

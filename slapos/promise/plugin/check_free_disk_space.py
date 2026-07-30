@@ -10,6 +10,7 @@ import sys
 import sqlite3
 import argparse
 import datetime
+from slapos.datetime_compat import UTC_compat
 import psutil
 import itertools
 import warnings
@@ -253,7 +254,7 @@ class RunPromise(GenericPromise):
       disk_partition = self.getConfig('test-disk-partition', '/dev/sda1')
     else:
       # get last minute
-      now = datetime.datetime.now(datetime.UTC)
+      now = datetime.datetime.now(UTC_compat)
       currentdate = now.strftime('%Y-%m-%d')
       currenttime = now - datetime.timedelta(minutes=1)
       currenttime = currenttime.time().strftime('%H:%M')
