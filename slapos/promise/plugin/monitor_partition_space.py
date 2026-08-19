@@ -116,7 +116,7 @@ class RunPromise(GenericPromise):
           return None
 
         df = pd.DataFrame(result, columns=["free", "used", "date"])
-        df.loc[:,'date'] = pd.to_datetime(df.date)
+        df['date'] = pd.to_datetime(df['date'])
         # keep a sample every 5 minutes, set NaN when there is no information
         freq = 5
         df = df.resample(str(freq)+"min", on='date').mean()
