@@ -13,7 +13,7 @@ import argparse
 import datetime
 import psutil
 import math
-import pkgutil
+import importlib.util
 
 # try to install pandas and numpy
 try:
@@ -179,8 +179,8 @@ class RunPromise(GenericPromise):
 
   def sense(self):
     # check that the libraries are installed from the slapos.toolbox extra requires
-    pandas_found = pkgutil.find_loader("pandas")
-    numpy_found = pkgutil.find_loader("numpy")
+    pandas_found = importlib.util.find_spec("pandas")
+    numpy_found = importlib.util.find_spec("numpy")
     if pandas_found is None or numpy_found is None:
       self.logger.warning("Trying to use pandas but the module is not installed. Promise skipped.")
       return
