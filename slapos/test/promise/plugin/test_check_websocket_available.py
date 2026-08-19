@@ -37,7 +37,6 @@ import os
 import random
 import string
 import time
-import multiprocessing
 
 if sys.version_info[0] >= 3:
   import asyncio
