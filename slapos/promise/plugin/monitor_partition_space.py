@@ -13,7 +13,11 @@ import argparse
 import datetime
 import psutil
 import math
-import pkgutil
+import six
+if six.PY2:
+  import pkgutil
+else:
+  import importlib.util
 
 # try to install pandas and numpy
 try:
@@ -116,7 +120,7 @@ class RunPromise(GenericPromise):
           return None
 
         df = pd.DataFrame(result, columns=["free", "used", "date"])
-        df.loc[:,'date'] = pd.to_datetime(df.date)
+        df['date'] = pd.to_datetime(df['date'])
         # keep a sample every 5 minutes, set NaN when there is no information
         freq = 5
         df = df.resample(str(freq)+"min", on='date').mean()
@@ -179,8 +183,12 @@ class RunPromise(GenericPromise):
 
   def sense(self):
     # check that the libraries are installed from the slapos.toolbox extra requires
-    pandas_found = pkgutil.find_loader("pandas")
-    numpy_found = pkgutil.find_loader("numpy")
+    if six.PY2:
+      pandas_found = pkgutil.find_loader("pandas")
+      numpy_found = pkgutil.find_loader("numpy")
+    else:
+      pandas_found = importlib.util.find_spec("pandas")
+      numpy_found = importlib.util.find_spec("numpy")
     if pandas_found is None or numpy_found is None:
       self.logger.warning("Trying to use pandas but the module is not installed. Promise skipped.")
       return

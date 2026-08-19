@@ -28,7 +28,7 @@
 # This module contains python3 syntax that can't be parsed by python2
 # that's why it is in a separated module
 
-from slapos.grid.promise import PromiseError
+from slapos.grid.promise import PromiseError, Process
 from . import TestPromisePluginMixin
 from slapos.util import str2bytes
 
@@ -75,7 +75,7 @@ class CheckWebsocketAvailableMixin(TestPromisePluginMixin):
     def main():
       asyncio.run(server())
 
-    cls.server_process = multiprocessing.Process(target=main)
+    cls.server_process = Process(target=main)
     cls.server_process.start()
     for _ in range(20):
       try:

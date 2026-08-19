@@ -13,7 +13,11 @@ import datetime
 import psutil
 import itertools
 import warnings
-import pkgutil
+import six
+if six.PY2:
+  import pkgutil
+else:
+  import importlib.util
 
 from slapos.collect.db import Database
 from contextlib import closing
@@ -295,9 +299,14 @@ class RunPromise(GenericPromise):
       display_prediction = bool(int(self.getConfig('display-prediction', 0) or 0))
       if display_prediction:
         # check that the libraries are installed from the slapos.toolbox extra requires
-        pandas_found = pkgutil.find_loader("pandas")
-        numpy_found = pkgutil.find_loader("numpy")
-        statsmodels_found = pkgutil.find_loader("statsmodels")
+        if six.PY2:
+          pandas_found = pkgutil.find_loader("pandas")
+          numpy_found = pkgutil.find_loader("numpy")
+          statsmodels_found = pkgutil.find_loader("statsmodels")
+        else:
+          pandas_found = importlib.util.find_spec("pandas")
+          numpy_found = importlib.util.find_spec("numpy")
+          statsmodels_found = importlib.util.find_spec("statsmodels")
         if pandas_found is None or numpy_found is None or statsmodels_found is None:
           self.logger.warning("Trying to use statsmodels and pandas " \
             "but at least one module is not installed. Prediction skipped.")
