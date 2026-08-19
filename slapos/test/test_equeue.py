@@ -1,11 +1,11 @@
 import json
-import multiprocessing
 import os
 import socket
 import time
 import unittest
 
 from slapos.equeue import EqueueServer
+from slapos.grid.promise import Process
 
 
 class Options:
@@ -56,7 +56,7 @@ class TestEqueue(unittest.TestCase):
 
   def test_onlyOneCommandRunAtTheTime(self):
     self.equeue_server = EqueueServer(self.socket, equeue_options=self.options)
-    server_process = multiprocessing.Process(target=self.equeue_server.serve_forever)
+    server_process = Process(target=self.equeue_server.serve_forever)
     server_process.start()
     self.addCleanup(server_process.terminate)
 
@@ -92,7 +92,7 @@ class TestEqueue(unittest.TestCase):
 
   def test_doNotRunACommandIfItHasAlreadyRun(self):
     self.equeue_server = EqueueServer(self.socket, equeue_options=self.options)
-    server_process = multiprocessing.Process(target=self.equeue_server.serve_forever)
+    server_process = Process(target=self.equeue_server.serve_forever)
     server_process.start()
     self.addCleanup(server_process.terminate)
 
@@ -127,7 +127,7 @@ class TestEqueue(unittest.TestCase):
 
   def test_doNothingIfTakeoverHasBeenTriggered(self):
     self.equeue_server = EqueueServer(self.socket, equeue_options=self.options)
-    server_process = multiprocessing.Process(target=self.equeue_server.serve_forever)
+    server_process = Process(target=self.equeue_server.serve_forever)
     server_process.start()
     self.addCleanup(server_process.terminate)
 
