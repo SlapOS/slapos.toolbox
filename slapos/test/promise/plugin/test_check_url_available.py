@@ -25,7 +25,7 @@
 #
 ##############################################################################
 
-from slapos.grid.promise import PromiseError
+from slapos.grid.promise import PromiseError, Process
 from slapos.test.promise.plugin import TestPromisePluginMixin
 from slapos.util import str2bytes
 
@@ -247,7 +247,7 @@ class CheckUrlAvailableMixin(TestPromisePluginMixin):
       server.socket = context.wrap_socket(server.socket, server_side=True)
       server.serve_forever()
 
-    cls.server_process = multiprocessing.Process(target=server)
+    cls.server_process = Process(target=server)
     cls.server_process.start()
     for _ in range(20):
       try:
