@@ -94,7 +94,7 @@ extra_config_dict = {
 extra_config_dict = {
   'collectordb': '%(collectordb)s',
   'test-check-date': '2017-10-02',
-  'threshold': '278',
+  'threshold-ratio': '0.67',
 }
 """ % {'collectordb': self.db_file}
     self.writePromise(self.promise_name, content)
@@ -104,7 +104,26 @@ extra_config_dict = {
       self.launcher.run()
     result = self.getPromiseResult(self.promise_name)
     self.assertEqual(result['result']['failed'], True)
-    message = "Free disk space low: remaining 269.10 G (disk size: 417 G, threshold: 278 G)."
+    message = "Free disk space low: remaining 269.10 G (disk size: 417 G, threshold: 280 G)."
+    self.assertIn(message, result['result']['message'])
+
+  def test_invalid_threshold_ratio(self):
+    content = """from slapos.promise.plugin.check_free_disk_space import RunPromise
+
+extra_config_dict = {
+  'collectordb': '%(collectordb)s',
+  'test-check-date': '2017-10-02',
+  'threshold-ratio': '1.5',
+}
+""" % {'collectordb': self.db_file}
+    self.writePromise(self.promise_name, content)
+
+    self.configureLauncher(timeout=20)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    result = self.getPromiseResult(self.promise_name)
+    self.assertEqual(result['result']['failed'], True)
+    message = "threshold-ratio must be a ratio between 0 and 1, got 1.5"
     self.assertIn(message, result['result']['message'])
 
   def test_display_partition(self):
@@ -113,7 +132,7 @@ extra_config_dict = {
 extra_config_dict = {
   'collectordb': '%(collectordb)s',
   'test-check-date': '2017-10-02',
-  'threshold': '278',
+  'threshold-ratio': '0.67',
   'display-partition' : '1',
 }
 """ % {'collectordb': self.db_file}
@@ -127,7 +146,7 @@ extra_config_dict = {
     message = """The partition slappart0 uses 83.48 G (date checked: 2017-10-02 09:17:00).
 The partition slappart2 uses 41.74 G (date checked: 2017-10-02 09:17:00).
 The partition slappart1 uses 20.87 G (date checked: 2017-10-02 09:17:00).
-Free disk space low: remaining 269.10 G (disk size: 417 G, threshold: 278 G)."""
+Free disk space low: remaining 269.10 G (disk size: 417 G, threshold: 280 G)."""
     self.assertIn(message, result['result']['message'])
 
   def test_display_prediction(self):
