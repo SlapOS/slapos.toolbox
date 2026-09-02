@@ -259,12 +259,17 @@ class RunPromise(GenericPromise):
       currenttime = currenttime.time().strftime('%H:%M')
 
     disk_size = self.getDiskSize(disk_partition, db_path)
-    # threshold is in GB
-    default_threshold = 100.0
+    # threshold-ratio is a fraction of the disk size, default is 5%
+    threshold_ratio = float(self.getConfig('threshold-ratio', 0.05) or 0.05)
+    if not 0 <= threshold_ratio <= 1:
+      self.logger.error(
+        "threshold-ratio must be a ratio between 0 and 1, got %s", threshold_ratio)
+      return
     if disk_size is not None:
-      # if we know the disk size, default threshold is 5%
-      default_threshold = round(disk_size/(1024*1024*1024) * 0.05, 2)
-    threshold = float(self.getConfig('threshold', default_threshold))
+      threshold = round(disk_size/(1024*1024*1024) * threshold_ratio, 2)
+    else:
+      # disk size unknown: fall back to a fixed 100G threshold
+      threshold = 100.0
 
     display_partition = bool(self.getConfig('display-partition', 0))
     if display_partition:
