@@ -14,6 +14,7 @@ import psutil
 import itertools
 import warnings
 import pkgutil
+import pytz
 
 from slapos.collect.db import Database
 from contextlib import closing
@@ -253,7 +254,7 @@ class RunPromise(GenericPromise):
       disk_partition = self.getConfig('test-disk-partition', '/dev/sda1')
     else:
       # get last minute
-      now = datetime.datetime.now(datetime.UTC)
+      now = datetime.datetime.now(pytz.utc)
       currentdate = now.strftime('%Y-%m-%d')
       currenttime = now - datetime.timedelta(minutes=1)
       currenttime = currenttime.time().strftime('%H:%M')
