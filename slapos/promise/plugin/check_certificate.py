@@ -6,6 +6,7 @@ import datetime
 import base64
 import re
 import ssl
+import pytz
 
 from pyasn1.codec.der import decoder
 from pyasn1_modules import rfc2459
@@ -66,7 +67,7 @@ class RunPromise(GenericPromise):
       return
 
     if not_after - datetime.timedelta(
-       days=certificate_expiration_days) < datetime.datetime.now(datetime.UTC):
+       days=certificate_expiration_days) < datetime.datetime.now(pytz.utc):
       self.logger.error(
        'ERROR Certificate %r will expire in less than %s days' % (
          certificate_file, certificate_expiration_days))
