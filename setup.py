@@ -35,7 +35,7 @@ setup(name=name,
       maintainer="Nexedi",
       maintainer_email="info@nexedi.com",
       url="https://lab.nexedi.com/nexedi/slapos.toolbox",
-      python_requires='>=3.8',
+      python_requires='>=3.11',
       install_requires=(
         'Flask', # needed by servers
         'atomize', # needed by pubsub
