@@ -52,14 +52,16 @@ class RunPromise(GenericPromise):
     stamp = time.time() - float(self.getConfig('tolerance-days', 2)) * 86400
     check_stamp = lambda x: os.stat(x + '-stamp', dir_fd=fd).st_mtime < stamp
     with exc():
-      fd = os.open('/var/lib/apt/periodic', 0)
-      try:
-        if check_stamp('update'):
-          error('package lists not up-to-date')
-        if check_stamp('download-upgradeable') or check_stamp('upgrade'):
-          error('unattended-upgrade: no recent successful run')
-      finally:
-        os.close(fd)
+      # If just installed, apt stamps may be missing.
+      if stamp < os.stat('/etc/machine-id').st_mtime:
+        fd = os.open('/var/lib/apt/periodic', 0)
+        try:
+          if check_stamp('update'):
+            error('package lists not up-to-date')
+          if check_stamp('download-upgradeable') or check_stamp('upgrade'):
+            error('unattended-upgrade: no recent successful run')
+        finally:
+          os.close(fd)
     args = ['apt-cache', 'policy'] # check apt_preferences(5)
     with exc(): # global check
       # Wrong configuration could lead an upgrade to switch to some backport
