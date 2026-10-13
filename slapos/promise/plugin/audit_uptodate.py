@@ -50,16 +50,22 @@ class RunPromise(GenericPromise):
     # Let's add a margin in case there's an ongoing upgrade that takes a lot
     # of time (one reason may even be that the system is suspended - sleep).
     stamp = time.time() - float(self.getConfig('tolerance-days', 2)) * 86400
-    check_stamp = lambda x: os.stat(x + '-stamp', dir_fd=fd).st_mtime < stamp
+    def check_stamp(msg, *x):
+      old = []
+      for x in x:
+        mtime = os.stat(x + '-stamp', dir_fd=fd).st_mtime
+        if mtime < stamp:
+          old.append("%s@%i" % (x, mtime))
+      if old:
+          error("%s (%s)" % (msg, ','.join(old)))
     with exc():
       # If just installed, apt stamps may be missing.
       if os.stat('/etc/machine-id').st_mtime < stamp:
         fd = os.open('/var/lib/apt/periodic', 0)
         try:
-          if check_stamp('update'):
-            error('package lists not up-to-date')
-          if check_stamp('download-upgradeable') or check_stamp('upgrade'):
-            error('unattended-upgrade: no recent successful run')
+          check_stamp('package lists not up-to-date', 'update')
+          check_stamp('unattended-upgrade: no recent successful run',
+                      'download-upgradeable', 'upgrade')
         finally:
           os.close(fd)
     args = ['apt-cache', 'policy'] # check apt_preferences(5)
