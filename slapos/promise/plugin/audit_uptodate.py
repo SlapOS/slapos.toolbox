@@ -53,7 +53,7 @@ class RunPromise(GenericPromise):
     check_stamp = lambda x: os.stat(x + '-stamp', dir_fd=fd).st_mtime < stamp
     with exc():
       # If just installed, apt stamps may be missing.
-      if stamp < os.stat('/etc/machine-id').st_mtime:
+      if os.stat('/etc/machine-id').st_mtime < stamp:
         fd = os.open('/var/lib/apt/periodic', 0)
         try:
           if check_stamp('update'):
