@@ -12,9 +12,9 @@ ADDRESS_USAGE = (
 class RunPromise(GenericPromise):
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(float(self.getConfig('frequency', 2)))
-    self.result_count = int(self.getConfig('result-count', 3))
-    self.failure_amount = int(self.getConfig('failure-amount', 3))
+    self.setPeriodicity(float(self.getConfig('frequency', 6)))
+    self.result_count = int(self.getConfig('result-count', 1))
+    self.failure_amount = int(self.getConfig('failure-amount', 1))
 
 
   def sense(self):
@@ -52,6 +52,6 @@ class RunPromise(GenericPromise):
 
   def anomaly(self):
     """
-      By default, there is an anomaly if last 3 senses were bad.
+      By default, there is an anomaly as soon as one sense is bad.
     """
     return self._anomaly(result_count=self.result_count, failure_amount=self.failure_amount)
