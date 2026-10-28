@@ -182,9 +182,9 @@ def main():
         error_message = ("The remote server at %s didn't send a successful reponse.\n"
                          "Its response was %r\n" % (notif_url, response.reason))
         some_notification_failed = True
-    except socket.error as exc:
+    except socket.error:
       error_message = "Connection with remote server at %s failed:\n" % notif_url
-      error_message += traceback.format_exc(exc)
+      error_message += traceback.format_exc()
       some_notification_failed = True
     finally:
       if error_message:
