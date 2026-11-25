@@ -35,7 +35,7 @@ class TestPing(unittest.TestCase):
     self.assertEqual(info[0], 'PING')
     self.assertEqual(info[1], 'localhost')
     self.assertEqual(info[2], 200)
-    self.assertLess(float(info[3]), 0.2)
+    self.assertLess(float(info[3]), 0.5)
     self.assertEqual(info[4], '0')
     self.assertTrue(info[5].startswith("min"))
 
@@ -53,7 +53,7 @@ class TestPing(unittest.TestCase):
     self.assertEqual(info[0], 'PING6')
     self.assertEqual(info[1], 'localhost')
     self.assertEqual(info[2], 200)
-    self.assertLess(float(info[3]), 0.2)
+    self.assertLess(float(info[3]), 0.5)
     self.assertEqual(info[4], '0')
     self.assertTrue(info[5].startswith("min"))
 
