@@ -5,7 +5,7 @@ import shutil
 import tempfile
 import unittest
 import json
-import pkg_resources
+import importlib.resources
 
 from slapos.monitor.runpromise import MonitorPromiseLauncher, getArgumentParser
 from slapos.monitor.monitor import Monitoring
@@ -89,9 +89,8 @@ ipv4 = 10.0.151.118
     self.private_dir = os.path.join(self.base_dir, 'private')
 
     monitor_schema_string = \
-      pkg_resources.resource_string(
-        'slapos.monitor',
-        'doc/monitor_instance.schema.json')
+      importlib.resources.files('slapos.monitor').joinpath(
+        'doc/monitor_instance.schema.json').read_text()
     self.monitor_instance_schema = json.loads(monitor_schema_string)
 
 

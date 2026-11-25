@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 import glob
 import os
 
@@ -29,8 +29,7 @@ setup(name=name,
         ],
       keywords='slapos toolbox',
       license='GPLv3',
-      namespace_packages=['slapos'],
-      packages=find_packages(),
+      packages=find_namespace_packages(),
       include_package_data=True,
       maintainer="Nexedi",
       maintainer_email="info@nexedi.com",
@@ -43,7 +42,6 @@ setup(name=name,
         'lockfile', # used by equeue
         'lxml', # needed for xml parsing
         'psutil', # needed for playing with processes in portable way
-        'setuptools', # namespaces
         'slapos.core', # as it provides library for slap
         'xml_marshaller', # needed to dump information
         'croniter', # needed to know cron schedule
